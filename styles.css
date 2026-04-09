@@ -296,8 +296,14 @@ body.zh {
     margin-bottom: var(--space-lg);
 }
 
+.product-buttons {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+}
+
 .buy-btn {
-    width: 100%;
+    flex: 1;
     padding: var(--space-md);
     background-color: var(--primary-color);
     color: var(--color-white);
@@ -311,6 +317,27 @@ body.zh {
     align-items: center;
     justify-content: center;
     gap: var(--space-sm);
+}
+
+.whatsapp-btn {
+    flex: 1;
+    padding: var(--space-md);
+    background-color: #25D366; /* WhatsApp绿色 */
+    color: var(--color-white);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+}
+
+.whatsapp-btn:hover {
+    background-color: #1da851;
 }
 
 .buy-btn:hover {
