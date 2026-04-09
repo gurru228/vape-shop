@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vape Store | 电子烟专卖</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 语言切换 -->
+    <div class="language-switcher">
+        <button id="lang-es" class="lang-btn active" data-lang="es">
+            <i class="fas fa-globe-europe"></i> ES
+        </button>
+        <button id="lang-zh" class="lang-btn" data-lang="zh">
+            <i class="fas fa-globe-asia"></i> 中文
+        </button>
+    </div>
+
+    <!-- 导航栏 -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">
+                <i class="fas fa-smoking"></i>
+                <span data-lang-key="store_name">VAPE STORE</span>
+            </div>
+            <div class="nav-items">
+                <a href="#products" data-lang-key="products">产品</a>
+                <a href="#about" data-lang-key="about">关于</a>
+                <a href="#contact" data-lang-key="contact">联系</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 主内容 -->
+    <main class="main">
+        <!-- 英雄区域 -->
+        <section class="hero">
+            <h1 data-lang-key="hero_title">优质电子烟，纯净体验</h1>
+            <p data-lang-key="hero_subtitle">四种精选口味，满足您的需求</p>
+        </section>
+
+        <!-- 产品展示 -->
+        <section id="products" class="products">
+            <h2 class="section-title" data-lang-key="products_title">精选产品</h2>
+            <p class="section-subtitle" data-lang-key="products_subtitle">四种独特口味，总有一款适合您</p>
+
+            <div class="products-grid" id="products-grid">
+                <!-- 产品卡片通过JavaScript动态生成 -->
+            </div>
+        </section>
+
+        <!-- 支付信息 -->
+        <section class="payment-info">
+            <h2 class="section-title" data-lang-key="payment_title">安全支付</h2>
+            <div class="payment-method">
+                <i class="fas fa-mobile-alt payment-icon"></i>
+                <h3 data-lang-key="bizum_title">Bizum 支付</h3>
+                <p data-lang-key="bizum_desc">直接付款到商家账户，快速安全</p>
+                <div class="bizum-details">
+                    <p><strong data-lang-key="phone">电话:</strong> <span id="bizum-phone">+34 XXX XXX XXX</span></p>
+                    <p><strong data-lang-key="note">备注:</strong> <span data-lang-key="order_note">请注明订单号</span></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 产品管理区域 (管理员) -->
+        <section class="admin-section" id="admin">
+            <h2 class="section-title" data-lang-key="admin_title">产品管理</h2>
+            <p class="section-subtitle" data-lang-key="admin_subtitle">添加或编辑产品信息</p>
+
+            <div class="admin-panel">
+                <form id="product-form" class="product-form">
+                    <input type="text" id="product-id" hidden>
+
+                    <div class="form-group">
+                        <label for="product-name" data-lang-key="product_name">产品名称</label>
+                        <input type="text" id="product-name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="product-price" data-lang-key="price">价格 (€)</label>
+                        <input type="number" id="product-price" step="0.01" min="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="product-desc-es" data-lang-key="desc_es">西班牙语描述</label>
+                        <textarea id="product-desc-es" rows="3" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="product-desc-zh" data-lang-key="desc_zh">中文描述</label>
+                        <textarea id="product-desc-zh" rows="3" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="product-image" data-lang-key="image_url">图片URL</label>
+                        <input type="url" id="product-image">
+                    </div>
+
+                    <div class="form-buttons">
+                        <button type="submit" class="btn btn-primary" data-lang-key="add_product">添加产品</button>
+                        <button type="button" id="clear-form" class="btn btn-secondary" data-lang-key="clear">清空</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3 data-lang-key="store_name">VAPE STORE</h3>
+                <p data-lang-key="footer_desc">西班牙优质电子烟专卖店</p>
+            </div>
+            <div class="footer-section">
+                <h4 data-lang-key="contact">联系</h4>
+                <p><i class="fas fa-phone"></i> <span id="footer-phone">+34 XXX XXX XXX</span></p>
+                <p><i class="fas fa-envelope"></i> info@vapestore.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p data-lang-key="copyright">© 2026 VAPE STORE. 保留所有权利。</p>
+        </div>
+    </footer>
+
+    <!-- 模态框 (购买确认) -->
+    <div id="purchase-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modal-title" data-lang-key="confirm_purchase">确认购买</h2>
+            <div id="modal-product-info"></div>
+            <div class="modal-instructions">
+                <h3 data-lang-key="payment_steps">支付步骤:</h3>
+                <ol>
+                    <li data-lang-key="step1">打开您的银行App</li>
+                    <li data-lang-key="step2">选择Bizum功能</li>
+                    <li data-lang-key="step3">输入电话号码: <strong id="modal-phone">+34 XXX XXX XXX</strong></li>
+                    <li data-lang-key="step4">输入金额: <strong id="modal-amount">€0.00</strong></li>
+                    <li data-lang-key="step5">备注中注明订单号: <strong id="modal-order">ORDER-001</strong></li>
+                    <li data-lang-key="step6">完成支付并截图</li>
+                </ol>
+            </div>
+            <div class="modal-actions">
+                <button id="confirm-purchase" class="btn btn-primary" data-lang-key="i_paid">我已付款</button>
+                <button id="cancel-purchase" class="btn btn-secondary" data-lang-key="cancel">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
