@@ -178,6 +178,25 @@
                     <label>手机号 / Teléfono</label>
                     <input type="tel" id="checkout-customer-phone" placeholder="+34 6XX XXX XXX">
                 </div>
+                <div class="checkout-form-group">
+                    <label>取货方式 / Tipo de entrega</label>
+                    <div class="delivery-options">
+                        <button class="delivery-option-btn active" id="btn-pickup" type="button">
+                            <i class="fas fa-store"></i>
+                            <span>自取 / Recogida</span>
+                        </button>
+                        <button class="delivery-option-btn" id="btn-delivery" type="button">
+                            <i class="fas fa-motorcycle"></i>
+                            <span>外送 / Entrega</span>
+                            <small>≥5件 · 马德里当天送达</small>
+                        </button>
+                    </div>
+                </div>
+                <div class="checkout-form-group" id="address-group" style="display:none">
+                    <label>收货地址 / Dirección de entrega</label>
+                    <input type="text" id="checkout-address" placeholder="街道、门牌号 / Calle, número, piso...">
+                    <small class="delivery-note">📍 仅限马德里范围内当天送达 / Solo entrega en Madrid el mismo día</small>
+                </div>
                 <p class="payment-choose-label">选择支付方式 / Método de pago:</p>
                 <div class="payment-options">
                     <button class="payment-option-btn" id="btn-pay-bizum">

@@ -1170,6 +1170,51 @@ body.zh {
     margin-top: 0.5rem;
 }
 
+.delivery-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.delivery-option-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    padding: 0.875rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    background: var(--color-white);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: inherit;
+}
+
+.delivery-option-btn i { font-size: 1.25rem; }
+.delivery-option-btn span { font-weight: 600; font-size: 0.9rem; }
+.delivery-option-btn small { font-size: 0.68rem; color: var(--color-gray-500); }
+
+.delivery-option-btn:hover {
+    border-color: var(--primary-color);
+    background: var(--color-gray-50);
+}
+
+.delivery-option-btn.active {
+    border-color: var(--primary-color);
+    background: var(--color-gray-900);
+    color: var(--color-white);
+}
+
+.delivery-option-btn.active small { color: var(--color-gray-400); }
+
+.delivery-note {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--color-gray-500);
+    font-size: 0.75rem;
+}
+
 /* ===== 响应式设计 ===== */
 @media (max-width: 768px) {
     :root {

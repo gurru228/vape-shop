@@ -294,6 +294,30 @@ function openCartCheckoutModal() {
     errorEl.style.display = 'none';
     document.getElementById('checkout-customer-name').value = '';
     document.getElementById('checkout-customer-phone').value = '';
+    document.getElementById('checkout-address').value = '';
+    document.getElementById('address-group').style.display = 'none';
+    document.getElementById('btn-pickup').classList.add('active');
+    document.getElementById('btn-delivery').classList.remove('active');
+
+    // 自取 / 外送切换
+    const totalQty = cart.reduce((s, i) => s + i.quantity, 0);
+    document.getElementById('btn-pickup').onclick = () => {
+        document.getElementById('btn-pickup').classList.add('active');
+        document.getElementById('btn-delivery').classList.remove('active');
+        document.getElementById('address-group').style.display = 'none';
+        errorEl.style.display = 'none';
+    };
+    document.getElementById('btn-delivery').onclick = () => {
+        if (totalQty < 5) {
+            errorEl.textContent = '外送至少需要5件商品 / Se necesitan mínimo 5 unidades para entrega a domicilio';
+            errorEl.style.display = 'block';
+            return;
+        }
+        document.getElementById('btn-delivery').classList.add('active');
+        document.getElementById('btn-pickup').classList.remove('active');
+        document.getElementById('address-group').style.display = 'block';
+        errorEl.style.display = 'none';
+    };
 
     // 填充购物车摘要
     summaryEl.innerHTML = cart.map(item => `
@@ -314,8 +338,15 @@ function openCartCheckoutModal() {
     document.getElementById('btn-pay-bizum').onclick = async () => {
         const name = document.getElementById('checkout-customer-name').value.trim();
         const phone = document.getElementById('checkout-customer-phone').value.trim();
+        const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
+        const address = document.getElementById('checkout-address').value.trim();
         if (!name || !phone) {
             errorEl.textContent = '请填写姓名和手机号 / Por favor complete su nombre y teléfono';
+            errorEl.style.display = 'block';
+            return;
+        }
+        if (isDelivery && !address) {
+            errorEl.textContent = '请填写收货地址 / Por favor introduzca la dirección de entrega';
             errorEl.style.display = 'block';
             return;
         }
@@ -327,7 +358,7 @@ function openCartCheckoutModal() {
             const res = await fetch('/.netlify/functions/save-bizum-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cart, customerName: name, customerPhone: phone })
+                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType: isDelivery ? 'delivery' : 'pickup', address: isDelivery ? address : '' })
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
@@ -356,8 +387,15 @@ function openCartCheckoutModal() {
     document.getElementById('btn-pay-card').onclick = async () => {
         const name = document.getElementById('checkout-customer-name').value.trim();
         const phone = document.getElementById('checkout-customer-phone').value.trim();
+        const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
+        const address = document.getElementById('checkout-address').value.trim();
         if (!name || !phone) {
             errorEl.textContent = '请填写姓名和手机号 / Por favor complete su nombre y teléfono';
+            errorEl.style.display = 'block';
+            return;
+        }
+        if (isDelivery && !address) {
+            errorEl.textContent = '请填写收货地址 / Por favor introduzca la dirección de entrega';
             errorEl.style.display = 'block';
             return;
         }
@@ -369,7 +407,7 @@ function openCartCheckoutModal() {
             const res = await fetch('/.netlify/functions/create-checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cart, customerName: name, customerPhone: phone })
+                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType: isDelivery ? 'delivery' : 'pickup', address: isDelivery ? address : '' })
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);

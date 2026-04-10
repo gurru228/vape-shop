@@ -5,7 +5,7 @@ exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
 
     try {
-        const { cart, customerName, customerPhone } = JSON.parse(event.body);
+        const { cart, customerName, customerPhone, deliveryType, address } = JSON.parse(event.body);
         if (!cart?.length || !customerName || !customerPhone) {
             return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields' }) };
         }
@@ -28,11 +28,21 @@ exports.handler = async (event) => {
                 items: cart,
                 total,
                 payment_method: 'bizum',
-                payment_status: 'pending'
+                payment_status: 'pending',
+                delivery_type: deliveryType || 'pickup',
+                address: address || ''
             })
         });
 
-        if (!res.ok) console.error('Supabase save failed:', await res.text());
+        if (!res.ok) {
+            const errText = await res.text();
+            console.error('Supabase save failed:', errText);
+            return {
+                statusCode: 200,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ supabase_error: errText, supabase_status: res.status })
+            };
+        }
 
         return {
             statusCode: 200,

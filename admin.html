@@ -250,6 +250,12 @@
                     <i class="fas fa-user"></i> ${order.customer_name}
                     &nbsp;&nbsp;<i class="fas fa-phone"></i> ${order.customer_phone}
                 </div>
+                <div class="order-customer" style="margin-top:0.25rem">
+                    ${order.delivery_type === 'delivery'
+                        ? `<i class="fas fa-motorcycle" style="color:#2563eb"></i> <span style="color:#2563eb;font-weight:600">外送</span>&nbsp;&nbsp;<i class="fas fa-map-marker-alt"></i> ${order.address || '—'}`
+                        : `<i class="fas fa-store"></i> 自取`
+                    }
+                </div>
                 <div class="order-items">${itemsList}</div>
                 <div class="order-bottom">
                     <div class="order-total">€${parseFloat(order.total).toFixed(2)}</div>
