@@ -68,16 +68,63 @@
             </div>
         </section>
 
+        <!-- 关于我们 -->
+        <section id="about" class="about-section">
+            <h2 class="section-title" data-lang-key="about_title">关于我们</h2>
+            <div class="about-content">
+                <div class="about-card">
+                    <div class="about-icon"><i class="fas fa-bolt"></i></div>
+                    <h3 data-lang-key="about_speed_title">当天极速配送</h3>
+                    <p data-lang-key="about_speed_desc">收到订单立即处理，马德里范围内当天送达，以最快的速度送到您手中是我们的初衷。</p>
+                </div>
+                <div class="about-card">
+                    <div class="about-icon"><i class="fas fa-award"></i></div>
+                    <h3 data-lang-key="about_quality_title">严选优质产品</h3>
+                    <p data-lang-key="about_quality_desc">我们定期严格筛选合作工厂，每一支产品都经过品质把关，只将最好的带给您。</p>
+                </div>
+                <div class="about-card">
+                    <div class="about-icon"><i class="fas fa-headset"></i></div>
+                    <h3 data-lang-key="about_service_title">高效贴心服务</h3>
+                    <p data-lang-key="about_service_desc">告别消息不回、久等不达。我们与客户之间的对接极为迅速，您的每一条消息都会得到及时回复。</p>
+                </div>
+                <div class="about-card">
+                    <div class="about-icon"><i class="fas fa-tags"></i></div>
+                    <h3 data-lang-key="about_offers_title">活动多优惠多</h3>
+                    <p data-lang-key="about_offers_desc">买三送一、不定期特惠，让您以最实惠的价格享受最优质的电子烟体验。</p>
+                </div>
+            </div>
+        </section>
+
         <!-- 支付信息 -->
-        <section class="payment-info">
+        <section id="contact" class="payment-info">
             <h2 class="section-title" data-lang-key="payment_title">安全支付</h2>
-            <div class="payment-method">
-                <i class="fas fa-mobile-alt payment-icon"></i>
-                <h3 data-lang-key="bizum_title">Bizum 支付</h3>
-                <p data-lang-key="bizum_desc">直接付款到商家账户，快速安全</p>
-                <div class="bizum-details">
-                    <p><strong data-lang-key="phone">电话:</strong> <span id="bizum-phone">+34 XXX XXX XXX</span></p>
-                    <p><strong data-lang-key="note">备注:</strong> <span data-lang-key="order_note">请注明订单号</span></p>
+            <p class="section-subtitle" data-lang-key="payment_subtitle">多种支付方式，安全便捷</p>
+            <div class="payment-methods-grid">
+                <div class="payment-method-card">
+                    <i class="fas fa-mobile-alt payment-icon"></i>
+                    <h3 data-lang-key="bizum_title">Bizum</h3>
+                    <p data-lang-key="bizum_desc">直接转账到商家账户，快速安全，无需手续费</p>
+                    <div class="payment-detail-row">
+                        <i class="fas fa-lock"></i>
+                        <span data-lang-key="bizum_private">下单后显示转账号码</span>
+                    </div>
+                    <div class="payment-detail-row">
+                        <i class="fas fa-camera"></i>
+                        <span data-lang-key="bizum_screenshot">转账后需提供截图确认</span>
+                    </div>
+                </div>
+                <div class="payment-method-card">
+                    <i class="fas fa-credit-card payment-icon"></i>
+                    <h3 data-lang-key="card_title">银行卡支付</h3>
+                    <p data-lang-key="card_desc">支持 Visa、Mastercard 等主流银行卡，通过 Stripe 安全加密处理</p>
+                    <div class="payment-detail-row">
+                        <i class="fas fa-shield-alt"></i>
+                        <span data-lang-key="card_secure">SSL 加密，安全有保障</span>
+                    </div>
+                    <div class="payment-detail-row">
+                        <i class="fab fa-cc-visa"></i>
+                        <span>Visa &nbsp;·&nbsp; Mastercard &nbsp;·&nbsp; Amex</span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -94,7 +141,7 @@
                 <h4 data-lang-key="contact">联系</h4>
                 <p><i class="fas fa-phone"></i> <span id="footer-phone">+34 697 332 407</span></p>
                 <p><i class="fab fa-whatsapp"></i> <span id="footer-whatsapp">+34 697 332 407</span></p>
-                <p><i class="fas fa-envelope"></i> info@vapestore.com</p>
+                <p><i class="fas fa-envelope"></i> vapeshop2026vapeshop@gmail.com</p>
             </div>
         </div>
         <div class="footer-bottom">
@@ -195,7 +242,15 @@
                 <div class="checkout-form-group" id="address-group" style="display:none">
                     <label>收货地址 / Dirección de entrega</label>
                     <input type="text" id="checkout-address" placeholder="街道、门牌号 / Calle, número, piso...">
-                    <small class="delivery-note">📍 仅限马德里范围内当天送达 / Solo entrega en Madrid el mismo día</small>
+                    <small class="delivery-note"><i class="fas fa-map-marker-alt"></i> 仅限马德里范围内当天送达 / Solo entrega en Madrid el mismo día</small>
+                </div>
+                <div class="checkout-form-group" id="time-group" style="display:none">
+                    <label>期望送达时间 / Horario de entrega</label>
+                    <div class="time-range-row">
+                        <input type="time" id="checkout-time-from" value="10:00">
+                        <span class="time-range-sep">至 / a</span>
+                        <input type="time" id="checkout-time-to" value="14:00">
+                    </div>
                 </div>
                 <p class="payment-choose-label">选择支付方式 / Método de pago:</p>
                 <div class="payment-options">
@@ -215,18 +270,38 @@
 
             <!-- Step 2: Bizum 支付说明 -->
             <div id="checkout-step-bizum" style="display:none">
-                <h2>Bizum 支付</h2>
-                <div class="modal-instructions">
-                    <ol>
-                        <li>打开银行App / Abra su aplicación bancaria</li>
-                        <li>选择 Bizum / Seleccione Bizum</li>
-                        <li>输入电话 / Teléfono: <strong>+34 697 332 407</strong></li>
-                        <li>金额 / Cantidad: <strong id="bizum-amount-display"></strong></li>
-                        <li>备注 / Nota: <strong id="bizum-order-display"></strong></li>
-                        <li>完成转账并截图 / Complete la transferencia</li>
-                    </ol>
+                <h2>Bizum 支付 / Pago Bizum</h2>
+                <div class="bizum-steps">
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">1</span>
+                        <span>打开银行App，选择 Bizum / Abra su app bancaria y seleccione Bizum</span>
+                    </div>
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">2</span>
+                        <span>转账至以下号码 / Transfiera al siguiente número:</span>
+                    </div>
+                    <div class="bizum-phone-box">
+                        <i class="fas fa-phone"></i>
+                        <strong>+34 697 332 407</strong>
+                    </div>
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">3</span>
+                        <span>金额 / Importe: <strong id="bizum-amount-display"></strong></span>
+                    </div>
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">4</span>
+                        <span>备注 / Concepto: <strong id="bizum-order-display"></strong></span>
+                    </div>
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">5</span>
+                        <span>完成后截图，通过 WhatsApp 发给我们 / Tras el pago, envíenos una captura por WhatsApp</span>
+                    </div>
                 </div>
-                <div class="modal-actions">
+                <a id="bizum-whatsapp-btn" class="btn-whatsapp" href="#" target="_blank">
+                    <i class="fab fa-whatsapp"></i>
+                    发送截图到 WhatsApp / Enviar captura
+                </a>
+                <div class="modal-actions" style="margin-top:0.75rem">
                     <button class="btn btn-primary" id="bizum-confirm-btn">我已付款 / He pagado</button>
                     <button class="btn btn-secondary" id="checkout-cancel-btn">取消 / Cancelar</button>
                 </div>

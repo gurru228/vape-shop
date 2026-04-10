@@ -5,7 +5,7 @@ exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
 
     try {
-        const { cart, customerName, customerPhone, deliveryType, address } = JSON.parse(event.body);
+        const { cart, customerName, customerPhone, deliveryType, address, deliveryTime } = JSON.parse(event.body);
         if (!cart?.length || !customerName || !customerPhone) {
             return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields' }) };
         }
@@ -30,7 +30,8 @@ exports.handler = async (event) => {
                 payment_method: 'bizum',
                 payment_status: 'pending',
                 delivery_type: deliveryType || 'pickup',
-                address: address || ''
+                address: address || '',
+                delivery_time: deliveryTime || ''
             })
         });
 

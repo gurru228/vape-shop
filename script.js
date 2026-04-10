@@ -94,8 +94,16 @@ function updateCartUI() {
     const cartCount = document.getElementById('cart-count');
     if (cartCount) {
         const totalItems = getCartTotalItems();
+        const prev = parseInt(cartCount.textContent) || 0;
         cartCount.textContent = totalItems;
         cartCount.style.display = totalItems > 0 ? 'flex' : 'none';
+        // 数字增加时触发跳动动画
+        if (totalItems > prev) {
+            cartCount.classList.remove('bounce');
+            void cartCount.offsetWidth; // 强制重绘
+            cartCount.classList.add('bounce');
+            cartCount.addEventListener('animationend', () => cartCount.classList.remove('bounce'), { once: true });
+        }
     }
 
     // 更新购物车侧边栏
@@ -296,6 +304,9 @@ function openCartCheckoutModal() {
     document.getElementById('checkout-customer-phone').value = '';
     document.getElementById('checkout-address').value = '';
     document.getElementById('address-group').style.display = 'none';
+    document.getElementById('time-group').style.display = 'none';
+    document.getElementById('checkout-time-from').value = '10:00';
+    document.getElementById('checkout-time-to').value = '14:00';
     document.getElementById('btn-pickup').classList.add('active');
     document.getElementById('btn-delivery').classList.remove('active');
 
@@ -316,6 +327,7 @@ function openCartCheckoutModal() {
         document.getElementById('btn-delivery').classList.add('active');
         document.getElementById('btn-pickup').classList.remove('active');
         document.getElementById('address-group').style.display = 'block';
+        document.getElementById('time-group').style.display = 'block';
         errorEl.style.display = 'none';
     };
 
@@ -340,6 +352,8 @@ function openCartCheckoutModal() {
         const phone = document.getElementById('checkout-customer-phone').value.trim();
         const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
         const address = document.getElementById('checkout-address').value.trim();
+        const timeFrom = document.getElementById('checkout-time-from').value;
+        const timeTo = document.getElementById('checkout-time-to').value;
         if (!name || !phone) {
             errorEl.textContent = '请填写姓名和手机号 / Por favor complete su nombre y teléfono';
             errorEl.style.display = 'block';
@@ -358,13 +372,16 @@ function openCartCheckoutModal() {
             const res = await fetch('/.netlify/functions/save-bizum-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType: isDelivery ? 'delivery' : 'pickup', address: isDelivery ? address : '' })
+                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType: isDelivery ? 'delivery' : 'pickup', address: isDelivery ? address : '', deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '' })
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
 
             document.getElementById('bizum-amount-display').textContent = `${CONFIG.defaultCurrency}${data.total.toFixed(2)}`;
             document.getElementById('bizum-order-display').textContent = data.orderNumber;
+            // WhatsApp 链接带上订单号
+            const waMsg = encodeURIComponent(`Hola! Acabo de hacer el pago por Bizum.\nPedido: ${data.orderNumber}\nImporte: €${data.total.toFixed(2)}\n(附上截图 / adjunto captura)`);
+            document.getElementById('bizum-whatsapp-btn').href = `https://wa.me/34697332407?text=${waMsg}`;
             stepInfo.style.display = 'none';
             stepBizum.style.display = 'block';
 
@@ -389,6 +406,8 @@ function openCartCheckoutModal() {
         const phone = document.getElementById('checkout-customer-phone').value.trim();
         const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
         const address = document.getElementById('checkout-address').value.trim();
+        const timeFrom = document.getElementById('checkout-time-from').value;
+        const timeTo = document.getElementById('checkout-time-to').value;
         if (!name || !phone) {
             errorEl.textContent = '请填写姓名和手机号 / Por favor complete su nombre y teléfono';
             errorEl.style.display = 'block';
@@ -407,7 +426,7 @@ function openCartCheckoutModal() {
             const res = await fetch('/.netlify/functions/create-checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType: isDelivery ? 'delivery' : 'pickup', address: isDelivery ? address : '' })
+                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType: isDelivery ? 'delivery' : 'pickup', address: isDelivery ? address : '', deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '' })
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
@@ -445,9 +464,15 @@ const TRANSLATIONS = {
         iceking_desc: 'Sabor frío potente, experiencia refrescante extrema',
 
         // 支付区域
-        payment_title: 'Pago Seguro',
-        bizum_title: 'Pago con Bizum',
-        bizum_desc: 'Pago directo a la cuenta del vendedor, rápido y seguro',
+        payment_title: 'Métodos de Pago',
+        payment_subtitle: 'Múltiples opciones de pago, seguras y convenientes',
+        bizum_title: 'Bizum',
+        bizum_desc: 'Transferencia directa a la cuenta del vendedor, sin comisiones',
+        bizum_private: 'Número visible solo al finalizar el pedido',
+        bizum_screenshot: 'Se requiere captura de pantalla para confirmar',
+        card_title: 'Tarjeta Bancaria',
+        card_desc: 'Acepta Visa, Mastercard y otras tarjetas principales. Procesado de forma segura a través de Stripe.',
+        card_secure: 'Cifrado SSL, pago 100% seguro',
         phone: 'Teléfono:',
         note: 'Nota:',
         order_note: 'Por favor indique el número de pedido',
@@ -479,6 +504,17 @@ const TRANSLATIONS = {
         step6: 'Complete el pago y tome una captura de pantalla',
         i_paid: 'He Pagado',
         cancel: 'Cancelar',
+
+        // 关于
+        about_title: 'Sobre Nosotros',
+        about_speed_title: 'Entrega Express el Mismo Día',
+        about_speed_desc: 'Procesamos tu pedido al instante. Entrega en Madrid el mismo día — llegar rápido no es una opción, es nuestra promesa.',
+        about_quality_title: 'Productos de Calidad Seleccionados',
+        about_quality_desc: 'Evaluamos regularmente a nuestros proveedores para garantizar que cada producto cumpla con los más altos estándares de calidad.',
+        about_service_title: 'Atención Rápida y Cercana',
+        about_service_desc: 'Respondemos a cada mensaje sin demora. Olvídate de esperar — nuestro equipo está siempre disponible para atenderte.',
+        about_offers_title: 'Ofertas y Promociones Frecuentes',
+        about_offers_desc: 'Compra 3 y llévate 1 gratis, descuentos especiales y promociones continuas para que disfrutes al mejor precio.',
 
         // 页脚
         footer_desc: 'Tienda de vapeadores premium en España',
@@ -518,9 +554,15 @@ const TRANSLATIONS = {
         iceking_desc: '极强冰感，极致清凉体验',
 
         // 支付区域
-        payment_title: '安全支付',
-        bizum_title: 'Bizum 支付',
-        bizum_desc: '直接付款到商家账户，快速安全',
+        payment_title: '支付方式',
+        payment_subtitle: '多种支付方式，安全便捷',
+        bizum_title: 'Bizum',
+        bizum_desc: '直接转账到商家账户，快速安全，无需手续费',
+        bizum_private: '下单后显示转账号码',
+        bizum_screenshot: '转账后需提供截图确认',
+        card_title: '银行卡支付',
+        card_desc: '支持 Visa、Mastercard 等主流银行卡，通过 Stripe 安全加密处理',
+        card_secure: 'SSL 加密，安全有保障',
         phone: '电话:',
         note: '备注:',
         order_note: '请注明订单号',
@@ -552,6 +594,17 @@ const TRANSLATIONS = {
         step6: '完成支付并截图',
         i_paid: '我已付款',
         cancel: '取消',
+
+        // 关于
+        about_title: '关于我们',
+        about_speed_title: '当天极速配送',
+        about_speed_desc: '收到订单立即处理，马德里范围内当天送达，以最快的速度送到您手中是我们的初衷。',
+        about_quality_title: '严选优质产品',
+        about_quality_desc: '我们定期严格筛选合作工厂，每一支产品都经过品质把关，只将最好的带给您。',
+        about_service_title: '高效贴心服务',
+        about_service_desc: '告别消息不回、久等不达。我们与客户之间的对接极为迅速，您的每一条消息都会得到及时回复。',
+        about_offers_title: '活动多优惠多',
+        about_offers_desc: '买三送一、不定期特惠，让您以最实惠的价格享受最优质的电子烟体验。',
 
         // 页脚
         footer_desc: '西班牙优质电子烟专卖店',
@@ -949,8 +1002,37 @@ function init() {
     console.log('Cart items:', cart.length);
 }
 
+// ===== 滚动进场动画 =====
+function initScrollAnimations() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
+
+    // 产品卡片错落进场
+    document.querySelectorAll('.product-card').forEach((el, i) => {
+        el.classList.add('fade-up');
+        el.style.transitionDelay = `${i * 0.08}s`;
+        observer.observe(el);
+    });
+
+    // 标题和副标题
+    document.querySelectorAll('.section-title, .section-subtitle, .payment-info').forEach(el => {
+        el.classList.add('fade-up');
+        observer.observe(el);
+    });
+}
+
 // ===== 页面加载完成后初始化 =====
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+    init();
+    // 产品卡片渲染后再初始化动画（稍微延迟确保 DOM 已更新）
+    setTimeout(initScrollAnimations, 50);
+});
 
 // ===== 导出供开发使用 =====
 if (typeof module !== 'undefined' && module.exports) {
