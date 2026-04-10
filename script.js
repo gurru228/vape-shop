@@ -1322,8 +1322,9 @@ function init() {
     loadInventory();
     setInterval(loadInventory, 60000);
 
-    // 禁用浏览器滚动位置恢复，强制回顶
+    // 清除 URL hash 并强制回顶（防止 #contact 等锚点自动滚动）
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    if (window.location.hash) history.replaceState(null, '', window.location.pathname);
     window.scrollTo(0, 0);
 }
 
