@@ -6,11 +6,7 @@ const CONFIG = {
 };
 
 // ===== 优惠码系统 =====
-const DISCOUNT_CODES = {
-    'BIENVENIDO': { percent: 10, label: '新用户9折', labelEs: '10% bienvenida' },
-    'VERANO25':   { percent: 15, label: '夏日85折',  labelEs: '15% verano'     },
-    'VAPE10':     { percent: 10, label: '专属9折',   labelEs: '10% especial'   },
-};
+const DISCOUNT_CODES = {}; // 优惠码活动暂停
 
 let activeDiscount = null; // { code, percent, label }
 
@@ -1227,12 +1223,7 @@ function init() {
 
 // ===== 欢迎弹窗 =====
 function initWelcomeModal() {
-    const seen = localStorage.getItem('welcome_shown');
-    if (seen) return;
-    setTimeout(() => {
-        const modal = document.getElementById('welcome-modal');
-        if (modal) modal.style.display = 'flex';
-    }, 2500);
+    // 优惠码活动暂停，欢迎弹窗关闭
 }
 
 function closeWelcomeModal() {
