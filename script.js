@@ -586,7 +586,7 @@ function openCartCheckoutModal() {
                 body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress, deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0, shippingFee, agentRef: sessionStorage.getItem('agent_ref') || '' })
             });
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error);
+            if (!res.ok || data.error || data.supabase_error) throw new Error(data.error || data.supabase_error || 'Error');
 
             document.getElementById('bizum-amount-display').textContent = `${CONFIG.defaultCurrency}${data.total.toFixed(2)}`;
             if (activeDiscount) markCodeAsUsed(activeDiscount.code);
