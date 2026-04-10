@@ -1070,6 +1070,106 @@ body.zh {
     display: block;
 }
 
+/* ===== 结账模态框 ===== */
+.checkout-cart-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.checkout-summary-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-700);
+}
+
+.checkout-total-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.checkout-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    margin-bottom: 1rem;
+}
+
+.checkout-form-group label {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-gray-700);
+}
+
+.checkout-form-group input {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    font-family: inherit;
+    transition: border-color var(--transition-fast);
+}
+
+.checkout-form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.payment-choose-label {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-gray-700);
+    margin-bottom: 0.75rem;
+}
+
+.payment-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.payment-option-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    background: var(--color-white);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.payment-option-btn i { font-size: 1.5rem; }
+.payment-option-btn span { font-weight: 600; font-size: var(--font-size-base); }
+.payment-option-btn small { font-size: 0.7rem; color: var(--color-gray-500); }
+
+.payment-option-btn:hover {
+    border-color: var(--primary-color);
+    background: var(--color-gray-50);
+}
+
+.payment-option-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.checkout-error {
+    color: #dc2626;
+    font-size: var(--font-size-sm);
+    margin-top: 0.5rem;
+}
+
 /* ===== 响应式设计 ===== */
 @media (max-width: 768px) {
     :root {

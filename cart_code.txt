@@ -1,0 +1,322 @@
+// ===== 购物车系统 =====
+let cart = [];
+const CART_STORAGE_KEY = 'vape_shop_cart';
+
+// 购物车功能
+function initCart() {
+    loadCartFromStorage();
+    updateCartUI();
+    setupCartEventListeners();
+}
+
+function loadCartFromStorage() {
+    try {
+        const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+        if (savedCart) {
+            cart = JSON.parse(savedCart);
+        }
+    } catch (error) {
+        console.error('加载购物车数据失败:', error);
+        cart = [];
+    }
+}
+
+function saveCartToStorage() {
+    try {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    } catch (error) {
+        console.error('保存购物车数据失败:', error);
+    }
+}
+
+function addToCart(product, quantity = 1) {
+    const existingItem = cart.find(item => item.id === product.id);
+
+    if (existingItem) {
+        existingItem.quantity += quantity;
+    } else {
+        cart.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image || '',
+            quantity: quantity
+        });
+    }
+
+    saveCartToStorage();
+    updateCartUI();
+    showCartNotification(product.name, quantity);
+}
+
+function removeFromCart(productId) {
+    cart = cart.filter(item => item.id !== productId);
+    saveCartToStorage();
+    updateCartUI();
+}
+
+function updateCartItemQuantity(productId, quantity) {
+    const item = cart.find(item => item.id === productId);
+    if (item) {
+        if (quantity <= 0) {
+            removeFromCart(productId);
+        } else {
+            item.quantity = quantity;
+            saveCartToStorage();
+            updateCartUI();
+        }
+    }
+}
+
+function clearCart() {
+    cart = [];
+    saveCartToStorage();
+    updateCartUI();
+}
+
+function getCartTotalItems() {
+    return cart.reduce((total, item) => total + item.quantity, 0);
+}
+
+function getCartTotalPrice() {
+    return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+}
+
+function updateCartUI() {
+    // 更新购物车数量
+    const cartCount = document.getElementById('cart-count');
+    if (cartCount) {
+        const totalItems = getCartTotalItems();
+        cartCount.textContent = totalItems;
+        cartCount.style.display = totalItems > 0 ? 'flex' : 'none';
+    }
+
+    // 更新购物车侧边栏
+    updateCartSidebar();
+}
+
+function updateCartSidebar() {
+    const cartItemsContainer = document.getElementById('cart-items');
+    const cartEmpty = document.getElementById('cart-empty');
+    const cartTotalPrice = document.getElementById('cart-total-price');
+
+    if (!cartItemsContainer || !cartEmpty || !cartTotalPrice) return;
+
+    if (cart.length === 0) {
+        cartEmpty.style.display = 'flex';
+        cartItemsContainer.style.display = 'none';
+    } else {
+        cartEmpty.style.display = 'none';
+        cartItemsContainer.style.display = 'flex';
+
+        // 清空现有内容
+        cartItemsContainer.innerHTML = '';
+
+        // 添加购物车商品
+        cart.forEach(item => {
+            const cartItemElement = createCartItemElement(item);
+            cartItemsContainer.appendChild(cartItemElement);
+        });
+    }
+
+    // 更新总价
+    cartTotalPrice.textContent = `${CONFIG.defaultCurrency}${getCartTotalPrice().toFixed(2)}`;
+}
+
+function createCartItemElement(item) {
+    const itemElement = document.createElement('div');
+    itemElement.className = 'cart-item';
+    itemElement.dataset.productId = item.id;
+
+    const itemImage = item.image || '';
+    const imageHtml = itemImage ?
+        `<img src="${itemImage}" alt="${item.name}" class="cart-item-image">` :
+        `<div class="product-image-placeholder">
+            <i class="fas fa-smoking"></i>
+        </div>`;
+
+    const subtotal = item.price * item.quantity;
+
+    itemElement.innerHTML = `
+        <div class="cart-item-image-container">
+            ${imageHtml}
+        </div>
+        <div class="cart-item-details">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-price">${CONFIG.defaultCurrency}${item.price.toFixed(2)}</div>
+            <div class="cart-item-controls">
+                <div class="quantity-control">
+                    <button class="quantity-btn minus" data-product-id="${item.id}">-</button>
+                    <span class="quantity-value">${item.quantity}</span>
+                    <button class="quantity-btn plus" data-product-id="${item.id}">+</button>
+                </div>
+                <button class="remove-item-btn" data-product-id="${item.id}">
+                    <i class="fas fa-trash"></i>
+                    <span data-lang-key="remove_from_cart">${TRANSLATIONS[currentLanguage].remove_from_cart}</span>
+                </button>
+            </div>
+        </div>
+        <div class="cart-item-subtotal">${CONFIG.defaultCurrency}${subtotal.toFixed(2)}</div>
+    `;
+
+    // 添加事件监听器
+    const minusBtn = itemElement.querySelector('.quantity-btn.minus');
+    const plusBtn = itemElement.querySelector('.quantity-btn.plus');
+    const removeBtn = itemElement.querySelector('.remove-item-btn');
+
+    minusBtn.addEventListener('click', () => {
+        updateCartItemQuantity(item.id, item.quantity - 1);
+    });
+
+    plusBtn.addEventListener('click', () => {
+        updateCartItemQuantity(item.id, item.quantity + 1);
+    });
+
+    removeBtn.addEventListener('click', () => {
+        removeFromCart(item.id);
+    });
+
+    return itemElement;
+}
+
+function showCartNotification(productName, quantity) {
+    // 创建通知元素
+    const notification = document.createElement('div');
+    notification.className = 'cart-notification';
+    notification.innerHTML = `
+        <i class="fas fa-check-circle"></i>
+        <span>${quantity} × ${productName} 已添加到购物车</span>
+    `;
+
+    // 样式
+    notification.style.position = 'fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.backgroundColor = 'var(--color-black)';
+    notification.style.color = 'var(--color-white)';
+    notification.style.padding = 'var(--space-md) var(--space-lg)';
+    notification.style.borderRadius = 'var(--radius-md)';
+    notification.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    notification.style.zIndex = '1002';
+    notification.style.display = 'flex';
+    notification.style.alignItems = 'center';
+    notification.style.gap = 'var(--space-sm)';
+    notification.style.animation = 'slideIn 0.3s ease';
+
+    document.body.appendChild(notification);
+
+    // 3秒后移除
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+function setupCartEventListeners() {
+    // 购物车切换按钮
+    const cartToggle = document.getElementById('cart-toggle');
+    const cartClose = document.getElementById('cart-close');
+    const cartOverlay = document.getElementById('cart-overlay');
+    const cartCheckout = document.getElementById('cart-checkout');
+    const cartClear = document.getElementById('cart-clear');
+
+    if (cartToggle) {
+        cartToggle.addEventListener('click', toggleCartSidebar);
+    }
+
+    if (cartClose) {
+        cartClose.addEventListener('click', toggleCartSidebar);
+    }
+
+    if (cartOverlay) {
+        cartOverlay.addEventListener('click', toggleCartSidebar);
+    }
+
+    if (cartCheckout) {
+        cartCheckout.addEventListener('click', () => {
+            if (cart.length === 0) {
+                alert(TRANSLATIONS[currentLanguage].cart_empty);
+                return;
+            }
+            openCartCheckoutModal();
+        });
+    }
+
+    if (cartClear) {
+        cartClear.addEventListener('click', () => {
+            if (cart.length === 0) return;
+            if (confirm('确定要清空购物车吗？')) {
+                clearCart();
+            }
+        });
+    }
+}
+
+function toggleCartSidebar() {
+    const cartSidebar = document.getElementById('cart-sidebar');
+    const cartOverlay = document.getElementById('cart-overlay');
+
+    if (cartSidebar && cartOverlay) {
+        const isOpen = cartSidebar.classList.contains('open');
+
+        if (isOpen) {
+            cartSidebar.classList.remove('open');
+            cartOverlay.classList.remove('show');
+        } else {
+            cartSidebar.classList.add('open');
+            cartOverlay.classList.add('show');
+        }
+    }
+}
+
+function openCartCheckoutModal() {
+    // 使用现有的支付模态框，但显示购物车总价
+    if (!domElements.purchaseModal || !domElements.modalProductInfo) return;
+
+    // 生成订单号
+    const orderId = `ORDER-${String(currentOrderId++).padStart(3, '0')}`;
+
+    // 创建购物车商品列表HTML
+    let cartItemsHtml = '';
+    cart.forEach(item => {
+        cartItemsHtml += `
+            <div class="cart-modal-item">
+                <div class="cart-modal-item-name">${item.name} × ${item.quantity}</div>
+                <div class="cart-modal-item-price">${CONFIG.defaultCurrency}${(item.price * item.quantity).toFixed(2)}</div>
+            </div>
+        `;
+    });
+
+    // 更新模态框内容
+    domElements.modalProductInfo.innerHTML = `
+        <div class="modal-product">
+            <h3 data-lang-key="cart_title">${TRANSLATIONS[currentLanguage].cart_title}</h3>
+            <div class="cart-modal-items">
+                ${cartItemsHtml}
+            </div>
+            <p class="cart-modal-total">
+                <strong data-lang-key="cart_total">${TRANSLATIONS[currentLanguage].cart_total}</strong>
+                <strong>${CONFIG.defaultCurrency}${getCartTotalPrice().toFixed(2)}</strong>
+            </p>
+        </div>
+    `;
+
+    domElements.modalPhone.textContent = CONFIG.bizumPhone;
+    domElements.modalAmount.textContent = `${CONFIG.defaultCurrency}${getCartTotalPrice().toFixed(2)}`;
+    domElements.modalOrder.textContent = orderId;
+
+    // 显示模态框
+    domElements.purchaseModal.style.display = 'flex';
+
+    // 支付成功后清空购物车
+    const originalConfirmHandler = domElements.confirmPurchase.onclick;
+    domElements.confirmPurchase.onclick = function() {
+        if (originalConfirmHandler) originalConfirmHandler.call(this);
+        clearCart();
+    };
+}
+

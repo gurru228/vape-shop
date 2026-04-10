@@ -156,6 +156,65 @@
     </div>
     <div id="cart-overlay" class="cart-overlay"></div>
 
+    <!-- 结账模态框 -->
+    <div id="checkout-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="checkout-modal-close">&times;</span>
+
+            <!-- Step 1: 客户信息 + 支付方式 -->
+            <div id="checkout-step-info">
+                <h2>确认订单 / Confirmar pedido</h2>
+                <div id="checkout-cart-summary" class="checkout-cart-summary"></div>
+                <div class="checkout-total-row">
+                    <span>总计 / Total:</span>
+                    <strong id="checkout-total-display">€0.00</strong>
+                </div>
+                <hr style="margin: 1rem 0; border-color: #e5e5e5;">
+                <div class="checkout-form-group">
+                    <label>姓名 / Nombre</label>
+                    <input type="text" id="checkout-customer-name" placeholder="您的姓名 / Su nombre">
+                </div>
+                <div class="checkout-form-group">
+                    <label>手机号 / Teléfono</label>
+                    <input type="tel" id="checkout-customer-phone" placeholder="+34 6XX XXX XXX">
+                </div>
+                <p class="payment-choose-label">选择支付方式 / Método de pago:</p>
+                <div class="payment-options">
+                    <button class="payment-option-btn" id="btn-pay-bizum">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Bizum</span>
+                        <small>转账支付</small>
+                    </button>
+                    <button class="payment-option-btn" id="btn-pay-card">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Tarjeta</span>
+                        <small>信用/借记卡</small>
+                    </button>
+                </div>
+                <p id="checkout-error" class="checkout-error" style="display:none"></p>
+            </div>
+
+            <!-- Step 2: Bizum 支付说明 -->
+            <div id="checkout-step-bizum" style="display:none">
+                <h2>Bizum 支付</h2>
+                <div class="modal-instructions">
+                    <ol>
+                        <li>打开银行App / Abra su aplicación bancaria</li>
+                        <li>选择 Bizum / Seleccione Bizum</li>
+                        <li>输入电话 / Teléfono: <strong>+34 697 332 407</strong></li>
+                        <li>金额 / Cantidad: <strong id="bizum-amount-display"></strong></li>
+                        <li>备注 / Nota: <strong id="bizum-order-display"></strong></li>
+                        <li>完成转账并截图 / Complete la transferencia</li>
+                    </ol>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" id="bizum-confirm-btn">我已付款 / He pagado</button>
+                    <button class="btn btn-secondary" id="checkout-cancel-btn">取消 / Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 产品详情页 -->
     <div id="product-detail" class="product-detail-overlay">
         <button class="detail-close" id="detail-close"><i class="fas fa-times"></i></button>
