@@ -7,20 +7,20 @@ async function sendTelegramNotification(order) {
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
     const itemLines = order.items.map(i => `  • ${i.name} x${i.quantity} — €${(i.price * i.quantity).toFixed(2)}`).join('\n');
     const deliveryInfo = order.delivery_type === 'delivery'
-        ? `\n📦 *Entrega a domicilio*\n📍 ${order.address}\n🕐 ${order.delivery_time}`
-        : '\n🏪 *Recogida en tienda*';
-    const text = `🛒 *Nuevo pedido Bizum*\n\n` +
+        ? `\n📦 Entrega a domicilio\n📍 ${order.address}\n🕐 ${order.delivery_time}`
+        : '\n🏪 Recogida en tienda';
+    const text = `🛒 Nuevo pedido Bizum\n\n` +
         `📋 ${order.order_number}\n` +
         `👤 ${order.customer_name}\n` +
         `📱 ${order.customer_phone}\n` +
         `\n${itemLines}\n` +
-        `\n💶 *Total: €${order.total.toFixed(2)}*` +
+        `\n💶 Total: €${order.total.toFixed(2)}` +
         deliveryInfo +
-        `\n\n⏳ Estado: Pendiente confirmación`;
+        `\n\n⏳ Estado: Pendiente confirmacion`;
     await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: 'Markdown' })
+        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text })
     }).catch(err => console.error('Telegram notify failed:', err));
 }
 
