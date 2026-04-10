@@ -2,7 +2,7 @@
 const CONFIG = {
     bizumPhone: '+34 697 332 407',
     defaultCurrency: '€',
-    storeName: 'VAPE STORE'
+    storeName: '口粮专卖店'
 };
 
 // ===== 优惠码系统 =====
@@ -651,8 +651,8 @@ function openCartCheckoutModal() {
 const TRANSLATIONS = {
     es: {
         // 导航
-        store_name: 'VAPE STORE',
-        logo_subtitle: 'Tienda de Vapeadores',
+        store_name: '口粮专卖店',
+        logo_subtitle: '口粮专卖店',
         products: 'Productos',
         about: 'Nosotros',
         contact: 'Contacto',
@@ -726,7 +726,7 @@ const TRANSLATIONS = {
 
         // 页脚
         footer_desc: 'Tienda de vapeadores premium en España',
-        copyright: '© 2026 VAPE STORE. Todos los derechos reservados.',
+        copyright: '© 2026 口粮专卖店. Todos los derechos reservados.',
 
         // 购物车
         cart_title: 'Carrito de compras',
@@ -742,7 +742,7 @@ const TRANSLATIONS = {
 
     zh: {
         // 导航
-        store_name: '电子烟专卖店',
+        store_name: '口粮专卖店',
         logo_subtitle: '西班牙优质电子烟',
         products: '产品',
         about: '关于',
@@ -816,8 +816,8 @@ const TRANSLATIONS = {
         about_offers_desc: '买五送一、不定期特惠，让您以最实惠的价格享受最优质的电子烟体验。',
 
         // 页脚
-        footer_desc: '西班牙优质电子烟专卖店',
-        copyright: '© 2026 VAPE STORE. 保留所有权利。',
+        footer_desc: '西班牙优质口粮专卖店',
+        copyright: '© 2026 口粮专卖店. 保留所有权利。',
 
         // 购物车
         cart_title: '购物车',
