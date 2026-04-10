@@ -32,7 +32,7 @@ exports.handler = async (event) => {
             })
         });
 
-        if (!res.ok) throw new Error(await res.text());
+        if (!res.ok) console.error('Supabase save failed:', await res.text());
 
         return {
             statusCode: 200,

@@ -45,7 +45,8 @@ exports.handler = async (event) => {
             metadata: { order_number: orderNumber, customer_name: customerName, customer_phone: customerPhone }
         });
 
-        await saveOrder({
+        // 不阻塞支付流程，后台保存订单
+        saveOrder({
             order_number: orderNumber,
             customer_name: customerName,
             customer_phone: customerPhone,
@@ -54,7 +55,7 @@ exports.handler = async (event) => {
             payment_method: 'card',
             payment_status: 'pending',
             stripe_session_id: session.id
-        });
+        }).catch(err => console.error('Supabase save failed:', err));
 
         return {
             statusCode: 200,
