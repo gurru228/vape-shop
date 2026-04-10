@@ -604,7 +604,7 @@ function openCartCheckoutModal() {
             };
             document.getElementById('checkout-cancel-btn').onclick = () => modal.style.display = 'none';
         } catch (err) {
-            errorEl.textContent = '出错了，请重试 / Error, inténtelo de nuevo';
+            errorEl.textContent = '出错了：' + err.message;
             errorEl.style.display = 'block';
         } finally {
             document.getElementById('btn-pay-bizum').disabled = false;
