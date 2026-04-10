@@ -336,6 +336,11 @@ function createCartItemElement(item) {
     });
 
     if (plusBtn) plusBtn.addEventListener('click', () => {
+        const stock = getStockForCartItem(item);
+        if (stock !== null && item.quantity >= stock) {
+            showStockWarning(stock === 0 ? `${item.name} 已售罄` : `库存不足，仅剩 ${stock} 个`);
+            return;
+        }
         updateCartItemQuantity(item.id, item.quantity + 1);
     });
 
@@ -404,9 +409,25 @@ function setupCartEventListeners() {
     }
 
     if (cartCheckout) {
-        cartCheckout.addEventListener('click', () => {
+        cartCheckout.addEventListener('click', async () => {
             if (cart.length === 0) {
                 alert(TRANSLATIONS[currentLanguage].cart_empty);
+                return;
+            }
+            // 结账前刷新库存，确保数据最新
+            await loadInventory();
+            // 检查所有商品库存
+            const insufficient = cart.filter(item => {
+                if (item.isFree) return false;
+                const stock = getStockForCartItem(item);
+                return stock !== null && item.quantity > stock;
+            });
+            if (insufficient.length > 0) {
+                const msg = insufficient.map(item => {
+                    const stock = getStockForCartItem(item);
+                    return stock === 0 ? `「${item.name}」已售罄` : `「${item.name}」库存不足，仅剩 ${stock} 个`;
+                }).join('\n');
+                showStockWarning(msg.replace(/\n/g, ' / '));
                 return;
             }
             // 关闭购物车侧边栏
@@ -841,15 +862,21 @@ let products = [
         image: 'images/dash/coconut-water.webp',
         flavors: [
             { name: 'Jasmine LongJing Tea', nameCn: '龙井', image: 'images/dash/jasmine-longjing.webp' },
-            { name: 'Lemon Tea', nameCn: '柠檬茶', image: '' },
+            { name: 'Lemon Tea', nameCn: '柠檬茶', image: 'images/dash/sparkling-iced-lemon-tea.webp' },
             { name: 'Green Grape', nameCn: '青提', image: 'images/dash/green-grape.jpeg' },
-            { name: 'Sweet Melon', nameCn: '甜瓜', image: '' },
-            { name: 'Crystal Grape', nameCn: '紫晶葡萄', image: '' },
-            { name: 'Mineral Water', nameCn: '矿泉水', image: '' },
+            { name: 'Sweet Honeydew', nameCn: '甜蜜瓜', image: 'images/dash/sweet-honeydew.webp' },
+            { name: 'Crystal Grape', nameCn: '紫晶葡萄', image: 'images/dash/tangy-grape.webp' },
+            { name: 'Mineral Water', nameCn: '矿泉水', image: 'images/dash/mineral-water.webp' },
             { name: 'Coconut Water', nameCn: '椰子水', image: 'images/dash/coconut-water.webp' },
             { name: 'Matcha Smoothie', nameCn: '抹茶思慕雪', image: 'images/dash/matcha-smoothie.webp' },
             { name: 'Peach Ice', nameCn: '水蜜桃冰', image: 'images/dash/peach-ice.webp' },
-            { name: 'Pink Guava', nameCn: '粉红番石榴', image: 'images/dash/pink-guava.webp' }
+            { name: 'Pink Guava', nameCn: '粉红番石榴', image: 'images/dash/pink-guava.webp' },
+            { name: 'Black Dragon Ice', nameCn: '黑龙冰', image: 'images/dash/black-dragon-ice.webp' },
+            { name: 'Corn Gelato', nameCn: '玉米冰激凌', image: 'images/dash/corn-gelato.webp' },
+            { name: 'White Freeze', nameCn: '老冰棍', image: 'images/dash/white-freeze.webp' },
+            { name: 'Passion Grapefruit', nameCn: '百香西柚', image: 'images/dash/passion-grapefruit.webp' },
+            { name: 'Lush Ice', nameCn: '西瓜冰', image: 'images/dash/lush-ice.webp' },
+            { name: 'Lemon Pineapple', nameCn: '柠檬菠萝', image: 'images/dash/lemon-pineapple.webp' }
         ]
     },
     {
@@ -896,16 +923,6 @@ let products = [
         ]
     },
     {
-        id: 99,
-        name: '测试商品 (Test)',
-        price: 0.50,
-        description: {
-            es: 'Producto de prueba',
-            zh: '支付测试用，请勿购买'
-        },
-        image: ''
-    },
-    {
         id: 4,
         name: '冰王 (Elfbar IceKing)',
         price: 45,
@@ -915,9 +932,9 @@ let products = [
         },
         image: 'images/iceking/grape-ice.webp',
         flavors: [
-            { name: 'Jasmine Longjing', nameCn: '茉莉龙井', image: '' },
-            { name: 'Salted Lemon', nameCn: '海盐柠檬', image: '' },
-            { name: 'Tieguanyin', nameCn: '铁观音', image: '' },
+            { name: 'Jasmine Longjing', nameCn: '茉莉龙井', image: 'images/iceking/jasmine-longjing.webp' },
+            { name: 'Salted Lemon', nameCn: '海盐柠檬', image: 'images/iceking/salted-lemon.webp' },
+            { name: 'Tieguanyin', nameCn: '铁观音', image: 'images/iceking/tieguanyin.webp' },
             { name: 'Grape Ice', nameCn: '黑葡萄冰', image: 'images/iceking/grape-ice.webp' },
             { name: 'Green Grape Ice', nameCn: '青葡萄冰', image: 'images/iceking/green-grape-ice.webp' },
             { name: 'Green Tea', nameCn: '绿茶', image: 'images/iceking/green-tea.webp' }
@@ -1226,6 +1243,34 @@ function getStock(productId, flavorName) {
 function isSoldOut(productId, flavorName) {
     const stock = getStock(productId, flavorName);
     return stock !== null && stock === 0;
+}
+
+function getStockForCartItem(item) {
+    if (item.isFree) return null;
+    const parts = String(item.id).split('-');
+    const productId = parseInt(parts[0]);
+    const flavorName = parts.length > 1 ? parts.slice(1).join('-') : 'default';
+    return getStock(productId, flavorName);
+}
+
+function showStockWarning(message) {
+    const el = document.createElement('div');
+    el.className = 'cart-notification';
+    el.innerHTML = `<i class="fas fa-exclamation-circle"></i><span>${message}</span>`;
+    Object.assign(el.style, {
+        position: 'fixed', top: '20px', right: '20px',
+        backgroundColor: '#dc2626', color: '#fff',
+        padding: 'var(--space-md) var(--space-lg)',
+        borderRadius: 'var(--radius-md)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+        zIndex: '2000', display: 'flex', alignItems: 'center',
+        gap: 'var(--space-sm)', animation: 'slideIn 0.3s ease'
+    });
+    document.body.appendChild(el);
+    setTimeout(() => {
+        el.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => el.remove(), 300);
+    }, 3000);
 }
 
 function applyInventoryToUI() {
