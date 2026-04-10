@@ -1694,6 +1694,8 @@ body {
 
     .nav-items {
         gap: var(--space-lg);
+        position: static;
+        transform: none;
     }
 
     .products-grid {
