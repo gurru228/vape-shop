@@ -111,7 +111,7 @@ exports.handler = async (event) => {
             delivery_type: deliveryType || 'pickup',
             address: address || '',
             delivery_time: deliveryTime || '',
-            agent_ref: agentRef || null
+            ...(agentRef ? { agent_ref: agentRef } : {})
         };
         await Promise.all([
             saveOrder(orderData).catch(err => console.error('Supabase save failed:', err)),

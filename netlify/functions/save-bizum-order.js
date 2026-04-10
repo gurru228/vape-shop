@@ -66,7 +66,7 @@ exports.handler = async (event) => {
             delivery_type: deliveryType || 'pickup',
             address: address || '',
             delivery_time: deliveryTime || '',
-            agent_ref: agentRef || null
+            ...(agentRef ? { agent_ref: agentRef } : {})
         };
 
         const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
