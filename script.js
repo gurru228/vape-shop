@@ -124,6 +124,7 @@ function addFreeItemToCart(productId, flavorName, flavorNameCn, flavorImage) {
     saveCartToStorage();
     updateCartUI();
     document.getElementById('free-item-modal').style.display = 'none';
+    openCartCheckoutModal();
 }
 
 function getShippingFee() {
