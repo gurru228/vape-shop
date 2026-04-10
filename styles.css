@@ -1709,7 +1709,9 @@ body {
     }
 
     .cart-icon-container {
-        margin-left: 0;
+        position: absolute;
+        top: var(--space-xs);
+        right: var(--space-md);
     }
 
     .nav-items {
@@ -1723,8 +1725,7 @@ body {
     }
 
     .products-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-md);
+        grid-template-columns: 1fr;
     }
 
     .form-buttons {
