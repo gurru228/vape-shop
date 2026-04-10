@@ -593,6 +593,16 @@ let products = [
         ]
     },
     {
+        id: 99,
+        name: '测试商品 (Test)',
+        price: 1.00,
+        description: {
+            es: 'Producto de prueba',
+            zh: '支付测试用，请勿购买'
+        },
+        image: ''
+    },
+    {
         id: 4,
         name: '冰王 (Elfbar IceKing)',
         price: 45,
