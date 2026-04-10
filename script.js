@@ -595,7 +595,7 @@ let products = [
     {
         id: 99,
         name: '测试商品 (Test)',
-        price: 1.00,
+        price: 0.50,
         description: {
             es: 'Producto de prueba',
             zh: '支付测试用，请勿购买'
