@@ -5,6 +5,45 @@ const CONFIG = {
     storeName: 'VAPE STORE'
 };
 
+// ===== 优惠码系统 =====
+const DISCOUNT_CODES = {
+    'BIENVENIDO': { percent: 10, label: '新用户9折', labelEs: '10% bienvenida' },
+    'VERANO25':   { percent: 15, label: '夏日85折',  labelEs: '15% verano'     },
+    'VAPE10':     { percent: 10, label: '专属9折',   labelEs: '10% especial'   },
+};
+
+let activeDiscount = null; // { code, percent, label }
+
+function getUsedCodes() {
+    try { return JSON.parse(localStorage.getItem('used_discount_codes') || '[]'); } catch { return []; }
+}
+
+function markCodeAsUsed(code) {
+    const used = getUsedCodes();
+    if (!used.includes(code)) {
+        used.push(code);
+        localStorage.setItem('used_discount_codes', JSON.stringify(used));
+    }
+}
+
+function applyDiscountCode(code) {
+    const upper = code.trim().toUpperCase();
+    const found = DISCOUNT_CODES[upper];
+    if (!found) return { ok: false, reason: 'invalid' };
+    if (getUsedCodes().includes(upper)) return { ok: false, reason: 'used' };
+    activeDiscount = { code: upper, ...found };
+    return { ok: true, ...found };
+}
+
+function clearDiscount() {
+    activeDiscount = null;
+}
+
+function getDiscountedTotal(original) {
+    if (!activeDiscount) return original;
+    return +(original * (1 - activeDiscount.percent / 100)).toFixed(2);
+}
+
 // ===== 购物车系统 =====
 let cart = [];
 const CART_STORAGE_KEY = 'vape_shop_cart';
@@ -158,7 +197,7 @@ function createCartItemElement(item) {
         </div>
         <div class="cart-item-details">
             <div class="cart-item-name">${item.name}</div>
-            <div class="cart-item-price">${CONFIG.defaultCurrency}${item.price.toFixed(2)}</div>
+            <div class="cart-item-subtotal">${CONFIG.defaultCurrency}${subtotal.toFixed(2)}</div>
             <div class="cart-item-controls">
                 <div class="quantity-control">
                     <button class="quantity-btn minus" data-product-id="${item.id}">-</button>
@@ -171,7 +210,6 @@ function createCartItemElement(item) {
                 </button>
             </div>
         </div>
-        <div class="cart-item-subtotal">${CONFIG.defaultCurrency}${subtotal.toFixed(2)}</div>
     `;
 
     // 添加事件监听器
@@ -257,6 +295,11 @@ function setupCartEventListeners() {
                 alert(TRANSLATIONS[currentLanguage].cart_empty);
                 return;
             }
+            // 关闭购物车侧边栏
+            const cartSidebar = document.getElementById('cart-sidebar');
+            const cartOverlay = document.getElementById('cart-overlay');
+            if (cartSidebar) cartSidebar.classList.remove('open');
+            if (cartOverlay) cartOverlay.classList.remove('show');
             openCartCheckoutModal();
         });
     }
@@ -302,6 +345,14 @@ function openCartCheckoutModal() {
     errorEl.style.display = 'none';
     document.getElementById('checkout-customer-name').value = '';
     document.getElementById('checkout-customer-phone').value = '';
+    // 重置优惠码
+    clearDiscount();
+    const couponInput = document.getElementById('coupon-input');
+    const couponResult = document.getElementById('coupon-result');
+    const couponBtn = document.getElementById('coupon-apply-btn');
+    if (couponInput) { couponInput.value = ''; couponInput.disabled = false; }
+    if (couponResult) { couponResult.style.display = 'none'; }
+    if (couponBtn) { couponBtn.textContent = '使用'; couponBtn.disabled = false; }
     document.getElementById('checkout-address').value = '';
     document.getElementById('address-group').style.display = 'none';
     document.getElementById('time-group').style.display = 'none';
@@ -338,7 +389,7 @@ function openCartCheckoutModal() {
             <span>${CONFIG.defaultCurrency}${(item.price * item.quantity).toFixed(2)}</span>
         </div>
     `).join('');
-    totalEl.textContent = `${CONFIG.defaultCurrency}${getCartTotalPrice().toFixed(2)}`;
+    updateCheckoutTotal();
 
     modal.style.display = 'flex';
 
@@ -372,12 +423,13 @@ function openCartCheckoutModal() {
             const res = await fetch('/.netlify/functions/save-bizum-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType: isDelivery ? 'delivery' : 'pickup', address: isDelivery ? address : '', deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '' })
+                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType: isDelivery ? 'delivery' : 'pickup', address: isDelivery ? address : '', deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0 })
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
 
             document.getElementById('bizum-amount-display').textContent = `${CONFIG.defaultCurrency}${data.total.toFixed(2)}`;
+            if (activeDiscount) markCodeAsUsed(activeDiscount.code);
             document.getElementById('bizum-order-display').textContent = data.orderNumber;
             // WhatsApp 链接带上订单号
             const waMsg = encodeURIComponent(`Hola! Acabo de hacer el pago por Bizum.\nPedido: ${data.orderNumber}\nImporte: €${data.total.toFixed(2)}\n(附上截图 / adjunto captura)`);
@@ -426,10 +478,11 @@ function openCartCheckoutModal() {
             const res = await fetch('/.netlify/functions/create-checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType: isDelivery ? 'delivery' : 'pickup', address: isDelivery ? address : '', deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '' })
+                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType: isDelivery ? 'delivery' : 'pickup', address: isDelivery ? address : '', deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0 })
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
+            if (activeDiscount) markCodeAsUsed(activeDiscount.code);
             window.location.href = data.url;
         } catch (err) {
             errorEl.textContent = '出错了，请重试 / Error, inténtelo de nuevo';
@@ -445,6 +498,7 @@ const TRANSLATIONS = {
     es: {
         // 导航
         store_name: 'VAPE STORE',
+        logo_subtitle: 'Tienda de Vapeadores',
         products: 'Productos',
         about: 'Nosotros',
         contact: 'Contacto',
@@ -455,7 +509,7 @@ const TRANSLATIONS = {
 
         // 产品区域
         products_title: 'Productos Destacados',
-        products_subtitle: 'Cuatro sabores únicos, uno perfecto para usted',
+        products_subtitle: 'Múltiples tipos, múltiples sabores — encuentra el tuyo',
 
         // 产品描述
         dash_desc: 'Diseño ergonómico, sabor suave y duradero',
@@ -514,7 +568,7 @@ const TRANSLATIONS = {
         about_service_title: 'Atención Rápida y Cercana',
         about_service_desc: 'Respondemos a cada mensaje sin demora. Olvídate de esperar — nuestro equipo está siempre disponible para atenderte.',
         about_offers_title: 'Ofertas y Promociones Frecuentes',
-        about_offers_desc: 'Compra 3 y llévate 1 gratis, descuentos especiales y promociones continuas para que disfrutes al mejor precio.',
+        about_offers_desc: 'Compra 5 y llévate 1 gratis, descuentos especiales y promociones continuas para que disfrutes al mejor precio.',
 
         // 页脚
         footer_desc: 'Tienda de vapeadores premium en España',
@@ -535,6 +589,7 @@ const TRANSLATIONS = {
     zh: {
         // 导航
         store_name: '电子烟专卖店',
+        logo_subtitle: '西班牙优质电子烟',
         products: '产品',
         about: '关于',
         contact: '联系',
@@ -545,7 +600,7 @@ const TRANSLATIONS = {
 
         // 产品区域
         products_title: '精选产品',
-        products_subtitle: '四种独特口味，总有一款适合您',
+        products_subtitle: '多种类型，多种口味，总有一款适合您',
 
         // 产品描述
         dash_desc: '人体工学设计，口感柔和持久',
@@ -604,7 +659,7 @@ const TRANSLATIONS = {
         about_service_title: '高效贴心服务',
         about_service_desc: '告别消息不回、久等不达。我们与客户之间的对接极为迅速，您的每一条消息都会得到及时回复。',
         about_offers_title: '活动多优惠多',
-        about_offers_desc: '买三送一、不定期特惠，让您以最实惠的价格享受最优质的电子烟体验。',
+        about_offers_desc: '买五送一、不定期特惠，让您以最实惠的价格享受最优质的电子烟体验。',
 
         // 页脚
         footer_desc: '西班牙优质电子烟专卖店',
@@ -729,17 +784,28 @@ const domElements = {
 // ===== 语言切换功能 =====
 function initLanguageSwitcher() {
     const langButtons = document.querySelectorAll('.lang-btn');
+    const popup = document.getElementById('lang-popup');
+    const toggleBtn = document.getElementById('lang-toggle');
+
+    // 弹窗开关
+    if (toggleBtn && popup) {
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            popup.classList.toggle('open');
+        });
+        // 点击页面其他地方关闭
+        document.addEventListener('click', () => popup.classList.remove('open'));
+        popup.addEventListener('click', (e) => e.stopPropagation());
+    }
 
     langButtons.forEach(button => {
         button.addEventListener('click', () => {
             const lang = button.dataset.lang;
-
-            // 更新按钮状态
             langButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
-
-            // 切换语言
             switchLanguage(lang);
+            // 切换后关闭弹窗
+            if (popup) popup.classList.remove('open');
         });
     });
 }
@@ -843,7 +909,7 @@ function createProductCard(product) {
             ? product.flavors[parseInt(card.querySelector('.flavor-btn.active').dataset.flavorIndex)]
             : null;
         const cartProduct = activeFlavor
-            ? { ...product, name: `${product.name} - ${currentLanguage === 'zh' ? activeFlavor.nameCn : activeFlavor.name}`, image: activeFlavor.image }
+            ? { ...product, id: `${product.id}-${activeFlavor.name}`, name: `${product.name} - ${currentLanguage === 'zh' ? activeFlavor.nameCn : activeFlavor.name}`, image: activeFlavor.image }
             : product;
         addToCart(cartProduct, 1);
         toggleCartSidebar();
@@ -903,7 +969,7 @@ function openProductDetail(product, activeFlavorIndex = 0) {
     addCartBtn.onclick = () => {
         const activeFlavor = product.flavors ? product.flavors[currentFlavorIndex] : null;
         const cartProduct = activeFlavor
-            ? { ...product, name: `${product.name} - ${currentLanguage === 'zh' ? activeFlavor.nameCn : activeFlavor.name}`, image: activeFlavor.image }
+            ? { ...product, id: `${product.id}-${activeFlavor.name}`, name: `${product.name} - ${currentLanguage === 'zh' ? activeFlavor.nameCn : activeFlavor.name}`, image: activeFlavor.image }
             : product;
         addToCart(cartProduct, 1);
         overlay.classList.remove('open');
@@ -996,10 +1062,83 @@ function init() {
     // 设置默认语言
     switchLanguage(currentLanguage);
 
+    // 首次访问欢迎弹窗
+    initWelcomeModal();
+
     console.log('Vape Store initialized successfully');
     console.log('Product count:', products.length);
     console.log('Current language:', currentLanguage);
     console.log('Cart items:', cart.length);
+}
+
+// ===== 欢迎弹窗 =====
+function initWelcomeModal() {
+    const seen = localStorage.getItem('welcome_shown');
+    if (seen) return;
+    setTimeout(() => {
+        const modal = document.getElementById('welcome-modal');
+        if (modal) modal.style.display = 'flex';
+    }, 2500);
+}
+
+function closeWelcomeModal() {
+    const modal = document.getElementById('welcome-modal');
+    if (modal) modal.style.display = 'none';
+    localStorage.setItem('welcome_shown', '1');
+}
+
+function copyWelcomeCode() {
+    navigator.clipboard.writeText('BIENVENIDO').then(() => {
+        const hint = document.getElementById('copy-hint');
+        if (hint) {
+            hint.innerHTML = '<i class="fas fa-check"></i> 已复制';
+            setTimeout(() => { hint.innerHTML = '<i class="fas fa-copy"></i> 点击复制'; }, 2000);
+        }
+    });
+}
+
+// ===== 优惠码处理 =====
+function handleCouponApply() {
+    const input = document.getElementById('coupon-input');
+    const result = document.getElementById('coupon-result');
+    const code = input?.value || '';
+    if (!code.trim()) return;
+
+    const res = applyDiscountCode(code);
+    result.style.display = 'block';
+
+    if (res.ok) {
+        const label = currentLanguage === 'zh' ? res.label : res.labelEs;
+        result.className = 'coupon-result success';
+        result.innerHTML = `<i class="fas fa-check-circle"></i> ${label} (-${res.percent}%)`;
+        input.disabled = true;
+        document.getElementById('coupon-apply-btn').textContent = '已使用';
+        document.getElementById('coupon-apply-btn').disabled = true;
+        updateCheckoutTotal();
+    } else if (res.reason === 'used') {
+        result.className = 'coupon-result error';
+        result.innerHTML = '<i class="fas fa-times-circle"></i> 此优惠码已使用过 / Este código ya fue utilizado';
+    } else {
+        result.className = 'coupon-result error';
+        result.innerHTML = '<i class="fas fa-times-circle"></i> 优惠码无效 / Código inválido';
+    }
+}
+
+function updateCheckoutTotal() {
+    const original = getCartTotalPrice();
+    const discounted = getDiscountedTotal(original);
+    const totalEl = document.getElementById('checkout-total-display');
+    const originalEl = document.getElementById('checkout-original-price');
+
+    if (totalEl) totalEl.textContent = `€${discounted.toFixed(2)}`;
+    if (originalEl) {
+        if (activeDiscount) {
+            originalEl.textContent = `€${original.toFixed(2)}`;
+            originalEl.style.display = 'block';
+        } else {
+            originalEl.style.display = 'none';
+        }
+    }
 }
 
 // ===== 滚动进场动画 =====

@@ -14,17 +14,22 @@
     <!-- 顶部广告滚动条 -->
     <div class="promo-bar">
         <div class="promo-track">
-            <span>🔥 鸭嘴兽买三送一 &nbsp;·&nbsp; 冰爆买三送一 &nbsp;·&nbsp; 小黑条买三送一 &nbsp;·&nbsp; 冰王买三送一 &nbsp;·&nbsp; Compra 3 DASH, llévate 1 gratis &nbsp;·&nbsp; Compra 3 IceMax, llévate 1 gratis &nbsp;·&nbsp; Compra 3 Lil Black, llévate 1 gratis &nbsp;·&nbsp; Compra 3 IceKing, llévate 1 gratis &nbsp;·&nbsp; 🔥 鸭嘴兽买三送一 &nbsp;·&nbsp; 冰爆买三送一 &nbsp;·&nbsp; 小黑条买三送一 &nbsp;·&nbsp; 冰王买三送一 &nbsp;·&nbsp; Compra 3 DASH, llévate 1 gratis &nbsp;·&nbsp; Compra 3 IceMax, llévate 1 gratis &nbsp;·&nbsp; Compra 3 Lil Black, llévate 1 gratis &nbsp;·&nbsp; Compra 3 IceKing, llévate 1 gratis</span>
+            <span>🔥 鸭嘴兽买五送一 &nbsp;·&nbsp; 冰爆买五送一 &nbsp;·&nbsp; 小黑条买五送一 &nbsp;·&nbsp; 冰王买五送一 &nbsp;·&nbsp; Compra 5 DASH, llévate 1 gratis &nbsp;·&nbsp; Compra 5 IceMax, llévate 1 gratis &nbsp;·&nbsp; Compra 5 Lil Black, llévate 1 gratis &nbsp;·&nbsp; Compra 5 IceKing, llévate 1 gratis &nbsp;·&nbsp; 🔥 鸭嘴兽买五送一 &nbsp;·&nbsp; 冰爆买五送一 &nbsp;·&nbsp; 小黑条买五送一 &nbsp;·&nbsp; 冰王买五送一 &nbsp;·&nbsp; Compra 5 DASH, llévate 1 gratis &nbsp;·&nbsp; Compra 5 IceMax, llévate 1 gratis &nbsp;·&nbsp; Compra 5 Lil Black, llévate 1 gratis &nbsp;·&nbsp; Compra 5 IceKing, llévate 1 gratis</span>
         </div>
     </div>
 
     <!-- 语言切换 -->
-    <div class="language-switcher">
-        <button id="lang-es" class="lang-btn active" data-lang="es">
-            <i class="fas fa-globe-europe"></i> ES
-        </button>
-        <button id="lang-zh" class="lang-btn" data-lang="zh">
-            <i class="fas fa-globe-asia"></i> 中文
+    <div class="language-switcher" id="lang-switcher">
+        <div class="lang-popup" id="lang-popup">
+            <button id="lang-es" class="lang-btn active" data-lang="es">
+                <i class="fas fa-globe-europe"></i> ES
+            </button>
+            <button id="lang-zh" class="lang-btn" data-lang="zh">
+                <i class="fas fa-globe-asia"></i> 中文
+            </button>
+        </div>
+        <button class="lang-toggle-btn" id="lang-toggle" aria-label="切换语言">
+            <i class="fas fa-globe"></i>
         </button>
     </div>
 
@@ -33,7 +38,10 @@
         <nav class="nav">
             <div class="logo">
                 <i class="fas fa-smoking"></i>
-                <span data-lang-key="store_name">VAPE STORE</span>
+                <div class="logo-text">
+                    <span data-lang-key="store_name">VAPE STORE</span>
+                    <small class="logo-subtitle" data-lang-key="logo_subtitle">电子烟专卖店</small>
+                </div>
             </div>
             <div class="nav-items">
                 <a href="#products" data-lang-key="products">产品</a>
@@ -61,7 +69,7 @@
         <!-- 产品展示 -->
         <section id="products" class="products">
             <h2 class="section-title" data-lang-key="products_title">精选产品</h2>
-            <p class="section-subtitle" data-lang-key="products_subtitle">四种独特口味，总有一款适合您</p>
+            <p class="section-subtitle" data-lang-key="products_subtitle">多种类型，多种口味，总有一款适合您</p>
 
             <div class="products-grid" id="products-grid">
                 <!-- 产品卡片通过JavaScript动态生成 -->
@@ -90,7 +98,7 @@
                 <div class="about-card">
                     <div class="about-icon"><i class="fas fa-tags"></i></div>
                     <h3 data-lang-key="about_offers_title">活动多优惠多</h3>
-                    <p data-lang-key="about_offers_desc">买三送一、不定期特惠，让您以最实惠的价格享受最优质的电子烟体验。</p>
+                    <p data-lang-key="about_offers_desc">买五送一、不定期特惠，让您以最实惠的价格享受最优质的电子烟体验。</p>
                 </div>
             </div>
         </section>
@@ -214,7 +222,18 @@
                 <div id="checkout-cart-summary" class="checkout-cart-summary"></div>
                 <div class="checkout-total-row">
                     <span>总计 / Total:</span>
-                    <strong id="checkout-total-display">€0.00</strong>
+                    <div class="checkout-total-prices">
+                        <span id="checkout-original-price" class="price-original" style="display:none"></span>
+                        <strong id="checkout-total-display">€0.00</strong>
+                    </div>
+                </div>
+                <div class="coupon-row">
+                    <div class="coupon-input-wrap" id="coupon-input-wrap">
+                        <i class="fas fa-tag"></i>
+                        <input type="text" id="coupon-input" placeholder="优惠码 / Código de descuento" autocomplete="off">
+                        <button id="coupon-apply-btn" onclick="handleCouponApply()">使用</button>
+                    </div>
+                    <div id="coupon-result" class="coupon-result" style="display:none"></div>
                 </div>
                 <hr style="margin: 1rem 0; border-color: #e5e5e5;">
                 <div class="checkout-form-group">
@@ -327,6 +346,21 @@
                     <span data-lang-key="add_to_cart">加入购物车</span>
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- 首次访问欢迎弹窗 -->
+    <div id="welcome-modal" class="modal" style="display:none">
+        <div class="modal-content welcome-modal-content">
+            <div class="welcome-badge">新用户专享 / Bienvenido</div>
+            <h2 class="welcome-title">欢迎光临 VAPE STORE</h2>
+            <p class="welcome-sub">首单专享优惠，使用下方优惠码享受 <strong>9折</strong> 优惠</p>
+            <div class="welcome-code-box" id="welcome-code-box" onclick="copyWelcomeCode()">
+                <span class="welcome-code">BIENVENIDO</span>
+                <span class="welcome-copy-hint" id="copy-hint"><i class="fas fa-copy"></i> 点击复制</span>
+            </div>
+            <p class="welcome-terms">结账时填入优惠码即可使用 · Válido en tu primer pedido</p>
+            <button class="btn btn-primary welcome-start-btn" onclick="closeWelcomeModal()">开始购物 / Empezar</button>
         </div>
     </div>
 

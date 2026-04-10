@@ -2,6 +2,29 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const BASE_URL = process.env.URL || 'https://tangerine-heliotrope-a2bd74.netlify.app';
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+async function sendTelegramNotification(order) {
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+    const itemLines = order.items.map(i => `  • ${i.name} x${i.quantity} — €${(i.price * i.quantity).toFixed(2)}`).join('\n');
+    const deliveryInfo = order.delivery_type === 'delivery'
+        ? `\n📦 *Entrega a domicilio*\n📍 ${order.address}\n🕐 ${order.delivery_time}`
+        : '\n🏪 *Recogida en tienda*';
+    const text = `💳 *Nuevo pedido con tarjeta*\n\n` +
+        `📋 ${order.order_number}\n` +
+        `👤 ${order.customer_name}\n` +
+        `📱 ${order.customer_phone}\n` +
+        `\n${itemLines}\n` +
+        `\n💶 *Total: €${order.total.toFixed(2)}*` +
+        deliveryInfo +
+        `\n\n⏳ Estado: Pendiente pago`;
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: 'Markdown' })
+    }).catch(err => console.error('Telegram notify failed:', err));
+}
 
 async function saveOrder(order) {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
@@ -45,8 +68,7 @@ exports.handler = async (event) => {
             metadata: { order_number: orderNumber, customer_name: customerName, customer_phone: customerPhone }
         });
 
-        // 不阻塞支付流程，后台保存订单
-        saveOrder({
+        const orderData = {
             order_number: orderNumber,
             customer_name: customerName,
             customer_phone: customerPhone,
@@ -58,7 +80,9 @@ exports.handler = async (event) => {
             delivery_type: deliveryType || 'pickup',
             address: address || '',
             delivery_time: deliveryTime || ''
-        }).catch(err => console.error('Supabase save failed:', err));
+        };
+        saveOrder(orderData).catch(err => console.error('Supabase save failed:', err));
+        sendTelegramNotification(orderData).catch(() => {});
 
         return {
             statusCode: 200,
