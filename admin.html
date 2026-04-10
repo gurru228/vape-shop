@@ -503,10 +503,49 @@
     // ── Inventory ──
     // 产品定义（与前台同步）
     const PRODUCTS_DEF = [
-        { id: 1, name: '鸭嘴兽 (Dash)', flavors: ['Jasmine LongJing Tea','Lemon Tea','Green Grape','Sweet Melon','Crystal Grape','Mineral Water','Coconut Water','Matcha Smoothie','Peach Ice','Pink Guava'] },
-        { id: 2, name: '冰爆 (IceMax)', flavors: ['Passion Grapefruit','Jasmine Milk Tea','Iced Pocari','Coconut Water','Miami Mint','Longjing Ice Tea','Green Grape Ice','Fresh Lemon','Lychee Ice','Peach Oolong'] },
-        { id: 3, name: '小黑条 (Lil Black)', flavors: ['Longan','Banana','Durian','Honeydew','Mango','Coconut Ice','Peach','Guava','Lychee'] },
-        { id: 4, name: '冰王 (Elfbar IceKing)', flavors: ['Jasmine Longjing','Salted Lemon','Tieguanyin','Grape Ice','Green Grape Ice','Green Tea'] }
+        { id: 1, name: '鸭嘴兽 (Dash)', flavors: [
+            { key: 'Jasmine LongJing Tea', label: '龙井' },
+            { key: 'Lemon Tea', label: '柠檬茶' },
+            { key: 'Green Grape', label: '青提' },
+            { key: 'Sweet Melon', label: '甜瓜' },
+            { key: 'Crystal Grape', label: '紫晶葡萄' },
+            { key: 'Mineral Water', label: '矿泉水' },
+            { key: 'Coconut Water', label: '椰子水' },
+            { key: 'Matcha Smoothie', label: '抹茶思慕雪' },
+            { key: 'Peach Ice', label: '水蜜桃冰' },
+            { key: 'Pink Guava', label: '粉红番石榴' }
+        ]},
+        { id: 2, name: '冰爆 (IceMax)', flavors: [
+            { key: 'Passion Grapefruit', label: '百香西柚' },
+            { key: 'Jasmine Milk Tea', label: '茉莉奶茶' },
+            { key: 'Iced Pocari', label: '冰镇宝矿力' },
+            { key: 'Coconut Water', label: '椰子水' },
+            { key: 'Miami Mint', label: '迈阿密薄荷' },
+            { key: 'Longjing Ice Tea', label: '龙井冰茶' },
+            { key: 'Green Grape Ice', label: '青葡萄冰' },
+            { key: 'Fresh Lemon', label: '新鲜柠檬' },
+            { key: 'Lychee Ice', label: '荔枝冰' },
+            { key: 'Peach Oolong', label: '水蜜桃乌龙' }
+        ]},
+        { id: 3, name: '小黑条 (Lil Black)', flavors: [
+            { key: 'Longan', label: '龙眼' },
+            { key: 'Banana', label: '香蕉' },
+            { key: 'Durian', label: '榴莲' },
+            { key: 'Honeydew', label: '蜜露' },
+            { key: 'Mango', label: '芒果' },
+            { key: 'Coconut Ice', label: '椰子冰' },
+            { key: 'Peach', label: '水蜜桃' },
+            { key: 'Guava', label: '番石榴' },
+            { key: 'Lychee', label: '荔枝' }
+        ]},
+        { id: 4, name: '冰王 (Elfbar IceKing)', flavors: [
+            { key: 'Jasmine Longjing', label: '茉莉龙井' },
+            { key: 'Salted Lemon', label: '海盐柠檬' },
+            { key: 'Tieguanyin', label: '铁观音' },
+            { key: 'Grape Ice', label: '黑葡萄冰' },
+            { key: 'Green Grape Ice', label: '青葡萄冰' },
+            { key: 'Green Tea', label: '绿茶' }
+        ]}
     ];
 
     let inventoryData = {};
@@ -524,14 +563,14 @@
         const container = document.getElementById('inventory-container');
         container.innerHTML = PRODUCTS_DEF.map(p => {
             const rows = p.flavors.map(f => {
-                const key = `${p.id}-${f}`;
+                const key = `${p.id}-${f.key}`;
                 const stock = inventoryData[key] ?? '';
                 const stockNum = parseInt(stock);
                 const tag = isNaN(stockNum) ? '' : stockNum === 0 ? '<span class="sold-out-tag">售罄</span>' : stockNum <= 5 ? '<span class="low-tag">低库存</span>' : '';
                 const cls = isNaN(stockNum) ? '' : stockNum === 0 ? 'stock-zero' : stockNum <= 5 ? 'stock-low' : 'stock-ok';
                 return `<tr>
-                    <td>${f}${tag}</td>
-                    <td><input class="inv-stock-input ${cls}" type="number" min="0" data-key="${key}" data-pid="${p.id}" data-fname="${f}" data-pname="${p.name}" value="${stock}" placeholder="—" oninput="onStockInput(this)"></td>
+                    <td>${f.label}${tag}</td>
+                    <td><input class="inv-stock-input ${cls}" type="number" min="0" data-key="${key}" data-pid="${p.id}" data-fname="${f.key}" data-pname="${p.name}" value="${stock}" placeholder="—" oninput="onStockInput(this)"></td>
                 </tr>`;
             }).join('');
             return `<div class="inv-product">
