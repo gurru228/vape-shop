@@ -583,7 +583,7 @@ function openCartCheckoutModal() {
             const res = await fetch('/.netlify/functions/save-bizum-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress, deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0, shippingFee })
+                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress, deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0, shippingFee, agentRef: sessionStorage.getItem('agent_ref') || '' })
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
@@ -649,7 +649,7 @@ function openCartCheckoutModal() {
             const res = await fetch('/.netlify/functions/create-checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress, deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0, shippingFee })
+                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress, deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0, shippingFee, agentRef: sessionStorage.getItem('agent_ref') || '' })
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
@@ -1321,6 +1321,10 @@ function init() {
     // 加载库存，并每60秒自动刷新
     loadInventory();
     setInterval(loadInventory, 60000);
+
+    // 读取代理推广链接参数 ?ref=xxx
+    const refParam = new URLSearchParams(window.location.search).get('ref');
+    if (refParam) sessionStorage.setItem('agent_ref', refParam);
 
     // 清除 URL hash 并强制回顶（防止 #contact 等锚点自动滚动）
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';

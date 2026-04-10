@@ -60,7 +60,7 @@ exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
 
     try {
-        const { cart, customerName, customerPhone, deliveryType, address, deliveryTime, shippingFee } = JSON.parse(event.body);
+        const { cart, customerName, customerPhone, deliveryType, address, deliveryTime, shippingFee, agentRef } = JSON.parse(event.body);
         if (!cart?.length || !customerName || !customerPhone) {
             return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields' }) };
         }
@@ -110,7 +110,8 @@ exports.handler = async (event) => {
             stripe_session_id: session.id,
             delivery_type: deliveryType || 'pickup',
             address: address || '',
-            delivery_time: deliveryTime || ''
+            delivery_time: deliveryTime || '',
+            agent_ref: agentRef || null
         };
         await Promise.all([
             saveOrder(orderData).catch(err => console.error('Supabase save failed:', err)),

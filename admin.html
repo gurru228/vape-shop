@@ -210,6 +210,9 @@
         <button id="tab-inventory" onclick="switchTab('inventory')" style="padding:0.75rem 1.25rem;border:none;background:none;font-size:0.875rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:#737373;font-family:inherit">
             <i class="fas fa-boxes"></i> 库存管理
         </button>
+        <button id="tab-agents" onclick="switchTab('agents')" style="padding:0.75rem 1.25rem;border:none;background:none;font-size:0.875rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:#737373;font-family:inherit">
+            <i class="fas fa-users"></i> 代理统计
+        </button>
     </div>
 
     <!-- Filter Bar -->
@@ -261,6 +264,12 @@
             <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
         </div>
     </div>
+    </div>
+
+    <!-- Agents -->
+    <div id="section-agents" style="display:none;padding:1.25rem 2rem 2rem">
+        <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem">代理统计</h3>
+        <div id="agents-container"><div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div></div>
     </div>
 
     <!-- Inventory -->
@@ -489,15 +498,107 @@
 
     // ── Tab switching ──
     function switchTab(tab) {
-        document.getElementById('section-orders').style.display    = tab === 'orders'    ? 'block' : 'none';
-        document.getElementById('section-inventory').style.display = tab === 'inventory' ? 'block' : 'none';
-        document.getElementById('tab-orders').style.borderBottomColor    = tab === 'orders'    ? '#000' : 'transparent';
-        document.getElementById('tab-inventory').style.borderBottomColor = tab === 'inventory' ? '#000' : 'transparent';
-        document.getElementById('tab-orders').style.color    = tab === 'orders'    ? '#000' : '#737373';
-        document.getElementById('tab-inventory').style.color = tab === 'inventory' ? '#000' : '#737373';
-        document.getElementById('tab-orders').style.fontWeight    = tab === 'orders'    ? '600' : '500';
-        document.getElementById('tab-inventory').style.fontWeight = tab === 'inventory' ? '600' : '500';
+        ['orders','inventory','agents'].forEach(t => {
+            document.getElementById(`section-${t}`).style.display = tab === t ? 'block' : 'none';
+            document.getElementById(`tab-${t}`).style.borderBottomColor = tab === t ? '#000' : 'transparent';
+            document.getElementById(`tab-${t}`).style.color = tab === t ? '#000' : '#737373';
+            document.getElementById(`tab-${t}`).style.fontWeight = tab === t ? '600' : '500';
+        });
         if (tab === 'inventory') loadInventory();
+        if (tab === 'agents') renderAgentStats();
+    }
+
+    // ── Agent Stats ──
+    function renderAgentStats() {
+        const container = document.getElementById('agents-container');
+        if (!allOrders.length) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> 暂无订单数据</div>';
+            return;
+        }
+
+        // 按 agent_ref 分组
+        const groups = {};
+        allOrders.forEach(o => {
+            const ref = o.agent_ref || '__direct__';
+            if (!groups[ref]) groups[ref] = [];
+            groups[ref].push(o);
+        });
+
+        // 排序：代理在前，直接订单在后
+        const keys = Object.keys(groups).sort((a, b) => {
+            if (a === '__direct__') return 1;
+            if (b === '__direct__') return -1;
+            return groups[b].length - groups[a].length;
+        });
+
+        const rows = keys.map(ref => {
+            const orders = groups[ref];
+            const paid = orders.filter(o => o.payment_status !== 'pending');
+            const pending = orders.filter(o => o.payment_status === 'pending');
+            const revenue = paid.reduce((s, o) => s + parseFloat(o.total || 0), 0);
+            const label = ref === '__direct__' ? '直接订单（无代理）' : ref;
+            const linkHtml = ref !== '__direct__'
+                ? `<a href="?ref=${ref}" target="_blank" style="font-size:0.75rem;color:#2563eb">🔗 推广链接</a>`
+                : '';
+            return `
+            <tr>
+                <td style="font-weight:600">${label} ${linkHtml}</td>
+                <td style="text-align:center">${orders.length}</td>
+                <td style="text-align:center;color:#16a34a;font-weight:600">${paid.length}</td>
+                <td style="text-align:center;color:#d97706">${pending.length}</td>
+                <td style="text-align:right;font-weight:700">€${revenue.toFixed(2)}</td>
+                <td style="text-align:center">
+                    ${ref !== '__direct__' ? `<button onclick="filterByAgent('${ref}')" style="padding:0.25rem 0.75rem;border:1px solid #e5e5e5;border-radius:6px;background:#fff;cursor:pointer;font-size:0.8rem">查看订单</button>` : ''}
+                </td>
+            </tr>`;
+        }).join('');
+
+        // 汇总
+        const agentCount = keys.filter(k => k !== '__direct__').length;
+        const agentOrders = allOrders.filter(o => o.agent_ref);
+        const agentRevenue = agentOrders.filter(o => o.payment_status !== 'pending').reduce((s, o) => s + parseFloat(o.total || 0), 0);
+
+        container.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1.25rem">
+            <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1rem;text-align:center">
+                <div style="font-size:1.5rem;font-weight:700">${agentCount}</div>
+                <div style="font-size:0.8rem;color:#737373;margin-top:0.25rem">活跃代理</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1rem;text-align:center">
+                <div style="font-size:1.5rem;font-weight:700">${agentOrders.length}</div>
+                <div style="font-size:0.8rem;color:#737373;margin-top:0.25rem">代理订单数</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1rem;text-align:center">
+                <div style="font-size:1.5rem;font-weight:700;color:#16a34a">€${agentRevenue.toFixed(2)}</div>
+                <div style="font-size:0.8rem;color:#737373;margin-top:0.25rem">代理已付总额</div>
+            </div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;overflow:hidden">
+            <table style="width:100%;border-collapse:collapse;font-size:0.875rem">
+                <thead>
+                    <tr style="background:#fafafa;border-bottom:1px solid #e5e5e5">
+                        <th style="padding:0.75rem 1rem;text-align:left;font-weight:600">代理</th>
+                        <th style="padding:0.75rem 1rem;text-align:center;font-weight:600">总订单</th>
+                        <th style="padding:0.75rem 1rem;text-align:center;font-weight:600">已付款</th>
+                        <th style="padding:0.75rem 1rem;text-align:center;font-weight:600">待付款</th>
+                        <th style="padding:0.75rem 1rem;text-align:right;font-weight:600">已付总额</th>
+                        <th style="padding:0.75rem 1rem;text-align:center;font-weight:600">操作</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        </div>`;
+    }
+
+    function filterByAgent(ref) {
+        switchTab('orders');
+        document.getElementById('search-input').value = '';
+        // 临时筛选只显示该代理订单
+        const agentOrders = allOrders.filter(o => o.agent_ref === ref);
+        document.getElementById('orders-container').innerHTML = '';
+        renderOrders(agentOrders);
+        const countEl = document.getElementById('result-count');
+        if (countEl) countEl.textContent = `代理 ${ref}：共 ${agentOrders.length} 条订单`;
     }
 
     // ── Inventory ──
