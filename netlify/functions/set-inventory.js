@@ -9,13 +9,13 @@ exports.handler = async (event) => {
         const { password, items } = JSON.parse(event.body);
         if (password !== ADMIN_PASSWORD) return { statusCode: 401, body: 'Unauthorized' };
 
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/inventory`, {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/inventory?on_conflict=product_id,flavor_name`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'apikey': SUPABASE_KEY,
                 'Authorization': `Bearer ${SUPABASE_KEY}`,
-                'Prefer': 'resolution=merge-duplicates'
+                'Prefer': 'resolution=merge-duplicates,return=minimal'
             },
             body: JSON.stringify(items)
         });

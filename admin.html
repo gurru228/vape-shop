@@ -606,14 +606,20 @@
         if (!items.length) return;
         const btn = document.querySelector('[onclick="saveInventory()"]');
         btn.textContent = '保存中...'; btn.disabled = true;
-        await fetch('/.netlify/functions/set-inventory', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password: adminPass, items })
-        });
-        btn.innerHTML = '<i class="fas fa-check"></i> 已保存';
+        try {
+            const res = await fetch('/.netlify/functions/set-inventory', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: adminPass, items })
+            });
+            if (!res.ok) throw new Error(await res.text());
+            btn.innerHTML = '<i class="fas fa-check"></i> 已保存';
+            items.forEach(i => { inventoryData[`${i.product_id}-${i.flavor_name}`] = i.stock; });
+        } catch (err) {
+            btn.innerHTML = '<i class="fas fa-times"></i> 保存失败';
+            alert('保存失败：' + err.message);
+        }
         setTimeout(() => { btn.innerHTML = '<i class="fas fa-save"></i> 保存库存'; btn.disabled = false; }, 2000);
-        items.forEach(i => { inventoryData[`${i.product_id}-${i.flavor_name}`] = i.stock; });
     }
 
     function toggleWaDropdown(id) {
