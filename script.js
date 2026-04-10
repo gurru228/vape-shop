@@ -1002,8 +1002,8 @@ function createProductCard(product) {
     const flavorsHtml = product.flavors ? `
         <div class="flavor-selector">
             ${product.flavors.map((f, i) => `
-                <button class="flavor-btn${i === 0 ? ' active' : ''}" data-flavor-index="${i}" title="${f.name}">
-                    <img src="${f.image}" alt="${f.name}">
+                <button class="flavor-btn${i === 0 ? ' active' : ''}" data-flavor-index="${i}" data-product-id="${product.id}" data-flavor="${f.name}" title="${f.name}">
+                    <img src="${f.image}" alt="${f.name}" onerror="this.style.display='none'">
                     <span>${currentLanguage === 'zh' ? f.nameCn : f.name}</span>
                 </button>
             `).join('')}
@@ -1193,6 +1193,48 @@ function initBizumInfo() {
     });
 }
 
+// ===== 库存系统 =====
+let inventoryMap = {}; // key: "productId-flavorName"
+
+async function loadInventory() {
+    try {
+        const res = await fetch('/.netlify/functions/get-inventory');
+        const rows = await res.json();
+        inventoryMap = {};
+        (rows || []).forEach(r => { inventoryMap[`${r.product_id}-${r.flavor_name}`] = r.stock; });
+        applyInventoryToUI();
+    } catch (e) {
+        console.warn('Inventory load failed:', e);
+    }
+}
+
+function getStock(productId, flavorName) {
+    const key = `${productId}-${flavorName || 'default'}`;
+    return inventoryMap.hasOwnProperty(key) ? inventoryMap[key] : null;
+}
+
+function isSoldOut(productId, flavorName) {
+    const stock = getStock(productId, flavorName);
+    return stock !== null && stock === 0;
+}
+
+function applyInventoryToUI() {
+    // 给每个口味按钮加售罄标记
+    document.querySelectorAll('.flavor-btn[data-product-id][data-flavor]').forEach(btn => {
+        const pid = parseInt(btn.dataset.productId);
+        const flavor = btn.dataset.flavor;
+        if (isSoldOut(pid, flavor)) {
+            btn.classList.add('sold-out-flavor');
+            if (!btn.querySelector('.soldout-label')) {
+                btn.insertAdjacentHTML('beforeend', '<span class="soldout-label">售罄</span>');
+            }
+        } else {
+            btn.classList.remove('sold-out-flavor');
+            btn.querySelector('.soldout-label')?.remove();
+        }
+    });
+}
+
 function init() {
     // 初始化语言切换
     initLanguageSwitcher();
@@ -1215,10 +1257,8 @@ function init() {
     // 首次访问欢迎弹窗
     initWelcomeModal();
 
-    console.log('Vape Store initialized successfully');
-    console.log('Product count:', products.length);
-    console.log('Current language:', currentLanguage);
-    console.log('Cart items:', cart.length);
+    // 加载库存
+    loadInventory();
 }
 
 // ===== 欢迎弹窗 =====

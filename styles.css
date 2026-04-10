@@ -1895,6 +1895,26 @@ body {
     color: var(--color-gray-600);
 }
 
+/* 售罄标记 */
+.sold-out-flavor {
+    opacity: 0.5;
+    cursor: not-allowed;
+    position: relative;
+}
+
+.soldout-label {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: #dc2626;
+    color: #fff;
+    font-size: 0.55rem;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 4px;
+    pointer-events: none;
+}
+
 .free-badge {
     background: #16a34a;
     color: white;

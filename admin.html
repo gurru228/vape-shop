@@ -85,6 +85,21 @@
         .order-info-row { display: flex; align-items: center; gap: 0.4rem; font-size: 0.875rem; color: #525252; }
         .order-info-row i { width: 15px; color: #a3a3a3; font-size: 0.8rem; flex-shrink: 0; }
 
+        /* ── Inventory ── */
+        .inv-product { background:#fff;border:1px solid #e5e5e5;border-radius:12px;margin-bottom:0.75rem;overflow:hidden }
+        .inv-product-header { padding:0.875rem 1.25rem;background:#fafafa;border-bottom:1px solid #e5e5e5;font-weight:600;font-size:0.9rem;display:flex;align-items:center;gap:0.5rem }
+        .inv-table { width:100%;border-collapse:collapse }
+        .inv-table th { padding:0.5rem 1.25rem;text-align:left;font-size:0.75rem;color:#737373;font-weight:500;border-bottom:1px solid #f0f0f0 }
+        .inv-table td { padding:0.625rem 1.25rem;border-bottom:1px solid #f5f5f5;font-size:0.875rem }
+        .inv-table tr:last-child td { border-bottom:none }
+        .inv-stock-input { width:80px;padding:0.375rem 0.625rem;border:1px solid #e5e5e5;border-radius:6px;font-size:0.875rem;font-family:inherit;text-align:center;transition:border-color 0.2s }
+        .inv-stock-input:focus { outline:none;border-color:#000 }
+        .stock-ok { color:#16a34a;font-weight:600 }
+        .stock-low { color:#d97706;font-weight:600 }
+        .stock-zero { color:#dc2626;font-weight:700 }
+        .sold-out-tag { display:inline-block;background:#fee2e2;color:#dc2626;font-size:0.7rem;font-weight:700;padding:2px 7px;border-radius:99px;margin-left:6px }
+        .low-tag { display:inline-block;background:#fef3c7;color:#d97706;font-size:0.7rem;font-weight:700;padding:2px 7px;border-radius:99px;margin-left:6px }
+
         .delivery-block { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }
         .delivery-block-title { font-size: 0.75rem; font-weight: 700; color: #1d4ed8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.15rem; }
         .delivery-block .order-info-row { color: #1e3a8a; }
@@ -187,6 +202,16 @@
         </div>
     </div>
 
+    <!-- Tab Bar -->
+    <div style="background:#fff;border-bottom:1px solid #e5e5e5;padding:0 2rem;display:flex;gap:0">
+        <button id="tab-orders" onclick="switchTab('orders')" style="padding:0.75rem 1.25rem;border:none;background:none;font-size:0.875rem;font-weight:600;cursor:pointer;border-bottom:2px solid #000;color:#000;font-family:inherit">
+            <i class="fas fa-list"></i> 订单管理
+        </button>
+        <button id="tab-inventory" onclick="switchTab('inventory')" style="padding:0.75rem 1.25rem;border:none;background:none;font-size:0.875rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:#737373;font-family:inherit">
+            <i class="fas fa-boxes"></i> 库存管理
+        </button>
+    </div>
+
     <!-- Filter Bar -->
     <div class="filter-bar">
         <div class="search-row">
@@ -230,8 +255,24 @@
     </div>
 
     <!-- Orders -->
+    <div id="section-orders">
     <div class="orders-section">
         <div id="orders-container">
+            <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Inventory -->
+    <div id="section-inventory" style="display:none;padding:1.25rem 2rem 2rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+            <h3 style="font-size:1rem;font-weight:600">库存管理</h3>
+            <div style="display:flex;gap:0.5rem">
+                <button onclick="loadInventory()" style="padding:0.5rem 1rem;border:1px solid #e5e5e5;border-radius:8px;background:#fff;cursor:pointer;font-size:0.8rem;font-family:inherit"><i class="fas fa-sync-alt"></i> 刷新</button>
+                <button onclick="saveInventory()" style="padding:0.5rem 1rem;border:none;border-radius:8px;background:#000;color:#fff;cursor:pointer;font-size:0.8rem;font-weight:600;font-family:inherit"><i class="fas fa-save"></i> 保存库存</button>
+            </div>
+        </div>
+        <div id="inventory-container">
             <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
         </div>
     </div>
@@ -444,6 +485,90 @@
                 </div>
             </div>`;
         }).join('');
+    }
+
+    // ── Tab switching ──
+    function switchTab(tab) {
+        document.getElementById('section-orders').style.display    = tab === 'orders'    ? 'block' : 'none';
+        document.getElementById('section-inventory').style.display = tab === 'inventory' ? 'block' : 'none';
+        document.getElementById('tab-orders').style.borderBottomColor    = tab === 'orders'    ? '#000' : 'transparent';
+        document.getElementById('tab-inventory').style.borderBottomColor = tab === 'inventory' ? '#000' : 'transparent';
+        document.getElementById('tab-orders').style.color    = tab === 'orders'    ? '#000' : '#737373';
+        document.getElementById('tab-inventory').style.color = tab === 'inventory' ? '#000' : '#737373';
+        document.getElementById('tab-orders').style.fontWeight    = tab === 'orders'    ? '600' : '500';
+        document.getElementById('tab-inventory').style.fontWeight = tab === 'inventory' ? '600' : '500';
+        if (tab === 'inventory') loadInventory();
+    }
+
+    // ── Inventory ──
+    // 产品定义（与前台同步）
+    const PRODUCTS_DEF = [
+        { id: 1, name: '鸭嘴兽 (Dash)', flavors: ['Coconut Water','Matcha Smoothie','Peach Ice','Pink Guava','Jasmine LongJing Tea','Green Grape'] },
+        { id: 2, name: '冰爆 (IceMax)', flavors: ['Passion Grapefruit','Jasmine Milk Tea','Iced Pocari','Coconut Water','Miami Mint','Longjing Ice Tea','Green Grape Ice','Fresh Lemon','Lychee Ice','Peach Oolong'] },
+        { id: 3, name: '小黑条 (Lil Black)', flavors: ['Peach','Guava','Lychee','Longan','Mango','Honeydew'] },
+        { id: 4, name: '冰王 (Elfbar IceKing)', flavors: ['Grape Ice','Green Grape Ice','Green Tea'] }
+    ];
+
+    let inventoryData = {};
+
+    async function loadInventory() {
+        document.getElementById('inventory-container').innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+        const res = await fetch('/.netlify/functions/get-inventory');
+        const rows = await res.json();
+        inventoryData = {};
+        (rows || []).forEach(r => { inventoryData[`${r.product_id}-${r.flavor_name}`] = r.stock; });
+        renderInventory();
+    }
+
+    function renderInventory() {
+        const container = document.getElementById('inventory-container');
+        container.innerHTML = PRODUCTS_DEF.map(p => {
+            const rows = p.flavors.map(f => {
+                const key = `${p.id}-${f}`;
+                const stock = inventoryData[key] ?? '';
+                const stockNum = parseInt(stock);
+                const tag = isNaN(stockNum) ? '' : stockNum === 0 ? '<span class="sold-out-tag">售罄</span>' : stockNum <= 5 ? '<span class="low-tag">低库存</span>' : '';
+                const cls = isNaN(stockNum) ? '' : stockNum === 0 ? 'stock-zero' : stockNum <= 5 ? 'stock-low' : 'stock-ok';
+                return `<tr>
+                    <td>${f}${tag}</td>
+                    <td><input class="inv-stock-input ${cls}" type="number" min="0" data-key="${key}" data-pid="${p.id}" data-fname="${f}" data-pname="${p.name}" value="${stock}" placeholder="—" oninput="onStockInput(this)"></td>
+                </tr>`;
+            }).join('');
+            return `<div class="inv-product">
+                <div class="inv-product-header"><i class="fas fa-box"></i> ${p.name}</div>
+                <table class="inv-table">
+                    <thead><tr><th>口味</th><th>库存数量</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+        }).join('');
+    }
+
+    function onStockInput(el) {
+        const v = parseInt(el.value);
+        el.className = 'inv-stock-input ' + (isNaN(v) ? '' : v === 0 ? 'stock-zero' : v <= 5 ? 'stock-low' : 'stock-ok');
+    }
+
+    async function saveInventory() {
+        const inputs = document.querySelectorAll('.inv-stock-input');
+        const items = [];
+        inputs.forEach(el => {
+            const v = parseInt(el.value);
+            if (!isNaN(v)) {
+                items.push({ product_id: parseInt(el.dataset.pid), product_name: el.dataset.pname, flavor_name: el.dataset.fname, stock: v });
+            }
+        });
+        if (!items.length) return;
+        const btn = document.querySelector('[onclick="saveInventory()"]');
+        btn.textContent = '保存中...'; btn.disabled = true;
+        await fetch('/.netlify/functions/set-inventory', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: adminPass, items })
+        });
+        btn.innerHTML = '<i class="fas fa-check"></i> 已保存';
+        setTimeout(() => { btn.innerHTML = '<i class="fas fa-save"></i> 保存库存'; btn.disabled = false; }, 2000);
+        items.forEach(i => { inventoryData[`${i.product_id}-${i.flavor_name}`] = i.stock; });
     }
 
     function toggleWaDropdown(id) {
