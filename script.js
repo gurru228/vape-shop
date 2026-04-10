@@ -912,11 +912,11 @@ let products = [
         image: 'images/lilblack/peach.webp',
         flavors: [
             { name: 'Longan', nameCn: '龙眼', image: 'images/lilblack/longan.webp' },
-            { name: 'Banana', nameCn: '香蕉', image: '' },
-            { name: 'Durian', nameCn: '榴莲', image: '' },
+            { name: 'Banana', nameCn: '香蕉', image: 'images/lilblack/banana.jpg' },
+            { name: 'Durian', nameCn: '榴莲', image: 'images/lilblack/durian.jpg' },
             { name: 'Honeydew', nameCn: '蜜露', image: 'images/lilblack/honeydew.webp' },
             { name: 'Mango', nameCn: '芒果', image: 'images/lilblack/mango.webp' },
-            { name: 'Coconut Ice', nameCn: '椰子冰', image: '' },
+            { name: 'Coconut Ice', nameCn: '椰子冰', image: 'images/lilblack/coconut-ice.jpg' },
             { name: 'Peach', nameCn: '水蜜桃', image: 'images/lilblack/peach.webp' },
             { name: 'Guava', nameCn: '番石榴', image: 'images/lilblack/guava.webp' },
             { name: 'Lychee', nameCn: '荔枝', image: 'images/lilblack/lychee.webp' }
