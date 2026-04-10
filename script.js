@@ -78,6 +78,12 @@ function showFreeItemModal() {
     modal.style.display = 'flex';
 }
 
+function closeFreeItemModal() {
+    document.getElementById('free-item-modal').style.display = 'none';
+    document.getElementById('cart-sidebar').classList.add('open');
+    document.getElementById('cart-overlay').classList.add('active');
+}
+
 function showFreeItemProductStep() {
     const productsEl = document.getElementById('free-item-products');
     const flavorsEl = document.getElementById('free-item-flavors');
@@ -493,9 +499,18 @@ function openCartCheckoutModal() {
 
     modal.style.display = 'flex';
 
-    // 关闭按钮
+    // 关闭/返回按钮
     document.getElementById('checkout-modal-close').onclick = () => modal.style.display = 'none';
     modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+    document.getElementById('checkout-back-to-cart').onclick = () => {
+        modal.style.display = 'none';
+        document.getElementById('cart-sidebar').classList.add('open');
+        document.getElementById('cart-overlay').classList.add('active');
+    };
+    document.getElementById('bizum-back-btn').onclick = () => {
+        document.getElementById('checkout-step-bizum').style.display = 'none';
+        document.getElementById('checkout-step-info').style.display = 'block';
+    };
 
     // Bizum 支付
     document.getElementById('btn-pay-bizum').onclick = async () => {

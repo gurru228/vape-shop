@@ -1747,6 +1747,25 @@ body {
     }
 }
 
+/* ===== 模态框返回按钮 ===== */
+.modal-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--color-gray-500);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: var(--space-md);
+    transition: color var(--transition-fast);
+}
+
+.modal-back-btn:hover {
+    color: var(--primary-color);
+}
+
 /* ===== 买五送一弹窗 ===== */
 .free-item-modal-content {
     max-width: 480px;

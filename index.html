@@ -218,6 +218,7 @@
 
             <!-- Step 1: 客户信息 + 支付方式 -->
             <div id="checkout-step-info">
+                <button class="modal-back-btn" id="checkout-back-to-cart"><i class="fas fa-arrow-left"></i> 返回购物车</button>
                 <h2>确认订单 / Confirmar pedido</h2>
                 <div id="checkout-cart-summary" class="checkout-cart-summary"></div>
                 <div class="checkout-total-row" id="shipping-row" style="display:none">
@@ -303,6 +304,7 @@
 
             <!-- Step 2: Bizum 支付说明 -->
             <div id="checkout-step-bizum" style="display:none">
+                <button class="modal-back-btn" id="bizum-back-btn"><i class="fas fa-arrow-left"></i> 返回修改 / Volver</button>
                 <h2>Bizum 支付 / Pago Bizum</h2>
                 <div class="bizum-steps">
                     <div class="bizum-step-row">
@@ -381,6 +383,7 @@
     <!-- 买五送一赠品选择弹窗 -->
     <div id="free-item-modal" class="modal" style="display:none">
         <div class="modal-content free-item-modal-content">
+            <button class="modal-back-btn" onclick="closeFreeItemModal()"><i class="fas fa-arrow-left"></i> 返回购物车</button>
             <h2><i class="fas fa-gift"></i> 买五送一！/ ¡Llévate 1 gratis!</h2>
             <p class="free-item-subtitle">选择一款赠品 / Elige tu producto de regalo:</p>
             <div id="free-item-products" class="free-item-products"></div>
