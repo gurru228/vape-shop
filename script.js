@@ -1321,6 +1321,9 @@ function init() {
     // 加载库存，并每60秒自动刷新
     loadInventory();
     setInterval(loadInventory, 60000);
+
+    // 每次打开页面强制回到顶部
+    window.scrollTo(0, 0);
 }
 
 // ===== 欢迎弹窗 =====
