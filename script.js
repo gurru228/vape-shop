@@ -53,8 +53,12 @@ function getNonFreeQuantity() {
     return cart.filter(i => !i.isFree).reduce((s, i) => s + i.quantity, 0);
 }
 
-function getFreeItemInCart() {
-    return cart.find(i => i.isFree);
+function getFreeItemsInCart() {
+    return cart.filter(i => i.isFree);
+}
+
+function getEntitledFreeCount() {
+    return Math.floor(getNonFreeQuantity() / 5);
 }
 
 function removeFreeItemFromCart() {
@@ -64,11 +68,18 @@ function removeFreeItemFromCart() {
 }
 
 function checkFreeItemEligibility() {
-    const qty = getNonFreeQuantity();
-    if (qty >= 5 && !getFreeItemInCart()) {
+    const entitled = getEntitledFreeCount();
+    const current = getFreeItemsInCart().length;
+    if (entitled > current) {
         showFreeItemModal();
-    } else if (qty < 5 && getFreeItemInCart()) {
-        removeFreeItemFromCart();
+    } else if (entitled < current) {
+        // 移除多余的赠品（从后往前）
+        const freeItems = getFreeItemsInCart();
+        for (let i = 0; i < current - entitled; i++) {
+            cart = cart.filter(item => item.id !== freeItems[freeItems.length - 1 - i].id);
+        }
+        saveCartToStorage();
+        updateCartUI();
     }
 }
 
@@ -129,8 +140,14 @@ function addFreeItemToCart(productId, flavorName, flavorNameCn, flavorImage) {
     cart.push(freeItem);
     saveCartToStorage();
     updateCartUI();
-    document.getElementById('free-item-modal').style.display = 'none';
-    openCartCheckoutModal();
+
+    // 还有更多赠品可选则继续弹窗，否则进入结账
+    if (getEntitledFreeCount() > getFreeItemsInCart().length) {
+        showFreeItemProductStep();
+    } else {
+        document.getElementById('free-item-modal').style.display = 'none';
+        openCartCheckoutModal();
+    }
 }
 
 function getShippingFee() {
