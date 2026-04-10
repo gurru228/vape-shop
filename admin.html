@@ -160,22 +160,53 @@
 
     async function loadOrders(isLogin = false) {
         const status = document.getElementById('status-filter')?.value || 'all';
-        const res = await fetch(`/.netlify/functions/get-orders?password=${encodeURIComponent(adminPass)}&status=${status}`);
+        const container = document.getElementById('orders-container');
+        if (container) container.innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
 
-        if (res.status === 401) {
-            document.getElementById('login-error').style.display = 'block';
-            return;
+        try {
+            const res = await fetch(`/.netlify/functions/get-orders?password=${encodeURIComponent(adminPass)}&status=${status}`);
+
+            if (res.status === 401) {
+                document.getElementById('login-error').style.display = 'block';
+                return;
+            }
+
+            const data = await res.json();
+
+            // Show debug error from backend
+            if (data && data.debug_error !== undefined) {
+                if (isLogin) {
+                    document.getElementById('login-error').style.display = 'none';
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('dashboard').style.display = 'block';
+                }
+                let errMsg = data.debug_error;
+                try { errMsg = JSON.stringify(JSON.parse(errMsg), null, 2); } catch(e) {}
+                container.innerHTML = `<div class="empty-state" style="color:#dc2626"><b>Supabase 错误 (HTTP ${data.status}):</b><pre style="text-align:left;font-size:0.75rem;margin-top:0.75rem;background:#fee2e2;padding:1rem;border-radius:8px;overflow:auto">${errMsg}</pre></div>`;
+                return;
+            }
+
+            if (!Array.isArray(data)) {
+                if (isLogin) {
+                    document.getElementById('login-error').style.display = 'none';
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('dashboard').style.display = 'block';
+                }
+                container.innerHTML = `<div class="empty-state" style="color:#dc2626">数据格式错误: <pre style="font-size:0.75rem">${JSON.stringify(data)}</pre></div>`;
+                return;
+            }
+
+            if (isLogin) {
+                document.getElementById('login-error').style.display = 'none';
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+            }
+
+            renderStats(data);
+            renderOrders(data);
+        } catch (err) {
+            if (container) container.innerHTML = `<div class="empty-state" style="color:#dc2626">请求失败: ${err.message}</div>`;
         }
-
-        if (isLogin) {
-            document.getElementById('login-error').style.display = 'none';
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-        }
-
-        const orders = await res.json();
-        renderStats(orders);
-        renderOrders(orders);
     }
 
     function renderStats(orders) {
