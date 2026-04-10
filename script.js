@@ -1,9 +1,331 @@
 // ===== 配置信息 =====
 const CONFIG = {
-    bizumPhone: '+34 612 345 678', // 替换为你的Bizum电话号码
+    bizumPhone: '+34 697 332 407',
     defaultCurrency: '€',
     storeName: 'VAPE STORE'
 };
+
+// ===== 购物车系统 =====
+let cart = [];
+const CART_STORAGE_KEY = 'vape_shop_cart';
+
+// 购物车功能
+function initCart() {
+    loadCartFromStorage();
+    updateCartUI();
+    setupCartEventListeners();
+}
+
+function loadCartFromStorage() {
+    try {
+        const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+        if (savedCart) {
+            cart = JSON.parse(savedCart);
+        }
+    } catch (error) {
+        console.error('加载购物车数据失败:', error);
+        cart = [];
+    }
+}
+
+function saveCartToStorage() {
+    try {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    } catch (error) {
+        console.error('保存购物车数据失败:', error);
+    }
+}
+
+function addToCart(product, quantity = 1) {
+    const existingItem = cart.find(item => item.id === product.id);
+
+    if (existingItem) {
+        existingItem.quantity += quantity;
+    } else {
+        cart.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image || '',
+            quantity: quantity
+        });
+    }
+
+    saveCartToStorage();
+    updateCartUI();
+    showCartNotification(product.name, quantity);
+}
+
+function removeFromCart(productId) {
+    cart = cart.filter(item => item.id !== productId);
+    saveCartToStorage();
+    updateCartUI();
+}
+
+function updateCartItemQuantity(productId, quantity) {
+    const item = cart.find(item => item.id === productId);
+    if (item) {
+        if (quantity <= 0) {
+            removeFromCart(productId);
+        } else {
+            item.quantity = quantity;
+            saveCartToStorage();
+            updateCartUI();
+        }
+    }
+}
+
+function clearCart() {
+    cart = [];
+    saveCartToStorage();
+    updateCartUI();
+}
+
+function getCartTotalItems() {
+    return cart.reduce((total, item) => total + item.quantity, 0);
+}
+
+function getCartTotalPrice() {
+    return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+}
+
+function updateCartUI() {
+    // 更新购物车数量
+    const cartCount = document.getElementById('cart-count');
+    if (cartCount) {
+        const totalItems = getCartTotalItems();
+        cartCount.textContent = totalItems;
+        cartCount.style.display = totalItems > 0 ? 'flex' : 'none';
+    }
+
+    // 更新购物车侧边栏
+    updateCartSidebar();
+}
+
+function updateCartSidebar() {
+    const cartItemsContainer = document.getElementById('cart-items');
+    const cartEmpty = document.getElementById('cart-empty');
+    const cartTotalPrice = document.getElementById('cart-total-price');
+
+    if (!cartItemsContainer || !cartEmpty || !cartTotalPrice) return;
+
+    if (cart.length === 0) {
+        cartEmpty.style.display = 'flex';
+        cartItemsContainer.style.display = 'none';
+    } else {
+        cartEmpty.style.display = 'none';
+        cartItemsContainer.style.display = 'flex';
+
+        // 清空现有内容
+        cartItemsContainer.innerHTML = '';
+
+        // 添加购物车商品
+        cart.forEach(item => {
+            const cartItemElement = createCartItemElement(item);
+            cartItemsContainer.appendChild(cartItemElement);
+        });
+    }
+
+    // 更新总价
+    cartTotalPrice.textContent = `${CONFIG.defaultCurrency}${getCartTotalPrice().toFixed(2)}`;
+}
+
+function createCartItemElement(item) {
+    const itemElement = document.createElement('div');
+    itemElement.className = 'cart-item';
+    itemElement.dataset.productId = item.id;
+
+    const itemImage = item.image || '';
+    const imageHtml = itemImage ?
+        `<img src="${itemImage}" alt="${item.name}" class="cart-item-image">` :
+        `<div class="product-image-placeholder">
+            <i class="fas fa-smoking"></i>
+        </div>`;
+
+    const subtotal = item.price * item.quantity;
+
+    itemElement.innerHTML = `
+        <div class="cart-item-image-container">
+            ${imageHtml}
+        </div>
+        <div class="cart-item-details">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-price">${CONFIG.defaultCurrency}${item.price.toFixed(2)}</div>
+            <div class="cart-item-controls">
+                <div class="quantity-control">
+                    <button class="quantity-btn minus" data-product-id="${item.id}">-</button>
+                    <span class="quantity-value">${item.quantity}</span>
+                    <button class="quantity-btn plus" data-product-id="${item.id}">+</button>
+                </div>
+                <button class="remove-item-btn" data-product-id="${item.id}">
+                    <i class="fas fa-trash"></i>
+                    <span data-lang-key="remove_from_cart">${TRANSLATIONS[currentLanguage].remove_from_cart}</span>
+                </button>
+            </div>
+        </div>
+        <div class="cart-item-subtotal">${CONFIG.defaultCurrency}${subtotal.toFixed(2)}</div>
+    `;
+
+    // 添加事件监听器
+    const minusBtn = itemElement.querySelector('.quantity-btn.minus');
+    const plusBtn = itemElement.querySelector('.quantity-btn.plus');
+    const removeBtn = itemElement.querySelector('.remove-item-btn');
+
+    minusBtn.addEventListener('click', () => {
+        updateCartItemQuantity(item.id, item.quantity - 1);
+    });
+
+    plusBtn.addEventListener('click', () => {
+        updateCartItemQuantity(item.id, item.quantity + 1);
+    });
+
+    removeBtn.addEventListener('click', () => {
+        removeFromCart(item.id);
+    });
+
+    return itemElement;
+}
+
+function showCartNotification(productName, quantity) {
+    // 创建通知元素
+    const notification = document.createElement('div');
+    notification.className = 'cart-notification';
+    notification.innerHTML = `
+        <i class="fas fa-check-circle"></i>
+        <span>${quantity} × ${productName} 已添加到购物车</span>
+    `;
+
+    // 样式
+    notification.style.position = 'fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.backgroundColor = 'var(--color-black)';
+    notification.style.color = 'var(--color-white)';
+    notification.style.padding = 'var(--space-md) var(--space-lg)';
+    notification.style.borderRadius = 'var(--radius-md)';
+    notification.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    notification.style.zIndex = '1002';
+    notification.style.display = 'flex';
+    notification.style.alignItems = 'center';
+    notification.style.gap = 'var(--space-sm)';
+    notification.style.animation = 'slideIn 0.3s ease';
+
+    document.body.appendChild(notification);
+
+    // 3秒后移除
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+function setupCartEventListeners() {
+    // 购物车切换按钮
+    const cartToggle = document.getElementById('cart-toggle');
+    const cartClose = document.getElementById('cart-close');
+    const cartOverlay = document.getElementById('cart-overlay');
+    const cartCheckout = document.getElementById('cart-checkout');
+    const cartClear = document.getElementById('cart-clear');
+
+    if (cartToggle) {
+        cartToggle.addEventListener('click', toggleCartSidebar);
+    }
+
+    if (cartClose) {
+        cartClose.addEventListener('click', toggleCartSidebar);
+    }
+
+    if (cartOverlay) {
+        cartOverlay.addEventListener('click', toggleCartSidebar);
+    }
+
+    if (cartCheckout) {
+        cartCheckout.addEventListener('click', () => {
+            if (cart.length === 0) {
+                alert(TRANSLATIONS[currentLanguage].cart_empty);
+                return;
+            }
+            openCartCheckoutModal();
+        });
+    }
+
+    if (cartClear) {
+        cartClear.addEventListener('click', () => {
+            if (cart.length === 0) return;
+            if (confirm('确定要清空购物车吗？')) {
+                clearCart();
+            }
+        });
+    }
+}
+
+function toggleCartSidebar() {
+    const cartSidebar = document.getElementById('cart-sidebar');
+    const cartOverlay = document.getElementById('cart-overlay');
+
+    if (cartSidebar && cartOverlay) {
+        const isOpen = cartSidebar.classList.contains('open');
+
+        if (isOpen) {
+            cartSidebar.classList.remove('open');
+            cartOverlay.classList.remove('show');
+        } else {
+            cartSidebar.classList.add('open');
+            cartOverlay.classList.add('show');
+        }
+    }
+}
+
+function openCartCheckoutModal() {
+    // 使用现有的支付模态框，但显示购物车总价
+    if (!domElements.purchaseModal || !domElements.modalProductInfo) return;
+
+    // 生成订单号
+    const orderId = `ORDER-${String(currentOrderId++).padStart(3, '0')}`;
+
+    // 创建购物车商品列表HTML
+    let cartItemsHtml = '';
+    cart.forEach(item => {
+        cartItemsHtml += `
+            <div class="cart-modal-item">
+                <div class="cart-modal-item-name">${item.name} × ${item.quantity}</div>
+                <div class="cart-modal-item-price">${CONFIG.defaultCurrency}${(item.price * item.quantity).toFixed(2)}</div>
+            </div>
+        `;
+    });
+
+    // 更新模态框内容
+    domElements.modalProductInfo.innerHTML = `
+        <div class="modal-product">
+            <h3 data-lang-key="cart_title">${TRANSLATIONS[currentLanguage].cart_title}</h3>
+            <div class="cart-modal-items">
+                ${cartItemsHtml}
+            </div>
+            <p class="cart-modal-total">
+                <strong data-lang-key="cart_total">${TRANSLATIONS[currentLanguage].cart_total}</strong>
+                <strong>${CONFIG.defaultCurrency}${getCartTotalPrice().toFixed(2)}</strong>
+            </p>
+        </div>
+    `;
+
+    domElements.modalPhone.textContent = CONFIG.bizumPhone;
+    domElements.modalAmount.textContent = `${CONFIG.defaultCurrency}${getCartTotalPrice().toFixed(2)}`;
+    domElements.modalOrder.textContent = orderId;
+
+    // 显示模态框
+    domElements.purchaseModal.style.display = 'flex';
+
+    // 支付成功后清空购物车
+    const originalConfirmHandler = domElements.confirmPurchase.onclick;
+    domElements.confirmPurchase.onclick = function() {
+        if (originalConfirmHandler) originalConfirmHandler.call(this);
+        clearCart();
+    };
+}
 
 // ===== 双语文本数据 =====
 const TRANSLATIONS = {
@@ -66,7 +388,18 @@ const TRANSLATIONS = {
 
         // 页脚
         footer_desc: 'Tienda de vapeadores premium en España',
-        copyright: '© 2026 VAPE STORE. Todos los derechos reservados.'
+        copyright: '© 2026 VAPE STORE. Todos los derechos reservados.',
+
+        // 购物车
+        cart_title: 'Carrito de compras',
+        cart_empty: 'El carrito está vacío',
+        cart_total: 'Total:',
+        cart_checkout: 'Ir a pagar',
+        cart_clear: 'Vaciar carrito',
+        add_to_cart: 'Añadir al carrito',
+        remove_from_cart: 'Eliminar',
+        quantity: 'Cantidad',
+        subtotal: 'Subtotal'
     },
 
     zh: {
@@ -128,7 +461,18 @@ const TRANSLATIONS = {
 
         // 页脚
         footer_desc: '西班牙优质电子烟专卖店',
-        copyright: '© 2026 VAPE STORE. 保留所有权利。'
+        copyright: '© 2026 VAPE STORE. 保留所有权利。',
+
+        // 购物车
+        cart_title: '购物车',
+        cart_empty: '购物车是空的',
+        cart_total: '总计:',
+        cart_checkout: '去结算',
+        cart_clear: '清空购物车',
+        add_to_cart: '加入购物车',
+        remove_from_cart: '删除',
+        quantity: '数量',
+        subtotal: '小计'
     }
 };
 
@@ -137,42 +481,75 @@ let products = [
     {
         id: 1,
         name: '鸭嘴兽 (Dash)',
-        price: 12.99,
+        price: 17.9,
         description: {
             es: 'Diseño ergonómico, sabor suave y duradero',
             zh: '人体工学设计，口感柔和持久'
         },
-        image: 'https://via.placeholder.com/300x200/000000/FFFFFF?text=Dash+Vape'
+        image: 'images/dash/coconut-water.webp',
+        flavors: [
+            { name: 'Coconut Water', nameCn: '椰子水', image: 'images/dash/coconut-water.webp' },
+            { name: 'Matcha Smoothie', nameCn: '抹茶思慕雪', image: 'images/dash/matcha-smoothie.webp' },
+            { name: 'Peach Ice', nameCn: '水蜜桃冰', image: 'images/dash/peach-ice.webp' },
+            { name: 'Pink Guava', nameCn: '粉红番石榴', image: 'images/dash/pink-guava.webp' },
+            { name: 'Jasmine LongJing Tea', nameCn: '茉莉龙井', image: 'images/dash/jasmine-longjing.webp' },
+            { name: 'Green Grape', nameCn: '青葡萄', image: 'images/dash/green-grape.jpeg' }
+        ]
     },
     {
         id: 2,
         name: '冰爆 (IceMax)',
-        price: 14.99,
+        price: 20,
         description: {
-            es: 'Sabor intenso a menta con efecto refrescante',
-            zh: '强劲薄荷口味，清凉感十足'
+            es: 'Ultra Freeze Taste · 12000 puffs · 3% Nicotine',
+            zh: '极致冰爽口感 · 12000口 · 3%尼古丁'
         },
-        image: 'https://via.placeholder.com/300x200/000000/FFFFFF?text=IceMax+Vape'
+        image: 'images/icemax/passion-grapefruit.webp',
+        flavors: [
+            { name: 'Passion Grapefruit', nameCn: '百香西柚', image: 'images/icemax/passion-grapefruit.webp' },
+            { name: 'Jasmine Milk Tea', nameCn: '茉莉奶茶', image: 'images/icemax/jasmine-milk-tea.webp' },
+            { name: 'Iced Pocari', nameCn: '冰镇宝矿力', image: 'images/icemax/iced-pocari.webp' },
+            { name: 'Coconut Water', nameCn: '椰子水', image: 'images/icemax/coconut-water.webp' },
+            { name: 'Miami Mint', nameCn: '迈阿密薄荷', image: 'images/icemax/miami-mint.webp' },
+            { name: 'Longjing Ice Tea', nameCn: '龙井冰茶', image: 'images/icemax/longjing-ice-tea.webp' },
+            { name: 'Green Grape Ice', nameCn: '青葡萄冰', image: 'images/icemax/green-grape-ice.webp' },
+            { name: 'Fresh Lemon', nameCn: '新鲜柠檬', image: 'images/icemax/fresh-lemon.webp' },
+            { name: 'Lychee Ice', nameCn: '荔枝冰', image: 'images/icemax/lychee-ice.webp' },
+            { name: 'Peach Oolong', nameCn: '水蜜桃乌龙', image: 'images/icemax/peach-oolong.webp' }
+        ]
     },
     {
         id: 3,
         name: '小黑条 (Lil Black)',
-        price: 10.99,
+        price: 17.9,
         description: {
-            es: 'Compacto y discreto, ideal para llevar',
-            zh: '小巧隐蔽，便携设计'
+            es: 'Quik 5000 puffs · Compacto y discreto, ideal para llevar',
+            zh: 'Quik 5000口 · 小巧便携，随时随地'
         },
-        image: 'https://via.placeholder.com/300x200/000000/FFFFFF?text=Lil+Black+Vape'
+        image: 'images/lilblack/peach.webp',
+        flavors: [
+            { name: 'Peach', nameCn: '水蜜桃', image: 'images/lilblack/peach.webp' },
+            { name: 'Guava', nameCn: '番石榴', image: 'images/lilblack/guava.webp' },
+            { name: 'Lychee', nameCn: '荔枝', image: 'images/lilblack/lychee.webp' },
+            { name: 'Longan', nameCn: '龙眼', image: 'images/lilblack/longan.webp' },
+            { name: 'Mango', nameCn: '芒果', image: 'images/lilblack/mango.webp' },
+            { name: 'Honeydew', nameCn: '哈密瓜', image: 'images/lilblack/honeydew.webp' }
+        ]
     },
     {
         id: 4,
         name: '冰王 (Elfbar IceKing)',
-        price: 16.99,
+        price: 45,
         description: {
-            es: 'Sabor frío potente, experiencia refrescante extrema',
-            zh: '极强冰感，极致清凉体验'
+            es: 'Elfbar IceKing · Sabor frío potente, experiencia refrescante extrema',
+            zh: 'Elfbar IceKing · 极强冰感，极致清凉体验'
         },
-        image: 'https://via.placeholder.com/300x200/000000/FFFFFF?text=IceKing+Vape'
+        image: 'images/iceking/grape-ice.webp',
+        flavors: [
+            { name: 'Grape Ice', nameCn: '黑葡萄冰', image: 'images/iceking/grape-ice.webp' },
+            { name: 'Green Grape Ice', nameCn: '青葡萄冰', image: 'images/iceking/green-grape-ice.webp' },
+            { name: 'Green Tea', nameCn: '绿茶', image: 'images/iceking/green-tea.webp' }
+        ]
     }
 ];
 
@@ -184,12 +561,12 @@ let currentOrderId = 1;
 const domElements = {
     languageSwitcher: document.querySelector('.language-switcher'),
     productsGrid: document.getElementById('products-grid'),
-    productForm: document.getElementById('product-form'),
     purchaseModal: document.getElementById('purchase-modal'),
     modalProductInfo: document.getElementById('modal-product-info'),
     modalPhone: document.getElementById('modal-phone'),
     modalAmount: document.getElementById('modal-amount'),
-    modalOrder: document.getElementById('modal-order')
+    modalOrder: document.getElementById('modal-order'),
+    confirmPurchase: document.getElementById('confirm-purchase')
 };
 
 // ===== 语言切换功能 =====
@@ -249,31 +626,142 @@ function createProductCard(product) {
     card.className = 'product-card';
     card.dataset.productId = product.id;
 
+    const flavorsHtml = product.flavors ? `
+        <div class="flavor-selector">
+            ${product.flavors.map((f, i) => `
+                <button class="flavor-btn${i === 0 ? ' active' : ''}" data-flavor-index="${i}" title="${f.name}">
+                    <img src="${f.image}" alt="${f.name}">
+                    <span>${currentLanguage === 'zh' ? f.nameCn : f.name}</span>
+                </button>
+            `).join('')}
+        </div>
+    ` : '';
+
     card.innerHTML = `
-        <div class="product-image">
+        <div class="product-image product-image-clickable">
             ${product.image ?
-                `<img src="${product.image}" alt="${product.name}">` :
-                `<div class="product-image-placeholder">
-                    <i class="fas fa-smoking"></i>
-                </div>`
+                `<img src="${product.image}" alt="${product.name}" class="product-main-img">` :
+                `<div class="product-image-placeholder"><i class="fas fa-smoking"></i></div>`
             }
+            <div class="product-image-hint"><i class="fas fa-expand"></i></div>
         </div>
         <div class="product-info">
             <h3 class="product-name">${product.name}</h3>
             <p class="product-description">${product.description[currentLanguage]}</p>
+            ${flavorsHtml}
             <div class="product-price">${CONFIG.defaultCurrency}${product.price.toFixed(2)}</div>
-            <button class="buy-btn" data-product-id="${product.id}">
-                <i class="fas fa-shopping-cart"></i>
-                <span data-lang-key="buy_now">${TRANSLATIONS[currentLanguage].buy_now}</span>
+            <button class="buy-btn add-to-cart-btn" data-product-id="${product.id}">
+                <i class="fas fa-cart-plus"></i>
+                <span data-lang-key="add_to_cart">${TRANSLATIONS[currentLanguage].add_to_cart}</span>
             </button>
         </div>
     `;
 
-    // 添加购买按钮事件
-    const buyBtn = card.querySelector('.buy-btn');
-    buyBtn.addEventListener('click', () => openPurchaseModal(product));
+    // 口味切换事件
+    if (product.flavors) {
+        const mainImg = card.querySelector('.product-main-img');
+        card.querySelectorAll('.flavor-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                card.querySelectorAll('.flavor-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const flavor = product.flavors[parseInt(btn.dataset.flavorIndex)];
+                mainImg.src = flavor.image;
+                mainImg.alt = flavor.name;
+            });
+        });
+    }
+
+    // 点击图片打开详情页
+    card.querySelector('.product-image-clickable').addEventListener('click', () => {
+        const activeFlavorIndex = product.flavors
+            ? parseInt(card.querySelector('.flavor-btn.active').dataset.flavorIndex)
+            : 0;
+        openProductDetail(product, activeFlavorIndex);
+    });
+
+    // 添加到购物车按钮事件
+    const addToCartBtn = card.querySelector('.add-to-cart-btn');
+    addToCartBtn.addEventListener('click', () => {
+        const activeFlavor = product.flavors
+            ? product.flavors[parseInt(card.querySelector('.flavor-btn.active').dataset.flavorIndex)]
+            : null;
+        const cartProduct = activeFlavor
+            ? { ...product, name: `${product.name} - ${currentLanguage === 'zh' ? activeFlavor.nameCn : activeFlavor.name}`, image: activeFlavor.image }
+            : product;
+        addToCart(cartProduct, 1);
+        toggleCartSidebar();
+    });
 
     return card;
+}
+
+// ===== 产品详情页 =====
+function openProductDetail(product, activeFlavorIndex = 0) {
+    const overlay = document.getElementById('product-detail');
+    const mainImg = document.getElementById('detail-main-img');
+    const nameEl = document.getElementById('detail-name');
+    const flavorNameEl = document.getElementById('detail-flavor');
+    const descEl = document.getElementById('detail-desc');
+    const flavorsEl = document.getElementById('detail-flavors');
+    const priceEl = document.getElementById('detail-price');
+    const addCartBtn = document.getElementById('detail-add-cart');
+
+    let currentFlavorIndex = activeFlavorIndex;
+
+    nameEl.textContent = product.name;
+    descEl.textContent = product.description[currentLanguage];
+    priceEl.textContent = `${CONFIG.defaultCurrency}${product.price.toFixed(2)}`;
+
+    function updateFlavor(index) {
+        currentFlavorIndex = index;
+        const flavor = product.flavors[index];
+        mainImg.src = flavor.image;
+        mainImg.alt = flavor.name;
+        flavorNameEl.textContent = currentLanguage === 'zh' ? flavor.nameCn : flavor.name;
+        flavorsEl.querySelectorAll('.detail-flavor-btn').forEach((b, i) => {
+            b.classList.toggle('active', i === index);
+        });
+    }
+
+    if (product.flavors) {
+        flavorNameEl.style.display = 'block';
+        flavorsEl.innerHTML = product.flavors.map((f, i) => `
+            <button class="detail-flavor-btn${i === activeFlavorIndex ? ' active' : ''}" data-index="${i}">
+                <img src="${f.image}" alt="${f.name}">
+                <span>${currentLanguage === 'zh' ? f.nameCn : f.name}</span>
+            </button>
+        `).join('');
+        flavorsEl.querySelectorAll('.detail-flavor-btn').forEach(btn => {
+            btn.addEventListener('click', () => updateFlavor(parseInt(btn.dataset.index)));
+        });
+        updateFlavor(activeFlavorIndex);
+    } else {
+        flavorNameEl.style.display = 'none';
+        flavorsEl.innerHTML = '';
+        mainImg.src = product.image || '';
+        mainImg.alt = product.name;
+    }
+
+    // 加入购物车
+    addCartBtn.onclick = () => {
+        const activeFlavor = product.flavors ? product.flavors[currentFlavorIndex] : null;
+        const cartProduct = activeFlavor
+            ? { ...product, name: `${product.name} - ${currentLanguage === 'zh' ? activeFlavor.nameCn : activeFlavor.name}`, image: activeFlavor.image }
+            : product;
+        addToCart(cartProduct, 1);
+        overlay.classList.remove('open');
+        toggleCartSidebar();
+    };
+
+    overlay.classList.add('open');
+}
+
+function initProductDetail() {
+    const overlay = document.getElementById('product-detail');
+    document.getElementById('detail-close').addEventListener('click', () => overlay.classList.remove('open'));
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('open');
+    });
 }
 
 // ===== 购买模态框功能 =====
@@ -324,62 +812,6 @@ function openPurchaseModal(product) {
     });
 }
 
-// ===== 产品管理功能 =====
-function initProductForm() {
-    if (!domElements.productForm) return;
-
-    const clearBtn = document.getElementById('clear-form');
-
-    // 表单提交
-    domElements.productForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        const productId = document.getElementById('product-id').value;
-        const name = document.getElementById('product-name').value;
-        const price = parseFloat(document.getElementById('product-price').value);
-        const descEs = document.getElementById('product-desc-es').value;
-        const descZh = document.getElementById('product-desc-zh').value;
-        const image = document.getElementById('product-image').value;
-
-        if (productId) {
-            // 编辑现有产品
-            const index = products.findIndex(p => p.id === parseInt(productId));
-            if (index !== -1) {
-                products[index] = {
-                    id: parseInt(productId),
-                    name,
-                    price,
-                    description: { es: descEs, zh: descZh },
-                    image: image || products[index].image
-                };
-            }
-        } else {
-            // 添加新产品
-            const newProduct = {
-                id: products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1,
-                name,
-                price,
-                description: { es: descEs, zh: descZh },
-                image: image || ''
-            };
-            products.push(newProduct);
-        }
-
-        // 重新渲染产品并重置表单
-        renderProducts();
-        domElements.productForm.reset();
-        document.getElementById('product-id').value = '';
-
-        alert('Producto guardado exitosamente');
-    });
-
-    // 清空表单
-    clearBtn.addEventListener('click', () => {
-        domElements.productForm.reset();
-        document.getElementById('product-id').value = '';
-    });
-}
-
 // ===== 初始化函数 =====
 function initBizumInfo() {
     const phoneElements = document.querySelectorAll('#bizum-phone, #footer-phone');
@@ -392,11 +824,14 @@ function init() {
     // 初始化语言切换
     initLanguageSwitcher();
 
+    // 初始化购物车系统
+    initCart();
+
     // 初始化产品列表
     renderProducts();
 
-    // 初始化产品表单
-    initProductForm();
+    // 初始化产品详情页
+    initProductDetail();
 
     // 初始化Bizum信息
     initBizumInfo();
@@ -407,6 +842,7 @@ function init() {
     console.log('Vape Store initialized successfully');
     console.log('Product count:', products.length);
     console.log('Current language:', currentLanguage);
+    console.log('Cart items:', cart.length);
 }
 
 // ===== 页面加载完成后初始化 =====

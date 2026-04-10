@@ -11,6 +11,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- 顶部广告滚动条 -->
+    <div class="promo-bar">
+        <div class="promo-track">
+            <span>🔥 鸭嘴兽买三送一 &nbsp;·&nbsp; 冰爆买三送一 &nbsp;·&nbsp; 小黑条买三送一 &nbsp;·&nbsp; 冰王买三送一 &nbsp;·&nbsp; Compra 3 DASH, llévate 1 gratis &nbsp;·&nbsp; Compra 3 IceMax, llévate 1 gratis &nbsp;·&nbsp; Compra 3 Lil Black, llévate 1 gratis &nbsp;·&nbsp; Compra 3 IceKing, llévate 1 gratis &nbsp;·&nbsp; 🔥 鸭嘴兽买三送一 &nbsp;·&nbsp; 冰爆买三送一 &nbsp;·&nbsp; 小黑条买三送一 &nbsp;·&nbsp; 冰王买三送一 &nbsp;·&nbsp; Compra 3 DASH, llévate 1 gratis &nbsp;·&nbsp; Compra 3 IceMax, llévate 1 gratis &nbsp;·&nbsp; Compra 3 Lil Black, llévate 1 gratis &nbsp;·&nbsp; Compra 3 IceKing, llévate 1 gratis</span>
+        </div>
+    </div>
+
     <!-- 语言切换 -->
     <div class="language-switcher">
         <button id="lang-es" class="lang-btn active" data-lang="es">
@@ -32,6 +39,13 @@
                 <a href="#products" data-lang-key="products">产品</a>
                 <a href="#about" data-lang-key="about">关于</a>
                 <a href="#contact" data-lang-key="contact">联系</a>
+            </div>
+            <!-- 购物车图标 -->
+            <div class="cart-icon-container">
+                <button id="cart-toggle" class="cart-toggle" aria-label="购物车">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count" class="cart-count">0</span>
+                </button>
             </div>
         </nav>
     </header>
@@ -67,48 +81,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- 产品管理区域 (管理员) -->
-        <section class="admin-section" id="admin">
-            <h2 class="section-title" data-lang-key="admin_title">产品管理</h2>
-            <p class="section-subtitle" data-lang-key="admin_subtitle">添加或编辑产品信息</p>
-
-            <div class="admin-panel">
-                <form id="product-form" class="product-form">
-                    <input type="text" id="product-id" hidden>
-
-                    <div class="form-group">
-                        <label for="product-name" data-lang-key="product_name">产品名称</label>
-                        <input type="text" id="product-name" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="product-price" data-lang-key="price">价格 (€)</label>
-                        <input type="number" id="product-price" step="0.01" min="0" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="product-desc-es" data-lang-key="desc_es">西班牙语描述</label>
-                        <textarea id="product-desc-es" rows="3" required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="product-desc-zh" data-lang-key="desc_zh">中文描述</label>
-                        <textarea id="product-desc-zh" rows="3" required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="product-image" data-lang-key="image_url">图片URL</label>
-                        <input type="url" id="product-image">
-                    </div>
-
-                    <div class="form-buttons">
-                        <button type="submit" class="btn btn-primary" data-lang-key="add_product">添加产品</button>
-                        <button type="button" id="clear-form" class="btn btn-secondary" data-lang-key="clear">清空</button>
-                    </div>
-                </form>
-            </div>
-        </section>
     </main>
 
     <!-- 页脚 -->
@@ -120,8 +92,8 @@
             </div>
             <div class="footer-section">
                 <h4 data-lang-key="contact">联系</h4>
-                <p><i class="fas fa-phone"></i> <span id="footer-phone">+34 XXX XXX XXX</span></p>
-                <p><i class="fab fa-whatsapp"></i> <span id="footer-whatsapp">+34 XXX XXX XXX</span></p>
+                <p><i class="fas fa-phone"></i> <span id="footer-phone">+34 697 332 407</span></p>
+                <p><i class="fab fa-whatsapp"></i> <span id="footer-whatsapp">+34 697 332 407</span></p>
                 <p><i class="fas fa-envelope"></i> info@vapestore.com</p>
             </div>
         </div>
@@ -150,6 +122,57 @@
             <div class="modal-actions">
                 <button id="confirm-purchase" class="btn btn-primary" data-lang-key="i_paid">我已付款</button>
                 <button id="cancel-purchase" class="btn btn-secondary" data-lang-key="cancel">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 购物车侧边栏 -->
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3 data-lang-key="cart_title">购物车</h3>
+            <button id="cart-close" class="cart-close" aria-label="关闭购物车">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="cart-content">
+            <div id="cart-empty" class="cart-empty">
+                <i class="fas fa-shopping-cart"></i>
+                <p data-lang-key="cart_empty">购物车是空的</p>
+            </div>
+            <div id="cart-items" class="cart-items">
+                <!-- 购物车商品动态生成 -->
+            </div>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span data-lang-key="cart_total">总计:</span>
+                <span id="cart-total-price">€0.00</span>
+            </div>
+            <div class="cart-actions">
+                <button id="cart-checkout" class="cart-checkout-btn" data-lang-key="cart_checkout">去结算</button>
+                <button id="cart-clear" class="cart-clear-btn" data-lang-key="cart_clear">清空购物车</button>
+            </div>
+        </div>
+    </div>
+    <div id="cart-overlay" class="cart-overlay"></div>
+
+    <!-- 产品详情页 -->
+    <div id="product-detail" class="product-detail-overlay">
+        <button class="detail-close" id="detail-close"><i class="fas fa-times"></i></button>
+        <div class="detail-content">
+            <div class="detail-image-wrap">
+                <img id="detail-main-img" src="" alt="">
+            </div>
+            <div class="detail-info">
+                <h2 id="detail-name"></h2>
+                <p id="detail-flavor" class="detail-flavor-name"></p>
+                <p id="detail-desc" class="detail-desc"></p>
+                <div id="detail-flavors" class="detail-flavor-selector"></div>
+                <div class="detail-price" id="detail-price"></div>
+                <button class="buy-btn detail-add-cart" id="detail-add-cart">
+                    <i class="fas fa-cart-plus"></i>
+                    <span data-lang-key="add_to_cart">加入购物车</span>
+                </button>
             </div>
         </div>
     </div>
