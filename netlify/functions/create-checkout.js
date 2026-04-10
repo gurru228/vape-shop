@@ -81,8 +81,10 @@ exports.handler = async (event) => {
             address: address || '',
             delivery_time: deliveryTime || ''
         };
-        saveOrder(orderData).catch(err => console.error('Supabase save failed:', err));
-        sendTelegramNotification(orderData).catch(() => {});
+        await Promise.all([
+            saveOrder(orderData).catch(err => console.error('Supabase save failed:', err)),
+            sendTelegramNotification(orderData).catch(err => console.error('Telegram failed:', err))
+        ]);
 
         return {
             statusCode: 200,

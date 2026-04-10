@@ -70,7 +70,7 @@ exports.handler = async (event) => {
             };
         }
 
-        sendTelegramNotification(order).catch(() => {});
+        await sendTelegramNotification(order);
 
         return {
             statusCode: 200,
