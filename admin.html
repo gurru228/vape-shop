@@ -65,6 +65,17 @@
         .order-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 1.25rem; margin-bottom: 0.75rem; transition: box-shadow 0.2s; }
         .order-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
 
+        /* ── WhatsApp ── */
+        .wa-wrap { position: relative; display: inline-block; }
+        .wa-btn { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.45rem 0.875rem; background: #25d366; color: #fff; border: none; border-radius: 7px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+        .wa-btn:hover { background: #1ebe5c; }
+        .wa-dropdown { display: none; position: absolute; bottom: calc(100% + 6px); right: 0; background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); min-width: 200px; z-index: 50; overflow: hidden; }
+        .wa-dropdown.open { display: block; }
+        .wa-dropdown-title { padding: 0.5rem 0.875rem; font-size: 0.75rem; color: #737373; border-bottom: 1px solid #f0f0f0; }
+        .wa-dropdown a { display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 0.875rem; font-size: 0.8rem; color: #171717; text-decoration: none; transition: background 0.15s; }
+        .wa-dropdown a:hover { background: #f5f5f5; }
+        .wa-dropdown a i { color: #25d366; width: 14px; }
+
         .order-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.875rem; gap: 0.5rem; }
         .order-top-left { display: flex; align-items: flex-start; gap: 0.875rem; }
         .order-number { font-weight: 700; font-size: 0.95rem; font-family: monospace; }
@@ -362,6 +373,13 @@
             const statusBadge = STATUS_BADGE[order.payment_status] || 'badge-pending';
             const statusLabel = STATUS_LABELS[order.payment_status] || order.payment_status;
             const isDelivery  = order.delivery_type === 'delivery';
+            const isPostal    = order.delivery_type === 'postal';
+            const phone = (order.customer_phone || '').replace(/\s+/g, '').replace(/^\+/, '');
+            const itemsSummary = (order.items || []).map(i => `${i.name} x${i.quantity}`).join(', ');
+            const msgConfirm  = encodeURIComponent(`Hola ${order.customer_name}! Tu pedido ${order.order_number} ha sido confirmado. Total: €${parseFloat(order.total||0).toFixed(2)}. Gracias por tu compra! 🙏`);
+            const msgShipped  = encodeURIComponent(`Hola ${order.customer_name}! Tu pedido ${order.order_number} ha sido enviado. Pronto lo recibirás. 📦`);
+            const msgFeedback = encodeURIComponent(`Hola ${order.customer_name}! ¿Cómo fue tu experiencia con tu pedido ${order.order_number}? Nos encantaría saber tu opinión. 😊`);
+            const waId = `wa-${order.id}`;
 
             return `
             <div class="order-card">
@@ -389,18 +407,14 @@
                 ${isDelivery ? `
                 <div class="delivery-block">
                     <div class="delivery-block-title"><i class="fas fa-motorcycle"></i> 外送信息</div>
-                    <div class="order-info-row">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>${order.address || '—'}</span>
-                    </div>
-                    <div class="order-info-row">
-                        <i class="far fa-clock"></i>
-                        <span>期望送达：${order.delivery_time || '未填写'}</span>
-                    </div>
+                    <div class="order-info-row"><i class="fas fa-map-marker-alt"></i><span>${order.address || '—'}</span></div>
+                    <div class="order-info-row"><i class="far fa-clock"></i><span>期望送达：${order.delivery_time || '未填写'}</span></div>
+                </div>` : isPostal ? `
+                <div class="delivery-block" style="background:#eff6ff;border-color:#bfdbfe">
+                    <div class="delivery-block-title"><i class="fas fa-envelope"></i> 邮寄信息</div>
+                    <div class="order-info-row"><i class="fas fa-map-marker-alt"></i><span>${order.address || '—'}</span></div>
                 </div>` : `
-                <div class="pickup-tag">
-                    <i class="fas fa-store"></i> 自取
-                </div>`}
+                <div class="pickup-tag"><i class="fas fa-store"></i> 自取</div>`}
 
                 <div class="order-items-wrap">${itemsList}</div>
 
@@ -408,6 +422,18 @@
                     <div class="order-total">€${parseFloat(order.total || 0).toFixed(2)}</div>
                     <div class="order-meta">
                         <span class="badge ${payBadge}">${payLabel}</span>
+                        <div class="wa-wrap" id="${waId}">
+                            <button class="wa-btn" onclick="toggleWaDropdown('${waId}')">
+                                <i class="fab fa-whatsapp"></i> 联系客户
+                            </button>
+                            <div class="wa-dropdown" id="drop-${waId}">
+                                <div class="wa-dropdown-title">选择消息模板</div>
+                                <a href="https://wa.me/${phone}?text=${msgConfirm}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-check-circle"></i> 订单已确认</a>
+                                <a href="https://wa.me/${phone}?text=${msgShipped}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-truck"></i> 已发货通知</a>
+                                <a href="https://wa.me/${phone}?text=${msgFeedback}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-star"></i> 询问反馈</a>
+                                <a href="https://wa.me/${phone}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-comment"></i> 空白消息</a>
+                            </div>
+                        </div>
                         <select class="status-select" onchange="updateOrderStatus('${order.id}', this.value)">
                             <option value="pending"   ${order.payment_status==='pending'  ?'selected':''}>待付款</option>
                             <option value="paid"      ${order.payment_status==='paid'     ?'selected':''}>已付款</option>
@@ -419,6 +445,23 @@
             </div>`;
         }).join('');
     }
+
+    function toggleWaDropdown(id) {
+        const drop = document.getElementById(`drop-${id}`);
+        const isOpen = drop.classList.contains('open');
+        document.querySelectorAll('.wa-dropdown.open').forEach(d => d.classList.remove('open'));
+        if (!isOpen) drop.classList.add('open');
+    }
+
+    function closeWaDropdown(id) {
+        document.getElementById(`drop-${id}`)?.classList.remove('open');
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.wa-wrap')) {
+            document.querySelectorAll('.wa-dropdown.open').forEach(d => d.classList.remove('open'));
+        }
+    });
 
     async function updateOrderStatus(orderId, status) {
         await fetch('/.netlify/functions/update-order', {
