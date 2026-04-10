@@ -1007,6 +1007,7 @@ function switchLanguage(lang) {
 
     // 重新渲染产品卡片
     renderProducts();
+    applyInventoryToUI();
 }
 
 // ===== 产品渲染功能 =====
@@ -1125,14 +1126,19 @@ function openProductDetail(product, activeFlavorIndex = 0) {
 
     if (product.flavors) {
         flavorNameEl.style.display = 'block';
-        flavorsEl.innerHTML = product.flavors.map((f, i) => `
-            <button class="detail-flavor-btn${i === activeFlavorIndex ? ' active' : ''}" data-index="${i}">
+        flavorsEl.innerHTML = product.flavors.map((f, i) => {
+            const soldOut = isSoldOut(product.id, f.name);
+            return `<button class="detail-flavor-btn${i === activeFlavorIndex ? ' active' : ''}${soldOut ? ' sold-out-flavor' : ''}" data-index="${i}">
                 <img src="${f.image}" alt="${f.name}">
                 <span>${currentLanguage === 'zh' ? f.nameCn : f.name}</span>
-            </button>
-        `).join('');
+                ${soldOut ? '<span class="soldout-label">售罄</span>' : ''}
+            </button>`;
+        }).join('');
         flavorsEl.querySelectorAll('.detail-flavor-btn').forEach(btn => {
-            btn.addEventListener('click', () => updateFlavor(parseInt(btn.dataset.index)));
+            btn.addEventListener('click', () => {
+                if (btn.classList.contains('sold-out-flavor')) return;
+                updateFlavor(parseInt(btn.dataset.index));
+            });
         });
         updateFlavor(activeFlavorIndex);
     } else {
@@ -1312,8 +1318,9 @@ function init() {
     // 首次访问欢迎弹窗
     initWelcomeModal();
 
-    // 加载库存
+    // 加载库存，并每60秒自动刷新
     loadInventory();
+    setInterval(loadInventory, 60000);
 }
 
 // ===== 欢迎弹窗 =====
