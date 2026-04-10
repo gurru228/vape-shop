@@ -114,7 +114,9 @@ function showFreeItemFlavors(productId) {
     const flavorsEl = document.getElementById('free-item-flavors');
     flavorsEl.style.display = 'block';
 
-    document.getElementById('free-item-flavor-list').innerHTML = (product.flavors || []).map(f => `
+    document.getElementById('free-item-flavor-list').innerHTML = (product.flavors || [])
+        .filter(f => !isSoldOut(productId, f.name))
+        .map(f => `
         <button class="free-flavor-btn" onclick="addFreeItemToCart(${productId}, '${f.name}', '${f.nameCn || f.name}', '${f.image}')">
             <img src="${f.image}" alt="${f.nameCn || f.name}" onerror="this.style.display='none'">
             <span>${f.nameCn || f.name}</span>
