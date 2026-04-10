@@ -1688,28 +1688,43 @@ body {
     }
 
     .nav {
-        flex-direction: column;
-        gap: var(--space-sm);
-        padding: var(--space-sm) var(--space-md);
-    }
-
-    .nav-items {
-        gap: var(--space-lg);
-        position: static;
-        transform: none;
-        font-size: 0.9rem;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0;
+        padding: var(--space-xs) var(--space-md);
     }
 
     .logo {
-        font-size: var(--font-size-lg);
+        flex: 1;
+        font-size: var(--font-size-base);
     }
 
     .logo i {
-        font-size: var(--font-size-xl);
+        font-size: var(--font-size-lg);
+    }
+
+    .logo-subtitle {
+        font-size: 0.6rem;
+    }
+
+    .cart-icon-container {
+        margin-left: 0;
+    }
+
+    .nav-items {
+        width: 100%;
+        justify-content: center;
+        gap: var(--space-lg);
+        position: static;
+        transform: none;
+        font-size: 0.85rem;
+        padding: var(--space-xs) 0;
     }
 
     .products-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-md);
     }
 
     .form-buttons {
@@ -1743,5 +1758,10 @@ body {
 
     .hero p {
         font-size: var(--font-size-lg);
+    }
+
+    .hero {
+        padding: var(--space-lg) 0;
+        margin-bottom: var(--space-lg);
     }
 }
