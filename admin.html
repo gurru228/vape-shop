@@ -469,9 +469,22 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ password: adminPass, orderId, status })
         });
-        // 更新本地数据，不重新请求
         const order = allOrders.find(o => o.id === orderId);
-        if (order) order.payment_status = status;
+        if (order) {
+            order.payment_status = status;
+            // 状态变更时推 Telegram 提醒 + WhatsApp 链接
+            fetch('/.netlify/functions/notify-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customerName: order.customer_name,
+                    customerPhone: order.customer_phone,
+                    orderNumber: order.order_number,
+                    status,
+                    total: order.total
+                })
+            }).catch(() => {});
+        }
         renderStats(allOrders);
         applyFilters();
     }
