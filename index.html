@@ -220,6 +220,10 @@
             <div id="checkout-step-info">
                 <h2>确认订单 / Confirmar pedido</h2>
                 <div id="checkout-cart-summary" class="checkout-cart-summary"></div>
+                <div class="checkout-total-row" id="shipping-row" style="display:none">
+                    <span>运费 / Envío:</span>
+                    <strong id="shipping-fee-display">€0.00</strong>
+                </div>
                 <div class="checkout-total-row">
                     <span>总计 / Total:</span>
                     <div class="checkout-total-prices">
@@ -256,6 +260,11 @@
                             <span>外送 / Entrega</span>
                             <small>≥5件 · 马德里当天送达</small>
                         </button>
+                        <button class="delivery-option-btn" id="btn-postal" type="button">
+                            <i class="fas fa-envelope"></i>
+                            <span>邮寄 / Correo</span>
+                            <small>满€100免运费</small>
+                        </button>
                     </div>
                 </div>
                 <div class="checkout-form-group" id="address-group" style="display:none">
@@ -270,6 +279,11 @@
                         <span class="time-range-sep">至 / a</span>
                         <input type="time" id="checkout-time-to" value="14:00">
                     </div>
+                </div>
+                <div class="checkout-form-group" id="postal-group" style="display:none">
+                    <label>邮寄地址 / Dirección postal</label>
+                    <input type="text" id="checkout-postal-address" placeholder="完整地址、邮编 / Dirección completa + CP...">
+                    <small class="delivery-note"><i class="fas fa-info-circle"></i> 满€100免运费，否则运费€6.90 / Gratis desde €100, si no €6.90</small>
                 </div>
                 <p class="payment-choose-label">选择支付方式 / Método de pago:</p>
                 <div class="payment-options">
@@ -361,6 +375,20 @@
             </div>
             <p class="welcome-terms">结账时填入优惠码即可使用 · Válido en tu primer pedido</p>
             <button class="btn btn-primary welcome-start-btn" onclick="closeWelcomeModal()">开始购物 / Empezar</button>
+        </div>
+    </div>
+
+    <!-- 买五送一赠品选择弹窗 -->
+    <div id="free-item-modal" class="modal" style="display:none">
+        <div class="modal-content free-item-modal-content">
+            <h2><i class="fas fa-gift"></i> 买五送一！/ ¡Llévate 1 gratis!</h2>
+            <p class="free-item-subtitle">选择一款赠品 / Elige tu producto de regalo:</p>
+            <div id="free-item-products" class="free-item-products"></div>
+            <div id="free-item-flavors" class="free-item-flavors" style="display:none">
+                <p class="free-item-flavor-label">选择口味 / Elige el sabor:</p>
+                <div id="free-item-flavor-list" class="free-item-flavor-list"></div>
+                <button class="btn-back-products" onclick="showFreeItemProductStep()"><i class="fas fa-arrow-left"></i> 返回</button>
+            </div>
         </div>
     </div>
 

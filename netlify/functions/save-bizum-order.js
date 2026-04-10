@@ -8,6 +8,8 @@ async function sendTelegramNotification(order) {
     const itemLines = order.items.map(i => `  • ${i.name} x${i.quantity} — €${(i.price * i.quantity).toFixed(2)}`).join('\n');
     const deliveryInfo = order.delivery_type === 'delivery'
         ? `\n📦 Entrega a domicilio\n📍 ${order.address}\n🕐 ${order.delivery_time}`
+        : order.delivery_type === 'postal'
+        ? `\n✉️ Envio postal\n📍 ${order.address}${order.shipping_fee > 0 ? `\n📬 Envio: €${order.shipping_fee.toFixed(2)}` : '\n📬 Envio gratuito'}`
         : '\n🏪 Recogida en tienda';
     const text = `🛒 Nuevo pedido Bizum\n\n` +
         `📋 ${order.order_number}\n` +
@@ -28,13 +30,15 @@ exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
 
     try {
-        const { cart, customerName, customerPhone, deliveryType, address, deliveryTime } = JSON.parse(event.body);
+        const { cart, customerName, customerPhone, deliveryType, address, deliveryTime, shippingFee } = JSON.parse(event.body);
         if (!cart?.length || !customerName || !customerPhone) {
             return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields' }) };
         }
 
         const orderNumber = `ORD-${Date.now()}`;
-        const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+        const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+        const shipping = parseFloat(shippingFee) || 0;
+        const total = +(subtotal + shipping).toFixed(2);
 
         const order = {
             order_number: orderNumber,
@@ -42,6 +46,7 @@ exports.handler = async (event) => {
             customer_phone: customerPhone,
             items: cart,
             total,
+            shipping_fee: shipping,
             payment_method: 'bizum',
             payment_status: 'pending',
             delivery_type: deliveryType || 'pickup',

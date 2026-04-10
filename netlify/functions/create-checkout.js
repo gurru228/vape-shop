@@ -10,6 +10,8 @@ async function sendTelegramNotification(order) {
     const itemLines = order.items.map(i => `  • ${i.name} x${i.quantity} — €${(i.price * i.quantity).toFixed(2)}`).join('\n');
     const deliveryInfo = order.delivery_type === 'delivery'
         ? `\n📦 Entrega a domicilio\n📍 ${order.address}\n🕐 ${order.delivery_time}`
+        : order.delivery_type === 'postal'
+        ? `\n✉️ Envio postal\n📍 ${order.address}${order.shipping_fee > 0 ? `\n📬 Envio: €${order.shipping_fee.toFixed(2)}` : '\n📬 Envio gratuito'}`
         : '\n🏪 Recogida en tienda';
     const text = `💳 Nuevo pedido con tarjeta\n\n` +
         `📋 ${order.order_number}\n` +
@@ -44,24 +46,38 @@ exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
 
     try {
-        const { cart, customerName, customerPhone, deliveryType, address, deliveryTime } = JSON.parse(event.body);
+        const { cart, customerName, customerPhone, deliveryType, address, deliveryTime, shippingFee } = JSON.parse(event.body);
         if (!cart?.length || !customerName || !customerPhone) {
             return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields' }) };
         }
 
         const orderNumber = `ORD-${Date.now()}`;
-        const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+        const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+        const shipping = parseFloat(shippingFee) || 0;
+        const total = +(subtotal + shipping).toFixed(2);
+
+        const lineItems = cart.map(item => ({
+            price_data: {
+                currency: 'eur',
+                product_data: { name: item.name },
+                unit_amount: Math.round(item.price * 100),
+            },
+            quantity: item.quantity,
+        }));
+        if (shipping > 0) {
+            lineItems.push({
+                price_data: {
+                    currency: 'eur',
+                    product_data: { name: 'Envio postal / 邮费' },
+                    unit_amount: Math.round(shipping * 100),
+                },
+                quantity: 1,
+            });
+        }
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
-            line_items: cart.map(item => ({
-                price_data: {
-                    currency: 'eur',
-                    product_data: { name: item.name },
-                    unit_amount: Math.round(item.price * 100),
-                },
-                quantity: item.quantity,
-            })),
+            line_items: lineItems,
             mode: 'payment',
             success_url: `${BASE_URL}/checkout-success.html?order=${orderNumber}`,
             cancel_url: `${BASE_URL}/`,
@@ -74,6 +90,7 @@ exports.handler = async (event) => {
             customer_phone: customerPhone,
             items: cart,
             total,
+            shipping_fee: shipping,
             payment_method: 'card',
             payment_status: 'pending',
             stripe_session_id: session.id,

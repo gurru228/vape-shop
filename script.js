@@ -44,6 +44,96 @@ function getDiscountedTotal(original) {
     return +(original * (1 - activeDiscount.percent / 100)).toFixed(2);
 }
 
+// ===== 买五送一系统 =====
+const FREE_ITEM_PRODUCT_IDS = [1, 3]; // 鸭嘴兽, 小黑条
+const SHIPPING_FEE = 6.90;
+const FREE_SHIPPING_THRESHOLD = 100;
+
+function getNonFreeQuantity() {
+    return cart.filter(i => !i.isFree).reduce((s, i) => s + i.quantity, 0);
+}
+
+function getFreeItemInCart() {
+    return cart.find(i => i.isFree);
+}
+
+function removeFreeItemFromCart() {
+    cart = cart.filter(i => !i.isFree);
+    saveCartToStorage();
+    updateCartUI();
+}
+
+function checkFreeItemEligibility() {
+    const qty = getNonFreeQuantity();
+    if (qty >= 5 && !getFreeItemInCart()) {
+        showFreeItemModal();
+    } else if (qty < 5 && getFreeItemInCart()) {
+        removeFreeItemFromCart();
+    }
+}
+
+function showFreeItemModal() {
+    const modal = document.getElementById('free-item-modal');
+    showFreeItemProductStep();
+    modal.style.display = 'flex';
+}
+
+function showFreeItemProductStep() {
+    const productsEl = document.getElementById('free-item-products');
+    const flavorsEl = document.getElementById('free-item-flavors');
+    flavorsEl.style.display = 'none';
+    productsEl.style.display = 'grid';
+
+    const freeProducts = products.filter(p => FREE_ITEM_PRODUCT_IDS.includes(p.id));
+    productsEl.innerHTML = freeProducts.map(p => `
+        <div class="free-item-product-card" onclick="showFreeItemFlavors(${p.id})">
+            <img src="${p.image}" alt="${p.name}" onerror="this.style.display='none'">
+            <div class="free-item-product-name">${p.name}</div>
+            <div class="free-item-product-price">免费 / Gratis</div>
+        </div>
+    `).join('');
+}
+
+function showFreeItemFlavors(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    document.getElementById('free-item-products').style.display = 'none';
+    const flavorsEl = document.getElementById('free-item-flavors');
+    flavorsEl.style.display = 'block';
+
+    document.getElementById('free-item-flavor-list').innerHTML = (product.flavors || []).map(f => `
+        <button class="free-flavor-btn" onclick="addFreeItemToCart(${productId}, '${f.name}', '${f.nameCn || f.name}', '${f.image}')">
+            <img src="${f.image}" alt="${f.nameCn || f.name}" onerror="this.style.display='none'">
+            <span>${f.nameCn || f.name}</span>
+        </button>
+    `).join('');
+}
+
+function addFreeItemToCart(productId, flavorName, flavorNameCn, flavorImage) {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    const freeItem = {
+        id: `FREE-${productId}-${flavorName}`,
+        name: `${product.name} · ${flavorNameCn} [赠品]`,
+        price: 0,
+        image: flavorImage,
+        quantity: 1,
+        isFree: true
+    };
+    cart.push(freeItem);
+    saveCartToStorage();
+    updateCartUI();
+    document.getElementById('free-item-modal').style.display = 'none';
+}
+
+function getShippingFee() {
+    const isPostal = document.getElementById('btn-postal')?.classList.contains('active');
+    if (!isPostal) return 0;
+    const subtotal = cart.filter(i => !i.isFree).reduce((s, i) => s + i.price * i.quantity, 0);
+    const discounted = getDiscountedTotal(subtotal);
+    return discounted >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+}
+
 // ===== 购物车系统 =====
 let cart = [];
 const CART_STORAGE_KEY = 'vape_shop_cart';
@@ -93,12 +183,14 @@ function addToCart(product, quantity = 1) {
     saveCartToStorage();
     updateCartUI();
     showCartNotification(product.name, quantity);
+    checkFreeItemEligibility();
 }
 
 function removeFromCart(productId) {
     cart = cart.filter(item => item.id !== productId);
     saveCartToStorage();
     updateCartUI();
+    checkFreeItemEligibility();
 }
 
 function updateCartItemQuantity(productId, quantity) {
@@ -110,6 +202,7 @@ function updateCartItemQuantity(productId, quantity) {
             item.quantity = quantity;
             saveCartToStorage();
             updateCartUI();
+            checkFreeItemEligibility();
         }
     }
 }
@@ -196,14 +289,15 @@ function createCartItemElement(item) {
             ${imageHtml}
         </div>
         <div class="cart-item-details">
-            <div class="cart-item-name">${item.name}</div>
-            <div class="cart-item-subtotal">${CONFIG.defaultCurrency}${subtotal.toFixed(2)}</div>
+            <div class="cart-item-name">${item.name}${item.isFree ? ' <span class="free-badge">免费</span>' : ''}</div>
+            <div class="cart-item-subtotal">${item.isFree ? '<span style="color:#16a34a;font-weight:600">免费赠品</span>' : `${CONFIG.defaultCurrency}${subtotal.toFixed(2)}`}</div>
             <div class="cart-item-controls">
+                ${item.isFree ? '' : `
                 <div class="quantity-control">
                     <button class="quantity-btn minus" data-product-id="${item.id}">-</button>
                     <span class="quantity-value">${item.quantity}</span>
                     <button class="quantity-btn plus" data-product-id="${item.id}">+</button>
-                </div>
+                </div>`}
                 <button class="remove-item-btn" data-product-id="${item.id}">
                     <i class="fas fa-trash"></i>
                     <span data-lang-key="remove_from_cart">${TRANSLATIONS[currentLanguage].remove_from_cart}</span>
@@ -356,31 +450,36 @@ function openCartCheckoutModal() {
     document.getElementById('checkout-address').value = '';
     document.getElementById('address-group').style.display = 'none';
     document.getElementById('time-group').style.display = 'none';
+    document.getElementById('postal-group').style.display = 'none';
+    document.getElementById('checkout-postal-address').value = '';
     document.getElementById('checkout-time-from').value = '10:00';
     document.getElementById('checkout-time-to').value = '14:00';
     document.getElementById('btn-pickup').classList.add('active');
     document.getElementById('btn-delivery').classList.remove('active');
+    document.getElementById('btn-postal').classList.remove('active');
 
-    // 自取 / 外送切换
-    const totalQty = cart.reduce((s, i) => s + i.quantity, 0);
-    document.getElementById('btn-pickup').onclick = () => {
-        document.getElementById('btn-pickup').classList.add('active');
-        document.getElementById('btn-delivery').classList.remove('active');
-        document.getElementById('address-group').style.display = 'none';
+    const setDeliveryMode = (mode) => {
+        ['btn-pickup', 'btn-delivery', 'btn-postal'].forEach(id => document.getElementById(id).classList.remove('active'));
+        document.getElementById(`btn-${mode}`).classList.add('active');
+        document.getElementById('address-group').style.display = mode === 'delivery' ? 'block' : 'none';
+        document.getElementById('time-group').style.display = mode === 'delivery' ? 'block' : 'none';
+        document.getElementById('postal-group').style.display = mode === 'postal' ? 'block' : 'none';
+        updateCheckoutTotal();
         errorEl.style.display = 'none';
     };
+
+    // 自取 / 外送 / 邮寄切换
+    const totalQty = getNonFreeQuantity();
+    document.getElementById('btn-pickup').onclick = () => setDeliveryMode('pickup');
     document.getElementById('btn-delivery').onclick = () => {
         if (totalQty < 5) {
             errorEl.textContent = '外送至少需要5件商品 / Se necesitan mínimo 5 unidades para entrega a domicilio';
             errorEl.style.display = 'block';
             return;
         }
-        document.getElementById('btn-delivery').classList.add('active');
-        document.getElementById('btn-pickup').classList.remove('active');
-        document.getElementById('address-group').style.display = 'block';
-        document.getElementById('time-group').style.display = 'block';
-        errorEl.style.display = 'none';
+        setDeliveryMode('delivery');
     };
+    document.getElementById('btn-postal').onclick = () => setDeliveryMode('postal');
 
     // 填充购物车摘要
     summaryEl.innerHTML = cart.map(item => `
@@ -402,9 +501,12 @@ function openCartCheckoutModal() {
         const name = document.getElementById('checkout-customer-name').value.trim();
         const phone = document.getElementById('checkout-customer-phone').value.trim();
         const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
+        const isPostal = document.getElementById('btn-postal').classList.contains('active');
         const address = document.getElementById('checkout-address').value.trim();
+        const postalAddress = document.getElementById('checkout-postal-address').value.trim();
         const timeFrom = document.getElementById('checkout-time-from').value;
         const timeTo = document.getElementById('checkout-time-to').value;
+        const shippingFee = getShippingFee();
         if (!name || !phone) {
             errorEl.textContent = '请填写姓名和手机号 / Por favor complete su nombre y teléfono';
             errorEl.style.display = 'block';
@@ -415,15 +517,23 @@ function openCartCheckoutModal() {
             errorEl.style.display = 'block';
             return;
         }
+        if (isPostal && !postalAddress) {
+            errorEl.textContent = '请填写邮寄地址 / Por favor introduzca la dirección postal';
+            errorEl.style.display = 'block';
+            return;
+        }
         errorEl.style.display = 'none';
         document.getElementById('btn-pay-bizum').disabled = true;
         document.getElementById('btn-pay-bizum').textContent = '处理中...';
+
+        const deliveryType = isDelivery ? 'delivery' : isPostal ? 'postal' : 'pickup';
+        const finalAddress = isDelivery ? address : isPostal ? postalAddress : '';
 
         try {
             const res = await fetch('/.netlify/functions/save-bizum-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType: isDelivery ? 'delivery' : 'pickup', address: isDelivery ? address : '', deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0 })
+                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress, deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0, shippingFee })
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
@@ -457,9 +567,12 @@ function openCartCheckoutModal() {
         const name = document.getElementById('checkout-customer-name').value.trim();
         const phone = document.getElementById('checkout-customer-phone').value.trim();
         const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
+        const isPostal = document.getElementById('btn-postal').classList.contains('active');
         const address = document.getElementById('checkout-address').value.trim();
+        const postalAddress = document.getElementById('checkout-postal-address').value.trim();
         const timeFrom = document.getElementById('checkout-time-from').value;
         const timeTo = document.getElementById('checkout-time-to').value;
+        const shippingFee = getShippingFee();
         if (!name || !phone) {
             errorEl.textContent = '请填写姓名和手机号 / Por favor complete su nombre y teléfono';
             errorEl.style.display = 'block';
@@ -470,15 +583,23 @@ function openCartCheckoutModal() {
             errorEl.style.display = 'block';
             return;
         }
+        if (isPostal && !postalAddress) {
+            errorEl.textContent = '请填写邮寄地址 / Por favor introduzca la dirección postal';
+            errorEl.style.display = 'block';
+            return;
+        }
         errorEl.style.display = 'none';
         document.getElementById('btn-pay-card').disabled = true;
         document.getElementById('btn-pay-card').textContent = '跳转中...';
+
+        const deliveryType = isDelivery ? 'delivery' : isPostal ? 'postal' : 'pickup';
+        const finalAddress = isDelivery ? address : isPostal ? postalAddress : '';
 
         try {
             const res = await fetch('/.netlify/functions/create-checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType: isDelivery ? 'delivery' : 'pickup', address: isDelivery ? address : '', deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0 })
+                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress, deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0, shippingFee })
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
@@ -1127,16 +1248,32 @@ function handleCouponApply() {
 function updateCheckoutTotal() {
     const original = getCartTotalPrice();
     const discounted = getDiscountedTotal(original);
+    const shipping = getShippingFee();
+    const finalTotal = +(discounted + shipping).toFixed(2);
+
     const totalEl = document.getElementById('checkout-total-display');
     const originalEl = document.getElementById('checkout-original-price');
+    const shippingRow = document.getElementById('shipping-row');
+    const shippingEl = document.getElementById('shipping-fee-display');
 
-    if (totalEl) totalEl.textContent = `€${discounted.toFixed(2)}`;
+    if (totalEl) totalEl.textContent = `€${finalTotal.toFixed(2)}`;
     if (originalEl) {
         if (activeDiscount) {
-            originalEl.textContent = `€${original.toFixed(2)}`;
+            originalEl.textContent = `€${(original + shipping).toFixed(2)}`;
             originalEl.style.display = 'block';
         } else {
             originalEl.style.display = 'none';
+        }
+    }
+    if (shippingRow && shippingEl) {
+        if (shipping > 0) {
+            shippingEl.textContent = `€${shipping.toFixed(2)}`;
+            shippingRow.style.display = 'flex';
+        } else if (document.getElementById('btn-postal')?.classList.contains('active')) {
+            shippingEl.textContent = '免费 / Gratis';
+            shippingRow.style.display = 'flex';
+        } else {
+            shippingRow.style.display = 'none';
         }
     }
 }
