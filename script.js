@@ -840,12 +840,16 @@ let products = [
         },
         image: 'images/dash/coconut-water.webp',
         flavors: [
+            { name: 'Jasmine LongJing Tea', nameCn: '龙井', image: 'images/dash/jasmine-longjing.webp' },
+            { name: 'Lemon Tea', nameCn: '柠檬茶', image: '' },
+            { name: 'Green Grape', nameCn: '青提', image: 'images/dash/green-grape.jpeg' },
+            { name: 'Sweet Melon', nameCn: '甜瓜', image: '' },
+            { name: 'Crystal Grape', nameCn: '紫晶葡萄', image: '' },
+            { name: 'Mineral Water', nameCn: '矿泉水', image: '' },
             { name: 'Coconut Water', nameCn: '椰子水', image: 'images/dash/coconut-water.webp' },
             { name: 'Matcha Smoothie', nameCn: '抹茶思慕雪', image: 'images/dash/matcha-smoothie.webp' },
             { name: 'Peach Ice', nameCn: '水蜜桃冰', image: 'images/dash/peach-ice.webp' },
-            { name: 'Pink Guava', nameCn: '粉红番石榴', image: 'images/dash/pink-guava.webp' },
-            { name: 'Jasmine LongJing Tea', nameCn: '茉莉龙井', image: 'images/dash/jasmine-longjing.webp' },
-            { name: 'Green Grape', nameCn: '青葡萄', image: 'images/dash/green-grape.jpeg' }
+            { name: 'Pink Guava', nameCn: '粉红番石榴', image: 'images/dash/pink-guava.webp' }
         ]
     },
     {
@@ -880,12 +884,15 @@ let products = [
         },
         image: 'images/lilblack/peach.webp',
         flavors: [
+            { name: 'Longan', nameCn: '龙眼', image: 'images/lilblack/longan.webp' },
+            { name: 'Banana', nameCn: '香蕉', image: '' },
+            { name: 'Durian', nameCn: '榴莲', image: '' },
+            { name: 'Honeydew', nameCn: '蜜露', image: 'images/lilblack/honeydew.webp' },
+            { name: 'Mango', nameCn: '芒果', image: 'images/lilblack/mango.webp' },
+            { name: 'Coconut Ice', nameCn: '椰子冰', image: '' },
             { name: 'Peach', nameCn: '水蜜桃', image: 'images/lilblack/peach.webp' },
             { name: 'Guava', nameCn: '番石榴', image: 'images/lilblack/guava.webp' },
-            { name: 'Lychee', nameCn: '荔枝', image: 'images/lilblack/lychee.webp' },
-            { name: 'Longan', nameCn: '龙眼', image: 'images/lilblack/longan.webp' },
-            { name: 'Mango', nameCn: '芒果', image: 'images/lilblack/mango.webp' },
-            { name: 'Honeydew', nameCn: '哈密瓜', image: 'images/lilblack/honeydew.webp' }
+            { name: 'Lychee', nameCn: '荔枝', image: 'images/lilblack/lychee.webp' }
         ]
     },
     {
@@ -908,6 +915,9 @@ let products = [
         },
         image: 'images/iceking/grape-ice.webp',
         flavors: [
+            { name: 'Jasmine Longjing', nameCn: '茉莉龙井', image: '' },
+            { name: 'Salted Lemon', nameCn: '海盐柠檬', image: '' },
+            { name: 'Tieguanyin', nameCn: '铁观音', image: '' },
             { name: 'Grape Ice', nameCn: '黑葡萄冰', image: 'images/iceking/grape-ice.webp' },
             { name: 'Green Grape Ice', nameCn: '青葡萄冰', image: 'images/iceking/green-grape-ice.webp' },
             { name: 'Green Tea', nameCn: '绿茶', image: 'images/iceking/green-tea.webp' }
