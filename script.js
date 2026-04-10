@@ -318,11 +318,11 @@ function createCartItemElement(item) {
     const plusBtn = itemElement.querySelector('.quantity-btn.plus');
     const removeBtn = itemElement.querySelector('.remove-item-btn');
 
-    minusBtn.addEventListener('click', () => {
+    if (minusBtn) minusBtn.addEventListener('click', () => {
         updateCartItemQuantity(item.id, item.quantity - 1);
     });
 
-    plusBtn.addEventListener('click', () => {
+    if (plusBtn) plusBtn.addEventListener('click', () => {
         updateCartItemQuantity(item.id, item.quantity + 1);
     });
 
