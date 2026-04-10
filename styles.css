@@ -1767,6 +1767,32 @@ body {
 }
 
 /* ===== 买五送一弹窗 ===== */
+#free-item-modal {
+    z-index: 1300;
+    align-items: flex-end;
+}
+
+@media (max-width: 768px) {
+    #free-item-modal {
+        align-items: flex-end;
+    }
+
+    .free-item-modal-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
+        padding: var(--space-lg) var(--space-md) !important;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideUpSheet 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+}
+
+@keyframes slideUpSheet {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+}
+
 .free-item-modal-content {
     max-width: 480px;
     text-align: center;
