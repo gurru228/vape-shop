@@ -1322,7 +1322,8 @@ function init() {
     loadInventory();
     setInterval(loadInventory, 60000);
 
-    // 每次打开页面强制回到顶部
+    // 禁用浏览器滚动位置恢复，强制回顶
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
 }
 
