@@ -1644,9 +1644,9 @@ async function handleRegister() {
     if (password.length < 6) { errEl.textContent = '密码至少6位'; errEl.style.display = 'block'; return; }
     btn.textContent = '注册中...'; btn.disabled = true;
     errEl.style.display = 'none';
-    const { error } = await sbClient.auth.signUp({ email, password });
+    const { data: signUpData, error } = await sbClient.auth.signUp({ email, password });
     btn.textContent = '创建账号'; btn.disabled = false;
-    if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; }
+    if (error) { errEl.textContent = '错误：' + error.message + ' (status: ' + (error.status || '?') + ')'; errEl.style.display = 'block'; }
     else { successEl.textContent = '✓ 注册成功！请查收验证邮件后登录'; successEl.style.display = 'block'; }
 }
 
