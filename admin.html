@@ -119,6 +119,7 @@
         .badge-paid { background: #dcfce7; color: #166534; }
         .badge-shipped { background: #dbeafe; color: #1e40af; }
         .badge-delivered { background: #f3e8ff; color: #6b21a8; }
+        .badge-cancelled { background: #fee2e2; color: #991b1b; }
         .badge-bizum { background: #fce7f3; color: #9d174d; }
         .badge-card { background: #e0f2fe; color: #075985; }
         .badge-pickup { background: #f5f5f5; color: #525252; }
@@ -288,8 +289,8 @@
 </div>
 
 <script>
-    const STATUS_LABELS = { pending: '待付款', paid: '已付款', shipped: '已发货', delivered: '已完成' };
-    const STATUS_BADGE  = { pending: 'badge-pending', paid: 'badge-paid', shipped: 'badge-shipped', delivered: 'badge-delivered' };
+    const STATUS_LABELS = { pending: '待付款', paid: '已付款', shipped: '已发货', delivered: '已完成', cancelled: '已取消' };
+    const STATUS_BADGE  = { pending: 'badge-pending', paid: 'badge-paid', shipped: 'badge-shipped', delivered: 'badge-delivered', cancelled: 'badge-cancelled' };
 
     let adminPass = '';
     let allOrders = [];
@@ -426,9 +427,10 @@
             const isPostal    = order.delivery_type === 'postal';
             const phone = (order.customer_phone || '').replace(/\s+/g, '').replace(/^\+/, '');
             const itemsSummary = (order.items || []).map(i => `${i.name} x${i.quantity}`).join(', ');
-            const msgConfirm  = encodeURIComponent(`Hola ${order.customer_name}! Tu pedido ${order.order_number} ha sido confirmado. Total: €${parseFloat(order.total||0).toFixed(2)}. Gracias por tu compra! 🙏`);
-            const msgShipped  = encodeURIComponent(`Hola ${order.customer_name}! Tu pedido ${order.order_number} ha sido enviado. Pronto lo recibirás. 📦`);
-            const msgFeedback = encodeURIComponent(`Hola ${order.customer_name}! ¿Cómo fue tu experiencia con tu pedido ${order.order_number}? Nos encantaría saber tu opinión. 😊`);
+            const msgConfirm  = encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 已确认，总金额 €${parseFloat(order.total||0).toFixed(2)}，感谢您的购买！🙏\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} ha sido confirmado. Total: €${parseFloat(order.total||0).toFixed(2)}. ¡Gracias! 🙏`);
+            const msgShipped  = encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 已发货，请注意查收。📦\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} ha sido enviado. Pronto lo recibirás. 📦`);
+            const msgFeedback = encodeURIComponent(`你好 ${order.customer_name}！您对订单 ${order.order_number} 满意吗？期待您的反馈！😊\n\nHola ${order.customer_name}! ¿Qué tal tu experiencia con el pedido ${order.order_number}? ¡Nos encantaría saberlo! 😊`);
+            const msgCancel   = encodeURIComponent(`你好 ${order.customer_name}！很遗憾，您的订单 ${order.order_number} 已被取消。如有疑问请联系我们。🙏\n\nHola ${order.customer_name}! Lamentamos informarte que tu pedido ${order.order_number} ha sido cancelado. Contáctanos si tienes dudas. 🙏`);
             const waId = `wa-${order.id}`;
 
             return `
@@ -481,15 +483,20 @@
                                 <a href="https://wa.me/${phone}?text=${msgConfirm}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-check-circle"></i> 订单已确认</a>
                                 <a href="https://wa.me/${phone}?text=${msgShipped}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-truck"></i> 已发货通知</a>
                                 <a href="https://wa.me/${phone}?text=${msgFeedback}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-star"></i> 询问反馈</a>
+                                <a href="https://wa.me/${phone}?text=${msgCancel}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-times-circle"></i> 订单已取消</a>
                                 <a href="https://wa.me/${phone}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-comment"></i> 空白消息</a>
                             </div>
                         </div>
                         <select class="status-select" onchange="updateOrderStatus('${order.id}', this.value)">
-                            <option value="pending"   ${order.payment_status==='pending'  ?'selected':''}>待付款</option>
-                            <option value="paid"      ${order.payment_status==='paid'     ?'selected':''}>已付款</option>
-                            <option value="shipped"   ${order.payment_status==='shipped'  ?'selected':''}>已发货</option>
-                            <option value="delivered" ${order.payment_status==='delivered'?'selected':''}>已完成</option>
+                            <option value="pending"   ${order.payment_status==='pending'   ?'selected':''}>待付款</option>
+                            <option value="paid"      ${order.payment_status==='paid'      ?'selected':''}>已付款</option>
+                            <option value="shipped"   ${order.payment_status==='shipped'   ?'selected':''}>已发货</option>
+                            <option value="delivered" ${order.payment_status==='delivered' ?'selected':''}>已完成</option>
+                            <option value="cancelled" ${order.payment_status==='cancelled' ?'selected':''}>已取消</option>
                         </select>
+                        <button onclick="deleteOrder('${order.id}', '${order.order_number}')" style="padding:0.375rem 0.75rem;background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;border-radius:6px;cursor:pointer;font-size:0.8rem;font-family:inherit">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </div>
             </div>`;
@@ -588,6 +595,22 @@
                 <tbody>${rows}</tbody>
             </table>
         </div>`;
+    }
+
+    async function deleteOrder(orderId, orderNumber) {
+        if (!confirm(`确定要删除订单 ${orderNumber} 吗？此操作不可撤销。`)) return;
+        const res = await fetch('/.netlify/functions/delete-order', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: adminPass, orderId })
+        });
+        if (res.ok) {
+            allOrders = allOrders.filter(o => o.id !== orderId);
+            renderStats(allOrders);
+            applyFilters();
+        } else {
+            alert('删除失败，请重试');
+        }
     }
 
     function filterByAgent(ref) {
