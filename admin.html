@@ -220,6 +220,9 @@
         <button id="tab-agents" onclick="switchTab('agents')" style="padding:0.75rem 1.25rem;border:none;background:none;font-size:0.875rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:#737373;font-family:inherit">
             <i class="fas fa-users"></i> 代理统计
         </button>
+        <button id="tab-users" onclick="switchTab('users')" style="padding:0.75rem 1.25rem;border:none;background:none;font-size:0.875rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:#737373;font-family:inherit">
+            <i class="fas fa-user-friends"></i> 注册用户
+        </button>
     </div>
 
     <!-- Filter Bar -->
@@ -287,6 +290,20 @@
     </div>
 
     <!-- Inventory -->
+    <!-- 注册用户 Tab -->
+    <div id="section-users" style="display:none;padding:1.25rem 2rem 2rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+            <div>
+                <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:0.25rem">注册用户</h2>
+                <p id="users-count-label" style="font-size:0.85rem;color:#737373">加载中...</p>
+            </div>
+            <button onclick="loadUsers()" style="padding:0.5rem 1rem;border:1px solid #e5e5e5;border-radius:8px;background:#fff;cursor:pointer;font-size:0.8rem;font-family:inherit"><i class="fas fa-sync-alt"></i> 刷新</button>
+        </div>
+        <div id="users-container">
+            <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
+        </div>
+    </div>
+
     <div id="section-inventory" style="display:none;padding:1.25rem 2rem 2rem">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
             <h3 style="font-size:1rem;font-weight:600">库存管理</h3>
@@ -579,7 +596,7 @@
 
     // ── Tab switching ──
     function switchTab(tab) {
-        ['orders','inventory','agents'].forEach(t => {
+        ['orders','inventory','agents','users'].forEach(t => {
             document.getElementById(`section-${t}`).style.display = tab === t ? 'block' : 'none';
             document.getElementById(`tab-${t}`).style.borderBottomColor = tab === t ? '#000' : 'transparent';
             document.getElementById(`tab-${t}`).style.color = tab === t ? '#000' : '#737373';
@@ -587,6 +604,46 @@
         });
         if (tab === 'inventory') loadInventory();
         if (tab === 'agents') renderAgentStats();
+        if (tab === 'users') loadUsers();
+    }
+
+    // ── 注册用户 ──
+    async function loadUsers() {
+        document.getElementById('users-container').innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+        document.getElementById('users-count-label').textContent = '加载中...';
+        try {
+            const res = await fetch(`/.netlify/functions/get-users?password=${encodeURIComponent(adminPass)}`);
+            if (res.status === 401) { document.getElementById('users-container').innerHTML = '<div class="empty-state">无权限</div>'; return; }
+            const data = await res.json();
+            const users = data.users || [];
+            document.getElementById('users-count-label').textContent = `共 ${users.length} 位注册用户`;
+            if (!users.length) {
+                document.getElementById('users-container').innerHTML = '<div class="empty-state">暂无注册用户</div>';
+                return;
+            }
+            document.getElementById('users-container').innerHTML = `
+                <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+                    <thead>
+                        <tr style="border-bottom:2px solid #e5e5e5;text-align:left">
+                            <th style="padding:0.6rem 1rem">邮箱</th>
+                            <th style="padding:0.6rem 1rem">注册时间</th>
+                            <th style="padding:0.6rem 1rem">最后登录</th>
+                            <th style="padding:0.6rem 1rem">邮箱已验证</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(u => `
+                        <tr style="border-bottom:1px solid #f5f5f5">
+                            <td style="padding:0.7rem 1rem;font-weight:500">${u.email || '—'}</td>
+                            <td style="padding:0.7rem 1rem;color:#737373">${u.created_at ? new Date(u.created_at).toLocaleString('zh-CN') : '—'}</td>
+                            <td style="padding:0.7rem 1rem;color:#737373">${u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString('zh-CN') : '从未登录'}</td>
+                            <td style="padding:0.7rem 1rem">${u.email_confirmed_at ? '<span style="color:#16a34a;font-weight:600">✓ 已验证</span>' : '<span style="color:#d97706">未验证</span>'}</td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>`;
+        } catch(e) {
+            document.getElementById('users-container').innerHTML = `<div class="empty-state" style="color:#dc2626">加载失败: ${e.message}</div>`;
+        }
     }
 
     // ── Agent Stats ──

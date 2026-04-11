@@ -512,6 +512,23 @@
         </div>
     </div>
 
+    <!-- 新用户欢迎注册弹窗 -->
+    <div id="welcome-register-modal" class="modal" style="display:none">
+        <div class="modal-content post-checkout-content">
+            <button class="modal-close-btn" id="welcome-register-close"><i class="fas fa-times"></i></button>
+            <div style="font-size:2rem;margin-bottom:0.75rem">👋</div>
+            <h3>欢迎来到口粮专卖店</h3>
+            <p class="post-checkout-subtitle">注册账号，随时查看订单状态和历史记录</p>
+            <input class="auth-input" type="email" id="welcome-email" placeholder="邮箱地址">
+            <input class="auth-input" type="password" id="welcome-password" placeholder="密码（6位以上）">
+            <button class="btn btn-primary auth-submit-btn" id="btn-welcome-register">免费注册</button>
+            <p class="auth-error" id="welcome-error" style="display:none"></p>
+            <p class="auth-success" id="welcome-success" style="display:none"></p>
+            <button class="post-checkout-skip" id="welcome-skip">已有账号？<span style="text-decoration:underline">点此登录</span></button>
+            <button class="post-checkout-skip" id="welcome-dismiss">暂不注册</button>
+        </div>
+    </div>
+
     <!-- 购后注册提示 -->
     <div id="post-checkout-modal" class="modal" style="display:none">
         <div class="modal-content post-checkout-content">

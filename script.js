@@ -1610,6 +1610,28 @@ function initAuth() {
     document.getElementById('btn-post-skip').addEventListener('click', () => {
         document.getElementById('post-checkout-modal').style.display = 'none';
     });
+
+    // 新用户欢迎弹窗
+    document.getElementById('btn-welcome-register').addEventListener('click', handleWelcomeRegister);
+    document.getElementById('welcome-dismiss').addEventListener('click', () => {
+        document.getElementById('welcome-register-modal').style.display = 'none';
+        localStorage.setItem('welcome_dismissed', '1');
+    });
+    document.getElementById('welcome-register-close').addEventListener('click', () => {
+        document.getElementById('welcome-register-modal').style.display = 'none';
+        localStorage.setItem('welcome_dismissed', '1');
+    });
+    document.getElementById('welcome-skip').addEventListener('click', () => {
+        document.getElementById('welcome-register-modal').style.display = 'none';
+        openAuthModal('login');
+    });
+
+    // 首次访问且未登录时，延迟3秒弹出注册提示
+    setTimeout(() => {
+        if (!currentUser && !localStorage.getItem('welcome_dismissed')) {
+            document.getElementById('welcome-register-modal').style.display = 'flex';
+        }
+    }, 3000);
 }
 
 function updateAccountUI() {
@@ -1699,6 +1721,37 @@ async function handleRegister() {
         btn.textContent = '创建账号'; btn.disabled = false;
         errEl.textContent = `网络错误: ${e.message} | SDK已加载: ${!!window.supabase} | URL: ${_SB_URL}`;
         errEl.style.display = 'block';
+    }
+}
+
+async function handleWelcomeRegister() {
+    const email = document.getElementById('welcome-email').value.trim();
+    const password = document.getElementById('welcome-password').value;
+    const errEl = document.getElementById('welcome-error');
+    const successEl = document.getElementById('welcome-success');
+    const btn = document.getElementById('btn-welcome-register');
+    if (!email || !password) { errEl.textContent = '请填写邮箱和密码'; errEl.style.display = 'block'; return; }
+    if (password.length < 6) { errEl.textContent = '密码至少6位'; errEl.style.display = 'block'; return; }
+    btn.textContent = '注册中...'; btn.disabled = true;
+    errEl.style.display = 'none';
+    try {
+        const res = await fetch(`${_SB_URL}/auth/v1/signup`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': _SB_KEY, 'Authorization': `Bearer ${_SB_KEY}` },
+            body: JSON.stringify({ email, password })
+        });
+        const json = await res.json();
+        btn.textContent = '免费注册'; btn.disabled = false;
+        if (!res.ok) { errEl.textContent = json.msg || json.message || '注册失败'; errEl.style.display = 'block'; }
+        else {
+            localStorage.setItem('welcome_dismissed', '1');
+            successEl.textContent = '✓ 注册成功！请查收验证邮件';
+            successEl.style.display = 'block';
+            setTimeout(() => { document.getElementById('welcome-register-modal').style.display = 'none'; }, 2500);
+        }
+    } catch(e) {
+        btn.textContent = '免费注册'; btn.disabled = false;
+        errEl.textContent = '网络错误，请重试'; errEl.style.display = 'block';
     }
 }
 
