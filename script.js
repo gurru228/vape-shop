@@ -1101,12 +1101,18 @@ function switchLanguage(lang) {
 // ===== 产品渲染功能 =====
 function renderProducts() {
     if (!domElements.productsGrid) return;
-
     domElements.productsGrid.innerHTML = '';
 
-    products.forEach(product => {
-        const productCard = createProductCard(product);
-        domElements.productsGrid.appendChild(productCard);
+    // 产品排序：全部售罄的排最后
+    const sorted = [...products].sort((a, b) => {
+        const allSoldOut = p => p.flavors
+            ? p.flavors.every(f => isSoldOut(p.id, f.name))
+            : isSoldOut(p.id, 'default');
+        return allSoldOut(a) - allSoldOut(b);
+    });
+
+    sorted.forEach(product => {
+        domElements.productsGrid.appendChild(createProductCard(product));
     });
 }
 
@@ -1117,7 +1123,7 @@ function createProductCard(product) {
 
     const flavorsHtml = product.flavors ? `
         <div class="flavor-selector">
-            ${product.flavors.map((f, i) => `
+            ${[...product.flavors].sort((a, b) => isSoldOut(product.id, a.name) - isSoldOut(product.id, b.name)).map((f, i) => `
                 <button class="flavor-btn${i === 0 ? ' active' : ''}" data-flavor-index="${i}" data-product-id="${product.id}" data-flavor="${f.name}" title="${f.name}">
                     <img src="${f.image}" alt="${f.name}" onerror="this.style.display='none'">
                     <span>${currentLanguage === 'zh' ? f.nameCn : f.name}</span>

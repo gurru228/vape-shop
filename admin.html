@@ -766,7 +766,15 @@
     function renderInventory() {
         const container = document.getElementById('inventory-container');
         container.innerHTML = PRODUCTS_DEF.map(p => {
-            const rows = p.flavors.map(f => {
+            // 口味排序：有货在前，售罄在后
+            const sortedFlavors = [...p.flavors].sort((a, b) => {
+                const aStock = parseInt(inventoryData[`${p.id}-${a.key}`]);
+                const bStock = parseInt(inventoryData[`${p.id}-${b.key}`]);
+                const aZero = !isNaN(aStock) && aStock === 0;
+                const bZero = !isNaN(bStock) && bStock === 0;
+                return aZero - bZero;
+            });
+            const rows = sortedFlavors.map(f => {
                 const key = `${p.id}-${f.key}`;
                 const stock = inventoryData[key] ?? '';
                 const stockNum = parseInt(stock);
