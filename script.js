@@ -1,3 +1,9 @@
+// ===== Supabase 客户端（用户Auth + 查询自己的订单） =====
+const _SB_URL = 'https://ahbdpuwfdnbdskezevg.supabase.co';
+const _SB_KEY = 'sb_publishable_ZcbhFt31zEOPCe29ICL87g_qZxc59Y6';
+const sbClient = window.supabase.createClient(_SB_URL, _SB_KEY);
+let currentUser = null;
+
 // ===== 配置信息 =====
 const CONFIG = {
     bizumPhone: '+34 697 332 407',
@@ -621,17 +627,23 @@ function openCartCheckoutModal() {
         confirmBtn.disabled = true;
         confirmBtn.textContent = '提交中...';
         try {
+            // 如果用户已登录，带上 userId
+            const finalPayload = { ...payload };
+            if (currentUser) finalPayload.userId = currentUser.id;
+
             const res = await fetch('/.netlify/functions/save-bizum-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(finalPayload)
             });
             const data = await res.json();
             if (!res.ok || data.error || data.supabase_error) throw new Error(data.error || data.supabase_error || 'Error');
             if (activeDiscount) markCodeAsUsed(activeDiscount.code);
             modal.style.display = 'none';
             clearCart();
-            alert('谢谢！我们收到您的付款通知，确认后会联系您。\n¡Gracias! Le contactaremos al confirmar el pago.');
+            // 未登录则提示注册
+            showPostCheckoutPrompt(payload.orderNumber);
+            if (currentUser) alert('谢谢！我们收到您的付款通知，确认后会联系您。\n¡Gracias! Le contactaremos al confirmar el pago.');
         } catch (err) {
             alert('提交失败，请重试 / Error al enviar, inténtelo de nuevo');
             confirmBtn.disabled = false;
@@ -712,7 +724,7 @@ function openCartCheckoutModal() {
             const res = await fetch('/.netlify/functions/create-checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress, deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0, shippingFee, agentRef: sessionStorage.getItem('agent_ref') || '' })
+                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress, deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0, shippingFee, agentRef: sessionStorage.getItem('agent_ref') || '', ...(currentUser ? { userId: currentUser.id } : {}) })
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
@@ -1508,9 +1520,210 @@ function initScrollAnimations() {
 // ===== 页面加载完成后初始化 =====
 document.addEventListener('DOMContentLoaded', () => {
     init();
-    // 产品卡片渲染后再初始化动画（稍微延迟确保 DOM 已更新）
+    initAuth();
     setTimeout(initScrollAnimations, 50);
 });
+
+// ===== 用户账户系统 =====
+function initAuth() {
+    // 监听登录状态变化
+    sbClient.auth.onAuthStateChange((_event, session) => {
+        currentUser = session?.user || null;
+        updateAccountUI();
+    });
+
+    // 账户按钮点击
+    const accountToggle = document.getElementById('account-toggle');
+    const accountDropdown = document.getElementById('account-dropdown');
+
+    accountToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (currentUser) {
+            // 已登录：显示下拉菜单
+            const isOpen = accountDropdown.style.display !== 'none';
+            accountDropdown.style.display = isOpen ? 'none' : 'block';
+        } else {
+            // 未登录：打开登录弹窗
+            openAuthModal('login');
+        }
+    });
+
+    document.addEventListener('click', () => { accountDropdown.style.display = 'none'; });
+
+    // 我的订单
+    document.getElementById('my-orders-btn').addEventListener('click', () => {
+        accountDropdown.style.display = 'none';
+        openOrdersPanel();
+    });
+
+    // 退出登录
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+        accountDropdown.style.display = 'none';
+        await sbClient.auth.signOut();
+    });
+
+    // 关闭登录弹窗
+    document.getElementById('auth-modal-close').addEventListener('click', closeAuthModal);
+    document.getElementById('auth-modal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('auth-modal')) closeAuthModal();
+    });
+
+    // Tab 切换
+    document.getElementById('tab-login-btn').addEventListener('click', () => switchAuthTab('login'));
+    document.getElementById('tab-register-btn').addEventListener('click', () => switchAuthTab('register'));
+
+    // 登录提交
+    document.getElementById('btn-login').addEventListener('click', handleLogin);
+
+    // 注册提交
+    document.getElementById('btn-register').addEventListener('click', handleRegister);
+
+    // 我的订单面板关闭
+    document.getElementById('orders-panel-close').addEventListener('click', closeOrdersPanel);
+    document.getElementById('orders-overlay').addEventListener('click', closeOrdersPanel);
+
+    // 购后注册
+    document.getElementById('btn-post-register').addEventListener('click', handlePostCheckoutRegister);
+    document.getElementById('btn-post-skip').addEventListener('click', () => {
+        document.getElementById('post-checkout-modal').style.display = 'none';
+    });
+}
+
+function updateAccountUI() {
+    const toggle = document.getElementById('account-toggle');
+    const label = document.getElementById('account-label');
+    if (currentUser) {
+        toggle.classList.add('logged-in');
+        const name = currentUser.email.split('@')[0];
+        label.textContent = name.length > 10 ? name.slice(0, 10) + '…' : name;
+    } else {
+        toggle.classList.remove('logged-in');
+        label.textContent = '登录';
+    }
+}
+
+function openAuthModal(tab = 'login') {
+    document.getElementById('auth-modal').style.display = 'flex';
+    switchAuthTab(tab);
+    document.getElementById('login-error').style.display = 'none';
+    document.getElementById('register-error').style.display = 'none';
+    document.getElementById('register-success').style.display = 'none';
+}
+
+function closeAuthModal() {
+    document.getElementById('auth-modal').style.display = 'none';
+}
+
+function switchAuthTab(tab) {
+    document.getElementById('auth-login-section').style.display = tab === 'login' ? 'block' : 'none';
+    document.getElementById('auth-register-section').style.display = tab === 'register' ? 'block' : 'none';
+    document.getElementById('tab-login-btn').classList.toggle('active', tab === 'login');
+    document.getElementById('tab-register-btn').classList.toggle('active', tab === 'register');
+}
+
+async function handleLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const errEl = document.getElementById('login-error');
+    const btn = document.getElementById('btn-login');
+    if (!email || !password) { errEl.textContent = '请填写邮箱和密码'; errEl.style.display = 'block'; return; }
+    btn.textContent = '登录中...'; btn.disabled = true;
+    const { error } = await sbClient.auth.signInWithPassword({ email, password });
+    btn.textContent = '登录'; btn.disabled = false;
+    if (error) { errEl.textContent = error.message === 'Invalid login credentials' ? '邮箱或密码错误' : error.message; errEl.style.display = 'block'; }
+    else { closeAuthModal(); }
+}
+
+async function handleRegister() {
+    const email = document.getElementById('register-email').value.trim();
+    const password = document.getElementById('register-password').value;
+    const errEl = document.getElementById('register-error');
+    const successEl = document.getElementById('register-success');
+    const btn = document.getElementById('btn-register');
+    if (!email || !password) { errEl.textContent = '请填写邮箱和密码'; errEl.style.display = 'block'; return; }
+    if (password.length < 6) { errEl.textContent = '密码至少6位'; errEl.style.display = 'block'; return; }
+    btn.textContent = '注册中...'; btn.disabled = true;
+    errEl.style.display = 'none';
+    const { error } = await sbClient.auth.signUp({ email, password });
+    btn.textContent = '创建账号'; btn.disabled = false;
+    if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; }
+    else { successEl.textContent = '✓ 注册成功！请查收验证邮件后登录'; successEl.style.display = 'block'; }
+}
+
+// 购后注册（带订单号绑定）
+let _pendingLinkOrderNumber = null;
+
+async function handlePostCheckoutRegister() {
+    const email = document.getElementById('post-email').value.trim();
+    const password = document.getElementById('post-password').value;
+    const errEl = document.getElementById('post-error');
+    const btn = document.getElementById('btn-post-register');
+    if (!email || !password) { errEl.textContent = '请填写邮箱和密码'; errEl.style.display = 'block'; return; }
+    if (password.length < 6) { errEl.textContent = '密码至少6位'; errEl.style.display = 'block'; return; }
+    btn.textContent = '注册中...'; btn.disabled = true;
+    errEl.style.display = 'none';
+    const { error } = await sbClient.auth.signUp({ email, password });
+    btn.textContent = '创建账号'; btn.disabled = false;
+    if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; }
+    else {
+        document.getElementById('post-checkout-modal').style.display = 'none';
+        alert('✓ 账号创建成功！查收验证邮件后登录，即可查看订单状态。');
+        _pendingLinkOrderNumber = null;
+    }
+}
+
+function showPostCheckoutPrompt(orderNumber) {
+    if (currentUser) return; // 已登录则不提示
+    _pendingLinkOrderNumber = orderNumber;
+    document.getElementById('post-email').value = '';
+    document.getElementById('post-password').value = '';
+    document.getElementById('post-error').style.display = 'none';
+    document.getElementById('post-checkout-modal').style.display = 'flex';
+}
+
+// 我的订单面板
+function openOrdersPanel() {
+    document.getElementById('orders-panel').classList.add('open');
+    document.getElementById('orders-overlay').classList.add('active');
+    loadUserOrders();
+}
+
+function closeOrdersPanel() {
+    document.getElementById('orders-panel').classList.remove('open');
+    document.getElementById('orders-overlay').classList.remove('active');
+}
+
+const STATUS_ZH = { pending: '待确认', paid: '已付款', shipped: '已发货', delivered: '已完成', cancelled: '已取消' };
+
+async function loadUserOrders() {
+    const content = document.getElementById('orders-panel-content');
+    content.innerHTML = '<div class="orders-loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+    if (!currentUser) { content.innerHTML = '<div class="orders-empty"><i class="fas fa-user"></i><p>请先登录</p></div>'; return; }
+
+    const { data, error } = await sbClient
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) { content.innerHTML = `<div class="orders-empty"><i class="fas fa-exclamation-circle"></i><p>加载失败</p></div>`; return; }
+    if (!data?.length) { content.innerHTML = '<div class="orders-empty"><i class="fas fa-receipt"></i><p>暂无订单</p></div>'; return; }
+
+    content.innerHTML = data.map(order => {
+        const items = (order.items || []).map(i => `${i.name} ×${i.quantity}`).join('、');
+        const date = new Date(order.created_at).toLocaleDateString('zh-CN');
+        const status = order.payment_status || 'pending';
+        return `
+        <div class="order-card">
+            <div class="order-card-header">
+                <span class="order-number">${order.order_number}</span>
+                <span class="order-date">${date}</span>
+            </div>
+            <div class="order-status-badge ${status}">${STATUS_ZH[status] || status}</div>
+            <div class="order-items">${items}</div>
+            <div class="order-total">合计：€${order.total?.toFixed(2)}</div>
+        </div>`;
+    }).join('');
+}
 
 // ===== 导出供开发使用 =====
 if (typeof module !== 'undefined' && module.exports) {

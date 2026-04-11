@@ -44,7 +44,7 @@ exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
 
     try {
-        const { cart, customerName, customerPhone, deliveryType, address, deliveryTime, shippingFee, agentRef, paymentMethod, orderNumber: clientOrderNumber } = JSON.parse(event.body);
+        const { cart, customerName, customerPhone, deliveryType, address, deliveryTime, shippingFee, agentRef, paymentMethod, orderNumber: clientOrderNumber, userId } = JSON.parse(event.body);
         if (!cart?.length || !customerName || !customerPhone) {
             return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields' }) };
         }
@@ -66,7 +66,8 @@ exports.handler = async (event) => {
             delivery_type: deliveryType || 'pickup',
             address: address || '',
             delivery_time: deliveryTime || '',
-            ...(agentRef ? { agent_ref: agentRef } : {})
+            ...(agentRef ? { agent_ref: agentRef } : {}),
+            ...(userId ? { user_id: userId } : {})
         };
 
         const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
