@@ -1347,6 +1347,28 @@ body.zh {
 
 .delivery-option-btn.active small { color: var(--color-gray-400); }
 
+.pickup-info-box {
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.pickup-info-row {
+    font-size: 0.85rem;
+    color: var(--color-gray-700);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.pickup-info-row i {
+    color: var(--primary-color);
+    width: 1rem;
+    text-align: center;
+}
+
 .delivery-note {
     display: block;
     margin-top: 0.5rem;

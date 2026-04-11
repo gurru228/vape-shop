@@ -494,6 +494,7 @@ function openCartCheckoutModal() {
     document.getElementById('address-group').style.display = 'none';
     document.getElementById('time-group').style.display = 'none';
     document.getElementById('postal-group').style.display = 'none';
+    document.getElementById('pickup-info-group').style.display = 'block';
     document.getElementById('checkout-postal-address').value = '';
     document.getElementById('checkout-time-from').value = '10:00';
     document.getElementById('checkout-time-to').value = '14:00';
@@ -504,6 +505,7 @@ function openCartCheckoutModal() {
     const setDeliveryMode = (mode) => {
         ['btn-pickup', 'btn-delivery', 'btn-postal'].forEach(id => document.getElementById(id).classList.remove('active'));
         document.getElementById(`btn-${mode}`).classList.add('active');
+        document.getElementById('pickup-info-group').style.display = mode === 'pickup' ? 'block' : 'none';
         document.getElementById('address-group').style.display = mode === 'delivery' ? 'block' : 'none';
         document.getElementById('time-group').style.display = mode === 'delivery' ? 'block' : 'none';
         document.getElementById('postal-group').style.display = mode === 'postal' ? 'block' : 'none';
