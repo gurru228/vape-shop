@@ -625,7 +625,7 @@ body.zh {
 
 .payment-methods-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
     margin-top: var(--space-xl);
 }
