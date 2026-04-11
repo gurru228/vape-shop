@@ -44,12 +44,12 @@ exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
 
     try {
-        const { cart, customerName, customerPhone, deliveryType, address, deliveryTime, shippingFee, agentRef, paymentMethod } = JSON.parse(event.body);
+        const { cart, customerName, customerPhone, deliveryType, address, deliveryTime, shippingFee, agentRef, paymentMethod, orderNumber: clientOrderNumber } = JSON.parse(event.body);
         if (!cart?.length || !customerName || !customerPhone) {
             return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields' }) };
         }
 
-        const orderNumber = `ORD-${Date.now()}`;
+        const orderNumber = clientOrderNumber || `ORD-${Date.now()}`;
         const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
         const shipping = parseFloat(shippingFee) || 0;
         const total = +(subtotal + shipping).toFixed(2);

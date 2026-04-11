@@ -574,8 +574,8 @@ function openCartCheckoutModal() {
             formatted: [r, s + (f ? ` ${f}` : ''), `${cp} ${city}`.trim(), prov].filter(Boolean).join('\n') };
     }
 
-    // Bizum 支付
-    document.getElementById('btn-pay-bizum').onclick = async () => {
+    // 收集并校验表单，返回 payload 或 null
+    function buildOrderPayload(paymentMethod) {
         const name = document.getElementById('checkout-customer-name').value.trim();
         const phone = document.getElementById('checkout-customer-phone').value.trim();
         const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
@@ -585,124 +585,94 @@ function openCartCheckoutModal() {
         const timeFrom = document.getElementById('checkout-time-from').value;
         const timeTo = document.getElementById('checkout-time-to').value;
         const shippingFee = getShippingFee();
+
         if (!name || !phone) {
             errorEl.textContent = '请填写姓名和手机号 / Por favor complete su nombre y teléfono';
             errorEl.style.display = 'block';
-            return;
+            return null;
         }
         if (isDelivery && !deliveryData.street) {
             errorEl.textContent = '请填写街道和门牌号 / Por favor introduzca la calle y número';
             errorEl.style.display = 'block';
-            return;
+            return null;
         }
         if (isPostal && (!postalData.recipient || !postalData.street || !postalData.cp || !postalData.city)) {
             errorEl.textContent = '请填写完整邮寄地址（收件人、街道、邮编、城市）/ Rellene todos los campos de dirección postal';
             errorEl.style.display = 'block';
-            return;
+            return null;
         }
         errorEl.style.display = 'none';
-        document.getElementById('btn-pay-bizum').disabled = true;
-        document.getElementById('btn-pay-bizum').textContent = '处理中...';
 
         const deliveryType = isDelivery ? 'delivery' : isPostal ? 'postal' : 'pickup';
         const finalAddress = isDelivery ? deliveryData.formatted : isPostal ? postalData.formatted : '';
+        const subtotal = cart.filter(i => !i.isFree).reduce((s, i) => s + i.price * i.quantity, 0);
+        const total = +(subtotal + shippingFee).toFixed(2);
+        const orderNumber = 'ORD-' + Date.now();
 
+        return { cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress,
+            deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '',
+            discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0,
+            shippingFee, agentRef: sessionStorage.getItem('agent_ref') || '',
+            paymentMethod, orderNumber, total };
+    }
+
+    // 提交订单到服务器（客户点"我已付款"后才调用）
+    async function submitOrder(payload, confirmBtn, confirmBtnOriginalHTML) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = '提交中...';
         try {
             const res = await fetch('/.netlify/functions/save-bizum-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress, deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0, shippingFee, agentRef: sessionStorage.getItem('agent_ref') || '' })
+                body: JSON.stringify(payload)
             });
             const data = await res.json();
             if (!res.ok || data.error || data.supabase_error) throw new Error(data.error || data.supabase_error || 'Error');
-
-            document.getElementById('bizum-amount-display').textContent = `${CONFIG.defaultCurrency}${data.total.toFixed(2)}`;
             if (activeDiscount) markCodeAsUsed(activeDiscount.code);
-            document.getElementById('bizum-order-display').textContent = data.orderNumber;
-            // WhatsApp 链接带上订单号
-            const waMsg = encodeURIComponent(`Hola! Acabo de hacer el pago por Bizum.\nPedido: ${data.orderNumber}\nImporte: €${data.total.toFixed(2)}\n(附上截图 / adjunto captura)`);
-            document.getElementById('bizum-whatsapp-btn').href = `https://wa.me/34697332407?text=${waMsg}`;
-            stepInfo.style.display = 'none';
-            stepBizum.style.display = 'block';
-
-            document.getElementById('bizum-confirm-btn').onclick = () => {
-                modal.style.display = 'none';
-                clearCart();
-                alert('¡Gracias! / 谢谢！我们确认收款后会联系您。');
-            };
-            document.getElementById('checkout-cancel-btn').onclick = () => modal.style.display = 'none';
+            modal.style.display = 'none';
+            clearCart();
+            alert('谢谢！我们收到您的付款通知，确认后会联系您。\n¡Gracias! Le contactaremos al confirmar el pago.');
         } catch (err) {
-            errorEl.textContent = '出错了：' + err.message;
-            errorEl.style.display = 'block';
-        } finally {
-            document.getElementById('btn-pay-bizum').disabled = false;
-            document.getElementById('btn-pay-bizum').innerHTML = '<i class="fas fa-mobile-alt"></i><span>Bizum</span><small>转账支付</small>';
+            alert('提交失败，请重试 / Error al enviar, inténtelo de nuevo');
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = confirmBtnOriginalHTML;
         }
+    }
+
+    // Bizum 支付
+    document.getElementById('btn-pay-bizum').onclick = () => {
+        const payload = buildOrderPayload('bizum');
+        if (!payload) return;
+
+        document.getElementById('bizum-amount-display').textContent = `${CONFIG.defaultCurrency}${payload.total.toFixed(2)}`;
+        document.getElementById('bizum-order-display').textContent = payload.orderNumber;
+        const waMsg = encodeURIComponent(`Hola! Acabo de hacer el pago por Bizum.\nPedido: ${payload.orderNumber}\nImporte: €${payload.total.toFixed(2)}\n(附上截图 / adjunto captura)`);
+        document.getElementById('bizum-whatsapp-btn').href = `https://wa.me/34697332407?text=${waMsg}`;
+        stepInfo.style.display = 'none';
+        stepBizum.style.display = 'block';
+
+        const confirmBtn = document.getElementById('bizum-confirm-btn');
+        const originalHTML = confirmBtn.innerHTML;
+        confirmBtn.onclick = () => submitOrder(payload, confirmBtn, originalHTML);
+        document.getElementById('checkout-cancel-btn').onclick = () => modal.style.display = 'none';
     };
 
     // 微信支付
-    document.getElementById('btn-pay-wechat').onclick = async () => {
-        const name = document.getElementById('checkout-customer-name').value.trim();
-        const phone = document.getElementById('checkout-customer-phone').value.trim();
-        const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
-        const isPostal = document.getElementById('btn-postal').classList.contains('active');
-        const deliveryData = getDeliveryAddress();
-        const postalData = getPostalAddress();
-        const timeFrom = document.getElementById('checkout-time-from').value;
-        const timeTo = document.getElementById('checkout-time-to').value;
-        const shippingFee = getShippingFee();
-        if (!name || !phone) {
-            errorEl.textContent = '请填写姓名和手机号 / Por favor complete su nombre y teléfono';
-            errorEl.style.display = 'block';
-            return;
-        }
-        if (isDelivery && !deliveryData.street) {
-            errorEl.textContent = '请填写街道和门牌号 / Por favor introduzca la calle y número';
-            errorEl.style.display = 'block';
-            return;
-        }
-        if (isPostal && (!postalData.recipient || !postalData.street || !postalData.cp || !postalData.city)) {
-            errorEl.textContent = '请填写完整邮寄地址（收件人、街道、邮编、城市）/ Rellene todos los campos de dirección postal';
-            errorEl.style.display = 'block';
-            return;
-        }
-        errorEl.style.display = 'none';
-        document.getElementById('btn-pay-wechat').disabled = true;
-        document.getElementById('btn-pay-wechat').textContent = '处理中...';
+    document.getElementById('btn-pay-wechat').onclick = () => {
+        const payload = buildOrderPayload('wechat');
+        if (!payload) return;
 
-        const deliveryType = isDelivery ? 'delivery' : isPostal ? 'postal' : 'pickup';
-        const finalAddress = isDelivery ? deliveryData.formatted : isPostal ? postalData.formatted : '';
+        document.getElementById('wechat-amount-display').textContent = `${CONFIG.defaultCurrency}${payload.total.toFixed(2)}`;
+        document.getElementById('wechat-order-display').textContent = payload.orderNumber;
+        const waMsg = encodeURIComponent(`你好！我刚完成微信支付。\n订单号: ${payload.orderNumber}\n金额: €${payload.total.toFixed(2)}\n（附上截图 / adjunto captura）`);
+        document.getElementById('wechat-whatsapp-btn').href = `https://wa.me/34697332407?text=${waMsg}`;
+        stepInfo.style.display = 'none';
+        document.getElementById('checkout-step-wechat').style.display = 'block';
 
-        try {
-            const res = await fetch('/.netlify/functions/save-bizum-order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress, deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0, shippingFee, agentRef: sessionStorage.getItem('agent_ref') || '', paymentMethod: 'wechat' })
-            });
-            const data = await res.json();
-            if (!res.ok || data.error || data.supabase_error) throw new Error(data.error || data.supabase_error || 'Error');
-
-            document.getElementById('wechat-amount-display').textContent = `${CONFIG.defaultCurrency}${data.total.toFixed(2)}`;
-            if (activeDiscount) markCodeAsUsed(activeDiscount.code);
-            document.getElementById('wechat-order-display').textContent = data.orderNumber;
-            const waMsg = encodeURIComponent(`你好！我刚刚完成了微信支付。\n订单号: ${data.orderNumber}\n金额: €${data.total.toFixed(2)}\n（附上截图 / adjunto captura）`);
-            document.getElementById('wechat-whatsapp-btn').href = `https://wa.me/34697332407?text=${waMsg}`;
-            stepInfo.style.display = 'none';
-            document.getElementById('checkout-step-wechat').style.display = 'block';
-
-            document.getElementById('wechat-confirm-btn').onclick = () => {
-                modal.style.display = 'none';
-                clearCart();
-                alert('谢谢！我们确认收款后会联系您。¡Gracias! Le contactaremos al confirmar el pago.');
-            };
-            document.getElementById('wechat-cancel-btn').onclick = () => modal.style.display = 'none';
-        } catch (err) {
-            errorEl.textContent = '出错了：' + err.message;
-            errorEl.style.display = 'block';
-        } finally {
-            document.getElementById('btn-pay-wechat').disabled = false;
-            document.getElementById('btn-pay-wechat').innerHTML = '<i class="fab fa-weixin"></i><span>微信支付</span><small>WeChat Pay</small>';
-        }
+        const confirmBtn = document.getElementById('wechat-confirm-btn');
+        const originalHTML = confirmBtn.innerHTML;
+        confirmBtn.onclick = () => submitOrder(payload, confirmBtn, originalHTML);
+        document.getElementById('wechat-cancel-btn').onclick = () => modal.style.display = 'none';
     };
 
     // 银行卡支付
