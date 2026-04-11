@@ -706,7 +706,7 @@ const TRANSLATIONS = {
         products_subtitle: 'Múltiples tipos, múltiples sabores — encuentra el tuyo',
 
         // 产品描述
-        dash_desc: 'Diseño ergonómico, sabor suave y duradero',
+        dash_desc: '4000 puffs · Amplia variedad de sabores · Toque helado y suave',
         icemax_desc: 'Sabor intenso a menta con efecto refrescante',
         lil_black_desc: 'Compacto y discreto, ideal para llevar',
         iceking_desc: 'Sabor frío potente, experiencia refrescante extrema',
@@ -879,8 +879,8 @@ let products = [
         name: '鸭嘴兽 (Dash)',
         price: 17.9,
         description: {
-            es: 'Diseño ergonómico, sabor suave y duradero',
-            zh: '人体工学设计，口感柔和持久'
+            es: '4000 puffs · Amplia variedad de sabores · Toque helado y suave',
+            zh: '4000口量 · 多款口味随心选 · 冰感顺滑不刺激'
         },
         image: 'images/dash/coconut-water.webp',
         flavors: [
