@@ -427,11 +427,11 @@
             const isPostal    = order.delivery_type === 'postal';
             const phone = (order.customer_phone || '').replace(/\s+/g, '').replace(/^\+/, '');
             const itemsSummary = (order.items || []).map(i => `${i.name} x${i.quantity}`).join(', ');
+            const addrLines   = (order.address||'').split('\n').filter(Boolean).map(l=>`  ${l}`).join('\n');
             const msgConfirm  = encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 已确认，总金额 €${parseFloat(order.total||0).toFixed(2)}，感谢您的购买！🙏\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} ha sido confirmado. Total: €${parseFloat(order.total||0).toFixed(2)}. ¡Gracias! 🙏`);
             const msgShipped  = isDelivery
                 ? encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 正在派送中，预计送达时间：${order.delivery_time || '待确认'}。🛵\n\n配送地址：\n${addrLines}\n\n如有问题请联系我们！\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} está en camino. Hora estimada: ${order.delivery_time || 'por confirmar'}. 🛵\n\nDirección de entrega:\n${addrLines}\n\n¡Contáctanos si necesitas algo!`)
                 : encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 已发货，请注意查收。📦\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} ha sido enviado. Pronto lo recibirás. 📦`);
-            const addrLines   = (order.address||'').split('\n').filter(Boolean).map(l=>`  ${l}`).join('\n');
             const msgPostal   = encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 已安排邮寄发货。📦\n\n寄送地址：\n${addrLines}\n\n如有问题请随时联系我们！\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} ha sido enviado por correo postal. 📦\n\nDirección de envío:\n${addrLines}\n\n¡Contáctanos si tienes cualquier duda!`);
             const msgFeedback = encodeURIComponent(`你好 ${order.customer_name}！您对订单 ${order.order_number} 满意吗？期待您的反馈！😊\n\nHola ${order.customer_name}! ¿Qué tal tu experiencia con el pedido ${order.order_number}? ¡Nos encantaría saberlo! 😊`);
             const msgCancel   = encodeURIComponent(`你好 ${order.customer_name}！很遗憾，您的订单 ${order.order_number} 已被取消。如有疑问请联系我们。🙏\n\nHola ${order.customer_name}! Lamentamos informarte que tu pedido ${order.order_number} ha sido cancelado. Contáctanos si tienes dudas. 🙏`);
