@@ -1374,6 +1374,8 @@ function showStockWarning(message) {
 }
 
 function applyInventoryToUI() {
+    // 库存加载后重新渲染，触发有货/售罄排序
+    renderProducts();
     // 给每个口味按钮加售罄标记
     document.querySelectorAll('.flavor-btn[data-product-id][data-flavor]').forEach(btn => {
         const pid = parseInt(btn.dataset.productId);
