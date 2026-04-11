@@ -53,6 +53,12 @@
         .refresh-btn { display: flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1rem; background: #000; color: #fff; border: none; border-radius: 7px; font-size: 0.8rem; cursor: pointer; font-family: inherit; margin-left: auto; }
         .refresh-btn:hover { background: #262626; }
 
+        /* 自动刷新控件 */
+        .auto-refresh-control { display: flex; align-items: center; gap: 0.75rem; margin-left: auto; }
+        .auto-refresh-toggle { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: #525252; cursor: pointer; }
+        .auto-refresh-toggle input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+        .last-refresh-time { font-size: 0.75rem; color: #737373; white-space: nowrap; }
+
         .filter-groups { display: flex; flex-wrap: wrap; gap: 1.25rem; }
         .filter-group { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
         .filter-group-label { font-size: 0.75rem; font-weight: 600; color: #737373; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
@@ -227,6 +233,13 @@
             <button class="refresh-btn" onclick="loadOrders()">
                 <i class="fas fa-sync-alt"></i> 刷新
             </button>
+            <div class="auto-refresh-control">
+                <label class="auto-refresh-toggle">
+                    <input type="checkbox" id="auto-refresh-toggle" checked>
+                    自动刷新（60秒）
+                </label>
+                <span class="last-refresh-time" id="last-refresh-time">最后刷新：--:--:--</span>
+            </div>
         </div>
         <div class="filter-groups">
             <div class="filter-group">
@@ -296,6 +309,11 @@
     let allOrders = [];
     let activeFilters = { status: 'all', payment: 'all', delivery: 'all', date: 'all' };
 
+    // 自动刷新相关变量
+    let autoRefreshTimer = null;
+    const AUTO_REFRESH_INTERVAL = 60000; // 60秒
+    let lastRefreshTime = null;
+
     function adminLogin() {
         const input = document.getElementById('admin-password-input').value;
         if (!input) return;
@@ -307,6 +325,7 @@
     function adminLogout() {
         adminPass = '';
         allOrders = [];
+        stopAutoRefresh(); // 停止自动刷新
         document.getElementById('dashboard').style.display = 'none';
         document.getElementById('login-screen').style.display = 'flex';
         document.getElementById('admin-password-input').value = '';
@@ -343,6 +362,7 @@
             allOrders = data;
             renderStats(allOrders);
             applyFilters();
+            updateLastRefreshTime();
         } catch (err) {
             container.innerHTML = `<div class="empty-state" style="color:#dc2626">请求失败（本地预览无法访问服务器）: ${err.message}</div>`;
         }
@@ -352,7 +372,57 @@
         document.getElementById('login-error').style.display = 'none';
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
+        // 设置自动刷新
+        setupAutoRefresh();
     }
+
+    // 自动刷新功能
+    function updateLastRefreshTime() {
+        lastRefreshTime = new Date();
+        const timeStr = lastRefreshTime.toLocaleTimeString('zh-CN', { hour12: false });
+        const element = document.getElementById('last-refresh-time');
+        if (element) {
+            element.textContent = `最后刷新：${timeStr}`;
+        }
+    }
+
+    function startAutoRefresh() {
+        stopAutoRefresh(); // 先停止现有的定时器
+        autoRefreshTimer = setInterval(() => {
+            console.log('自动刷新订单数据...');
+            loadOrders();
+        }, AUTO_REFRESH_INTERVAL);
+    }
+
+    function stopAutoRefresh() {
+        if (autoRefreshTimer) {
+            clearInterval(autoRefreshTimer);
+            autoRefreshTimer = null;
+        }
+    }
+
+    function setupAutoRefresh() {
+        const toggle = document.getElementById('auto-refresh-toggle');
+        if (!toggle) return;
+
+        toggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                startAutoRefresh();
+            } else {
+                stopAutoRefresh();
+            }
+        });
+
+        // 初始启动（默认已勾选）
+        if (toggle.checked) {
+            startAutoRefresh();
+        }
+    }
+
+    // 页面卸载时停止定时器
+    window.addEventListener('beforeunload', () => {
+        stopAutoRefresh();
+    });
 
     function setFilter(btn) {
         const group = btn.dataset.group;
