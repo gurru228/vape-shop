@@ -1640,7 +1640,12 @@ async function handleLogin() {
     btn.textContent = '登录中...'; btn.disabled = true;
     const { error } = await sbClient.auth.signInWithPassword({ email, password });
     btn.textContent = '登录'; btn.disabled = false;
-    if (error) { errEl.textContent = error.message === 'Invalid login credentials' ? '邮箱或密码错误' : error.message; errEl.style.display = 'block'; }
+    const errMap = {
+        'Invalid login credentials': '邮箱或密码错误',
+        'Email not confirmed': '邮箱未验证，请查收确认邮件',
+        'User not found': '账号不存在'
+    };
+    if (error) { errEl.textContent = errMap[error.message] || error.message; errEl.style.display = 'block'; }
     else { closeAuthModal(); }
 }
 
