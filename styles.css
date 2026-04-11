@@ -1447,6 +1447,21 @@ body.zh {
     color: var(--color-gray-500);
 }
 
+.wechat-qr-box {
+    display: flex;
+    justify-content: center;
+    margin: 0.5rem 0;
+}
+
+.wechat-qr-box img {
+    width: 180px;
+    height: 180px;
+    border: 2px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    object-fit: contain;
+    background: #fff;
+}
+
 .btn-whatsapp {
     display: flex;
     align-items: center;

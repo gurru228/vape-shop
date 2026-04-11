@@ -316,6 +316,11 @@
                         <span>Bizum</span>
                         <small>转账支付</small>
                     </button>
+                    <button class="payment-option-btn" id="btn-pay-wechat">
+                        <i class="fab fa-weixin"></i>
+                        <span>微信支付</span>
+                        <small>WeChat Pay</small>
+                    </button>
                     <button class="payment-option-btn" id="btn-pay-card">
                         <i class="fas fa-credit-card"></i>
                         <span>Tarjeta</span>
@@ -323,6 +328,41 @@
                     </button>
                 </div>
                 <p id="checkout-error" class="checkout-error" style="display:none"></p>
+            </div>
+
+            <!-- Step 2: 微信支付说明 -->
+            <div id="checkout-step-wechat" style="display:none">
+                <button class="modal-back-btn" id="wechat-back-btn"><i class="fas fa-arrow-left"></i> 返回修改 / Volver</button>
+                <h2>微信支付 / WeChat Pay</h2>
+                <div class="bizum-steps">
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">1</span>
+                        <span>打开微信，扫描下方收款码 / Abra WeChat y escanee el código QR</span>
+                    </div>
+                    <div class="wechat-qr-box">
+                        <img src="images/wechat-qr.png" alt="微信收款码" id="wechat-qr-img">
+                    </div>
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">2</span>
+                        <span>转账金额 / Importe: <strong id="wechat-amount-display"></strong></span>
+                    </div>
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">3</span>
+                        <span>备注订单号 / Concepto: <strong id="wechat-order-display"></strong></span>
+                    </div>
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">4</span>
+                        <span>完成后截图，通过 WhatsApp 发给我们 / Envíenos captura por WhatsApp</span>
+                    </div>
+                </div>
+                <a id="wechat-whatsapp-btn" class="btn-whatsapp" href="#" target="_blank">
+                    <i class="fab fa-whatsapp"></i>
+                    发送截图到 WhatsApp / Enviar captura
+                </a>
+                <div class="modal-actions" style="margin-top:0.75rem">
+                    <button class="btn btn-primary" id="wechat-confirm-btn">我已付款 / He pagado</button>
+                    <button class="btn btn-secondary" id="wechat-cancel-btn">取消 / Cancelar</button>
+                </div>
             </div>
 
             <!-- Step 2: Bizum 支付说明 -->
