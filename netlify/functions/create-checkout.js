@@ -2,45 +2,6 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const BASE_URL = process.env.URL || 'https://tangerine-heliotrope-a2bd74.netlify.app';
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-
-async function decrementInventory(cart) {
-    for (const item of cart) {
-        if (item.isFree) continue;
-        const parts = String(item.id).split('-');
-        const productId = parseInt(parts[0]);
-        const flavorName = parts.length > 1 ? parts.slice(1).join('-') : 'default';
-        await fetch(`${SUPABASE_URL}/rest/v1/rpc/decrement_stock`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
-            body: JSON.stringify({ p_product_id: productId, p_flavor_name: flavorName, p_qty: item.quantity })
-        }).catch(err => console.error('Inventory decrement failed:', err));
-    }
-}
-
-async function sendTelegramNotification(order) {
-    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
-    const itemLines = order.items.map(i => `  • ${i.name} x${i.quantity} — €${(i.price * i.quantity).toFixed(2)}`).join('\n');
-    const deliveryInfo = order.delivery_type === 'delivery'
-        ? `\n📦 Entrega a domicilio\n📍 ${order.address}\n🕐 ${order.delivery_time}`
-        : order.delivery_type === 'postal'
-        ? `\n✉️ Envio postal\n📍 ${order.address}${order.shipping_fee > 0 ? `\n📬 Envio: €${order.shipping_fee.toFixed(2)}` : '\n📬 Envio gratuito'}`
-        : '\n🏪 Recogida en tienda';
-    const text = `💳 Nuevo pedido con tarjeta\n\n` +
-        `📋 ${order.order_number}\n` +
-        `👤 ${order.customer_name}\n` +
-        `📱 ${order.customer_phone}\n` +
-        `\n${itemLines}\n` +
-        `\n💶 Total: €${order.total.toFixed(2)}` +
-        deliveryInfo +
-        `\n\n⏳ Estado: Pendiente pago`;
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text })
-    }).catch(err => console.error('Telegram notify failed:', err));
-}
 
 async function saveOrder(order) {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
@@ -106,18 +67,15 @@ exports.handler = async (event) => {
             total,
             shipping_fee: shipping,
             payment_method: 'card',
-            payment_status: 'pending',
+            payment_status: 'stripe_pending',
             stripe_session_id: session.id,
             delivery_type: deliveryType || 'pickup',
             address: address || '',
             delivery_time: deliveryTime || '',
             ...(agentRef ? { agent_ref: agentRef } : {})
         };
-        await Promise.all([
-            saveOrder(orderData).catch(err => console.error('Supabase save failed:', err)),
-            sendTelegramNotification(orderData).catch(err => console.error('Telegram failed:', err)),
-            decrementInventory(cart).catch(() => {})
-        ]);
+        // 只保存订单记录，通知和库存扣减等 Stripe webhook 确认付款后再做
+        await saveOrder(orderData).catch(err => console.error('Supabase save failed:', err));
 
         return {
             statusCode: 200,

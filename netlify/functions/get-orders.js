@@ -21,7 +21,7 @@ exports.handler = async (event) => {
         };
     }
 
-    let url = `${SUPABASE_URL}/rest/v1/orders?select=*&order=created_at.desc`;
+    let url = `${SUPABASE_URL}/rest/v1/orders?select=*&order=created_at.desc&payment_status=neq.stripe_pending`;
     if (status && status !== 'all') url += `&payment_status=eq.${status}`;
 
     console.log('Fetching:', url);
