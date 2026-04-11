@@ -1,8 +1,17 @@
 // ===== Supabase 客户端（用户Auth + 查询自己的订单） =====
 const _SB_URL = 'https://ehbdpuwfdnbdskezevg.supabase.co';
 const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoYmRwdXdmZG5iZGVza2V6ZXZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4Mjk1MTksImV4cCI6MjA5MTQwNTUxOX0.bRDaEu0GA0GaWbdjceYbqMcybkW1lii6DzeG2EQeWMY';
-const sbClient = window.supabase.createClient(_SB_URL, _SB_KEY);
+let sbClient = null;
 let currentUser = null;
+
+function initSupabase() {
+    try {
+        if (!window.supabase) throw new Error('Supabase SDK未加载');
+        sbClient = window.supabase.createClient(_SB_URL, _SB_KEY);
+    } catch(e) {
+        console.error('Supabase init error:', e);
+    }
+}
 
 // ===== 配置信息 =====
 const CONFIG = {
@@ -1519,6 +1528,7 @@ function initScrollAnimations() {
 
 // ===== 页面加载完成后初始化 =====
 document.addEventListener('DOMContentLoaded', () => {
+    initSupabase();
     init();
     initAuth();
     setTimeout(initScrollAnimations, 50);
@@ -1644,10 +1654,34 @@ async function handleRegister() {
     if (password.length < 6) { errEl.textContent = '密码至少6位'; errEl.style.display = 'block'; return; }
     btn.textContent = '注册中...'; btn.disabled = true;
     errEl.style.display = 'none';
-    const { data: signUpData, error } = await sbClient.auth.signUp({ email, password });
-    btn.textContent = '创建账号'; btn.disabled = false;
-    if (error) { errEl.textContent = '错误：' + error.message + ' (status: ' + (error.status || '?') + ')'; errEl.style.display = 'block'; }
-    else { successEl.textContent = '✓ 注册成功！请查收验证邮件后登录'; successEl.style.display = 'block'; }
+
+    // 直接 fetch，绕过 SDK，方便诊断
+    try {
+        const res = await fetch(`${_SB_URL}/auth/v1/signup`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': _SB_KEY,
+                'Authorization': `Bearer ${_SB_KEY}`
+            },
+            body: JSON.stringify({ email, password })
+        });
+        const json = await res.json();
+        btn.textContent = '创建账号'; btn.disabled = false;
+        if (!res.ok) {
+            errEl.textContent = `错误 ${res.status}: ${json.msg || json.message || JSON.stringify(json)}`;
+            errEl.style.display = 'block';
+        } else {
+            successEl.textContent = '✓ 注册成功！请查收验证邮件后登录';
+            successEl.style.display = 'block';
+            // 用SDK同步session
+            if (sbClient) sbClient.auth.signUp({ email, password }).catch(()=>{});
+        }
+    } catch(e) {
+        btn.textContent = '创建账号'; btn.disabled = false;
+        errEl.textContent = `网络错误: ${e.message} | SDK已加载: ${!!window.supabase} | URL: ${_SB_URL}`;
+        errEl.style.display = 'block';
+    }
 }
 
 // 购后注册（带订单号绑定）
