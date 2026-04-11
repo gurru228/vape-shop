@@ -296,6 +296,142 @@ body.zh {
     margin: 0 auto;
 }
 
+/* ===== 活动栏 ===== */
+.promo-section {
+    background: var(--color-gray-50);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    margin: 0 0 var(--space-2xl) 0;
+    padding: 2.5rem 1.5rem;
+}
+
+.promo-section-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.promo-numbers {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+}
+
+.promo-num {
+    font-size: 4.5rem;
+    font-weight: 800;
+    color: var(--color-gray-900);
+    line-height: 1;
+}
+
+.promo-num-free {
+    color: var(--color-gray-900);
+}
+
+.promo-plus {
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--color-gray-400);
+    line-height: 1;
+}
+
+.promo-free-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-gray-900);
+    background: var(--color-gray-900);
+    color: #fff;
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    margin-left: 0.25rem;
+    letter-spacing: 0.04em;
+}
+
+.promo-divider {
+    width: 1px;
+    height: 80px;
+    background: var(--border-color);
+    flex-shrink: 0;
+}
+
+.promo-text {
+    flex: 1;
+    min-width: 220px;
+}
+
+.promo-deal-badge {
+    display: inline-block;
+    background: var(--color-gray-900);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+}
+
+.promo-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--color-gray-900);
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+}
+
+.promo-subtitle {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    line-height: 1.7;
+    margin-bottom: 0.2rem;
+}
+
+.promo-subtitle span {
+    color: var(--color-gray-900);
+    font-weight: 600;
+}
+
+.promo-subtitle-es {
+    font-size: 0.78rem;
+    color: var(--color-gray-400);
+    line-height: 1.6;
+    margin-top: 0.35rem;
+}
+
+.promo-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--color-gray-900);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+    margin-top: 1rem;
+    white-space: nowrap;
+}
+
+.promo-cta-btn:hover {
+    background: var(--color-gray-700);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+    .promo-section-inner { flex-direction: column; gap: 1.5rem; text-align: center; }
+    .promo-divider { width: 60px; height: 1px; }
+    .promo-num { font-size: 3.5rem; }
+    .promo-title { font-size: 1.4rem; }
+}
+
 /* ===== 产品区域 ===== */
 .products {
     margin-bottom: var(--space-2xl);
