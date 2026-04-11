@@ -905,7 +905,7 @@ let products = [
     {
         id: 2,
         name: '冰爆 (IceMax)',
-        price: 20,
+        price: 22.9,
         description: {
             es: 'Ultra Freeze Taste · 12000 puffs · 3% Nicotine',
             zh: '极致冰爽口感 · 12000口 · 3%尼古丁'
