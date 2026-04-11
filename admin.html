@@ -428,7 +428,9 @@
             const phone = (order.customer_phone || '').replace(/\s+/g, '').replace(/^\+/, '');
             const itemsSummary = (order.items || []).map(i => `${i.name} x${i.quantity}`).join(', ');
             const msgConfirm  = encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 已确认，总金额 €${parseFloat(order.total||0).toFixed(2)}，感谢您的购买！🙏\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} ha sido confirmado. Total: €${parseFloat(order.total||0).toFixed(2)}. ¡Gracias! 🙏`);
-            const msgShipped  = encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 已发货，请注意查收。📦\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} ha sido enviado. Pronto lo recibirás. 📦`);
+            const msgShipped  = isDelivery
+                ? encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 正在派送中，预计送达时间：${order.delivery_time || '待确认'}。🛵\n\n配送地址：\n${addrLines}\n\n如有问题请联系我们！\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} está en camino. Hora estimada: ${order.delivery_time || 'por confirmar'}. 🛵\n\nDirección de entrega:\n${addrLines}\n\n¡Contáctanos si necesitas algo!`)
+                : encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 已发货，请注意查收。📦\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} ha sido enviado. Pronto lo recibirás. 📦`);
             const addrLines   = (order.address||'').split('\n').filter(Boolean).map(l=>`  ${l}`).join('\n');
             const msgPostal   = encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 已安排邮寄发货。📦\n\n寄送地址：\n${addrLines}\n\n如有问题请随时联系我们！\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} ha sido enviado por correo postal. 📦\n\nDirección de envío:\n${addrLines}\n\n¡Contáctanos si tienes cualquier duda!`);
             const msgFeedback = encodeURIComponent(`你好 ${order.customer_name}！您对订单 ${order.order_number} 满意吗？期待您的反馈！😊\n\nHola ${order.customer_name}! ¿Qué tal tu experiencia con el pedido ${order.order_number}? ¡Nos encantaría saberlo! 😊`);
@@ -461,7 +463,7 @@
                 ${isDelivery ? `
                 <div class="delivery-block">
                     <div class="delivery-block-title"><i class="fas fa-motorcycle"></i> 外送信息</div>
-                    <div class="order-info-row"><i class="fas fa-map-marker-alt"></i><span>${order.address || '—'}</span></div>
+                    ${(order.address || '').split('\n').filter(Boolean).map((line, i) => `<div class="order-info-row"><i class="fas fa-map-marker-alt" style="opacity:${i===0?1:0.4}"></i><span>${line}</span></div>`).join('') || '<div class="order-info-row"><i class="fas fa-map-marker-alt"></i><span>—</span></div>'}
                     <div class="order-info-row"><i class="far fa-clock"></i><span>期望送达：${order.delivery_time || '未填写'}</span></div>
                 </div>` : isPostal ? `
                 <div class="delivery-block" style="background:#eff6ff;border-color:#bfdbfe">
@@ -483,7 +485,7 @@
                             <div class="wa-dropdown" id="drop-${waId}">
                                 <div class="wa-dropdown-title">选择消息模板</div>
                                 <a href="https://wa.me/${phone}?text=${msgConfirm}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-check-circle"></i> 订单已确认</a>
-                                ${isPostal ? `<a href="https://wa.me/${phone}?text=${msgPostal}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-envelope"></i> 邮寄已发货（含地址）</a>` : `<a href="https://wa.me/${phone}?text=${msgShipped}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-truck"></i> 已发货通知</a>`}
+                                ${isPostal ? `<a href="https://wa.me/${phone}?text=${msgPostal}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-envelope"></i> 邮寄已发货（含地址）</a>` : isDelivery ? `<a href="https://wa.me/${phone}?text=${msgShipped}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-motorcycle"></i> 外送派送中（含地址）</a>` : `<a href="https://wa.me/${phone}?text=${msgShipped}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-truck"></i> 已发货通知</a>`}
                                 <a href="https://wa.me/${phone}?text=${msgFeedback}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-star"></i> 询问反馈</a>
                                 <a href="https://wa.me/${phone}?text=${msgCancel}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-times-circle"></i> 订单已取消</a>
                                 <a href="https://wa.me/${phone}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-comment"></i> 空白消息</a>

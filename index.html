@@ -278,7 +278,13 @@
                 </div>
                 <div class="checkout-form-group" id="address-group" style="display:none">
                     <label>收货地址 / Dirección de entrega</label>
-                    <input type="text" id="checkout-address" placeholder="街道、门牌号 / Calle, número, piso...">
+                    <div class="postal-fields">
+                        <input type="text" id="checkout-delivery-street" placeholder="街道 + 门牌号 / Calle y número">
+                        <div class="postal-row-2col">
+                            <input type="text" id="checkout-delivery-floor" placeholder="楼层/公寓（选填）/ Piso/Puerta">
+                            <input type="text" id="checkout-delivery-district" placeholder="区 / Barrio (ej. Hortaleza)">
+                        </div>
+                    </div>
                     <small class="delivery-note"><i class="fas fa-map-marker-alt"></i> 仅限马德里范围内当天送达 / Solo entrega en Madrid el mismo día</small>
                 </div>
                 <div class="checkout-form-group" id="time-group" style="display:none">

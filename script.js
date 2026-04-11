@@ -490,7 +490,7 @@ function openCartCheckoutModal() {
     if (couponInput) { couponInput.value = ''; couponInput.disabled = false; }
     if (couponResult) { couponResult.style.display = 'none'; }
     if (couponBtn) { couponBtn.textContent = '使用'; couponBtn.disabled = false; }
-    document.getElementById('checkout-address').value = '';
+    ['checkout-delivery-street','checkout-delivery-floor','checkout-delivery-district'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     document.getElementById('address-group').style.display = 'none';
     document.getElementById('time-group').style.display = 'none';
     document.getElementById('postal-group').style.display = 'none';
@@ -550,6 +550,14 @@ function openCartCheckoutModal() {
         document.getElementById('checkout-step-info').style.display = 'block';
     };
 
+    function getDeliveryAddress() {
+        const s = document.getElementById('checkout-delivery-street').value.trim();
+        const f = document.getElementById('checkout-delivery-floor').value.trim();
+        const d = document.getElementById('checkout-delivery-district').value.trim();
+        return { street: s, floor: f, district: d,
+            formatted: [s + (f ? `, ${f}` : ''), d ? `Madrid – ${d}` : 'Madrid'].filter(Boolean).join('\n') };
+    }
+
     function getPostalAddress() {
         const r = document.getElementById('checkout-postal-recipient').value.trim();
         const s = document.getElementById('checkout-postal-street').value.trim();
@@ -567,7 +575,7 @@ function openCartCheckoutModal() {
         const phone = document.getElementById('checkout-customer-phone').value.trim();
         const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
         const isPostal = document.getElementById('btn-postal').classList.contains('active');
-        const address = document.getElementById('checkout-address').value.trim();
+        const deliveryData = getDeliveryAddress();
         const postalData = getPostalAddress();
         const timeFrom = document.getElementById('checkout-time-from').value;
         const timeTo = document.getElementById('checkout-time-to').value;
@@ -577,8 +585,8 @@ function openCartCheckoutModal() {
             errorEl.style.display = 'block';
             return;
         }
-        if (isDelivery && !address) {
-            errorEl.textContent = '请填写收货地址 / Por favor introduzca la dirección de entrega';
+        if (isDelivery && !deliveryData.street) {
+            errorEl.textContent = '请填写街道和门牌号 / Por favor introduzca la calle y número';
             errorEl.style.display = 'block';
             return;
         }
@@ -592,7 +600,7 @@ function openCartCheckoutModal() {
         document.getElementById('btn-pay-bizum').textContent = '处理中...';
 
         const deliveryType = isDelivery ? 'delivery' : isPostal ? 'postal' : 'pickup';
-        const finalAddress = isDelivery ? address : isPostal ? postalData.formatted : '';
+        const finalAddress = isDelivery ? deliveryData.formatted : isPostal ? postalData.formatted : '';
 
         try {
             const res = await fetch('/.netlify/functions/save-bizum-order', {
@@ -633,7 +641,7 @@ function openCartCheckoutModal() {
         const phone = document.getElementById('checkout-customer-phone').value.trim();
         const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
         const isPostal = document.getElementById('btn-postal').classList.contains('active');
-        const address = document.getElementById('checkout-address').value.trim();
+        const deliveryData = getDeliveryAddress();
         const postalData = getPostalAddress();
         const timeFrom = document.getElementById('checkout-time-from').value;
         const timeTo = document.getElementById('checkout-time-to').value;
@@ -643,8 +651,8 @@ function openCartCheckoutModal() {
             errorEl.style.display = 'block';
             return;
         }
-        if (isDelivery && !address) {
-            errorEl.textContent = '请填写收货地址 / Por favor introduzca la dirección de entrega';
+        if (isDelivery && !deliveryData.street) {
+            errorEl.textContent = '请填写街道和门牌号 / Por favor introduzca la calle y número';
             errorEl.style.display = 'block';
             return;
         }
@@ -658,7 +666,7 @@ function openCartCheckoutModal() {
         document.getElementById('btn-pay-card').textContent = '跳转中...';
 
         const deliveryType = isDelivery ? 'delivery' : isPostal ? 'postal' : 'pickup';
-        const finalAddress = isDelivery ? address : isPostal ? postalData.formatted : '';
+        const finalAddress = isDelivery ? deliveryData.formatted : isPostal ? postalData.formatted : '';
 
         try {
             const res = await fetch('/.netlify/functions/create-checkout', {
