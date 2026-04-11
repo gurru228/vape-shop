@@ -1,5 +1,5 @@
 // ===== Supabase 客户端（用户Auth + 查询自己的订单） =====
-const _SB_URL = 'https://ehbdpuwfdnbdskezevg.supabase.co';
+const _SB_URL = 'https://ehbdpuwfdnbdeskezevg.supabase.co';
 const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoYmRwdXdmZG5iZGVza2V6ZXZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4Mjk1MTksImV4cCI6MjA5MTQwNTUxOX0.bRDaEu0GA0GaWbdjceYbqMcybkW1lii6DzeG2EQeWMY';
 let sbClient = null;
 let currentUser = null;
