@@ -42,7 +42,7 @@ function getDiscountedTotal(original) {
 
 // ===== 买五送一系统 =====
 const FREE_ITEM_PRODUCT_IDS = [1, 3]; // 鸭嘴兽, 小黑条
-const SHIPPING_FEE = 6.90;
+const SHIPPING_FEE = 9.99;
 const FREE_SHIPPING_THRESHOLD = 100;
 
 function getNonFreeQuantity() {
