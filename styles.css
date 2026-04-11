@@ -1347,6 +1347,29 @@ body.zh {
 
 .delivery-option-btn.active small { color: var(--color-gray-400); }
 
+.postal-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.postal-fields input {
+    padding: 0.6rem 0.875rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-family: inherit;
+    transition: border-color var(--transition-fast);
+}
+.postal-fields input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+.postal-row-2col {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 0.5rem;
+}
+
 .pickup-info-box {
     background: var(--color-gray-50);
     border: 1px solid var(--color-gray-200);

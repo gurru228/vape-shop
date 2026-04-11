@@ -291,7 +291,16 @@
                 </div>
                 <div class="checkout-form-group" id="postal-group" style="display:none">
                     <label>邮寄地址 / Dirección postal</label>
-                    <input type="text" id="checkout-postal-address" placeholder="完整地址、邮编 / Dirección completa + CP...">
+                    <div class="postal-fields">
+                        <input type="text" id="checkout-postal-recipient" placeholder="收件人全名 / Nombre completo del destinatario">
+                        <input type="text" id="checkout-postal-street" placeholder="街道 + 门牌号 / Calle y número">
+                        <input type="text" id="checkout-postal-floor" placeholder="楼层/公寓（选填）/ Piso/Puerta (opcional)">
+                        <div class="postal-row-2col">
+                            <input type="text" id="checkout-postal-cp" placeholder="邮编 / C.P." maxlength="10">
+                            <input type="text" id="checkout-postal-city" placeholder="城市 / Ciudad">
+                        </div>
+                        <input type="text" id="checkout-postal-province" placeholder="省份/自治区 / Provincia">
+                    </div>
                     <small class="delivery-note"><i class="fas fa-info-circle"></i> 满€100免运费，否则运费€6.90 / Gratis desde €100, si no €6.90</small>
                 </div>
                 <p class="payment-choose-label">选择支付方式 / Método de pago:</p>

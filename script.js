@@ -495,7 +495,7 @@ function openCartCheckoutModal() {
     document.getElementById('time-group').style.display = 'none';
     document.getElementById('postal-group').style.display = 'none';
     document.getElementById('pickup-info-group').style.display = 'block';
-    document.getElementById('checkout-postal-address').value = '';
+    ['checkout-postal-recipient','checkout-postal-street','checkout-postal-floor','checkout-postal-cp','checkout-postal-city','checkout-postal-province'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     document.getElementById('checkout-time-from').value = '10:00';
     document.getElementById('checkout-time-to').value = '14:00';
     document.getElementById('btn-pickup').classList.add('active');
@@ -550,6 +550,17 @@ function openCartCheckoutModal() {
         document.getElementById('checkout-step-info').style.display = 'block';
     };
 
+    function getPostalAddress() {
+        const r = document.getElementById('checkout-postal-recipient').value.trim();
+        const s = document.getElementById('checkout-postal-street').value.trim();
+        const f = document.getElementById('checkout-postal-floor').value.trim();
+        const cp = document.getElementById('checkout-postal-cp').value.trim();
+        const city = document.getElementById('checkout-postal-city').value.trim();
+        const prov = document.getElementById('checkout-postal-province').value.trim();
+        return { recipient: r, street: s, floor: f, cp, city, province: prov,
+            formatted: [r, s + (f ? ` ${f}` : ''), `${cp} ${city}`.trim(), prov].filter(Boolean).join('\n') };
+    }
+
     // Bizum 支付
     document.getElementById('btn-pay-bizum').onclick = async () => {
         const name = document.getElementById('checkout-customer-name').value.trim();
@@ -557,7 +568,7 @@ function openCartCheckoutModal() {
         const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
         const isPostal = document.getElementById('btn-postal').classList.contains('active');
         const address = document.getElementById('checkout-address').value.trim();
-        const postalAddress = document.getElementById('checkout-postal-address').value.trim();
+        const postalData = getPostalAddress();
         const timeFrom = document.getElementById('checkout-time-from').value;
         const timeTo = document.getElementById('checkout-time-to').value;
         const shippingFee = getShippingFee();
@@ -571,8 +582,8 @@ function openCartCheckoutModal() {
             errorEl.style.display = 'block';
             return;
         }
-        if (isPostal && !postalAddress) {
-            errorEl.textContent = '请填写邮寄地址 / Por favor introduzca la dirección postal';
+        if (isPostal && (!postalData.recipient || !postalData.street || !postalData.cp || !postalData.city)) {
+            errorEl.textContent = '请填写完整邮寄地址（收件人、街道、邮编、城市）/ Rellene todos los campos de dirección postal';
             errorEl.style.display = 'block';
             return;
         }
@@ -581,7 +592,7 @@ function openCartCheckoutModal() {
         document.getElementById('btn-pay-bizum').textContent = '处理中...';
 
         const deliveryType = isDelivery ? 'delivery' : isPostal ? 'postal' : 'pickup';
-        const finalAddress = isDelivery ? address : isPostal ? postalAddress : '';
+        const finalAddress = isDelivery ? address : isPostal ? postalData.formatted : '';
 
         try {
             const res = await fetch('/.netlify/functions/save-bizum-order', {
@@ -623,7 +634,7 @@ function openCartCheckoutModal() {
         const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
         const isPostal = document.getElementById('btn-postal').classList.contains('active');
         const address = document.getElementById('checkout-address').value.trim();
-        const postalAddress = document.getElementById('checkout-postal-address').value.trim();
+        const postalData = getPostalAddress();
         const timeFrom = document.getElementById('checkout-time-from').value;
         const timeTo = document.getElementById('checkout-time-to').value;
         const shippingFee = getShippingFee();
@@ -637,8 +648,8 @@ function openCartCheckoutModal() {
             errorEl.style.display = 'block';
             return;
         }
-        if (isPostal && !postalAddress) {
-            errorEl.textContent = '请填写邮寄地址 / Por favor introduzca la dirección postal';
+        if (isPostal && (!postalData.recipient || !postalData.street || !postalData.cp || !postalData.city)) {
+            errorEl.textContent = '请填写完整邮寄地址（收件人、街道、邮编、城市）/ Rellene todos los campos de dirección postal';
             errorEl.style.display = 'block';
             return;
         }
@@ -647,7 +658,7 @@ function openCartCheckoutModal() {
         document.getElementById('btn-pay-card').textContent = '跳转中...';
 
         const deliveryType = isDelivery ? 'delivery' : isPostal ? 'postal' : 'pickup';
-        const finalAddress = isDelivery ? address : isPostal ? postalAddress : '';
+        const finalAddress = isDelivery ? address : isPostal ? postalData.formatted : '';
 
         try {
             const res = await fetch('/.netlify/functions/create-checkout', {
