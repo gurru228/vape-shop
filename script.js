@@ -1537,9 +1537,14 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===== 用户账户系统 =====
 function initAuth() {
     // 监听登录状态变化
-    sbClient.auth.onAuthStateChange((_event, session) => {
+    sbClient.auth.onAuthStateChange((event, session) => {
         currentUser = session?.user || null;
         updateAccountUI();
+        // 用户点击确认邮件链接跳回网站后自动登录
+        if (event === 'SIGNED_IN' && window.location.hash.includes('type=signup')) {
+            history.replaceState(null, '', window.location.pathname);
+            setTimeout(() => alert('✓ 邮箱已验证，您已自动登录！'), 300);
+        }
     });
 
     // 账户按钮点击
