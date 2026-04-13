@@ -494,6 +494,7 @@ function openCartCheckoutModal() {
     // 重置状态
     stepInfo.style.display = 'block';
     stepBizum.style.display = 'none';
+    document.getElementById('checkout-step-cash').style.display = 'none';
     errorEl.style.display = 'none';
     document.getElementById('checkout-customer-name').value = '';
     document.getElementById('checkout-customer-phone').value = '';
@@ -524,6 +525,7 @@ function openCartCheckoutModal() {
         document.getElementById('address-group').style.display = mode === 'delivery' ? 'block' : 'none';
         document.getElementById('time-group').style.display = mode === 'delivery' ? 'block' : 'none';
         document.getElementById('postal-group').style.display = mode === 'postal' ? 'block' : 'none';
+        document.getElementById('btn-pay-cash').style.display = mode === 'postal' ? 'none' : '';
         updateCheckoutTotal();
         errorEl.style.display = 'none';
     };
@@ -672,7 +674,11 @@ function openCartCheckoutModal() {
         stepInfo.style.display = 'none';
         stepBizum.style.display = 'block';
 
+        const bizumCheck = document.getElementById('bizum-screenshot-check');
+        bizumCheck.checked = false;
         const confirmBtn = document.getElementById('bizum-confirm-btn');
+        confirmBtn.disabled = true;
+        bizumCheck.onchange = () => { confirmBtn.disabled = !bizumCheck.checked; };
         const originalHTML = confirmBtn.innerHTML;
         confirmBtn.onclick = () => submitOrder(payload, confirmBtn, originalHTML);
         document.getElementById('checkout-cancel-btn').onclick = () => modal.style.display = 'none';
@@ -690,10 +696,47 @@ function openCartCheckoutModal() {
         stepInfo.style.display = 'none';
         document.getElementById('checkout-step-wechat').style.display = 'block';
 
+        const wechatCheck = document.getElementById('wechat-screenshot-check');
+        wechatCheck.checked = false;
         const confirmBtn = document.getElementById('wechat-confirm-btn');
+        confirmBtn.disabled = true;
+        wechatCheck.onchange = () => { confirmBtn.disabled = !wechatCheck.checked; };
         const originalHTML = confirmBtn.innerHTML;
         confirmBtn.onclick = () => submitOrder(payload, confirmBtn, originalHTML);
         document.getElementById('wechat-cancel-btn').onclick = () => modal.style.display = 'none';
+    };
+
+    // 现金支付
+    document.getElementById('btn-pay-cash').onclick = () => {
+        const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
+        const isPostal = document.getElementById('btn-postal').classList.contains('active');
+        if (isPostal) {
+            errorEl.textContent = '现金支付不支持邮寄 / El pago en efectivo no está disponible para envío postal';
+            errorEl.style.display = 'block';
+            return;
+        }
+        if (isDelivery && getNonFreeQuantity() < 5) {
+            errorEl.textContent = '外送至少需要5件商品 / Se necesitan mínimo 5 unidades para entrega a domicilio';
+            errorEl.style.display = 'block';
+            return;
+        }
+        const payload = buildOrderPayload('cash');
+        if (!payload) return;
+
+        document.getElementById('cash-amount-display').textContent = `${CONFIG.defaultCurrency}${payload.total.toFixed(2)}`;
+        document.getElementById('cash-order-display').textContent = payload.orderNumber;
+        stepInfo.style.display = 'none';
+        document.getElementById('checkout-step-cash').style.display = 'block';
+
+        const confirmBtn = document.getElementById('cash-confirm-btn');
+        const originalHTML = confirmBtn.innerHTML;
+        confirmBtn.onclick = () => submitOrder(payload, confirmBtn, originalHTML);
+        document.getElementById('cash-cancel-btn').onclick = () => modal.style.display = 'none';
+    };
+
+    document.getElementById('cash-back-btn').onclick = () => {
+        document.getElementById('checkout-step-cash').style.display = 'none';
+        stepInfo.style.display = 'block';
     };
 
     // 银行卡支付

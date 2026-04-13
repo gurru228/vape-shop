@@ -375,6 +375,11 @@
                         <span>Tarjeta</span>
                         <small>信用/借记卡</small>
                     </button>
+                    <button class="payment-option-btn" id="btn-pay-cash">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>现金</span>
+                        <small>自取/外送时付款</small>
+                    </button>
                 </div>
                 <p id="checkout-error" class="checkout-error" style="display:none"></p>
             </div>
@@ -408,9 +413,51 @@
                     <i class="fab fa-whatsapp"></i>
                     发送截图到 WhatsApp / Enviar captura
                 </a>
+                <div class="no-whatsapp-hint">
+                    <i class="fas fa-envelope"></i>
+                    没有 WhatsApp？发截图到邮箱：
+                    <a href="mailto:vapeshop2026vapeshop@gmail.com?subject=微信付款截图" class="email-link">vapeshop2026vapeshop@gmail.com</a>
+                    <span class="hint-note">邮件主题注明订单号 / Indique el número de pedido en el asunto</span>
+                </div>
+                <label class="screenshot-confirm-label">
+                    <input type="checkbox" id="wechat-screenshot-check">
+                    <span>我已发送截图 / Ya he enviado la captura</span>
+                </label>
                 <div class="modal-actions" style="margin-top:0.75rem">
-                    <button class="btn btn-primary" id="wechat-confirm-btn">我已付款 / He pagado</button>
+                    <button class="btn btn-primary" id="wechat-confirm-btn" disabled>我已付款 / He pagado</button>
                     <button class="btn btn-secondary" id="wechat-cancel-btn">取消 / Cancelar</button>
+                </div>
+            </div>
+
+            <!-- Step 2: 现金支付说明 -->
+            <div id="checkout-step-cash" style="display:none">
+                <button class="modal-back-btn" id="cash-back-btn"><i class="fas fa-arrow-left"></i> 返回修改 / Volver</button>
+                <h2>现金支付 / Pago en Efectivo</h2>
+                <div class="bizum-steps">
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">1</span>
+                        <span>确认订单信息，我们会通过 WhatsApp 联系您 / Confirme su pedido, le contactaremos por WhatsApp</span>
+                    </div>
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">2</span>
+                        <span>外送员上门时支付现金 / Pague en efectivo al recibir el pedido</span>
+                    </div>
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">3</span>
+                        <span>金额 / Importe: <strong id="cash-amount-display"></strong></span>
+                    </div>
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">4</span>
+                        <span>订单号 / Pedido: <strong id="cash-order-display"></strong></span>
+                    </div>
+                </div>
+                <div class="cash-note-box">
+                    <i class="fas fa-info-circle"></i>
+                    <span>自取无门槛 · 外送≥5件 · 不支持邮寄 / Recogida sin mínimo · Entrega ≥5 uds · No disponible para correo</span>
+                </div>
+                <div class="modal-actions" style="margin-top:0.75rem">
+                    <button class="btn btn-primary" id="cash-confirm-btn">确认下单 / Confirmar pedido</button>
+                    <button class="btn btn-secondary" id="cash-cancel-btn">取消 / Cancelar</button>
                 </div>
             </div>
 
@@ -448,8 +495,18 @@
                     <i class="fab fa-whatsapp"></i>
                     发送截图到 WhatsApp / Enviar captura
                 </a>
+                <div class="no-whatsapp-hint">
+                    <i class="fas fa-envelope"></i>
+                    没有 WhatsApp？发截图到邮箱：
+                    <a href="mailto:vapeshop2026vapeshop@gmail.com?subject=Bizum付款截图" class="email-link">vapeshop2026vapeshop@gmail.com</a>
+                    <span class="hint-note">邮件主题注明订单号 / Indique el número de pedido en el asunto</span>
+                </div>
+                <label class="screenshot-confirm-label">
+                    <input type="checkbox" id="bizum-screenshot-check">
+                    <span>我已发送截图 / Ya he enviado la captura</span>
+                </label>
                 <div class="modal-actions" style="margin-top:0.75rem">
-                    <button class="btn btn-primary" id="bizum-confirm-btn">我已付款 / He pagado</button>
+                    <button class="btn btn-primary" id="bizum-confirm-btn" disabled>我已付款 / He pagado</button>
                     <button class="btn btn-secondary" id="checkout-cancel-btn">取消 / Cancelar</button>
                 </div>
             </div>
