@@ -1065,8 +1065,8 @@ let products = [
         name: '冰王 (Elfbar IceKing)',
         price: 45,
         description: {
-            es: 'Elfbar IceKing · Sabor frío potente, experiencia refrescante extrema',
-            zh: 'Elfbar IceKing · 极强冰感，极致清凉体验'
+            es: 'Elfbar IceKing · 40000 caladas · Sabor frío potente, experiencia refrescante extrema',
+            zh: 'Elfbar IceKing · 40000口 · 极强冰感，极致清凉体验'
         },
         image: 'images/iceking/grape-ice.webp',
         flavors: [
@@ -1083,8 +1083,8 @@ let products = [
         name: '高维 (GOwif)',
         price: 25.9,
         description: {
-            es: 'GOwif · Sabores únicos y refrescantes',
-            zh: 'GOwif · 独特清爽口味'
+            es: 'GOwif · 18000 caladas · Sabores únicos y refrescantes',
+            zh: 'GOwif · 18000口 · 独特清爽口味'
         },
         image: 'images/gowif/passion-fruit.jpg',
         flavors: [
