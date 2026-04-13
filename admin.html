@@ -287,6 +287,8 @@
 
     <!-- Agents -->
     <div id="section-agents" style="display:none;padding:1.25rem 2rem 2rem">
+        <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem">产品销量统计</h3>
+        <div id="product-stats-container" style="margin-bottom:2rem"><div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div></div>
         <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem">代理统计</h3>
         <div id="agents-container"><div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div></div>
     </div>
@@ -648,8 +650,71 @@
         }
     }
 
+    // ── Product Sales Stats ──
+    function renderProductStats() {
+        const container = document.getElementById('product-stats-container');
+        if (!allOrders.length) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> 暂无订单数据</div>';
+            return;
+        }
+
+        // 只统计已付款/已发货/已完成的订单
+        const paidOrders = allOrders.filter(o => ['paid','shipped','delivered'].includes(o.payment_status));
+
+        // 按产品名称汇总销量
+        const productSales = {};
+        paidOrders.forEach(o => {
+            const items = Array.isArray(o.items) ? o.items : [];
+            items.forEach(item => {
+                const name = item.productName || item.name || '未知产品';
+                if (!productSales[name]) productSales[name] = { qty: 0, revenue: 0 };
+                productSales[name].qty += (item.quantity || item.qty || 1);
+                productSales[name].revenue += (item.price || 0) * (item.quantity || item.qty || 1);
+            });
+        });
+
+        const totalQty = Object.values(productSales).reduce((s, v) => s + v.qty, 0);
+        const totalRevenue = Object.values(productSales).reduce((s, v) => s + v.revenue, 0);
+
+        const sorted = Object.entries(productSales).sort((a, b) => b[1].qty - a[1].qty);
+
+        const rows = sorted.map(([name, data]) => `
+            <tr style="border-bottom:1px solid #f5f5f5">
+                <td style="padding:0.7rem 1rem;font-weight:500">${name}</td>
+                <td style="padding:0.7rem 1rem;text-align:center;font-weight:700;font-size:1rem">${data.qty}</td>
+                <td style="padding:0.7rem 1rem;text-align:right;color:#16a34a;font-weight:600">€${data.revenue.toFixed(2)}</td>
+                <td style="padding:0.7rem 1rem;text-align:right;color:#737373;font-size:0.8rem">${totalQty ? Math.round(data.qty / totalQty * 100) : 0}%</td>
+            </tr>`).join('');
+
+        container.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;margin-bottom:1.25rem">
+            <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1rem;text-align:center">
+                <div style="font-size:1.5rem;font-weight:700">${totalQty}</div>
+                <div style="font-size:0.8rem;color:#737373;margin-top:0.25rem">已售总支数</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1rem;text-align:center">
+                <div style="font-size:1.5rem;font-weight:700;color:#16a34a">€${totalRevenue.toFixed(2)}</div>
+                <div style="font-size:0.8rem;color:#737373;margin-top:0.25rem">已付产品总额</div>
+            </div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;overflow:hidden">
+            <table style="width:100%;border-collapse:collapse;font-size:0.875rem">
+                <thead>
+                    <tr style="background:#fafafa;border-bottom:1px solid #e5e5e5">
+                        <th style="padding:0.75rem 1rem;text-align:left;font-weight:600">产品</th>
+                        <th style="padding:0.75rem 1rem;text-align:center;font-weight:600">已售支数</th>
+                        <th style="padding:0.75rem 1rem;text-align:right;font-weight:600">销售额</th>
+                        <th style="padding:0.75rem 1rem;text-align:right;font-weight:600">占比</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        </div>`;
+    }
+
     // ── Agent Stats ──
     function renderAgentStats() {
+        renderProductStats();
         const container = document.getElementById('agents-container');
         if (!allOrders.length) {
             container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> 暂无订单数据</div>';
