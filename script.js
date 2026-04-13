@@ -1103,6 +1103,38 @@ let products = [
             { name: 'Bayberry Green Salt', nameCn: '杨梅绿盐', image: 'images/gowif/bayberry-green-salt.jpg', tags: [{t:'酸甜',c:'sour'},{t:'咸甜',c:'rich'}] },
             { name: 'Taro Ice Cream', nameCn: '香芋冰淇淋', image: 'images/gowif/taro-ice-cream.jpg', tags: [{t:'甜',c:'sweet'},{t:'醇厚',c:'rich'}] }
         ]
+    },
+    {
+        id: 6,
+        name: 'RELX 悦刻幻五代烟弹 (3支装)',
+        price: 15.9,
+        description: {
+            es: 'RELX Phantom Pod · 3 unidades · Compatible con RELX Phantom · Sabores premium',
+            zh: 'RELX 幻五代烟弹 · 3支装 · 适配幻五代主机 · 精选口味'
+        },
+        image: 'images/relx/mixed-berries.jpg',
+        flavors: [
+            { name: 'Mixed Berries', nameCn: '混合浆果', image: 'images/relx/mixed-berries.jpg', tags: [{t:'酸甜',c:'sour'},{t:'果香',c:'sweet'}] },
+            { name: 'Taro Ice Cream', nameCn: '香芋冰淇淋', image: 'images/relx/taro-ice-cream.jpg', tags: [{t:'甜',c:'sweet'},{t:'醇厚',c:'rich'}] },
+            { name: 'Tieguanyin', nameCn: '铁观音', image: 'images/relx/tieguanyin.jpg', tags: [{t:'茶香',c:'fresh'},{t:'醇厚',c:'rich'}] },
+            { name: 'Mineral Water', nameCn: '矿泉水', image: 'images/relx/mineral-water.jpg', tags: [{t:'清淡',c:'fresh'},{t:'清爽',c:'fresh'}] },
+            { name: 'Coconut Ice', nameCn: '椰子冰', image: 'images/relx/coconut-ice.jpg', tags: [{t:'冰凉',c:'ice'},{t:'椰香',c:'rich'}] },
+            { name: 'Sprite Lime', nameCn: '雪碧', image: 'images/relx/sprite-lime.jpg', tags: [{t:'冰凉',c:'ice'},{t:'酸甜',c:'sour'},{t:'清爽',c:'fresh'}] },
+            { name: 'Yogurt', nameCn: '酸奶', image: 'images/relx/yogurt.jpg', tags: [{t:'甜',c:'sweet'},{t:'醇厚',c:'rich'}] },
+            { name: 'Plum', nameCn: '西梅', image: 'images/relx/plum.jpg', tags: [{t:'酸甜',c:'sour'},{t:'果香',c:'sweet'}] },
+            { name: 'Lemon Cherry', nameCn: '爆柠樱桃', image: 'images/relx/lemon-cherry.jpg', tags: [{t:'酸甜',c:'sour'},{t:'果香',c:'sweet'},{t:'冰凉',c:'ice'}] },
+            { name: 'Peach Oolong', nameCn: '桃气乌龙', image: 'images/relx/peach-oolong.jpg', tags: [{t:'甜',c:'sweet'},{t:'茶香',c:'fresh'}] },
+            { name: 'Guava', nameCn: '番石榴', image: 'images/relx/guava.jpg', tags: [{t:'酸甜',c:'sour'},{t:'果香',c:'sweet'}] },
+            { name: 'Coffee', nameCn: '咖啡', image: 'images/relx/coffee.jpg', tags: [{t:'醇厚',c:'rich'},{t:'苦香',c:'rich'}] },
+            { name: 'Mojito', nameCn: '莫吉托', image: 'images/relx/mojito.jpg', tags: [{t:'清爽',c:'fresh'},{t:'酸甜',c:'sour'}] },
+            { name: 'Iced Black Tea', nameCn: '冰红茶', image: 'images/relx/iced-black-tea.jpg', tags: [{t:'冰凉',c:'ice'},{t:'茶香',c:'fresh'}] },
+            { name: 'Passion Fruit', nameCn: '百香果', image: 'images/relx/passion-fruit.jpg', tags: [{t:'酸甜',c:'sour'},{t:'果香',c:'sweet'}] },
+            { name: 'Ice Pop', nameCn: '冰棍', image: 'images/relx/ice-pop.jpg', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'}] },
+            { name: 'Mung Bean', nameCn: '绿豆', image: 'images/relx/mung-bean.jpg', tags: [{t:'冰凉',c:'ice'},{t:'清甜',c:'sweet'}] },
+            { name: 'Longjing', nameCn: '龙井', image: 'images/relx/longjing.jpg', tags: [{t:'茶香',c:'fresh'},{t:'清新',c:'fresh'}] },
+            { name: 'Iced Lemon Mint', nameCn: '冰柠薄荷', image: 'images/relx/iced-lemon-mint.jpg', tags: [{t:'冰凉',c:'ice'},{t:'酸',c:'sour'},{t:'清凉',c:'fresh'}] },
+            { name: 'Jasmine Tea', nameCn: '茉莉花茶', image: 'images/relx/jasmine-tea.jpg', tags: [{t:'花香',c:'fresh'},{t:'茶香',c:'fresh'}] }
+        ]
     }
 ];
 
