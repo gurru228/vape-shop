@@ -1011,7 +1011,10 @@ let products = [
             { name: 'Green Apple Ice', nameCn: '青苹果冰', image: 'images/dash/green-apple-ice.jpg' },
             { name: 'Tea Guan Yin King', nameCn: '铁观音王', image: 'images/dash/tea-guan-yin-king.webp' },
             { name: 'Taro Ice', nameCn: '芋头冰', image: 'images/dash/taro-ice.webp' },
-            { name: 'Lychee Ice', nameCn: '荔枝冰', image: 'images/dash/lychee-ice.webp' }
+            { name: 'Lychee Ice', nameCn: '荔枝冰', image: 'images/dash/lychee-ice.webp' },
+            { name: 'Hibiscus Ice Tea', nameCn: '洛神花冰茶', image: 'images/dash/hibiscus-ice-tea.webp' },
+            { name: 'Ludou Ice', nameCn: '绿豆冰', image: 'images/dash/ludou-ice.webp' },
+            { name: 'Lime Ice', nameCn: '青柠冰', image: 'images/dash/lime-ice.jpg' }
         ]
     },
     {
