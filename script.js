@@ -102,8 +102,7 @@ function showFreeItemModal() {
 
 function closeFreeItemModal() {
     document.getElementById('free-item-modal').style.display = 'none';
-    document.getElementById('cart-sidebar').classList.add('open');
-    document.getElementById('cart-overlay').classList.add('active');
+    openCartSidebar();
 }
 
 function showFreeItemProductStep() {
@@ -425,6 +424,17 @@ function setupCartEventListeners() {
         cartOverlay.addEventListener('click', toggleCartSidebar);
     }
 
+    // 窗口resize时同步遮罩状态
+    window.addEventListener('resize', () => {
+        const sidebar = document.getElementById('cart-sidebar');
+        const overlay = document.getElementById('cart-overlay');
+        if (!sidebar || !overlay) return;
+        if (sidebar.classList.contains('open')) {
+            if (window.innerWidth >= 1100) overlay.classList.remove('show');
+            else overlay.classList.add('show');
+        }
+    });
+
     if (cartCheckout) {
         cartCheckout.addEventListener('click', async () => {
             if (cart.length === 0) {
@@ -450,7 +460,7 @@ function setupCartEventListeners() {
             // 关闭购物车侧边栏
             const cartSidebar = document.getElementById('cart-sidebar');
             const cartOverlay = document.getElementById('cart-overlay');
-            if (cartSidebar) cartSidebar.classList.remove('open');
+            if (cartSidebar) { cartSidebar.classList.remove('open'); document.body.classList.remove('cart-open'); }
             if (cartOverlay) cartOverlay.classList.remove('show');
             openCartCheckoutModal();
         });
@@ -469,18 +479,27 @@ function setupCartEventListeners() {
 function toggleCartSidebar() {
     const cartSidebar = document.getElementById('cart-sidebar');
     const cartOverlay = document.getElementById('cart-overlay');
-
-    if (cartSidebar && cartOverlay) {
-        const isOpen = cartSidebar.classList.contains('open');
-
-        if (isOpen) {
-            cartSidebar.classList.remove('open');
-            cartOverlay.classList.remove('show');
-        } else {
-            cartSidebar.classList.add('open');
-            cartOverlay.classList.add('show');
-        }
+    if (!cartSidebar) return;
+    const isOpen = cartSidebar.classList.contains('open');
+    if (isOpen) {
+        cartSidebar.classList.remove('open');
+        if (cartOverlay) cartOverlay.classList.remove('show');
+        document.body.classList.remove('cart-open');
+    } else {
+        cartSidebar.classList.add('open');
+        // 仅在移动端显示遮罩
+        if (window.innerWidth < 1100 && cartOverlay) cartOverlay.classList.add('show');
+        document.body.classList.add('cart-open');
     }
+}
+
+function openCartSidebar() {
+    const cartSidebar = document.getElementById('cart-sidebar');
+    const cartOverlay = document.getElementById('cart-overlay');
+    if (!cartSidebar || cartSidebar.classList.contains('open')) return;
+    cartSidebar.classList.add('open');
+    if (window.innerWidth < 1100 && cartOverlay) cartOverlay.classList.add('show');
+    document.body.classList.add('cart-open');
 }
 
 function openCartCheckoutModal() {
@@ -559,8 +578,7 @@ function openCartCheckoutModal() {
     modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
     document.getElementById('checkout-back-to-cart').onclick = () => {
         modal.style.display = 'none';
-        document.getElementById('cart-sidebar').classList.add('open');
-        document.getElementById('cart-overlay').classList.add('active');
+        openCartSidebar();
     };
     document.getElementById('bizum-back-btn').onclick = () => {
         document.getElementById('checkout-step-bizum').style.display = 'none';
@@ -1229,10 +1247,14 @@ function createProductCard(product) {
     card.className = 'product-card';
     card.dataset.productId = product.id;
 
+    const sortedFlavors = product.flavors
+        ? [...product.flavors].sort((a, b) => isSoldOut(product.id, a.name) - isSoldOut(product.id, b.name))
+        : [];
+
     const flavorsHtml = product.flavors ? `
         <div class="flavor-tags"></div>
         <div class="flavor-selector">
-            ${[...product.flavors].sort((a, b) => isSoldOut(product.id, a.name) - isSoldOut(product.id, b.name)).map((f, i) => `
+            ${sortedFlavors.map((f, i) => `
                 <button class="flavor-btn${i === 0 ? ' active' : ''}" data-flavor-index="${i}" data-product-id="${product.id}" data-flavor="${f.name}" title="${f.name}">
                     <img src="${f.image}" alt="${f.name}" onerror="this.style.display='none'">
                     <span>${currentLanguage === 'zh' ? f.nameCn : f.name}</span>
@@ -1253,11 +1275,12 @@ function createProductCard(product) {
             <h3 class="product-name">${product.name}</h3>
             <p class="product-description">${product.description[currentLanguage]}</p>
             ${flavorsHtml}
-            <div class="product-price">${CONFIG.defaultCurrency}${product.price.toFixed(2)}</div>
-            <button class="buy-btn add-to-cart-btn" data-product-id="${product.id}">
-                <i class="fas fa-cart-plus"></i>
-                <span data-lang-key="add_to_cart">${TRANSLATIONS[currentLanguage].add_to_cart}</span>
-            </button>
+            <div class="product-footer">
+                <div class="product-price">${CONFIG.defaultCurrency}${product.price.toFixed(2)}</div>
+                <button class="quick-add-btn add-to-cart-btn" data-product-id="${product.id}" title="${TRANSLATIONS[currentLanguage].add_to_cart}">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
         </div>
     `;
 
@@ -1269,8 +1292,6 @@ function createProductCard(product) {
             if (!tagsEl) return;
             tagsEl.innerHTML = (flavor.tags || []).map(tag => `<span class="flavor-tag ${tag.c}">${tag.t}</span>`).join('');
         }
-        // 初始化第一个口味的标签
-        const sortedFlavors = [...product.flavors].sort((a, b) => isSoldOut(product.id, a.name) - isSoldOut(product.id, b.name));
         renderCardTags(sortedFlavors[0]);
         card.querySelectorAll('.flavor-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -1292,7 +1313,7 @@ function createProductCard(product) {
         openProductDetail(product, activeFlavorIndex);
     });
 
-    // 添加到购物车按钮事件
+    // 快速加入购物车按钮
     const addToCartBtn = card.querySelector('.add-to-cart-btn');
     addToCartBtn.addEventListener('click', () => {
         const activeFlavor = product.flavors
@@ -1302,7 +1323,7 @@ function createProductCard(product) {
             ? { ...product, id: `${product.id}-${activeFlavor.name}`, name: `${product.name} - ${currentLanguage === 'zh' ? activeFlavor.nameCn : activeFlavor.name}`, image: activeFlavor.image }
             : product;
         addToCart(cartProduct, 1);
-        toggleCartSidebar();
+        openCartSidebar();
     });
 
     return card;

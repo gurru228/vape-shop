@@ -519,7 +519,7 @@ body.zh {
     font-size: var(--font-size-2xl);
     font-weight: 700;
     color: var(--primary-color);
-    margin-bottom: var(--space-lg);
+    margin-bottom: 0;
 }
 
 .product-buttons {
@@ -543,6 +543,43 @@ body.zh {
     align-items: center;
     justify-content: center;
     gap: var(--space-sm);
+}
+
+/* 产品卡片底部：价格 + 快速加入按钮 */
+.product-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: var(--space-md);
+}
+
+.product-footer .product-price {
+    margin-top: 0;
+}
+
+.quick-add-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-black);
+    color: var(--color-white);
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.15s;
+    flex-shrink: 0;
+}
+
+.quick-add-btn:hover {
+    background: var(--color-gray-700);
+    transform: scale(1.1);
+}
+
+.quick-add-btn:active {
+    transform: scale(0.95);
 }
 
 .whatsapp-btn {
@@ -2213,9 +2250,9 @@ body.zh {
     transform: scale(1.04);
 }
 
-/* 购物车侧边栏丝滑 */
+/* 购物车侧边栏丝滑（移动端用 right，桌面端用 transform，见下方媒体查询） */
 .cart-sidebar {
-    transition: right 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: right 0.4s cubic-bezier(0.22, 1, 0.36, 1), transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* 页面初始渐入 */
@@ -2502,5 +2539,43 @@ body {
     .hero {
         padding: var(--space-lg) 0;
         margin-bottom: var(--space-lg);
+    }
+}
+
+/* ===== 桌面端购物车常驻侧边栏 ===== */
+@media (min-width: 1100px) {
+    /* 购物车常驻右侧，不需要遮罩 */
+    .cart-sidebar {
+        top: 0;
+        right: 0;
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        box-shadow: -2px 0 20px rgba(0,0,0,0.08);
+        border-left: 1px solid var(--border-color);
+    }
+    .cart-sidebar.open {
+        transform: translateX(0);
+        right: 0;
+    }
+    /* 桌面端不显示遮罩 */
+    .cart-overlay.show {
+        display: none;
+    }
+    /* 购物车打开时主内容区右移 */
+    body.cart-open .main {
+        margin-right: 380px;
+        transition: margin-right 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    body:not(.cart-open) .main {
+        margin-right: 0;
+        transition: margin-right 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    body.cart-open header.header {
+        padding-right: 380px;
+        transition: padding-right 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    body:not(.cart-open) header.header {
+        padding-right: 0;
+        transition: padding-right 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     }
 }
