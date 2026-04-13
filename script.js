@@ -1008,7 +1008,10 @@ let products = [
             { name: 'Passion Grapefruit', nameCn: '百香西柚', image: 'images/dash/passion-grapefruit.webp' },
             { name: 'Lush Ice', nameCn: '西瓜冰', image: 'images/dash/lush-ice.webp' },
             { name: 'Lemon Pineapple', nameCn: '柠檬菠萝', image: 'images/dash/lemon-pineapple.webp' },
-            { name: 'Green Apple Ice', nameCn: '青苹果冰', image: 'images/dash/green-apple-ice.jpg' }
+            { name: 'Green Apple Ice', nameCn: '青苹果冰', image: 'images/dash/green-apple-ice.jpg' },
+            { name: 'Tea Guan Yin King', nameCn: '铁观音王', image: 'images/dash/tea-guan-yin-king.webp' },
+            { name: 'Taro Ice', nameCn: '芋头冰', image: 'images/dash/taro-ice.webp' },
+            { name: 'Lychee Ice', nameCn: '荔枝冰', image: 'images/dash/lychee-ice.webp' }
         ]
     },
     {
