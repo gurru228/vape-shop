@@ -1077,6 +1077,32 @@ let products = [
             { name: 'Green Grape Ice', nameCn: '青葡萄冰', image: 'images/iceking/green-grape-ice.webp' },
             { name: 'Green Tea', nameCn: '绿茶', image: 'images/iceking/green-tea.webp' }
         ]
+    },
+    {
+        id: 5,
+        name: '高维 (GOwif)',
+        price: 25.9,
+        description: {
+            es: 'GOwif · Sabores únicos y refrescantes',
+            zh: 'GOwif · 独特清爽口味'
+        },
+        image: 'images/gowif/passion-fruit.jpg',
+        flavors: [
+            { name: 'Peach Tea', nameCn: '桃茶', image: 'images/gowif/peach-tea.jpg' },
+            { name: 'Passion Fruit', nameCn: '百香果', image: 'images/gowif/passion-fruit.jpg' },
+            { name: 'Green Bean Ice', nameCn: '绿豆', image: 'images/gowif/green-bean-ice.jpg' },
+            { name: 'Crispy Apple', nameCn: '脆苹果', image: 'images/gowif/crispy-apple.jpg' },
+            { name: 'Lychee Ice', nameCn: '荔枝冰', image: 'images/gowif/lychee-ice.jpg' },
+            { name: 'Plum Pineapple', nameCn: '话梅菠萝', image: 'images/gowif/plum-pineapple.jpg' },
+            { name: 'Fresh Mint', nameCn: '清凉薄荷', image: 'images/gowif/fresh-mint.jpg' },
+            { name: 'Watermelon Ice', nameCn: '西瓜冰', image: 'images/gowif/watermelon-ice.jpg' },
+            { name: 'Green Grape', nameCn: '青葡萄', image: 'images/gowif/green-grape.jpg' },
+            { name: 'Lime Ice', nameCn: '青柠冰', image: 'images/gowif/lime-ice.jpg' },
+            { name: 'Jasmine Longjing', nameCn: '茉莉龙井', image: 'images/gowif/jasmine-longjing.jpg' },
+            { name: 'Blueberry Raspberry', nameCn: '蓝莓覆盆子', image: 'images/gowif/blueberry-raspberry.webp' },
+            { name: 'Bayberry Green Salt', nameCn: '杨梅绿盐', image: 'images/gowif/bayberry-green-salt.jpg' },
+            { name: 'Taro Ice Cream', nameCn: '香芋冰淇淋', image: 'images/gowif/taro-ice-cream.jpg' }
+        ]
     }
 ];
 
