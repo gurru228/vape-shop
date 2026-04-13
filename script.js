@@ -1059,7 +1059,7 @@ let products = [
     },
     {
         id: 3,
-        name: '小黑条 (Lil Black)',
+        name: '小黑条 (Quik)',
         price: 17.9,
         description: {
             es: 'Quik 5000 puffs · Compacto y discreto, ideal para llevar',
