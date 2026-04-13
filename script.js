@@ -992,29 +992,29 @@ let products = [
         },
         image: 'images/dash/coconut-water.webp',
         flavors: [
-            { name: 'Jasmine LongJing Tea', nameCn: '龙井', image: 'images/dash/jasmine-longjing.webp' },
-            { name: 'Lemon Tea', nameCn: '柠檬茶', image: 'images/dash/sparkling-iced-lemon-tea.webp' },
-            { name: 'Green Grape', nameCn: '青提', image: 'images/dash/green-grape.jpeg' },
-            { name: 'Sweet Honeydew', nameCn: '甜蜜瓜', image: 'images/dash/sweet-honeydew.webp' },
-            { name: 'Crystal Grape', nameCn: '紫晶葡萄', image: 'images/dash/tangy-grape.webp' },
-            { name: 'Mineral Water', nameCn: '矿泉水', image: 'images/dash/mineral-water.webp' },
-            { name: 'Coconut Water', nameCn: '椰子水', image: 'images/dash/coconut-water.webp' },
-            { name: 'Matcha Smoothie', nameCn: '抹茶思慕雪', image: 'images/dash/matcha-smoothie.webp' },
-            { name: 'Peach Ice', nameCn: '水蜜桃冰', image: 'images/dash/peach-ice.webp' },
-            { name: 'Pink Guava', nameCn: '粉红番石榴', image: 'images/dash/pink-guava.webp' },
-            { name: 'Black Dragon Ice', nameCn: '黑龙冰', image: 'images/dash/black-dragon-ice.webp' },
-            { name: 'Corn Gelato', nameCn: '玉米冰激凌', image: 'images/dash/corn-gelato.webp' },
-            { name: 'White Freeze', nameCn: '老冰棍', image: 'images/dash/white-freeze.webp' },
-            { name: 'Passion Grapefruit', nameCn: '百香西柚', image: 'images/dash/passion-grapefruit.webp' },
-            { name: 'Lush Ice', nameCn: '西瓜冰', image: 'images/dash/lush-ice.webp' },
-            { name: 'Lemon Pineapple', nameCn: '柠檬菠萝', image: 'images/dash/lemon-pineapple.webp' },
-            { name: 'Green Apple Ice', nameCn: '青苹果冰', image: 'images/dash/green-apple-ice.jpg' },
-            { name: 'Tea Guan Yin King', nameCn: '铁观音王', image: 'images/dash/tea-guan-yin-king.webp' },
-            { name: 'Taro Ice', nameCn: '芋头冰', image: 'images/dash/taro-ice.webp' },
-            { name: 'Lychee Ice', nameCn: '荔枝冰', image: 'images/dash/lychee-ice.webp' },
-            { name: 'Hibiscus Ice Tea', nameCn: '洛神花冰茶', image: 'images/dash/hibiscus-ice-tea.webp' },
-            { name: 'Ludou Ice', nameCn: '绿豆冰', image: 'images/dash/ludou-ice.webp' },
-            { name: 'Lime Ice', nameCn: '青柠冰', image: 'images/dash/lime-ice.jpg' }
+            { name: 'Jasmine LongJing Tea', nameCn: '龙井', image: 'images/dash/jasmine-longjing.webp', tags: [{t:'清新',c:'fresh'},{t:'茶香',c:'fresh'}] },
+            { name: 'Lemon Tea', nameCn: '柠檬茶', image: 'images/dash/sparkling-iced-lemon-tea.webp', tags: [{t:'酸甜',c:'sour'},{t:'清爽',c:'fresh'}] },
+            { name: 'Green Grape', nameCn: '青提', image: 'images/dash/green-grape.jpeg', tags: [{t:'甜润',c:'sweet'},{t:'果香',c:'sweet'}] },
+            { name: 'Sweet Honeydew', nameCn: '甜蜜瓜', image: 'images/dash/sweet-honeydew.webp', tags: [{t:'甜',c:'sweet'},{t:'清甜',c:'sweet'}] },
+            { name: 'Crystal Grape', nameCn: '紫晶葡萄', image: 'images/dash/tangy-grape.webp', tags: [{t:'甜',c:'sweet'},{t:'果香',c:'sweet'}] },
+            { name: 'Mineral Water', nameCn: '矿泉水', image: 'images/dash/mineral-water.webp', tags: [{t:'清淡',c:'fresh'},{t:'清爽',c:'fresh'}] },
+            { name: 'Coconut Water', nameCn: '椰子水', image: 'images/dash/coconut-water.webp', tags: [{t:'清甜',c:'sweet'},{t:'椰香',c:'rich'}] },
+            { name: 'Matcha Smoothie', nameCn: '抹茶思慕雪', image: 'images/dash/matcha-smoothie.webp', tags: [{t:'醇厚',c:'rich'},{t:'茶香',c:'fresh'}] },
+            { name: 'Peach Ice', nameCn: '水蜜桃冰', image: 'images/dash/peach-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'}] },
+            { name: 'Pink Guava', nameCn: '粉红番石榴', image: 'images/dash/pink-guava.webp', tags: [{t:'甜',c:'sweet'},{t:'果香',c:'sweet'}] },
+            { name: 'Black Dragon Ice', nameCn: '黑龙冰', image: 'images/dash/black-dragon-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'清爽',c:'fresh'}] },
+            { name: 'Corn Gelato', nameCn: '玉米冰激凌', image: 'images/dash/corn-gelato.webp', tags: [{t:'甜',c:'sweet'},{t:'醇厚',c:'rich'}] },
+            { name: 'White Freeze', nameCn: '老冰棍', image: 'images/dash/white-freeze.webp', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'}] },
+            { name: 'Passion Grapefruit', nameCn: '百香西柚', image: 'images/dash/passion-grapefruit.webp', tags: [{t:'酸甜',c:'sour'},{t:'果香',c:'sweet'}] },
+            { name: 'Lush Ice', nameCn: '西瓜冰', image: 'images/dash/lush-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'}] },
+            { name: 'Lemon Pineapple', nameCn: '柠檬菠萝', image: 'images/dash/lemon-pineapple.webp', tags: [{t:'酸甜',c:'sour'},{t:'清爽',c:'fresh'}] },
+            { name: 'Green Apple Ice', nameCn: '青苹果冰', image: 'images/dash/green-apple-ice.jpg', tags: [{t:'冰凉',c:'ice'},{t:'酸甜',c:'sour'}] },
+            { name: 'Tea Guan Yin King', nameCn: '铁观音王', image: 'images/dash/tea-guan-yin-king.webp', tags: [{t:'茶香',c:'fresh'},{t:'醇厚',c:'rich'}] },
+            { name: 'Taro Ice', nameCn: '芋头冰', image: 'images/dash/taro-ice.webp', tags: [{t:'甜',c:'sweet'},{t:'醇厚',c:'rich'}] },
+            { name: 'Lychee Ice', nameCn: '荔枝冰', image: 'images/dash/lychee-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'}] },
+            { name: 'Hibiscus Ice Tea', nameCn: '洛神花冰茶', image: 'images/dash/hibiscus-ice-tea.webp', tags: [{t:'冰凉',c:'ice'},{t:'酸甜',c:'sour'},{t:'花香',c:'fresh'}] },
+            { name: 'Ludou Ice', nameCn: '绿豆冰', image: 'images/dash/ludou-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'清甜',c:'sweet'}] },
+            { name: 'Lime Ice', nameCn: '青柠冰', image: 'images/dash/lime-ice.jpg', tags: [{t:'冰凉',c:'ice'},{t:'酸',c:'sour'},{t:'清爽',c:'fresh'}] }
         ]
     },
     {
@@ -1027,16 +1027,16 @@ let products = [
         },
         image: 'images/icemax/passion-grapefruit.webp',
         flavors: [
-            { name: 'Passion Grapefruit', nameCn: '百香西柚', image: 'images/icemax/passion-grapefruit.webp' },
-            { name: 'Jasmine Milk Tea', nameCn: '茉莉奶茶', image: 'images/icemax/jasmine-milk-tea.webp' },
-            { name: 'Iced Pocari', nameCn: '冰镇宝矿力', image: 'images/icemax/iced-pocari.webp' },
-            { name: 'Coconut Water', nameCn: '椰子水', image: 'images/icemax/coconut-water.webp' },
-            { name: 'Miami Mint', nameCn: '迈阿密薄荷', image: 'images/icemax/miami-mint.webp' },
-            { name: 'Longjing Ice Tea', nameCn: '龙井冰茶', image: 'images/icemax/longjing-ice-tea.webp' },
-            { name: 'Green Grape Ice', nameCn: '青葡萄冰', image: 'images/icemax/green-grape-ice.webp' },
-            { name: 'Fresh Lemon', nameCn: '新鲜柠檬', image: 'images/icemax/fresh-lemon.webp' },
-            { name: 'Lychee Ice', nameCn: '荔枝冰', image: 'images/icemax/lychee-ice.webp' },
-            { name: 'Peach Oolong', nameCn: '水蜜桃乌龙', image: 'images/icemax/peach-oolong.webp' }
+            { name: 'Passion Grapefruit', nameCn: '百香西柚', image: 'images/icemax/passion-grapefruit.webp', tags: [{t:'酸甜',c:'sour'},{t:'果香',c:'sweet'},{t:'冰凉',c:'ice'}] },
+            { name: 'Jasmine Milk Tea', nameCn: '茉莉奶茶', image: 'images/icemax/jasmine-milk-tea.webp', tags: [{t:'醇厚',c:'rich'},{t:'花香',c:'fresh'},{t:'冰凉',c:'ice'}] },
+            { name: 'Iced Pocari', nameCn: '冰镇宝矿力', image: 'images/icemax/iced-pocari.webp', tags: [{t:'冰凉',c:'ice'},{t:'清爽',c:'fresh'}] },
+            { name: 'Coconut Water', nameCn: '椰子水', image: 'images/icemax/coconut-water.webp', tags: [{t:'清甜',c:'sweet'},{t:'椰香',c:'rich'},{t:'冰凉',c:'ice'}] },
+            { name: 'Miami Mint', nameCn: '迈阿密薄荷', image: 'images/icemax/miami-mint.webp', tags: [{t:'强冰',c:'ice'},{t:'清凉',c:'fresh'}] },
+            { name: 'Longjing Ice Tea', nameCn: '龙井冰茶', image: 'images/icemax/longjing-ice-tea.webp', tags: [{t:'冰凉',c:'ice'},{t:'茶香',c:'fresh'}] },
+            { name: 'Green Grape Ice', nameCn: '青葡萄冰', image: 'images/icemax/green-grape-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'},{t:'果香',c:'sweet'}] },
+            { name: 'Fresh Lemon', nameCn: '新鲜柠檬', image: 'images/icemax/fresh-lemon.webp', tags: [{t:'酸',c:'sour'},{t:'清爽',c:'fresh'},{t:'冰凉',c:'ice'}] },
+            { name: 'Lychee Ice', nameCn: '荔枝冰', image: 'images/icemax/lychee-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'},{t:'果香',c:'sweet'}] },
+            { name: 'Peach Oolong', nameCn: '水蜜桃乌龙', image: 'images/icemax/peach-oolong.webp', tags: [{t:'甜',c:'sweet'},{t:'茶香',c:'fresh'},{t:'冰凉',c:'ice'}] }
         ]
     },
     {
@@ -1049,15 +1049,15 @@ let products = [
         },
         image: 'images/lilblack/peach.webp',
         flavors: [
-            { name: 'Longan', nameCn: '龙眼', image: 'images/lilblack/longan.webp' },
-            { name: 'Banana', nameCn: '香蕉', image: 'images/lilblack/banana.jpg' },
-            { name: 'Durian', nameCn: '榴莲', image: 'images/lilblack/durian.jpg' },
-            { name: 'Honeydew', nameCn: '蜜露', image: 'images/lilblack/honeydew.webp' },
-            { name: 'Mango', nameCn: '芒果', image: 'images/lilblack/mango.webp' },
-            { name: 'Coconut Ice', nameCn: '椰子冰', image: 'images/lilblack/coconut-ice.jpg' },
-            { name: 'Peach', nameCn: '水蜜桃', image: 'images/lilblack/peach.webp' },
-            { name: 'Guava', nameCn: '番石榴', image: 'images/lilblack/guava.webp' },
-            { name: 'Lychee', nameCn: '荔枝', image: 'images/lilblack/lychee.webp' }
+            { name: 'Longan', nameCn: '龙眼', image: 'images/lilblack/longan.webp', tags: [{t:'甜',c:'sweet'},{t:'果香',c:'sweet'}] },
+            { name: 'Banana', nameCn: '香蕉', image: 'images/lilblack/banana.jpg', tags: [{t:'甜',c:'sweet'},{t:'醇厚',c:'rich'}] },
+            { name: 'Durian', nameCn: '榴莲', image: 'images/lilblack/durian.jpg', tags: [{t:'浓郁',c:'rich'},{t:'醇厚',c:'rich'}] },
+            { name: 'Honeydew', nameCn: '蜜露', image: 'images/lilblack/honeydew.webp', tags: [{t:'清甜',c:'sweet'},{t:'果香',c:'sweet'}] },
+            { name: 'Mango', nameCn: '芒果', image: 'images/lilblack/mango.webp', tags: [{t:'甜',c:'sweet'},{t:'果香',c:'sweet'}] },
+            { name: 'Coconut Ice', nameCn: '椰子冰', image: 'images/lilblack/coconut-ice.jpg', tags: [{t:'冰凉',c:'ice'},{t:'椰香',c:'rich'}] },
+            { name: 'Peach', nameCn: '水蜜桃', image: 'images/lilblack/peach.webp', tags: [{t:'甜',c:'sweet'},{t:'果香',c:'sweet'}] },
+            { name: 'Guava', nameCn: '番石榴', image: 'images/lilblack/guava.webp', tags: [{t:'酸甜',c:'sour'},{t:'果香',c:'sweet'}] },
+            { name: 'Lychee', nameCn: '荔枝', image: 'images/lilblack/lychee.webp', tags: [{t:'甜',c:'sweet'},{t:'果香',c:'sweet'}] }
         ]
     },
     {
@@ -1070,12 +1070,12 @@ let products = [
         },
         image: 'images/iceking/grape-ice.webp',
         flavors: [
-            { name: 'Jasmine Longjing', nameCn: '茉莉龙井', image: 'images/iceking/jasmine-longjing.webp' },
-            { name: 'Salted Lemon', nameCn: '海盐柠檬', image: 'images/iceking/salted-lemon.webp' },
-            { name: 'Tieguanyin', nameCn: '铁观音', image: 'images/iceking/tieguanyin.webp' },
-            { name: 'Grape Ice', nameCn: '黑葡萄冰', image: 'images/iceking/grape-ice.webp' },
-            { name: 'Green Grape Ice', nameCn: '青葡萄冰', image: 'images/iceking/green-grape-ice.webp' },
-            { name: 'Green Tea', nameCn: '绿茶', image: 'images/iceking/green-tea.webp' }
+            { name: 'Jasmine Longjing', nameCn: '茉莉龙井', image: 'images/iceking/jasmine-longjing.webp', tags: [{t:'花香',c:'fresh'},{t:'茶香',c:'fresh'},{t:'冰凉',c:'ice'}] },
+            { name: 'Salted Lemon', nameCn: '海盐柠檬', image: 'images/iceking/salted-lemon.webp', tags: [{t:'酸',c:'sour'},{t:'咸甜',c:'rich'},{t:'冰凉',c:'ice'}] },
+            { name: 'Tieguanyin', nameCn: '铁观音', image: 'images/iceking/tieguanyin.webp', tags: [{t:'茶香',c:'fresh'},{t:'醇厚',c:'rich'},{t:'冰凉',c:'ice'}] },
+            { name: 'Grape Ice', nameCn: '黑葡萄冰', image: 'images/iceking/grape-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'},{t:'果香',c:'sweet'}] },
+            { name: 'Green Grape Ice', nameCn: '青葡萄冰', image: 'images/iceking/green-grape-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'清甜',c:'sweet'},{t:'果香',c:'sweet'}] },
+            { name: 'Green Tea', nameCn: '绿茶', image: 'images/iceking/green-tea.webp', tags: [{t:'清新',c:'fresh'},{t:'茶香',c:'fresh'},{t:'冰凉',c:'ice'}] }
         ]
     },
     {
@@ -1088,20 +1088,20 @@ let products = [
         },
         image: 'images/gowif/passion-fruit.jpg',
         flavors: [
-            { name: 'Peach Tea', nameCn: '桃茶', image: 'images/gowif/peach-tea.jpg' },
-            { name: 'Passion Fruit', nameCn: '百香果', image: 'images/gowif/passion-fruit.jpg' },
-            { name: 'Green Bean Ice', nameCn: '绿豆', image: 'images/gowif/green-bean-ice.jpg' },
-            { name: 'Crispy Apple', nameCn: '脆苹果', image: 'images/gowif/crispy-apple.jpg' },
-            { name: 'Lychee Ice', nameCn: '荔枝冰', image: 'images/gowif/lychee-ice.jpg' },
-            { name: 'Plum Pineapple', nameCn: '话梅菠萝', image: 'images/gowif/plum-pineapple.jpg' },
-            { name: 'Fresh Mint', nameCn: '清凉薄荷', image: 'images/gowif/fresh-mint.jpg' },
-            { name: 'Watermelon Ice', nameCn: '西瓜冰', image: 'images/gowif/watermelon-ice.jpg' },
-            { name: 'Green Grape', nameCn: '青葡萄', image: 'images/gowif/green-grape.jpg' },
-            { name: 'Lime Ice', nameCn: '青柠冰', image: 'images/gowif/lime-ice.jpg' },
-            { name: 'Jasmine Longjing', nameCn: '茉莉龙井', image: 'images/gowif/jasmine-longjing.jpg' },
-            { name: 'Blueberry Raspberry', nameCn: '蓝莓覆盆子', image: 'images/gowif/blueberry-raspberry.webp' },
-            { name: 'Bayberry Green Salt', nameCn: '杨梅绿盐', image: 'images/gowif/bayberry-green-salt.jpg' },
-            { name: 'Taro Ice Cream', nameCn: '香芋冰淇淋', image: 'images/gowif/taro-ice-cream.jpg' }
+            { name: 'Peach Tea', nameCn: '桃茶', image: 'images/gowif/peach-tea.jpg', tags: [{t:'甜',c:'sweet'},{t:'茶香',c:'fresh'}] },
+            { name: 'Passion Fruit', nameCn: '百香果', image: 'images/gowif/passion-fruit.jpg', tags: [{t:'酸甜',c:'sour'},{t:'果香',c:'sweet'}] },
+            { name: 'Green Bean Ice', nameCn: '绿豆', image: 'images/gowif/green-bean-ice.jpg', tags: [{t:'冰凉',c:'ice'},{t:'清甜',c:'sweet'}] },
+            { name: 'Crispy Apple', nameCn: '脆苹果', image: 'images/gowif/crispy-apple.jpg', tags: [{t:'酸甜',c:'sour'},{t:'清爽',c:'fresh'}] },
+            { name: 'Lychee Ice', nameCn: '荔枝冰', image: 'images/gowif/lychee-ice.jpg', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'},{t:'果香',c:'sweet'}] },
+            { name: 'Plum Pineapple', nameCn: '话梅菠萝', image: 'images/gowif/plum-pineapple.jpg', tags: [{t:'酸甜',c:'sour'},{t:'果香',c:'sweet'}] },
+            { name: 'Fresh Mint', nameCn: '清凉薄荷', image: 'images/gowif/fresh-mint.jpg', tags: [{t:'强冰',c:'ice'},{t:'清凉',c:'fresh'}] },
+            { name: 'Watermelon Ice', nameCn: '西瓜冰', image: 'images/gowif/watermelon-ice.jpg', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'}] },
+            { name: 'Green Grape', nameCn: '青葡萄', image: 'images/gowif/green-grape.jpg', tags: [{t:'清甜',c:'sweet'},{t:'果香',c:'sweet'}] },
+            { name: 'Lime Ice', nameCn: '青柠冰', image: 'images/gowif/lime-ice.jpg', tags: [{t:'冰凉',c:'ice'},{t:'酸',c:'sour'},{t:'清爽',c:'fresh'}] },
+            { name: 'Jasmine Longjing', nameCn: '茉莉龙井', image: 'images/gowif/jasmine-longjing.jpg', tags: [{t:'花香',c:'fresh'},{t:'茶香',c:'fresh'}] },
+            { name: 'Blueberry Raspberry', nameCn: '蓝莓覆盆子', image: 'images/gowif/blueberry-raspberry.webp', tags: [{t:'酸甜',c:'sour'},{t:'果香',c:'sweet'}] },
+            { name: 'Bayberry Green Salt', nameCn: '杨梅绿盐', image: 'images/gowif/bayberry-green-salt.jpg', tags: [{t:'酸甜',c:'sour'},{t:'咸甜',c:'rich'}] },
+            { name: 'Taro Ice Cream', nameCn: '香芋冰淇淋', image: 'images/gowif/taro-ice-cream.jpg', tags: [{t:'甜',c:'sweet'},{t:'醇厚',c:'rich'}] }
         ]
     }
 ];
@@ -1198,6 +1198,7 @@ function createProductCard(product) {
     card.dataset.productId = product.id;
 
     const flavorsHtml = product.flavors ? `
+        <div class="flavor-tags"></div>
         <div class="flavor-selector">
             ${[...product.flavors].sort((a, b) => isSoldOut(product.id, a.name) - isSoldOut(product.id, b.name)).map((f, i) => `
                 <button class="flavor-btn${i === 0 ? ' active' : ''}" data-flavor-index="${i}" data-product-id="${product.id}" data-flavor="${f.name}" title="${f.name}">
@@ -1231,6 +1232,14 @@ function createProductCard(product) {
     // 口味切换事件
     if (product.flavors) {
         const mainImg = card.querySelector('.product-main-img');
+        const tagsEl = card.querySelector('.flavor-tags');
+        function renderCardTags(flavor) {
+            if (!tagsEl) return;
+            tagsEl.innerHTML = (flavor.tags || []).map(tag => `<span class="flavor-tag ${tag.c}">${tag.t}</span>`).join('');
+        }
+        // 初始化第一个口味的标签
+        const sortedFlavors = [...product.flavors].sort((a, b) => isSoldOut(product.id, a.name) - isSoldOut(product.id, b.name));
+        renderCardTags(sortedFlavors[0]);
         card.querySelectorAll('.flavor-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 card.querySelectorAll('.flavor-btn').forEach(b => b.classList.remove('active'));
@@ -1238,6 +1247,7 @@ function createProductCard(product) {
                 const flavor = product.flavors[parseInt(btn.dataset.flavorIndex)];
                 mainImg.src = flavor.image;
                 mainImg.alt = flavor.name;
+                renderCardTags(flavor);
             });
         });
     }
@@ -1283,12 +1293,19 @@ function openProductDetail(product, activeFlavorIndex = 0) {
     descEl.textContent = product.description[currentLanguage];
     priceEl.textContent = `${CONFIG.defaultCurrency}${product.price.toFixed(2)}`;
 
+    const detailTagsEl = document.getElementById('detail-flavor-tags');
+    function renderDetailTags(flavor) {
+        if (!detailTagsEl) return;
+        detailTagsEl.innerHTML = (flavor.tags || []).map(tag => `<span class="flavor-tag ${tag.c}">${tag.t}</span>`).join('');
+    }
+
     function updateFlavor(index) {
         currentFlavorIndex = index;
         const flavor = product.flavors[index];
         mainImg.src = flavor.image;
         mainImg.alt = flavor.name;
         flavorNameEl.textContent = currentLanguage === 'zh' ? flavor.nameCn : flavor.name;
+        renderDetailTags(flavor);
         flavorsEl.querySelectorAll('.detail-flavor-btn').forEach((b, i) => {
             b.classList.toggle('active', i === index);
         });

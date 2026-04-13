@@ -917,6 +917,27 @@ body.zh {
     font-weight: 600;
 }
 
+/* ===== 口味标签 ===== */
+.flavor-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 4px 0 10px;
+    min-height: 0;
+}
+.flavor-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+}
+.flavor-tag.ice   { background: #dff0fb; color: #1a7ab5; }
+.flavor-tag.sweet { background: #fde8f0; color: #c0396b; }
+.flavor-tag.fresh { background: #e2f5e8; color: #2a7a45; }
+.flavor-tag.sour  { background: #fef9d7; color: #9a7200; }
+.flavor-tag.rich  { background: #f3ede4; color: #7a5230; }
+
 /* ===== 按钮样式 ===== */
 .btn {
     padding: var(--space-md) var(--space-xl);
