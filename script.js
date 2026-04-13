@@ -1028,7 +1028,7 @@ let products = [
             { name: 'Lemon Pineapple', nameCn: '柠檬菠萝', image: 'images/dash/lemon-pineapple.webp', tags: [{t:'酸甜',c:'sour'},{t:'清爽',c:'fresh'}] },
             { name: 'Green Apple Ice', nameCn: '青苹果冰', image: 'images/dash/green-apple-ice.jpg', tags: [{t:'冰凉',c:'ice'},{t:'酸甜',c:'sour'}] },
             { name: 'Tea Guan Yin King', nameCn: '铁观音王', image: 'images/dash/tea-guan-yin-king.webp', tags: [{t:'茶香',c:'fresh'},{t:'醇厚',c:'rich'}] },
-            { name: 'Taro Ice', nameCn: '芋头冰', image: 'images/dash/taro-ice.webp', tags: [{t:'甜',c:'sweet'},{t:'醇厚',c:'rich'}] },
+            { name: 'Taro Ice', nameCn: '香芋冰', image: 'images/dash/taro-ice.webp', tags: [{t:'甜',c:'sweet'},{t:'醇厚',c:'rich'}] },
             { name: 'Lychee Ice', nameCn: '荔枝冰', image: 'images/dash/lychee-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'}] },
             { name: 'Hibiscus Ice Tea', nameCn: '洛神花冰茶', image: 'images/dash/hibiscus-ice-tea.webp', tags: [{t:'冰凉',c:'ice'},{t:'酸甜',c:'sour'},{t:'花香',c:'fresh'}] },
             { name: 'Ludou Ice', nameCn: '绿豆冰', image: 'images/dash/ludou-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'清甜',c:'sweet'}] },
