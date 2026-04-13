@@ -1007,7 +1007,8 @@ let products = [
             { name: 'White Freeze', nameCn: '老冰棍', image: 'images/dash/white-freeze.webp' },
             { name: 'Passion Grapefruit', nameCn: '百香西柚', image: 'images/dash/passion-grapefruit.webp' },
             { name: 'Lush Ice', nameCn: '西瓜冰', image: 'images/dash/lush-ice.webp' },
-            { name: 'Lemon Pineapple', nameCn: '柠檬菠萝', image: 'images/dash/lemon-pineapple.webp' }
+            { name: 'Lemon Pineapple', nameCn: '柠檬菠萝', image: 'images/dash/lemon-pineapple.webp' },
+            { name: 'Green Apple Ice', nameCn: '青苹果冰', image: 'images/dash/green-apple-ice.jpg' }
         ]
     },
     {
