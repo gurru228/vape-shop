@@ -367,6 +367,55 @@ function createCartItemElement(item) {
     return itemElement;
 }
 
+function flyToCart(btn) {
+    const cartIcon = document.getElementById('cart-toggle');
+    if (!cartIcon) return;
+
+    const btnRect = btn.getBoundingClientRect();
+    const cartRect = cartIcon.getBoundingClientRect();
+
+    const dot = document.createElement('div');
+    dot.className = 'fly-dot';
+    dot.style.left = `${btnRect.left + btnRect.width / 2 - 7}px`;
+    dot.style.top = `${btnRect.top + btnRect.height / 2 - 7}px`;
+    document.body.appendChild(dot);
+
+    // 加号按钮变绿动画
+    btn.classList.remove('added');
+    void btn.offsetWidth;
+    btn.classList.add('added');
+    btn.addEventListener('animationend', () => btn.classList.remove('added'), { once: true });
+
+    const startX = btnRect.left + btnRect.width / 2 - 7;
+    const startY = btnRect.top + btnRect.height / 2 - 7;
+    const endX = cartRect.left + cartRect.width / 2 - 7;
+    const endY = cartRect.top + cartRect.height / 2 - 7;
+
+    const duration = 550;
+    const startTime = performance.now();
+
+    function animate(now) {
+        const t = Math.min((now - startTime) / duration, 1);
+        const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        // 抛物线弧度
+        const arc = Math.sin(Math.PI * t) * -80;
+        const x = startX + (endX - startX) * ease;
+        const y = startY + (endY - startY) * ease + arc;
+        const scale = 1 - t * 0.6;
+        const opacity = t > 0.8 ? (1 - t) / 0.2 : 1;
+        dot.style.left = `${x}px`;
+        dot.style.top = `${y}px`;
+        dot.style.transform = `scale(${scale})`;
+        dot.style.opacity = opacity;
+        if (t < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            dot.remove();
+        }
+    }
+    requestAnimationFrame(animate);
+}
+
 function showCartNotification(productName, quantity) {
     // 创建通知元素
     const notification = document.createElement('div');
@@ -1323,7 +1372,7 @@ function createProductCard(product) {
             ? { ...product, id: `${product.id}-${activeFlavor.name}`, name: `${product.name} - ${currentLanguage === 'zh' ? activeFlavor.nameCn : activeFlavor.name}`, image: activeFlavor.image }
             : product;
         addToCart(cartProduct, 1);
-        openCartSidebar();
+        flyToCart(addToCartBtn);
     });
 
     return card;
