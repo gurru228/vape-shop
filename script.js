@@ -1297,7 +1297,7 @@ function createProductCard(product) {
             btn.addEventListener('click', () => {
                 card.querySelectorAll('.flavor-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                const flavor = product.flavors[parseInt(btn.dataset.flavorIndex)];
+                const flavor = sortedFlavors[parseInt(btn.dataset.flavorIndex)];
                 mainImg.src = flavor.image;
                 mainImg.alt = flavor.name;
                 renderCardTags(flavor);
@@ -1317,7 +1317,7 @@ function createProductCard(product) {
     const addToCartBtn = card.querySelector('.add-to-cart-btn');
     addToCartBtn.addEventListener('click', () => {
         const activeFlavor = product.flavors
-            ? product.flavors[parseInt(card.querySelector('.flavor-btn.active').dataset.flavorIndex)]
+            ? sortedFlavors[parseInt(card.querySelector('.flavor-btn.active').dataset.flavorIndex)]
             : null;
         const cartProduct = activeFlavor
             ? { ...product, id: `${product.id}-${activeFlavor.name}`, name: `${product.name} - ${currentLanguage === 'zh' ? activeFlavor.nameCn : activeFlavor.name}`, image: activeFlavor.image }
