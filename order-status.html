@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查询订单 | Vape Store</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #f5f5f5; }
+        .track-box { background: #fff; border: 1px solid #e5e5e5; border-radius: 16px; padding: 2.5rem; width: 100%; max-width: 440px; box-shadow: 0 4px 24px rgba(0,0,0,0.07); }
+        .track-box h2 { font-size: 1.4rem; margin-bottom: 0.25rem; }
+        .track-box p { color: #737373; font-size: 0.875rem; margin-bottom: 1.5rem; }
+        .input-row { display: flex; gap: 0.5rem; }
+        .input-row input { flex: 1; padding: 0.75rem 1rem; border: 1px solid #e5e5e5; border-radius: 8px; font-size: 1rem; font-family: inherit; transition: border-color 0.2s; }
+        .input-row input:focus { outline: none; border-color: #000; }
+        .input-row button { padding: 0.75rem 1.25rem; background: #000; color: #fff; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
+        .input-row button:hover { background: #262626; }
+        .result { margin-top: 1.75rem; display: none; }
+        .steps { display: flex; flex-direction: column; }
+        .step { display: flex; align-items: flex-start; gap: 1rem; padding: 0.875rem 0; position: relative; }
+        .step:not(:last-child)::after { content: ''; position: absolute; left: 15px; top: 42px; width: 2px; height: calc(100% - 10px); background: #e5e5e5; }
+        .step.done:not(:last-child)::after { background: #16a34a; }
+        .dot { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #e5e5e5; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; color: #a3a3a3; z-index: 1; }
+        .step.done .dot { background: #16a34a; border-color: #16a34a; color: #fff; }
+        .step.active .dot { background: #000; border-color: #000; color: #fff; }
+        .step-label { font-weight: 600; font-size: 0.9rem; padding-top: 0.35rem; }
+        .step-sub { font-size: 0.78rem; color: #737373; margin-top: 0.15rem; }
+        .error-msg { color: #dc2626; font-size: 0.875rem; margin-top: 1rem; display: none; }
+        .order-id { font-size: 0.8rem; color: #737373; margin-top: 1.25rem; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="track-box">
+        <h2><i class="fas fa-search" style="font-size:1.1rem;margin-right:0.4rem"></i>查询订单状态</h2>
+        <p>输入您的订单号即可查看最新状态</p>
+        <div class="input-row">
+            <input type="text" id="order-input" placeholder="例：ORD-20240101-XXXX" />
+            <button onclick="trackOrder()">查询</button>
+        </div>
+        <div class="error-msg" id="error-msg">找不到该订单，请检查订单号是否正确。</div>
+
+        <div class="result" id="result">
+            <div class="steps" id="steps"></div>
+            <div class="order-id" id="order-id"></div>
+        </div>
+    </div>
+
+    <script>
+        const STEPS = [
+            { status: 'pending',   icon: 'fa-clock',      label: '等待确认',   sub: '我们已收到您的订单' },
+            { status: 'paid',      icon: 'fa-check',      label: '订单已确认', sub: '我们已确认您的订单' },
+            { status: 'shipped',   icon: 'fa-motorcycle', label: '派送中',     sub: '您的订单正在配送途中' },
+            { status: 'delivered', icon: 'fa-box-open',   label: '已送达',     sub: '订单已成功送达' },
+        ];
+
+        const input = document.getElementById('order-input');
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') trackOrder(); });
+
+        const params = new URLSearchParams(location.search);
+        if (params.get('order')) { input.value = params.get('order'); trackOrder(); }
+
+        async function trackOrder() {
+            const num = input.value.trim();
+            if (!num) return;
+            document.getElementById('error-msg').style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+
+            const res = await fetch(`/.netlify/functions/get-order-status?order_number=${encodeURIComponent(num)}`);
+            if (!res.ok) {
+                document.getElementById('error-msg').style.display = 'block';
+                return;
+            }
+            const data = await res.json();
+            renderSteps(data.status);
+            document.getElementById('order-id').textContent = '订单号：' + data.order_number;
+            document.getElementById('result').style.display = 'block';
+        }
+
+        function renderSteps(currentStatus) {
+            const currentIdx = STEPS.findIndex(s => s.status === currentStatus);
+            document.getElementById('steps').innerHTML = STEPS.map((s, i) => {
+                const done = i < currentIdx;
+                const active = i === currentIdx;
+                const cls = done ? 'done' : active ? 'active' : '';
+                return `<div class="step ${cls}">
+                    <div class="dot"><i class="fas ${s.icon}"></i></div>
+                    <div>
+                        <div class="step-label">${s.label}</div>
+                        <div class="step-sub">${s.sub}</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
