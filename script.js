@@ -1105,8 +1105,8 @@ let products = [
             { name: 'Lychee Ice', nameCn: '荔枝冰', image: 'images/icemax/lychee-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'},{t:'果香',c:'sweet'}] },
             { name: 'Peach Oolong', nameCn: '水蜜桃乌龙', image: 'images/icemax/peach-oolong.webp', tags: [{t:'甜',c:'sweet'},{t:'茶香',c:'fresh'},{t:'冰凉',c:'ice'}] },
             { name: 'Lemon Pineapple', nameCn: '柠檬菠萝', image: 'images/icemax/lemon-pineapple.jpg', tags: [{t:'酸甜',c:'sour'},{t:'果香',c:'sweet'},{t:'冰凉',c:'ice'}] },
-            { name: 'Sour Guava Ice', nameCn: '番石榴', image: 'images/icemax/sour-guava-ice.jpg', tags: [{t:'酸',c:'sour'},{t:'清爽',c:'fresh'},{t:'冰凉',c:'ice'}] },
-            { name: 'Tangy Grape', nameCn: '巨峰葡萄', image: 'images/icemax/tangy-grape.jpg', tags: [{t:'甜',c:'sweet'},{t:'果香',c:'sweet'},{t:'冰凉',c:'ice'}] }
+            { name: 'Sour Guava Ice', nameCn: '巨峰葡萄', image: 'images/icemax/sour-guava-ice.jpg', tags: [{t:'酸',c:'sour'},{t:'清爽',c:'fresh'},{t:'冰凉',c:'ice'}] },
+            { name: 'Tangy Grape', nameCn: '番石榴', image: 'images/icemax/tangy-grape.jpg', tags: [{t:'甜',c:'sweet'},{t:'果香',c:'sweet'},{t:'冰凉',c:'ice'}] }
         ]
     },
     {
