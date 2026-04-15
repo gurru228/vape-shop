@@ -2,6 +2,7 @@
   "name": "vape-shop",
   "version": "1.0.0",
   "dependencies": {
-    "stripe": "^14.21.0"
+    "stripe": "^14.21.0",
+    "@supabase/supabase-js": "^2.49.4"
   }
 }
