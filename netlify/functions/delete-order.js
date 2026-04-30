@@ -25,13 +25,15 @@ exports.handler = async (event) => {
         return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
     }
 
-    // Fetch order items before deleting, restore inventory unless already cancelled
+    // 仅当订单当前处于"已扣库存"状态（paid/shipped/delivered）才回库；
+    // pending/cancelled 状态从未扣库存，删除时不需回库。
+    const CONSUMING = new Set(['paid', 'shipped', 'delivered']);
     const orderRes = await fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${orderId}&select=payment_status,items`, {
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
     });
     const orders = await orderRes.json();
     const order = orders[0];
-    if (order && order.payment_status !== 'cancelled') {
+    if (order && CONSUMING.has(order.payment_status)) {
         await restoreInventory(order.items);
     }
 

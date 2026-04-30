@@ -3,19 +3,7 @@ const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-async function decrementInventory(cart) {
-    for (const item of cart) {
-        if (item.isFree) continue;
-        const parts = String(item.id).split('-');
-        const productId = parseInt(parts[0]);
-        const flavorName = parts.length > 1 ? parts.slice(1).join('-') : 'default';
-        await fetch(`${SUPABASE_URL}/rest/v1/rpc/decrement_stock`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
-            body: JSON.stringify({ p_product_id: productId, p_flavor_name: flavorName, p_qty: item.quantity })
-        }).catch(err => console.error('Inventory decrement failed:', err));
-    }
-}
+// 注：库存不在下单时扣减；改为后台确认付款（payment_status -> paid/shipped/delivered）时由 update-order.js 扣减。
 
 async function sendTelegramNotification(order) {
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
@@ -93,7 +81,6 @@ exports.handler = async (event) => {
         }
 
         await sendTelegramNotification(order);
-        decrementInventory(cart).catch(() => {});
 
         return {
             statusCode: 200,
