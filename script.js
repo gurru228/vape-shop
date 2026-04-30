@@ -1300,7 +1300,8 @@ let products = [
             { name: 'Jasmine Longjing', nameCn: '茉莉龙井', image: 'images/gowif/jasmine-longjing.jpg', tags: [{t:'花香',c:'fresh'},{t:'茶香',c:'fresh'}] },
             { name: 'Blueberry Raspberry', nameCn: '蓝莓覆盆子', image: 'images/gowif/blueberry-raspberry.webp', tags: [{t:'酸甜',c:'sour'},{t:'果香',c:'sweet'}] },
             { name: 'Bayberry Green Salt', nameCn: '杨梅绿盐', image: 'images/gowif/bayberry-green-salt.jpg', tags: [{t:'酸甜',c:'sour'},{t:'咸甜',c:'rich'}] },
-            { name: 'Taro Ice Cream', nameCn: '香芋冰淇淋', image: 'images/gowif/taro-ice-cream.jpg', tags: [{t:'甜',c:'sweet'},{t:'醇厚',c:'rich'}] }
+            { name: 'Taro Ice Cream', nameCn: '香芋冰淇淋', image: 'images/gowif/taro-ice-cream.jpg', tags: [{t:'甜',c:'sweet'},{t:'醇厚',c:'rich'}] },
+            { name: '100 Plus', nameCn: '100 Plus', image: 'images/gowif/100-plus.jpeg', tags: [{t:'清爽',c:'fresh'},{t:'果香',c:'sweet'}] }
         ]
     },
     {
