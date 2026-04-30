@@ -57,8 +57,15 @@ function getDiscountedTotal(original) {
 
 // ===== 买五送一系统 =====
 const FREE_ITEM_PRODUCT_IDS = [1, 3]; // 鸭嘴兽, 小黑条
+const GIFT_EXCLUDED_PRODUCT_IDS = [6]; // 悦刻 RELX 不参与买五送一
 const SHIPPING_FEE = 9.99;
 const FREE_SHIPPING_THRESHOLD = 100;
+
+function getCartItemProductId(item) {
+    const first = String(item.id).split('-')[0];
+    const n = parseInt(first, 10);
+    return Number.isNaN(n) ? null : n;
+}
 
 function getNonFreeQuantity() {
     return cart.filter(i => !i.isFree).reduce((s, i) => s + i.quantity, 0);
@@ -68,8 +75,15 @@ function getFreeItemsInCart() {
     return cart.filter(i => i.isFree);
 }
 
+// 仅其余产品（不含 RELX 悦刻）的支数计入买五送一
+function getGiftQualifyingQuantity() {
+    return cart
+        .filter(i => !i.isFree && !GIFT_EXCLUDED_PRODUCT_IDS.includes(getCartItemProductId(i)))
+        .reduce((s, i) => s + i.quantity, 0);
+}
+
 function getEntitledFreeCount() {
-    return Math.floor(getNonFreeQuantity() / 5);
+    return Math.floor(getGiftQualifyingQuantity() / 5);
 }
 
 function removeFreeItemFromCart() {
