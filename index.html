@@ -376,6 +376,11 @@
                         <span>微信支付</span>
                         <small>WeChat Pay</small>
                     </button>
+                    <button class="payment-option-btn" id="btn-pay-alipay">
+                        <i class="fab fa-alipay"></i>
+                        <span>支付宝</span>
+                        <small>Alipay</small>
+                    </button>
                     <button class="payment-option-btn" id="btn-pay-card">
                         <i class="fas fa-credit-card"></i>
                         <span>Tarjeta</span>
@@ -432,6 +437,51 @@
                 <div class="modal-actions" style="margin-top:0.75rem">
                     <button class="btn btn-primary" id="wechat-confirm-btn" disabled>我已付款 / He pagado</button>
                     <button class="btn btn-secondary" id="wechat-cancel-btn">取消 / Cancelar</button>
+                </div>
+            </div>
+
+            <!-- Step 2: 支付宝支付说明 -->
+            <div id="checkout-step-alipay" style="display:none">
+                <button class="modal-back-btn" id="alipay-back-btn"><i class="fas fa-arrow-left"></i> 返回修改 / Volver</button>
+                <h2>支付宝 / Alipay</h2>
+                <div class="bizum-steps">
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">1</span>
+                        <span>打开支付宝，扫描下方收款码 / Abra Alipay y escanee el código QR</span>
+                    </div>
+                    <div class="wechat-qr-box">
+                        <img src="images/alipay-qr.jpg" alt="支付宝收款码" id="alipay-qr-img">
+                    </div>
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">2</span>
+                        <span>转账金额 / Importe: <strong id="alipay-amount-display"></strong></span>
+                    </div>
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">3</span>
+                        <span>备注订单号 / Concepto: <strong id="alipay-order-display"></strong></span>
+                    </div>
+                    <div class="bizum-step-row">
+                        <span class="bizum-step-num">4</span>
+                        <span>完成后截图，通过 WhatsApp 发给我们 / Envíenos captura por WhatsApp</span>
+                    </div>
+                </div>
+                <a id="alipay-whatsapp-btn" class="btn-whatsapp" href="#" target="_blank">
+                    <i class="fab fa-whatsapp"></i>
+                    发送截图到 WhatsApp / Enviar captura
+                </a>
+                <div class="no-whatsapp-hint">
+                    <i class="fas fa-envelope"></i>
+                    没有 WhatsApp？发截图到邮箱：
+                    <a href="mailto:vapeshop2026vapeshop@gmail.com?subject=支付宝付款截图" class="email-link">vapeshop2026vapeshop@gmail.com</a>
+                    <span class="hint-note">邮件主题注明订单号 / Indique el número de pedido en el asunto</span>
+                </div>
+                <label class="screenshot-confirm-label">
+                    <input type="checkbox" id="alipay-screenshot-check">
+                    <span>我已发送截图 / Ya he enviado la captura</span>
+                </label>
+                <div class="modal-actions" style="margin-top:0.75rem">
+                    <button class="btn btn-primary" id="alipay-confirm-btn" disabled>我已付款 / He pagado</button>
+                    <button class="btn btn-secondary" id="alipay-cancel-btn">取消 / Cancelar</button>
                 </div>
             </div>
 

@@ -563,6 +563,7 @@ function openCartCheckoutModal() {
     stepInfo.style.display = 'block';
     stepBizum.style.display = 'none';
     document.getElementById('checkout-step-cash').style.display = 'none';
+    document.getElementById('checkout-step-alipay').style.display = 'none';
     errorEl.style.display = 'none';
     document.getElementById('checkout-customer-name').value = '';
     document.getElementById('checkout-customer-phone').value = '';
@@ -636,6 +637,11 @@ function openCartCheckoutModal() {
 
     document.getElementById('wechat-back-btn').onclick = () => {
         document.getElementById('checkout-step-wechat').style.display = 'none';
+        document.getElementById('checkout-step-info').style.display = 'block';
+    };
+
+    document.getElementById('alipay-back-btn').onclick = () => {
+        document.getElementById('checkout-step-alipay').style.display = 'none';
         document.getElementById('checkout-step-info').style.display = 'block';
     };
 
@@ -771,6 +777,28 @@ function openCartCheckoutModal() {
         const originalHTML = confirmBtn.innerHTML;
         confirmBtn.onclick = () => submitOrder(payload, confirmBtn, originalHTML);
         document.getElementById('wechat-cancel-btn').onclick = () => modal.style.display = 'none';
+    };
+
+    // 支付宝支付
+    document.getElementById('btn-pay-alipay').onclick = () => {
+        const payload = buildOrderPayload('alipay');
+        if (!payload) return;
+
+        document.getElementById('alipay-amount-display').textContent = `${CONFIG.defaultCurrency}${payload.total.toFixed(2)}`;
+        document.getElementById('alipay-order-display').textContent = payload.orderNumber;
+        const waMsg = encodeURIComponent(`你好！我刚完成支付宝付款。\n订单号: ${payload.orderNumber}\n金额: €${payload.total.toFixed(2)}\n（附上截图 / adjunto captura）`);
+        document.getElementById('alipay-whatsapp-btn').href = `https://wa.me/34697332407?text=${waMsg}`;
+        stepInfo.style.display = 'none';
+        document.getElementById('checkout-step-alipay').style.display = 'block';
+
+        const alipayCheck = document.getElementById('alipay-screenshot-check');
+        alipayCheck.checked = false;
+        const confirmBtn = document.getElementById('alipay-confirm-btn');
+        confirmBtn.disabled = true;
+        alipayCheck.onchange = () => { confirmBtn.disabled = !alipayCheck.checked; };
+        const originalHTML = confirmBtn.innerHTML;
+        confirmBtn.onclick = () => submitOrder(payload, confirmBtn, originalHTML);
+        document.getElementById('alipay-cancel-btn').onclick = () => modal.style.display = 'none';
     };
 
     // 现金支付
