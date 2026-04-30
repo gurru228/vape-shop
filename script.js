@@ -1231,7 +1231,8 @@ let products = [
             { name: 'Mung Bean', nameCn: '绿豆', image: 'images/relx/mung-bean.jpg', tags: [{t:'冰凉',c:'ice'},{t:'清甜',c:'sweet'}] },
             { name: 'Longjing', nameCn: '龙井', image: 'images/relx/longjing.jpg', tags: [{t:'茶香',c:'fresh'},{t:'清新',c:'fresh'}] },
             { name: 'Iced Lemon Mint', nameCn: '冰柠薄荷', image: 'images/relx/iced-lemon-mint.jpg', tags: [{t:'冰凉',c:'ice'},{t:'酸',c:'sour'},{t:'清凉',c:'fresh'}] },
-            { name: 'Jasmine Tea', nameCn: '茉莉花茶', image: 'images/relx/jasmine-tea.jpg', tags: [{t:'花香',c:'fresh'},{t:'茶香',c:'fresh'}] }
+            { name: 'Jasmine Tea', nameCn: '茉莉花茶', image: 'images/relx/jasmine-tea.jpg', tags: [{t:'花香',c:'fresh'},{t:'茶香',c:'fresh'}] },
+            { name: 'Vitamin C Orange', nameCn: 'C味鲜橙', image: 'images/relx/vitamin-c-orange.jpg', tags: [{t:'酸甜',c:'sour'},{t:'果香',c:'sweet'}] }
         ]
     }
 ];
