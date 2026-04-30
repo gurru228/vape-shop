@@ -1022,11 +1022,21 @@
     });
 
     async function updateOrderStatus(orderId, status) {
-        await fetch('/.netlify/functions/update-order', {
+        const r = await fetch('/.netlify/functions/update-order', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ password: adminPass, orderId, status })
         });
+        try {
+            const data = await r.clone().json();
+            console.log('[updateOrderStatus]', data);
+            if (data.inventoryAction && data.inventoryAction !== 'none' && Array.isArray(data.inventoryLog)) {
+                const failed = data.inventoryLog.filter(x => !x.ok);
+                if (failed.length) {
+                    alert('库存更新失败 — 请打开浏览器控制台查看详情\n' + failed.map(f => `${f.item}: ${f.error || f.body}`).join('\n'));
+                }
+            }
+        } catch (e) { /* response 不是 JSON，忽略 */ }
         const order = allOrders.find(o => o.id === orderId);
         if (order) {
             order.payment_status = status;

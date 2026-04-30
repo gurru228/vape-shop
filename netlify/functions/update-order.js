@@ -7,17 +7,31 @@ const CONSUMING = new Set(['paid', 'shipped', 'delivered']);
 const isConsuming = (s) => CONSUMING.has(s);
 
 async function rpcStock(rpc, items) {
+    const log = [];
     for (const item of (items || [])) {
         if (item.isFree) continue;
         const parts = String(item.id).split('-');
         const productId = parseInt(parts[0]);
+        if (Number.isNaN(productId)) {
+            log.push({ item: item.id, ok: false, error: 'invalid productId' });
+            continue;
+        }
         const flavorName = parts.length > 1 ? parts.slice(1).join('-') : 'default';
-        await fetch(`${SUPABASE_URL}/rest/v1/rpc/${rpc}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
-            body: JSON.stringify({ p_product_id: productId, p_flavor_name: flavorName, p_qty: item.quantity })
-        }).catch(err => console.error(`${rpc} failed:`, err));
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${rpc}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+                body: JSON.stringify({ p_product_id: productId, p_flavor_name: flavorName, p_qty: item.quantity })
+            });
+            const body = await res.text();
+            log.push({ item: item.id, productId, flavorName, qty: item.quantity, status: res.status, ok: res.ok, body });
+            if (!res.ok) console.error(`${rpc} failed`, productId, flavorName, res.status, body);
+        } catch (err) {
+            log.push({ item: item.id, ok: false, error: String(err) });
+            console.error(`${rpc} threw:`, err);
+        }
     }
+    return log;
 }
 
 const decrementInventory = (items) => rpcStock('decrement_stock', items);
@@ -39,13 +53,17 @@ exports.handler = async (event) => {
     const orders = await orderRes.json();
     const order = orders[0];
 
+    let inventoryLog = null;
+    let action = 'none';
     if (order) {
         const wasConsuming = isConsuming(order.payment_status);
         const willConsume  = isConsuming(status);
         if (!wasConsuming && willConsume) {
-            await decrementInventory(order.items);   // 首次确认付款 -> 扣库存
+            action = 'decrement';
+            inventoryLog = await decrementInventory(order.items);
         } else if (wasConsuming && !willConsume) {
-            await restoreInventory(order.items);     // 撤销已确认 -> 回库
+            action = 'restore';
+            inventoryLog = await restoreInventory(order.items);
         }
     }
 
@@ -60,5 +78,16 @@ exports.handler = async (event) => {
         body: JSON.stringify({ payment_status: status })
     });
 
-    return { statusCode: res.ok ? 200 : 500, body: JSON.stringify({ success: res.ok }) };
+    return {
+        statusCode: res.ok ? 200 : 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            success: res.ok,
+            oldStatus: order ? order.payment_status : null,
+            newStatus: status,
+            itemCount: order && Array.isArray(order.items) ? order.items.length : 0,
+            inventoryAction: action,
+            inventoryLog
+        })
+    };
 };
