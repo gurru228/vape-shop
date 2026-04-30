@@ -1177,7 +1177,7 @@ let products = [
     {
         id: 6,
         name: 'RELX 悦刻幻五代烟弹 (3支装)',
-        price: 15.9,
+        price: 14.9,
         description: {
             es: 'RELX Phantom Pod · 3 unidades · Compatible con RELX Phantom · Sabores premium',
             zh: 'RELX 幻五代烟弹 · 3支装 · 适配幻五代主机 · 精选口味'
@@ -1281,12 +1281,14 @@ function renderProducts() {
     if (!domElements.productsGrid) return;
     domElements.productsGrid.innerHTML = '';
 
+    const homeProductOrder = [1, 5, 2, 6, 3, 4];
+
     // 产品排序：全部售罄的排最后
-    const sorted = [...products].sort((a, b) => {
+    const sorted = products.filter(product => homeProductOrder.includes(product.id)).sort((a, b) => {
         const allSoldOut = p => p.flavors
             ? p.flavors.every(f => isSoldOut(p.id, f.name))
             : isSoldOut(p.id, 'default');
-        return allSoldOut(a) - allSoldOut(b);
+        return allSoldOut(a) - allSoldOut(b) || homeProductOrder.indexOf(a.id) - homeProductOrder.indexOf(b.id);
     });
 
     sorted.forEach(product => {

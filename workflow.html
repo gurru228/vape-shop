@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vape Shop 多 Agent 工作流</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f1a;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #888;
+      font-size: 0.9rem;
+      margin-bottom: 48px;
+    }
+
+    /* ── Tab bar ── */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: 1px solid #333;
+      background: #1a1a2e;
+      color: #aaa;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover { border-color: #7c3aed; color: #fff; }
+    .tab-btn.active { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+
+    /* ── Workflow panel ── */
+    .workflow-panel { display: none; }
+    .workflow-panel.active { display: block; }
+
+    /* ── Pipeline ── */
+    .pipeline {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+      row-gap: 24px;
+    }
+
+    .step-wrap {
+      display: flex;
+      align-items: center;
+    }
+
+    .step {
+      width: 200px;
+      background: #1a1a2e;
+      border: 1px solid #2a2a4a;
+      border-radius: 16px;
+      padding: 24px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s;
+      position: relative;
+    }
+
+    .step:hover {
+      border-color: #7c3aed;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(124,58,237,0.25);
+    }
+
+    .step.running {
+      border-color: #f59e0b;
+      box-shadow: 0 0 20px rgba(245,158,11,0.3);
+      animation: pulse 1.5s infinite;
+    }
+
+    .step.done {
+      border-color: #10b981;
+      box-shadow: 0 0 16px rgba(16,185,129,0.2);
+    }
+
+    .step.error {
+      border-color: #ef4444;
+      box-shadow: 0 0 16px rgba(239,68,68,0.2);
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(245,158,11,0.3); }
+      50% { box-shadow: 0 0 36px rgba(245,158,11,0.6); }
+    }
+
+    .step-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .step-label {
+      font-size: 0.7rem;
+      color: #7c3aed;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .step-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .step-desc {
+      font-size: 0.78rem;
+      color: #888;
+      line-height: 1.5;
+    }
+
+    .step-status {
+      margin-top: 14px;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 10px;
+      display: inline-block;
+      background: #111;
+      color: #666;
+    }
+
+    .step.running .step-status { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .step.done .step-status { background: rgba(16,185,129,0.15); color: #10b981; }
+    .step.error .step-status { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+    /* ── Arrow ── */
+    .arrow {
+      width: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #444;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      transition: color 0.3s;
+    }
+
+    .arrow.lit { color: #7c3aed; }
+
+    /* ── Merge node ── */
+    .merge-node {
+      width: 200px;
+      background: linear-gradient(135deg, #1a1a2e, #2a1a4e);
+      border: 1px solid #7c3aed;
+      border-radius: 16px;
+      padding: 24px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .merge-node:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(124,58,237,0.4);
+    }
+
+    .merge-node.done {
+      border-color: #10b981;
+      background: linear-gradient(135deg, #1a1a2e, #0a2e1a);
+    }
+
+    /* ── Output preview ── */
+    .output-section {
+      max-width: 900px;
+      margin: 48px auto 0;
+    }
+
+    .output-section h2 {
+      font-size: 1rem;
+      color: #888;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .output-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .output-card {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4a;
+      border-radius: 12px;
+      padding: 20px;
+      transition: border-color 0.3s;
+    }
+
+    .output-card.filled { border-color: #10b981; }
+
+    .output-card h3 {
+      font-size: 0.8rem;
+      color: #7c3aed;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .output-card p {
+      font-size: 0.85rem;
+      color: #aaa;
+      line-height: 1.6;
+      min-height: 60px;
+    }
+
+    .output-card p.placeholder { color: #444; font-style: italic; }
+
+    /* ── Poster preview ── */
+    .poster-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .poster-preview {
+      width: 100%;
+      max-width: 320px;
+      aspect-ratio: 9/16;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 20px 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    .poster-preview .p-badge {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.35);
+      backdrop-filter: blur(4px);
+    }
+
+    .poster-preview .p-center {
+      text-align: center;
+    }
+
+    .poster-preview .p-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+      margin-bottom: 8px;
+    }
+
+    .poster-preview .p-sub {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 1px;
+    }
+
+    .poster-preview .p-price {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.3);
+    }
+
+    .poster-preview .p-bottom {
+      text-align: center;
+      width: 100%;
+    }
+
+    .poster-preview .p-store {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.7);
+      margin-top: 6px;
+      letter-spacing: 1px;
+    }
+
+    .poster-placeholder {
+      width: 100%;
+      max-width: 320px;
+      aspect-ratio: 9/16;
+      border-radius: 12px;
+      border: 2px dashed #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #444;
+      font-style: italic;
+      font-size: 0.85rem;
+    }
+
+    .btn-download {
+      padding: 8px 20px;
+      border-radius: 8px;
+      border: 1px solid #10b981;
+      background: rgba(16,185,129,0.1);
+      color: #10b981;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-download:hover { background: rgba(16,185,129,0.25); }
+
+    /* ── Controls ── */
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 40px 0 0;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border-radius: 10px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #7c3aed;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #6d28d9; transform: translateY(-1px); }
+    .btn-primary:disabled { background: #3a2060; color: #666; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      background: #1a1a2e;
+      color: #aaa;
+      border: 1px solid #333;
+    }
+    .btn-secondary:hover { border-color: #7c3aed; color: #fff; }
+
+    /* ── Input form ── */
+    .input-form {
+      max-width: 500px;
+      margin: 0 auto 40px;
+      background: #1a1a2e;
+      border: 1px solid #2a2a4a;
+      border-radius: 16px;
+      padding: 28px;
+    }
+
+    .input-form h2 {
+      font-size: 1rem;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: #888;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      background: #0f0f1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      border-color: #7c3aed;
+    }
+
+    .form-group select option { background: #1a1a2e; }
+
+    /* ── Log ── */
+    .log-box {
+      max-width: 900px;
+      margin: 32px auto 0;
+      background: #0a0a14;
+      border: 1px solid #1e1e3a;
+      border-radius: 12px;
+      padding: 20px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.78rem;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .log-line { margin-bottom: 4px; }
+    .log-line .ts { color: #444; margin-right: 8px; }
+    .log-line .info { color: #60a5fa; }
+    .log-line .success { color: #10b981; }
+    .log-line .warn { color: #f59e0b; }
+    .log-line .err { color: #ef4444; }
+  </style>
+</head>
+<body>
+
+<h1>Vape Shop 多 Agent 工作流</h1>
+<p class="subtitle">可视化操作面板 — 选择工作流，填写参数，一键运行</p>
+
+<!-- Tab bar -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('new-product')">新品上架</button>
+  <button class="tab-btn" onclick="switchTab('marketing')">营销内容</button>
+  <button class="tab-btn" onclick="switchTab('inventory')">库存报告</button>
+  <button class="tab-btn" onclick="switchTab('customer')">客服回复</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     工作流 1：新品上架
+══════════════════════════════════════════ -->
+<div id="wf-new-product" class="workflow-panel active">
+
+  <!-- Input form -->
+  <div class="input-form">
+    <h2>新品信息</h2>
+    <div class="form-group">
+      <label>产品名称</label>
+      <input id="np-name" type="text" placeholder="例：Mango Ice 5000 Puffs" />
+    </div>
+    <div class="form-group">
+      <label>口味 / 特点</label>
+      <input id="np-flavor" type="text" placeholder="例：芒果冰，清凉回甘，5000口" />
+    </div>
+    <div class="form-group">
+      <label>价格</label>
+      <input id="np-price" type="text" placeholder="例：$18.99" />
+    </div>
+    <div class="form-group">
+      <label>目标平台</label>
+      <select id="np-platform">
+        <option>Instagram + 店内海报</option>
+        <option>微信朋友圈</option>
+        <option>TikTok</option>
+        <option>全平台</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Pipeline -->
+  <div class="pipeline" id="np-pipeline">
+
+    <div class="step-wrap">
+      <div class="step" id="np-step1" onclick="showDetail('np',1)">
+        <span class="step-icon">✍️</span>
+        <div class="step-label">Agent 1</div>
+        <div class="step-title">产品描述</div>
+        <div class="step-desc">分析口味特点，生成吸引人的产品文案</div>
+        <span class="step-status" id="np-s1-status">待运行</span>
+      </div>
+    </div>
+
+    <div class="arrow" id="np-arrow1">→</div>
+
+    <div class="step-wrap">
+      <div class="step" id="np-step2" onclick="showDetail('np',2)">
+        <span class="step-icon">📣</span>
+        <div class="step-label">Agent 2</div>
+        <div class="step-title">促销文案</div>
+        <div class="step-desc">基于产品描述，生成多版本促销话术</div>
+        <span class="step-status" id="np-s2-status">待运行</span>
+      </div>
+    </div>
+
+    <div class="arrow" id="np-arrow2">→</div>
+
+    <div class="step-wrap">
+      <div class="step" id="np-step3" onclick="showDetail('np',3)">
+        <span class="step-icon">🎨</span>
+        <div class="step-label">Agent 3</div>
+        <div class="step-title">海报生成</div>
+        <div class="step-desc">生成海报设计指令 / Prompt，输出排版建议</div>
+        <span class="step-status" id="np-s3-status">待运行</span>
+      </div>
+    </div>
+
+    <div class="arrow" id="np-arrow3">→</div>
+
+    <div class="step-wrap">
+      <div class="merge-node" id="np-step4" onclick="showDetail('np',4)">
+        <span class="step-icon">🔗</span>
+        <div class="step-label">自动合并</div>
+        <div class="step-title">输出整合</div>
+        <div class="step-desc">将三个 Agent 的结果合并为完整上架包</div>
+        <span class="step-status" id="np-s4-status">待运行</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-primary" id="np-run-btn" onclick="runWorkflow('np')">▶ 运行工作流</button>
+    <button class="btn btn-secondary" onclick="resetWorkflow('np')">重置</button>
+  </div>
+
+  <!-- Output cards -->
+  <div class="output-section">
+    <h2>输出结果</h2>
+    <div class="output-grid">
+      <div class="output-card" id="np-out1">
+        <h3>产品描述文案</h3>
+        <p class="placeholder" id="np-out1-text">等待 Agent 1 运行...</p>
+      </div>
+      <div class="output-card" id="np-out2">
+        <h3>促销话术（3 版本）</h3>
+        <p class="placeholder" id="np-out2-text">等待 Agent 2 运行...</p>
+      </div>
+      <div class="output-card" id="np-out3">
+        <h3>海报预览</h3>
+        <div class="poster-wrap">
+          <div class="poster-placeholder" id="np-out3-placeholder">等待 Agent 3 运行...</div>
+          <div id="np-out3-poster" style="display:none; width:100%; align-items:center; flex-direction:column; gap:12px;">
+            <div class="poster-preview" id="np-poster-canvas"></div>
+            <button class="btn-download" onclick="downloadPoster()">下载海报 PNG</button>
+          </div>
+        </div>
+      </div>
+      <div class="output-card" id="np-out4">
+        <h3>完整上架包</h3>
+        <p class="placeholder" id="np-out4-text">等待合并完成...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log -->
+  <div class="log-box" id="np-log"></div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     工作流 2：营销内容
+══════════════════════════════════════════ -->
+<div id="wf-marketing" class="workflow-panel">
+  <div class="input-form">
+    <h2>营销参数</h2>
+    <div class="form-group">
+      <label>活动类型</label>
+      <select id="mk-type">
+        <option>买一送一</option>
+        <option>节日促销</option>
+        <option>新品推广</option>
+        <option>清仓特卖</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>产品 / 口味</label>
+      <input id="mk-product" type="text" placeholder="例：所有冰系列口味" />
+    </div>
+    <div class="form-group">
+      <label>语言</label>
+      <select id="mk-lang">
+        <option>中英双语</option>
+        <option>仅中文</option>
+        <option>仅英文</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="pipeline">
+    <div class="step-wrap">
+      <div class="step" id="mk-step1">
+        <span class="step-icon">💡</span>
+        <div class="step-label">Agent 1</div>
+        <div class="step-title">创意策划</div>
+        <div class="step-desc">生成活动主题和核心卖点</div>
+        <span class="step-status" id="mk-s1-status">待运行</span>
+      </div>
+    </div>
+    <div class="arrow" id="mk-arrow1">→</div>
+    <div class="step-wrap">
+      <div class="step" id="mk-step2">
+        <span class="step-icon">📝</span>
+        <div class="step-label">Agent 2</div>
+        <div class="step-title">文案生成</div>
+        <div class="step-desc">生成 Instagram / 朋友圈 / TikTok 文案</div>
+        <span class="step-status" id="mk-s2-status">待运行</span>
+      </div>
+    </div>
+    <div class="arrow" id="mk-arrow2">→</div>
+    <div class="step-wrap">
+      <div class="merge-node" id="mk-step3">
+        <span class="step-icon">📦</span>
+        <div class="step-label">输出</div>
+        <div class="step-title">内容包</div>
+        <div class="step-desc">多平台内容整合输出</div>
+        <span class="step-status" id="mk-s3-status">待运行</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" id="mk-run-btn" onclick="runWorkflow('mk')">▶ 运行工作流</button>
+    <button class="btn btn-secondary" onclick="resetWorkflow('mk')">重置</button>
+  </div>
+
+  <div class="output-section">
+    <h2>输出结果</h2>
+    <div class="output-grid">
+      <div class="output-card" id="mk-out1">
+        <h3>活动主题 & 卖点</h3>
+        <p class="placeholder" id="mk-out1-text">等待 Agent 1 运行...</p>
+      </div>
+      <div class="output-card" id="mk-out2">
+        <h3>多平台文案</h3>
+        <p class="placeholder" id="mk-out2-text">等待 Agent 2 运行...</p>
+      </div>
+    </div>
+  </div>
+  <div class="log-box" id="mk-log"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     工作流 3：库存报告
+══════════════════════════════════════════ -->
+<div id="wf-inventory" class="workflow-panel">
+  <div class="input-form">
+    <h2>库存参数</h2>
+    <div class="form-group">
+      <label>报告周期</label>
+      <select id="inv-period">
+        <option>每日报告</option>
+        <option>每周报告</option>
+        <option>月度报告</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>低库存阈值（件）</label>
+      <input id="inv-threshold" type="number" placeholder="例：10" value="10" />
+    </div>
+  </div>
+
+  <div class="pipeline">
+    <div class="step-wrap">
+      <div class="step" id="inv-step1">
+        <span class="step-icon">📊</span>
+        <div class="step-label">Agent 1</div>
+        <div class="step-title">库存扫描</div>
+        <div class="step-desc">扫描当前库存，标记低库存商品</div>
+        <span class="step-status" id="inv-s1-status">待运行</span>
+      </div>
+    </div>
+    <div class="arrow" id="inv-arrow1">→</div>
+    <div class="step-wrap">
+      <div class="step" id="inv-step2">
+        <span class="step-icon">🔔</span>
+        <div class="step-label">Agent 2</div>
+        <div class="step-title">补货建议</div>
+        <div class="step-desc">生成补货清单和优先级排序</div>
+        <span class="step-status" id="inv-s2-status">待运行</span>
+      </div>
+    </div>
+    <div class="arrow" id="inv-arrow2">→</div>
+    <div class="step-wrap">
+      <div class="merge-node" id="inv-step3">
+        <span class="step-icon">📋</span>
+        <div class="step-label">输出</div>
+        <div class="step-title">运营报告</div>
+        <div class="step-desc">生成完整运营报告</div>
+        <span class="step-status" id="inv-s3-status">待运行</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" id="inv-run-btn" onclick="runWorkflow('inv')">▶ 运行工作流</button>
+    <button class="btn btn-secondary" onclick="resetWorkflow('inv')">重置</button>
+  </div>
+
+  <div class="output-section">
+    <h2>输出结果</h2>
+    <div class="output-grid">
+      <div class="output-card" id="inv-out1">
+        <h3>低库存清单</h3>
+        <p class="placeholder" id="inv-out1-text">等待 Agent 1 运行...</p>
+      </div>
+      <div class="output-card" id="inv-out2">
+        <h3>补货建议</h3>
+        <p class="placeholder" id="inv-out2-text">等待 Agent 2 运行...</p>
+      </div>
+    </div>
+  </div>
+  <div class="log-box" id="inv-log"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     工作流 4：客服回复
+══════════════════════════════════════════ -->
+<div id="wf-customer" class="workflow-panel">
+  <div class="input-form">
+    <h2>客户问题</h2>
+    <div class="form-group">
+      <label>问题类型</label>
+      <select id="cs-type">
+        <option>口味推荐</option>
+        <option>库存查询</option>
+        <option>价格咨询</option>
+        <option>使用方法</option>
+        <option>其他</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>客户问题内容</label>
+      <input id="cs-question" type="text" placeholder="例：有没有适合不喜欢太甜的口味？" />
+    </div>
+    <div class="form-group">
+      <label>回复语言</label>
+      <select id="cs-lang">
+        <option>中英双语</option>
+        <option>仅中文</option>
+        <option>仅英文</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="pipeline">
+    <div class="step-wrap">
+      <div class="step" id="cs-step1">
+        <span class="step-icon">🔍</span>
+        <div class="step-label">Agent 1</div>
+        <div class="step-title">问题分析</div>
+        <div class="step-desc">理解客户意图，匹配知识库</div>
+        <span class="step-status" id="cs-s1-status">待运行</span>
+      </div>
+    </div>
+    <div class="arrow" id="cs-arrow1">→</div>
+    <div class="step-wrap">
+      <div class="merge-node" id="cs-step2">
+        <span class="step-icon">💬</span>
+        <div class="step-label">Agent 2</div>
+        <div class="step-title">生成回复</div>
+        <div class="step-desc">生成友好、专业的客服回复</div>
+        <span class="step-status" id="cs-s2-status">待运行</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" id="cs-run-btn" onclick="runWorkflow('cs')">▶ 运行工作流</button>
+    <button class="btn btn-secondary" onclick="resetWorkflow('cs')">重置</button>
+  </div>
+
+  <div class="output-section">
+    <h2>输出结果</h2>
+    <div class="output-grid">
+      <div class="output-card" id="cs-out1">
+        <h3>问题分析</h3>
+        <p class="placeholder" id="cs-out1-text">等待 Agent 1 运行...</p>
+      </div>
+      <div class="output-card" id="cs-out2">
+        <h3>客服回复</h3>
+        <p class="placeholder" id="cs-out2-text">等待 Agent 2 运行...</p>
+      </div>
+    </div>
+  </div>
+  <div class="log-box" id="cs-log"></div>
+</div>
+
+<script>
+// ── Tab switching ──
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    const ids = ['new-product','marketing','inventory','customer'];
+    b.classList.toggle('active', ids[i] === id);
+  });
+  document.querySelectorAll('.workflow-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('wf-' + id).classList.add('active');
+}
+
+// ── Workflow configs ──
+const WORKFLOWS = {
+  np: {
+    steps: 4,
+    delays: [1800, 1600, 2000, 1200],
+    statusIds: ['np-s1-status','np-s2-status','np-s3-status','np-s4-status'],
+    stepIds: ['np-step1','np-step2','np-step3','np-step4'],
+    arrowIds: ['np-arrow1','np-arrow2','np-arrow3'],
+    logId: 'np-log',
+    runBtnId: 'np-run-btn',
+    outputs: [
+      { cardId: 'np-out1', textId: 'np-out1-text',
+        fn: () => {
+          const name = document.getElementById('np-name').value || 'Mango Ice 5000';
+          const flavor = document.getElementById('np-flavor').value || '芒果冰，清凉回甘';
+          return `${name} — ${flavor}。每口都是热带芒果的清甜，尾调带来沁凉冰感，5000口持久续航，随时随地享受清爽体验。` ;
+        }
+      },
+      { cardId: 'np-out2', textId: 'np-out2-text',
+        fn: () => {
+          const price = document.getElementById('np-price').value || '$18.99';
+          return `版本A：夏日必备！芒果冰来袭，${price} 带走一支\n版本B：5000口不断电，清凉一整天 🥭❄️\n版本C：New Arrival! Mango Ice — ${price}, try it today!`;
+        }
+      },
+      { cardId: 'np-out3', posterId: 'np-out3-poster', placeholderId: 'np-out3-placeholder',
+        fn: () => {
+          const name = document.getElementById('np-name').value || 'Mango Ice 5000';
+          const price = document.getElementById('np-price').value || '$18.99';
+          const flavor = document.getElementById('np-flavor').value || 'Mango Ice · 5000 Puffs';
+          renderPoster({ name, price, flavor });
+        }
+      },
+      { cardId: 'np-out4', textId: 'np-out4-text',
+        fn: () => {
+          const name = document.getElementById('np-name').value || 'Mango Ice 5000';
+          return `✅ 上架包已生成\n产品：${name}\n包含：产品描述 + 3版促销文案 + 海报设计指令\n状态：可直接用于上架 & 发布`;
+        }
+      }
+    ]
+  },
+  mk: {
+    steps: 3,
+    delays: [1600, 1800, 1000],
+    statusIds: ['mk-s1-status','mk-s2-status','mk-s3-status'],
+    stepIds: ['mk-step1','mk-step2','mk-step3'],
+    arrowIds: ['mk-arrow1','mk-arrow2'],
+    logId: 'mk-log',
+    runBtnId: 'mk-run-btn',
+    outputs: [
+      { cardId: 'mk-out1', textId: 'mk-out1-text',
+        fn: () => {
+          const type = document.getElementById('mk-type').value;
+          const product = document.getElementById('mk-product').value || '冰系列口味';
+          return `活动主题：「${type}」\n核心卖点：${product}，限时优惠，数量有限\n目标人群：18-35岁，追求潮流生活方式`;
+        }
+      },
+      { cardId: 'mk-out2', textId: 'mk-out2-text',
+        fn: () => {
+          const lang = document.getElementById('mk-lang').value;
+          const type = document.getElementById('mk-type').value;
+          if (lang === '仅英文') return `🔥 ${type} is HERE! Limited time only — grab yours before it's gone!`;
+          if (lang === '仅中文') return `🔥 ${type}活动开始！限时限量，先到先得，快来抢购！`;
+          return `🔥 ${type}活动开始！限时限量！\n${type} is HERE! Limited time only!`;
+        }
+      }
+    ]
+  },
+  inv: {
+    steps: 3,
+    delays: [2000, 1500, 1000],
+    statusIds: ['inv-s1-status','inv-s2-status','inv-s3-status'],
+    stepIds: ['inv-step1','inv-step2','inv-step3'],
+    arrowIds: ['inv-arrow1','inv-arrow2'],
+    logId: 'inv-log',
+    runBtnId: 'inv-run-btn',
+    outputs: [
+      { cardId: 'inv-out1', textId: 'inv-out1-text',
+        fn: () => {
+          const t = document.getElementById('inv-threshold').value || 10;
+          return `低于 ${t} 件的商品：\n• Mango Ice 5000 — 剩余 6 件 ⚠️\n• Watermelon Freeze — 剩余 3 件 🔴\n• Lychee Mint — 剩余 8 件 ⚠️`;
+        }
+      },
+      { cardId: 'inv-out2', textId: 'inv-out2-text',
+        fn: () => `补货优先级：\n1. Watermelon Freeze（紧急，建议补 50 件）\n2. Mango Ice 5000（建议补 30 件）\n3. Lychee Mint（建议补 20 件）`
+      }
+    ]
+  },
+  cs: {
+    steps: 2,
+    delays: [1500, 1800],
+    statusIds: ['cs-s1-status','cs-s2-status'],
+    stepIds: ['cs-step1','cs-step2'],
+    arrowIds: ['cs-arrow1'],
+    logId: 'cs-log',
+    runBtnId: 'cs-run-btn',
+    outputs: [
+      { cardId: 'cs-out1', textId: 'cs-out1-text',
+        fn: () => {
+          const type = document.getElementById('cs-type').value;
+          const q = document.getElementById('cs-question').value || '口味推荐';
+          return `问题类型：${type}\n关键词：${q}\n匹配知识库：口味推荐模块\n置信度：92%`;
+        }
+      },
+      { cardId: 'cs-out2', textId: 'cs-out2-text',
+        fn: () => {
+          const lang = document.getElementById('cs-lang').value;
+          if (lang === '仅英文') return `Hi! For a less sweet option, we recommend our Mint Ice or Watermelon Freeze — both are refreshing without being too sweet. Come check them out!`;
+          if (lang === '仅中文') return `您好！如果不喜欢太甜的口味，推荐试试薄荷冰或西瓜冰，清爽不腻，非常适合您！欢迎来店体验 😊`;
+          return `您好！推荐薄荷冰或西瓜冰，清爽不腻！\nHi! Try Mint Ice or Watermelon Freeze — refreshing, not too sweet!`;
+        }
+      }
+    ]
+  }
+};
+
+// ── Log helper ──
+function addLog(logId, type, msg) {
+  const box = document.getElementById(logId);
+  const now = new Date().toLocaleTimeString('zh-CN', {hour12: false});
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  line.innerHTML = `<span class="ts">[${now}]</span><span class="${type}">${msg}</span>`;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+// ── Run workflow ──
+function runWorkflow(wfId) {
+  const wf = WORKFLOWS[wfId];
+  const btn = document.getElementById(wf.runBtnId);
+  btn.disabled = true;
+
+  // Clear log
+  document.getElementById(wf.logId).innerHTML = '';
+  addLog(wf.logId, 'info', '工作流启动...');
+
+  let cumDelay = 0;
+
+  for (let i = 0; i < wf.steps; i++) {
+    const idx = i;
+    const startDelay = cumDelay;
+    cumDelay += wf.delays[i];
+    const endDelay = cumDelay;
+
+    // Start step
+    setTimeout(() => {
+      const stepEl = document.getElementById(wf.stepIds[idx]);
+      const statusEl = document.getElementById(wf.statusIds[idx]);
+      stepEl.classList.add('running');
+      statusEl.textContent = '运行中...';
+      addLog(wf.logId, 'warn', `Agent ${idx + 1} 开始执行...`);
+    }, startDelay);
+
+    // Complete step
+    setTimeout(() => {
+      const stepEl = document.getElementById(wf.stepIds[idx]);
+      const statusEl = document.getElementById(wf.statusIds[idx]);
+      stepEl.classList.remove('running');
+      stepEl.classList.add('done');
+      statusEl.textContent = '完成 ✓';
+      addLog(wf.logId, 'success', `Agent ${idx + 1} 完成`);
+
+      // Light up arrow
+      if (idx < wf.arrowIds.length) {
+        document.getElementById(wf.arrowIds[idx]).classList.add('lit');
+      }
+
+      // Fill output card
+      if (wf.outputs[idx]) {
+        const o = wf.outputs[idx];
+        const card = document.getElementById(o.cardId);
+        if (o.posterId) {
+          // Poster card
+          o.fn();
+          document.getElementById(o.placeholderId).style.display = 'none';
+          const posterEl = document.getElementById(o.posterId);
+          posterEl.style.display = 'flex';
+        } else {
+          const textEl = document.getElementById(o.textId);
+          textEl.textContent = o.fn();
+          textEl.classList.remove('placeholder');
+        }
+        card.classList.add('filled');
+      }
+
+      // All done
+      if (idx === wf.steps - 1) {
+        addLog(wf.logId, 'success', '✅ 工作流全部完成！');
+        btn.disabled = false;
+        btn.textContent = '▶ 再次运行';
+      }
+    }, endDelay);
+  }
+}
+
+// ── Reset workflow ──
+function resetWorkflow(wfId) {
+  const wf = WORKFLOWS[wfId];
+  const btn = document.getElementById(wf.runBtnId);
+  btn.disabled = false;
+  btn.textContent = '▶ 运行工作流';
+
+  wf.stepIds.forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('running', 'done', 'error');
+  });
+  wf.statusIds.forEach(id => {
+    document.getElementById(id).textContent = '待运行';
+  });
+  if (wf.arrowIds) {
+    wf.arrowIds.forEach(id => document.getElementById(id).classList.remove('lit'));
+  }
+  wf.outputs.forEach(o => {
+    if (o.posterId) {
+      document.getElementById(o.placeholderId).style.display = '';
+      const posterEl = document.getElementById(o.posterId);
+      posterEl.style.display = 'none';
+    } else {
+      const textEl = document.getElementById(o.textId);
+      textEl.classList.add('placeholder');
+      textEl.textContent = '等待运行...';
+    }
+    document.getElementById(o.cardId).classList.remove('filled');
+  });
+  document.getElementById(wf.logId).innerHTML = '';
+}
+
+// ── Step detail (placeholder) ──
+function showDetail(wfId, stepNum) {
+  // Future: open a modal with step details
+}
+
+// ── Render poster ──
+function renderPoster({ name, price, flavor }) {
+  const canvas = document.getElementById('np-poster-canvas');
+  // Pick gradient based on flavor keywords
+  let grad = 'linear-gradient(160deg, #f97316 0%, #fb923c 30%, #38bdf8 100%)';
+  const fl = flavor.toLowerCase();
+  if (fl.includes('西瓜') || fl.includes('watermelon')) {
+    grad = 'linear-gradient(160deg, #f43f5e 0%, #fb7185 40%, #4ade80 100%)';
+  } else if (fl.includes('薄荷') || fl.includes('mint')) {
+    grad = 'linear-gradient(160deg, #10b981 0%, #34d399 40%, #a7f3d0 100%)';
+  } else if (fl.includes('蓝莓') || fl.includes('blueberry')) {
+    grad = 'linear-gradient(160deg, #6366f1 0%, #818cf8 40%, #c7d2fe 100%)';
+  } else if (fl.includes('草莓') || fl.includes('strawberry')) {
+    grad = 'linear-gradient(160deg, #ec4899 0%, #f472b6 40%, #fda4af 100%)';
+  } else if (fl.includes('葡萄') || fl.includes('grape')) {
+    grad = 'linear-gradient(160deg, #7c3aed 0%, #a78bfa 40%, #ddd6fe 100%)';
+  }
+  canvas.style.background = grad;
+
+  // Derive subtitle from flavor
+  const sub = flavor.length > 30 ? flavor.slice(0, 30) + '…' : flavor;
+
+  canvas.innerHTML = `
+    <div class="p-badge">NEW ARRIVAL</div>
+    <div class="p-center">
+      <div class="p-title">${name}</div>
+      <div class="p-sub">${sub}</div>
+    </div>
+    <div class="p-price">${price}</div>
+    <div class="p-bottom">
+      <div style="width:48px;height:48px;background:rgba(255,255,255,0.25);border-radius:8px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">🏪</div>
+      <div class="p-store">VAPE SHOP · 扫码购买</div>
+    </div>
+  `;
+}
+
+// ── Download poster as PNG (via html2canvas CDN) ──
+function downloadPoster() {
+  const canvas = document.getElementById('np-poster-canvas');
+  if (typeof html2canvas === 'undefined') {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload = () => _doDownload(canvas);
+    document.head.appendChild(s);
+  } else {
+    _doDownload(canvas);
+  }
+}
+
+function _doDownload(el) {
+  html2canvas(el, { scale: 2, useCORS: true }).then(c => {
+    const a = document.createElement('a');
+    a.download = 'poster.png';
+    a.href = c.toDataURL('image/png');
+    a.click();
+  });
+}
+</script>
+</body>
+</html>
