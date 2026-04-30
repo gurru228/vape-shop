@@ -57,7 +57,7 @@ function getDiscountedTotal(original) {
 
 // ===== 买五送一系统（一次性电子烟 / 烟弹 两条独立赛道） =====
 const SHIPPING_FEE = 9.99;
-const FREE_SHIPPING_THRESHOLD = 100;
+const FREE_SHIPPING_THRESHOLD = 150;
 
 const GIFT_TRACKS = {
     disposable: {
@@ -239,9 +239,18 @@ function addFreeItemToCart(productId, flavorName, flavorNameCn, flavorImage) {
     }
 }
 
+function isShippingQuoteRequired() {
+    const isPostal = document.getElementById('btn-postal')?.classList.contains('active');
+    if (!isPostal) return false;
+    const country = document.getElementById('checkout-postal-country')?.value || 'ES';
+    return country !== 'ES';
+}
+
 function getShippingFee() {
     const isPostal = document.getElementById('btn-postal')?.classList.contains('active');
     if (!isPostal) return 0;
+    // 西班牙以外的欧盟国家：结账不收运费，下单后通过 WhatsApp 询价补收
+    if (isShippingQuoteRequired()) return 0;
     const subtotal = cart.filter(i => !i.isFree).reduce((s, i) => s + i.price * i.quantity, 0);
     const discounted = getDiscountedTotal(subtotal);
     return discounted >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
@@ -658,6 +667,17 @@ function openCartCheckoutModal() {
     document.getElementById('postal-group').style.display = 'none';
     document.getElementById('pickup-info-group').style.display = 'block';
     ['checkout-postal-recipient','checkout-postal-street','checkout-postal-floor','checkout-postal-cp','checkout-postal-city','checkout-postal-province'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    const postalCountry = document.getElementById('checkout-postal-country');
+    const postalQuoteNote = document.getElementById('postal-quote-note');
+    function refreshPostalCountryUI() {
+        if (postalQuoteNote) postalQuoteNote.style.display = isShippingQuoteRequired() ? 'block' : 'none';
+        updateCheckoutTotal();
+    }
+    if (postalCountry) {
+        postalCountry.value = 'ES';
+        postalCountry.onchange = refreshPostalCountryUI;
+    }
+    refreshPostalCountryUI();
     document.getElementById('checkout-time-from').value = '10:00';
     document.getElementById('checkout-time-to').value = '14:00';
     document.getElementById('btn-pickup').classList.add('active');
@@ -737,8 +757,12 @@ function openCartCheckoutModal() {
         const cp = document.getElementById('checkout-postal-cp').value.trim();
         const city = document.getElementById('checkout-postal-city').value.trim();
         const prov = document.getElementById('checkout-postal-province').value.trim();
-        return { recipient: r, street: s, floor: f, cp, city, province: prov,
-            formatted: [r, s + (f ? ` ${f}` : ''), `${cp} ${city}`.trim(), prov].filter(Boolean).join('\n') };
+        const countrySel = document.getElementById('checkout-postal-country');
+        const countryCode = countrySel?.value || 'ES';
+        const countryLabel = countrySel?.selectedOptions?.[0]?.textContent.trim() || 'España';
+        const quoteFlag = countryCode !== 'ES' ? '⚠️ 运费另询 / Envío a confirmar' : '';
+        return { recipient: r, street: s, floor: f, cp, city, province: prov, countryCode, countryLabel,
+            formatted: [r, s + (f ? ` ${f}` : ''), `${cp} ${city}`.trim(), prov, countryLabel, quoteFlag].filter(Boolean).join('\n') };
     }
 
     // 收集并校验表单，返回 payload 或 null
@@ -1805,6 +1829,9 @@ function updateCheckoutTotal() {
     if (shippingRow && shippingEl) {
         if (shipping > 0) {
             shippingEl.textContent = `€${shipping.toFixed(2)}`;
+            shippingRow.style.display = 'flex';
+        } else if (isShippingQuoteRequired()) {
+            shippingEl.textContent = '另询 WhatsApp / A confirmar';
             shippingRow.style.display = 'flex';
         } else if (document.getElementById('btn-postal')?.classList.contains('active')) {
             shippingEl.textContent = '免费 / Gratis';
