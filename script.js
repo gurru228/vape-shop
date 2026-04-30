@@ -55,16 +55,62 @@ function getDiscountedTotal(original) {
     return +(original * (1 - activeDiscount.percent / 100)).toFixed(2);
 }
 
-// ===== 买五送一系统 =====
-const FREE_ITEM_PRODUCT_IDS = [1, 3]; // 鸭嘴兽, 小黑条
-const GIFT_EXCLUDED_PRODUCT_IDS = [6]; // 悦刻 RELX 不参与买五送一
+// ===== 买五送一系统（一次性电子烟 / 烟弹 两条独立赛道） =====
 const SHIPPING_FEE = 9.99;
 const FREE_SHIPPING_THRESHOLD = 100;
+
+const GIFT_TRACKS = {
+    disposable: {
+        excludedProductIds: [6],     // 烟弹不计入此赛道
+        giftProductIds: [1, 3],      // 赠品候选：鸭嘴兽 / 小黑条
+        labelZh: '一次性电子烟',
+        labelEs: 'desechables'
+    },
+    pod: {
+        includedProductIds: [6],     // 仅 RELX 烟弹
+        giftProductIds: [6],         // 赠品：烟弹自身
+        labelZh: '烟弹',
+        labelEs: 'pods'
+    }
+};
+
+let currentGiftTrack = null;
 
 function getCartItemProductId(item) {
     const first = String(item.id).split('-')[0];
     const n = parseInt(first, 10);
     return Number.isNaN(n) ? null : n;
+}
+
+function paidItemBelongsToTrack(item, trackName) {
+    if (item.isFree) return false;
+    const pid = getCartItemProductId(item);
+    const t = GIFT_TRACKS[trackName];
+    if (t.includedProductIds) return t.includedProductIds.includes(pid);
+    if (t.excludedProductIds) return !t.excludedProductIds.includes(pid);
+    return true;
+}
+
+function getItemGiftTrack(item) {
+    if (!item.isFree) return null;
+    if (item.giftTrack) return item.giftTrack;
+    // 兼容旧购物车：根据赠品的产品 ID 推断
+    const pid = getCartItemProductId(item);
+    return pid === 6 ? 'pod' : 'disposable';
+}
+
+function getQuantityInTrack(trackName) {
+    return cart
+        .filter(i => paidItemBelongsToTrack(i, trackName))
+        .reduce((s, i) => s + i.quantity, 0);
+}
+
+function getFreeItemsInTrack(trackName) {
+    return cart.filter(i => i.isFree && getItemGiftTrack(i) === trackName);
+}
+
+function getEntitledFreeCountInTrack(trackName) {
+    return Math.floor(getQuantityInTrack(trackName) / 5);
 }
 
 function getNonFreeQuantity() {
@@ -75,15 +121,8 @@ function getFreeItemsInCart() {
     return cart.filter(i => i.isFree);
 }
 
-// 仅其余产品（不含 RELX 悦刻）的支数计入买五送一
-function getGiftQualifyingQuantity() {
-    return cart
-        .filter(i => !i.isFree && !GIFT_EXCLUDED_PRODUCT_IDS.includes(getCartItemProductId(i)))
-        .reduce((s, i) => s + i.quantity, 0);
-}
-
 function getEntitledFreeCount() {
-    return Math.floor(getGiftQualifyingQuantity() / 5);
+    return Object.keys(GIFT_TRACKS).reduce((s, t) => s + getEntitledFreeCountInTrack(t), 0);
 }
 
 function removeFreeItemFromCart() {
@@ -93,22 +132,38 @@ function removeFreeItemFromCart() {
 }
 
 function checkFreeItemEligibility() {
-    const entitled = getEntitledFreeCount();
-    const current = getFreeItemsInCart().length;
-    if (entitled > current) {
-        showFreeItemModal();
-    } else if (entitled < current) {
-        // 移除多余的赠品（从后往前）
-        const freeItems = getFreeItemsInCart();
-        for (let i = 0; i < current - entitled; i++) {
-            cart = cart.filter(item => item.id !== freeItems[freeItems.length - 1 - i].id);
+    // 移除多余赠品（每个赛道独立处理）
+    let removedAny = false;
+    for (const trackName of Object.keys(GIFT_TRACKS)) {
+        const entitled = getEntitledFreeCountInTrack(trackName);
+        const trackFree = getFreeItemsInTrack(trackName);
+        if (entitled < trackFree.length) {
+            const excess = trackFree.length - entitled;
+            // 删除最近加入的 excess 个赠品（按索引精准删除，避免同名 id 误伤）
+            for (let i = 0; i < excess; i++) {
+                const target = trackFree[trackFree.length - 1 - i];
+                const idx = cart.findIndex(it => it === target);
+                if (idx >= 0) cart.splice(idx, 1);
+            }
+            removedAny = true;
         }
+    }
+    if (removedAny) {
         saveCartToStorage();
         updateCartUI();
     }
+
+    // 弹窗（按赛道顺序处理待领赠品）
+    for (const trackName of Object.keys(GIFT_TRACKS)) {
+        if (getEntitledFreeCountInTrack(trackName) > getFreeItemsInTrack(trackName).length) {
+            showFreeItemModal(trackName);
+            return;
+        }
+    }
 }
 
-function showFreeItemModal() {
+function showFreeItemModal(trackName) {
+    currentGiftTrack = trackName || 'disposable';
     const modal = document.getElementById('free-item-modal');
     showFreeItemProductStep();
     modal.style.display = 'flex';
@@ -120,12 +175,14 @@ function closeFreeItemModal() {
 }
 
 function showFreeItemProductStep() {
+    if (!currentGiftTrack) currentGiftTrack = 'disposable';
+    const track = GIFT_TRACKS[currentGiftTrack];
     const productsEl = document.getElementById('free-item-products');
     const flavorsEl = document.getElementById('free-item-flavors');
     flavorsEl.style.display = 'none';
     productsEl.style.display = 'grid';
 
-    const freeProducts = products.filter(p => FREE_ITEM_PRODUCT_IDS.includes(p.id));
+    const freeProducts = products.filter(p => track.giftProductIds.includes(p.id));
     productsEl.innerHTML = freeProducts.map(p => `
         <div class="free-item-product-card" onclick="showFreeItemFlavors(${p.id})">
             <img src="${p.image}" alt="${p.name}" onerror="this.style.display='none'">
@@ -156,22 +213,28 @@ function addFreeItemToCart(productId, flavorName, flavorNameCn, flavorImage) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
     const freeItem = {
-        id: `FREE-${productId}-${flavorName}`,
+        id: `FREE-${productId}-${flavorName}-${Date.now()}`,
         name: `${product.name} · ${flavorNameCn} [赠品]`,
         price: 0,
         image: flavorImage,
         quantity: 1,
-        isFree: true
+        isFree: true,
+        giftTrack: currentGiftTrack || 'disposable'
     };
     cart.push(freeItem);
     saveCartToStorage();
     updateCartUI();
 
-    // 还有更多赠品可选则继续弹窗，否则进入结账
-    if (getEntitledFreeCount() > getFreeItemsInCart().length) {
+    // 还有未领取的赠品则继续弹窗，优先停留在当前赛道
+    const pending = Object.keys(GIFT_TRACKS).filter(t =>
+        getEntitledFreeCountInTrack(t) > getFreeItemsInTrack(t).length
+    );
+    if (pending.length) {
+        currentGiftTrack = pending.includes(currentGiftTrack) ? currentGiftTrack : pending[0];
         showFreeItemProductStep();
     } else {
         document.getElementById('free-item-modal').style.display = 'none';
+        currentGiftTrack = null;
         openCartCheckoutModal();
     }
 }
