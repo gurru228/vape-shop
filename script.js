@@ -898,7 +898,7 @@ const TRANSLATIONS = {
 
         // 英雄区域
         hero_title: 'Vapeadores Premium, Experiencia Pura',
-        hero_subtitle: 'Cuatro sabores seleccionados para sus necesidades',
+        hero_subtitle: 'Seis sabores seleccionados para sus necesidades',
 
         // 产品区域
         products_title: 'Productos Destacados',
@@ -991,7 +991,7 @@ const TRANSLATIONS = {
 
         // 英雄区域
         hero_title: '优质电子烟，纯净体验',
-        hero_subtitle: '四种精选口味，满足您的需求',
+        hero_subtitle: '六种精选口味，满足您的需求',
 
         // 产品区域
         products_title: '精选产品',

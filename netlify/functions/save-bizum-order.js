@@ -25,7 +25,8 @@ async function sendTelegramNotification(order) {
         : order.delivery_type === 'postal'
         ? `\n✉️ Envio postal\n📍 ${order.address}${order.shipping_fee > 0 ? `\n📬 Envio: €${order.shipping_fee.toFixed(2)}` : '\n📬 Envio gratuito'}`
         : '\n🏪 Recogida en tienda';
-    const text = `🛒 Nuevo pedido Bizum\n\n` +
+    const methodLabel = { bizum: 'Bizum', wechat: 'WeChat', alipay: 'Alipay', cash: 'Efectivo' }[order.payment_method] || 'Bizum';
+    const text = `🛒 Nuevo pedido ${methodLabel}\n\n` +
         `📋 ${order.order_number}\n` +
         `👤 ${order.customer_name}\n` +
         `📱 ${order.customer_phone}\n` +
