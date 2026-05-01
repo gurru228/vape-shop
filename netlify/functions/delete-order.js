@@ -2,12 +2,29 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
+// 解析 cart item 的 productId 和 flavorName。
+// 普通商品 id：{productId}-{flavorName}
+// 赠品 id：FREE-{productId}-{flavorName}-{timestamp}
+function parseItemKey(item) {
+    const idStr = String(item.id);
+    if (item.isFree && idStr.startsWith('FREE-')) {
+        const parts = idStr.split('-');
+        return {
+            productId: parseInt(parts[1]),
+            flavorName: parts.length > 3 ? parts.slice(2, -1).join('-') : 'default'
+        };
+    }
+    const parts = idStr.split('-');
+    return {
+        productId: parseInt(parts[0]),
+        flavorName: parts.length > 1 ? parts.slice(1).join('-') : 'default'
+    };
+}
+
 async function restoreInventory(items) {
     for (const item of (items || [])) {
-        if (item.isFree) continue;
-        const parts = String(item.id).split('-');
-        const productId = parseInt(parts[0]);
-        const flavorName = parts.length > 1 ? parts.slice(1).join('-') : 'default';
+        const { productId, flavorName } = parseItemKey(item);
+        if (Number.isNaN(productId)) continue;
         await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_stock`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
