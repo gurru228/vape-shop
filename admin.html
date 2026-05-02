@@ -62,9 +62,22 @@
         .filter-groups { display: flex; flex-wrap: wrap; gap: 1.25rem; }
         .filter-group { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
         .filter-group-label { font-size: 0.75rem; font-weight: 600; color: #737373; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
-        .chip { padding: 0.3rem 0.75rem; border: 1px solid #e5e5e5; border-radius: 20px; font-size: 0.78rem; cursor: pointer; background: #fff; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
+        .chip { padding: 0.3rem 0.75rem; border: 1px solid #e5e5e5; border-radius: 20px; font-size: 0.78rem; cursor: pointer; background: #fff; font-family: inherit; transition: all 0.15s; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.35rem; }
         .chip:hover { border-color: #a3a3a3; background: #f5f5f5; }
         .chip.active { background: #000; color: #fff; border-color: #000; }
+        .chip-count { display: inline-block; min-width: 1.1rem; padding: 0 0.35rem; background: #f0f0f0; color: #525252; font-size: 0.65rem; font-weight: 700; border-radius: 10px; text-align: center; line-height: 1.3rem; }
+        .chip.active .chip-count { background: #fff; color: #000; }
+
+        /* ── Date Tab Bar ── */
+        .date-tab-bar { background: #fff; border-bottom: 1px solid #e5e5e5; padding: 0 2rem; display: flex; gap: 0; }
+        .date-tab { padding: 0.875rem 1.5rem; border: none; background: none; font-size: 0.9rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; color: #737373; font-family: inherit; transition: all 0.15s; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .date-tab:hover { color: #404040; }
+        .date-tab.active { color: #000; border-bottom-color: #000; }
+        .date-tab-count { display: inline-block; min-width: 1.4rem; padding: 0.1rem 0.5rem; background: #f5f5f5; color: #525252; font-size: 0.7rem; font-weight: 700; border-radius: 10px; text-align: center; }
+        .date-tab.active .date-tab-count { background: #000; color: #fff; }
+
+        /* ── VIP Badge ── */
+        .vip-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.55rem; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #fff; font-size: 0.7rem; font-weight: 700; border-radius: 10px; margin-left: 0.5rem; box-shadow: 0 1px 3px rgba(245,158,11,0.3); }
 
         /* ── Orders ── */
         .orders-section { padding: 1.25rem 2rem 2rem; }
@@ -147,6 +160,8 @@
             .admin-header { padding: 0.875rem 1rem; }
             .order-info-grid { grid-template-columns: 1fr; }
             .filter-groups { gap: 0.875rem; }
+            .date-tab-bar { padding: 0 1rem; }
+            .date-tab { padding: 0.75rem 1rem; font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -179,35 +194,25 @@
 
     <!-- Stats -->
     <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-list"></i></div>
-            <div class="stat-value" id="stat-total">—</div>
-            <div class="stat-label">总订单</div>
+        <div class="stat-card blue">
+            <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
+            <div class="stat-value" id="stat-today">—</div>
+            <div class="stat-label">今日营业额 · <span id="stat-today-count">0</span> 单</div>
         </div>
         <div class="stat-card green">
+            <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+            <div class="stat-value" id="stat-month">—</div>
+            <div class="stat-label">本月营业额</div>
+        </div>
+        <div class="stat-card purple">
             <div class="stat-icon"><i class="fas fa-euro-sign"></i></div>
             <div class="stat-value" id="stat-revenue">—</div>
-            <div class="stat-label">已收入</div>
+            <div class="stat-label">累计营业额</div>
         </div>
         <div class="stat-card orange">
             <div class="stat-icon"><i class="fas fa-clock"></i></div>
             <div class="stat-value" id="stat-pending">—</div>
             <div class="stat-label">待处理</div>
-        </div>
-        <div class="stat-card blue">
-            <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
-            <div class="stat-value" id="stat-today">—</div>
-            <div class="stat-label">今日订单</div>
-        </div>
-        <div class="stat-card pink">
-            <div class="stat-icon"><i class="fas fa-mobile-alt"></i></div>
-            <div class="stat-value" id="stat-bizum">—</div>
-            <div class="stat-label">Bizum 订单</div>
-        </div>
-        <div class="stat-card purple">
-            <div class="stat-icon"><i class="fas fa-motorcycle"></i></div>
-            <div class="stat-value" id="stat-delivery">—</div>
-            <div class="stat-label">外送订单</div>
         </div>
     </div>
 
@@ -238,10 +243,17 @@
             <button class="refresh-btn" onclick="loadOrders()">
                 <i class="fas fa-sync-alt"></i> 刷新
             </button>
+            <button class="refresh-btn" onclick="exportCSV()" title="导出当前可见订单">
+                <i class="fas fa-file-csv"></i> 导出 CSV
+            </button>
             <div class="auto-refresh-control">
                 <label class="auto-refresh-toggle">
                     <input type="checkbox" id="auto-refresh-toggle" checked>
                     自动刷新（60秒）
+                </label>
+                <label class="auto-refresh-toggle">
+                    <input type="checkbox" id="sound-toggle" checked>
+                    🔔 新单提醒
                 </label>
                 <span class="last-refresh-time" id="last-refresh-time">最后刷新：--:--:--</span>
             </div>
@@ -270,17 +282,22 @@
                 <button class="chip" data-group="delivery" data-value="pickup" onclick="setFilter(this)">自取</button>
                 <button class="chip" data-group="delivery" data-value="delivery" onclick="setFilter(this)">外送</button>
             </div>
-            <div class="filter-group">
-                <span class="filter-group-label">时间</span>
-                <button class="chip active" data-group="date" data-value="all" onclick="setFilter(this)">全部</button>
-                <button class="chip" data-group="date" data-value="today" onclick="setFilter(this)">今天</button>
-                <button class="chip" data-group="date" data-value="week" onclick="setFilter(this)">本周</button>
-            </div>
         </div>
     </div>
 
     <!-- Orders -->
     <div id="section-orders">
+    <!-- 日期主 Tab：今日 / 历史 -->
+    <div class="date-tab-bar">
+        <button class="date-tab active" data-range="today" onclick="setDateRange(this)">
+            <i class="fas fa-calendar-day"></i> 今日
+            <span class="date-tab-count" id="date-count-today">0</span>
+        </button>
+        <button class="date-tab" data-range="history" onclick="setDateRange(this)">
+            <i class="fas fa-history"></i> 历史
+            <span class="date-tab-count" id="date-count-history">0</span>
+        </button>
+    </div>
     <div class="orders-section">
         <div id="orders-container">
             <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
@@ -331,12 +348,113 @@
 
     let adminPass = '';
     let allOrders = [];
-    let activeFilters = { status: 'all', payment: 'all', delivery: 'all', date: 'all' };
+    let activeFilters = { dateRange: 'today', status: 'all', payment: 'all', delivery: 'all' };
+
+    // 老客聚合：phone → 累计订单数
+    let customerOrderCount = {};
+
+    // 新订单声音提醒
+    let lastOrderIds = new Set();
+    let isFirstLoad = true;
 
     // 自动刷新相关变量
     let autoRefreshTimer = null;
     const AUTO_REFRESH_INTERVAL = 60000; // 60秒
     let lastRefreshTime = null;
+
+    // 已付款判定（与后端 update-order.js 第 6 行保持一致）
+    const PAID_STATUSES = new Set(['paid', 'shipped', 'delivered']);
+    const isPaid = (o) => PAID_STATUSES.has(o.payment_status);
+
+    // 判断订单是否是今天创建
+    function isToday(order) {
+        const today = new Date(); today.setHours(0,0,0,0);
+        const d = new Date(order.created_at); d.setHours(0,0,0,0);
+        return d.getTime() === today.getTime();
+    }
+
+    // 老客聚合：基于 customer_phone 统计订单数（用于在卡片上标注 "老客 N 单"）
+    function buildCustomerCounts(orders) {
+        customerOrderCount = {};
+        for (const o of orders) {
+            const phone = (o.customer_phone || '').trim();
+            if (!phone) continue;
+            customerOrderCount[phone] = (customerOrderCount[phone] || 0) + 1;
+        }
+    }
+
+    // 新订单检测：每次拉到数据后，与上次的 id 集合对比，有新增则播放提示音
+    function checkNewOrders(orders) {
+        const currentIds = new Set(orders.map(o => o.id));
+        const newOrders = [...currentIds].filter(id => !lastOrderIds.has(id));
+        const soundOn = document.getElementById('sound-toggle')?.checked;
+        if (!isFirstLoad && newOrders.length > 0 && soundOn) {
+            playDing();
+        }
+        lastOrderIds = currentIds;
+        isFirstLoad = false;
+    }
+
+    // 用 Web Audio 合成"叮"两声短音（无需外部音频文件）
+    function playDing() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.frequency.setValueAtTime(660, ctx.currentTime + 0.12);
+            gain.gain.setValueAtTime(0.25, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.35);
+        } catch (err) {
+            console.warn('提示音播放失败：', err);
+        }
+    }
+
+    // 导出当前可见订单为 CSV（带 BOM 防 Excel 中文乱码）
+    function exportCSV() {
+        const baseFiltered = applyBaseFilters(allOrders);
+        const finalFiltered = activeFilters.status === 'all'
+            ? baseFiltered
+            : baseFiltered.filter(o => o.payment_status === activeFilters.status);
+
+        if (!finalFiltered.length) {
+            alert('当前视图没有订单可导出');
+            return;
+        }
+
+        const headers = ['订单号','下单时间','客户','电话','商品明细','总额(€)','支付方式','支付状态','配送方式','地址'];
+        const rows = finalFiltered.map(o => [
+            o.order_number || '',
+            new Date(o.created_at).toLocaleString('zh-CN'),
+            o.customer_name || '',
+            o.customer_phone || '',
+            (o.items || []).map(i => `${i.name} x${i.quantity}`).join(' | '),
+            parseFloat(o.total || 0).toFixed(2),
+            o.payment_method || '',
+            STATUS_LABELS[o.payment_status] || o.payment_status || '',
+            o.delivery_type || 'pickup',
+            (o.address || '').replace(/\n/g, ' ')
+        ]);
+
+        const escape = cell => `"${String(cell).replace(/"/g, '""')}"`;
+        const csv = '﻿' + [headers, ...rows].map(r => r.map(escape).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const today = new Date().toISOString().slice(0, 10);
+        const scope = activeFilters.dateRange === 'today' ? 'today' : 'history';
+        a.href = url;
+        a.download = `vapeshop-orders-${scope}-${today}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
 
     function adminLogin() {
         const input = document.getElementById('admin-password-input').value;
@@ -384,6 +502,8 @@
             }
 
             allOrders = data;
+            buildCustomerCounts(allOrders);
+            checkNewOrders(allOrders);
             renderStats(allOrders);
             applyFilters();
             updateLastRefreshTime();
@@ -457,50 +577,94 @@
         applyFilters();
     }
 
-    function applyFilters() {
-        const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
-        const today = new Date(); today.setHours(0,0,0,0);
-        const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate() - 6);
+    function setDateRange(btn) {
+        activeFilters.dateRange = btn.dataset.range;
+        document.querySelectorAll('.date-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilters();
+    }
 
-        const filtered = allOrders.filter(o => {
-            if (activeFilters.status !== 'all' && o.payment_status !== activeFilters.status) return false;
+    // 基础筛选（日期 Tab + payment + delivery + 搜索框），不含状态筛选
+    function applyBaseFilters(orders) {
+        const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+        return orders.filter(o => {
+            if (activeFilters.dateRange === 'today' && !isToday(o)) return false;
+            if (activeFilters.dateRange === 'history' && isToday(o)) return false;
             if (activeFilters.payment !== 'all' && o.payment_method !== activeFilters.payment) return false;
             if (activeFilters.delivery !== 'all' && (o.delivery_type || 'pickup') !== activeFilters.delivery) return false;
-            if (activeFilters.date === 'today') {
-                const d = new Date(o.created_at); d.setHours(0,0,0,0);
-                if (d.getTime() !== today.getTime()) return false;
-            }
-            if (activeFilters.date === 'week') {
-                if (new Date(o.created_at) < weekAgo) return false;
-            }
             if (q) {
                 const haystack = `${o.order_number} ${o.customer_name} ${o.customer_phone}`.toLowerCase();
                 if (!haystack.includes(q)) return false;
             }
             return true;
         });
+    }
+
+    function applyFilters() {
+        // Step 1: 日期 Tab 计数（不受其他 filter 影响）
+        renderDateCounts();
+
+        // Step 2: 基础筛选（日期 + 支付 + 配送 + 搜索）
+        const baseFiltered = applyBaseFilters(allOrders);
+
+        // Step 3: 在基础结果上算各状态计数，更新状态 chip badge
+        renderStatusCounts(baseFiltered);
+
+        // Step 4: 再叠加状态筛选 → 最终展示集合
+        const finalFiltered = activeFilters.status === 'all'
+            ? baseFiltered
+            : baseFiltered.filter(o => o.payment_status === activeFilters.status);
 
         const countEl = document.getElementById('result-count');
-        if (countEl) countEl.textContent = filtered.length < allOrders.length ? `找到 ${filtered.length} / ${allOrders.length} 条` : `共 ${allOrders.length} 条`;
+        if (countEl) countEl.textContent = finalFiltered.length < allOrders.length
+            ? `找到 ${finalFiltered.length} / ${allOrders.length} 条`
+            : `共 ${allOrders.length} 条`;
 
-        renderOrders(filtered);
+        renderOrders(finalFiltered);
+    }
+
+    function renderDateCounts() {
+        const todayCount = allOrders.filter(isToday).length;
+        const historyCount = allOrders.length - todayCount;
+        const t = document.getElementById('date-count-today');
+        const h = document.getElementById('date-count-history');
+        if (t) t.textContent = todayCount;
+        if (h) h.textContent = historyCount;
+    }
+
+    function renderStatusCounts(baseFiltered) {
+        const counts = { all: baseFiltered.length, pending: 0, paid: 0, shipped: 0, delivered: 0, cancelled: 0 };
+        baseFiltered.forEach(o => {
+            if (counts[o.payment_status] !== undefined) counts[o.payment_status]++;
+        });
+        document.querySelectorAll('.chip[data-group="status"]').forEach(chip => {
+            const v = chip.dataset.value;
+            const label = chip.dataset.label || chip.textContent.replace(/\s*\d+\s*$/, '').trim();
+            chip.dataset.label = label;
+            chip.innerHTML = `${label} <span class="chip-count">${counts[v] ?? 0}</span>`;
+        });
     }
 
     function renderStats(orders) {
-        const today = new Date().toDateString();
-        const paid     = orders.filter(o => o.payment_status !== 'pending');
-        const pending  = orders.filter(o => o.payment_status === 'pending');
-        const todayO   = orders.filter(o => new Date(o.created_at).toDateString() === today);
-        const bizum    = orders.filter(o => o.payment_method === 'bizum');
-        const delivery = orders.filter(o => o.delivery_type === 'delivery');
-        const revenue  = paid.reduce((s, o) => s + parseFloat(o.total || 0), 0);
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        monthStart.setHours(0, 0, 0, 0);
 
-        document.getElementById('stat-total').textContent    = orders.length;
-        document.getElementById('stat-revenue').textContent  = '€' + revenue.toFixed(2);
-        document.getElementById('stat-pending').textContent  = pending.length;
-        document.getElementById('stat-today').textContent    = todayO.length;
-        document.getElementById('stat-bizum').textContent    = bizum.length;
-        document.getElementById('stat-delivery').textContent = delivery.length;
+        const todayOrders = orders.filter(isToday);
+        const todayPaidRevenue = todayOrders.filter(isPaid).reduce((s, o) => s + parseFloat(o.total || 0), 0);
+        const monthPaidRevenue = orders
+            .filter(o => isPaid(o) && new Date(o.created_at) >= monthStart)
+            .reduce((s, o) => s + parseFloat(o.total || 0), 0);
+        const totalPaidRevenue = orders.filter(isPaid).reduce((s, o) => s + parseFloat(o.total || 0), 0);
+        const pendingCount = orders.filter(o => o.payment_status === 'pending').length;
+
+        const fmt = n => '€' + n.toFixed(2);
+
+        document.getElementById('stat-today').textContent       = fmt(todayPaidRevenue);
+        document.getElementById('stat-today-count').textContent = todayOrders.length;
+        document.getElementById('stat-month').textContent       = fmt(monthPaidRevenue);
+        document.getElementById('stat-revenue').textContent = fmt(totalPaidRevenue);
+        document.getElementById('stat-pending').textContent = pendingCount + ' 单';
     }
 
     function renderOrders(orders) {
@@ -530,6 +694,9 @@
             const msgFeedback = encodeURIComponent(`你好 ${order.customer_name}！您对订单 ${order.order_number} 满意吗？期待您的反馈！😊\n\nHola ${order.customer_name}! ¿Qué tal tu experiencia con el pedido ${order.order_number}? ¡Nos encantaría saberlo! 😊`);
             const msgCancel   = encodeURIComponent(`你好 ${order.customer_name}！很遗憾，您的订单 ${order.order_number} 已被取消。如有疑问请联系我们。🙏\n\nHola ${order.customer_name}! Lamentamos informarte que tu pedido ${order.order_number} ha sido cancelado. Contáctanos si tienes dudas. 🙏`);
             const waId = `wa-${order.id}`;
+            const phoneKey = (order.customer_phone || '').trim();
+            const customerTotal = phoneKey ? (customerOrderCount[phoneKey] || 0) : 0;
+            const vipBadge = customerTotal >= 2 ? `<span class="vip-badge">👑 老客 ${customerTotal} 单</span>` : '';
 
             return `
             <div class="order-card">
@@ -546,7 +713,7 @@
                 <div class="order-customer-row">
                     <div class="order-info-row">
                         <i class="fas fa-user"></i>
-                        <span><strong>${order.customer_name}</strong></span>
+                        <span><strong>${order.customer_name}</strong>${vipBadge}</span>
                     </div>
                     <div class="order-info-row">
                         <i class="fas fa-phone"></i>
