@@ -304,7 +304,6 @@ function addToCart(product, quantity = 1) {
 
     saveCartToStorage();
     updateCartUI();
-    showCartNotification(product.name, quantity);
     checkFreeItemEligibility();
 }
 
@@ -453,50 +452,64 @@ function createCartItemElement(item) {
     return itemElement;
 }
 
-function flyToCart(btn) {
+function flyToCart(btn, imageSrc) {
     const cartIcon = document.getElementById('cart-toggle');
     if (!cartIcon) return;
 
     const btnRect = btn.getBoundingClientRect();
     const cartRect = cartIcon.getBoundingClientRect();
 
-    const dot = document.createElement('div');
-    dot.className = 'fly-dot';
-    dot.style.left = `${btnRect.left + btnRect.width / 2 - 7}px`;
-    dot.style.top = `${btnRect.top + btnRect.height / 2 - 7}px`;
-    document.body.appendChild(dot);
+    const FLY_SIZE = 72;
+    const flyEl = document.createElement('div');
+    flyEl.className = 'fly-item';
+    if (imageSrc) {
+        const img = document.createElement('img');
+        img.src = imageSrc;
+        img.alt = '';
+        flyEl.appendChild(img);
+    } else {
+        flyEl.classList.add('fly-item--dot');
+    }
+    document.body.appendChild(flyEl);
 
-    // 加号按钮变绿动画
+    // 按钮变绿反馈动画
     btn.classList.remove('added');
     void btn.offsetWidth;
     btn.classList.add('added');
     btn.addEventListener('animationend', () => btn.classList.remove('added'), { once: true });
 
-    const startX = btnRect.left + btnRect.width / 2 - 7;
-    const startY = btnRect.top + btnRect.height / 2 - 7;
-    const endX = cartRect.left + cartRect.width / 2 - 7;
-    const endY = cartRect.top + cartRect.height / 2 - 7;
+    const startX = btnRect.left + btnRect.width / 2 - FLY_SIZE / 2;
+    const startY = btnRect.top + btnRect.height / 2 - FLY_SIZE / 2;
+    const endX = cartRect.left + cartRect.width / 2 - FLY_SIZE / 2;
+    const endY = cartRect.top + cartRect.height / 2 - FLY_SIZE / 2;
 
-    const duration = 550;
+    flyEl.style.left = `${startX}px`;
+    flyEl.style.top = `${startY}px`;
+
+    const duration = 700;
     const startTime = performance.now();
 
     function animate(now) {
         const t = Math.min((now - startTime) / duration, 1);
         const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-        // 抛物线弧度
-        const arc = Math.sin(Math.PI * t) * -80;
+        const arc = Math.sin(Math.PI * t) * -120;
         const x = startX + (endX - startX) * ease;
         const y = startY + (endY - startY) * ease + arc;
-        const scale = 1 - t * 0.6;
-        const opacity = t > 0.8 ? (1 - t) / 0.2 : 1;
-        dot.style.left = `${x}px`;
-        dot.style.top = `${y}px`;
-        dot.style.transform = `scale(${scale})`;
-        dot.style.opacity = opacity;
+        const scale = 1 - t * 0.7;
+        const rot = t * 360;
+        const opacity = t > 0.85 ? (1 - t) / 0.15 : 1;
+        flyEl.style.left = `${x}px`;
+        flyEl.style.top = `${y}px`;
+        flyEl.style.transform = `scale(${scale}) rotate(${rot}deg)`;
+        flyEl.style.opacity = opacity;
         if (t < 1) {
             requestAnimationFrame(animate);
         } else {
-            dot.remove();
+            flyEl.remove();
+            // 购物车图标弹一下
+            cartIcon.classList.remove('cart-bump');
+            void cartIcon.offsetWidth;
+            cartIcon.classList.add('cart-bump');
         }
     }
     requestAnimationFrame(animate);
@@ -1463,7 +1476,8 @@ function createProductCard(product) {
             <div class="product-footer">
                 <div class="product-price">${CONFIG.defaultCurrency}${product.price.toFixed(2)}</div>
                 <button class="quick-add-btn add-to-cart-btn" data-product-id="${product.id}" title="${TRANSLATIONS[currentLanguage].add_to_cart}">
-                    <i class="fas fa-plus"></i>
+                    <i class="fas fa-cart-plus"></i>
+                    <span class="quick-add-label">${TRANSLATIONS[currentLanguage].add_to_cart}</span>
                 </button>
             </div>
         </div>
@@ -1508,7 +1522,7 @@ function createProductCard(product) {
             ? { ...product, id: `${product.id}-${activeFlavor.name}`, name: `${product.name} - ${currentLanguage === 'zh' ? activeFlavor.nameCn : activeFlavor.name}`, image: activeFlavor.image }
             : product;
         addToCart(cartProduct, 1);
-        flyToCart(addToCartBtn);
+        flyToCart(addToCartBtn, cartProduct.image);
     });
 
     return card;
