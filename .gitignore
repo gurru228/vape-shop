@@ -28,4 +28,4 @@ build/
 # 操作系统文件
 *.swp
 *.swo
-*~
+*~images_original/
