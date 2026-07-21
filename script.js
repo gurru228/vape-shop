@@ -1038,6 +1038,7 @@ let products = [
             { name: 'Honey Yuzu Tea', nameCn: '蜂蜜柚子茶', image: 'images/dash/honey-yuzu-tea.webp', tags: [{t:'酸甜',c:'sour'},{t:'蜜香',c:'rich'},{t:'茶香',c:'fresh'}] },
             { name: 'Salted Fizz', nameCn: '海盐气泡', image: 'images/dash/salted-fizz.webp', tags: [{t:'酸甜',c:'sour'},{t:'咸甜',c:'rich'},{t:'清爽',c:'fresh'}] },
             { name: 'Kiwi Ice', nameCn: '猕猴桃冰', image: 'images/dash/kiwi-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'酸甜',c:'sour'},{t:'果香',c:'sweet'}] },
+            { name: 'Red Wine Ice', nameCn: '红酒冰', image: 'images/dash/red-wine-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'醇厚',c:'rich'},{t:'果香',c:'sweet'}] },
             { name: 'Matcha Smoothie', nameCn: '抹茶思慕雪', image: 'images/dash/matcha-smoothie.webp', tags: [{t:'醇厚',c:'rich'},{t:'茶香',c:'fresh'}] },
             { name: 'Peach Ice', nameCn: '水蜜桃冰', image: 'images/dash/peach-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'}] },
             { name: 'Pink Guava', nameCn: '粉红番石榴', image: 'images/dash/pink-guava.webp', tags: [{t:'甜',c:'sweet'},{t:'果香',c:'sweet'}] },
