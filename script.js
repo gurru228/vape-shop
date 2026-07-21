@@ -55,188 +55,11 @@ function getDiscountedTotal(original) {
     return +(original * (1 - activeDiscount.percent / 100)).toFixed(2);
 }
 
-// ===== 买五送一系统（一次性电子烟 / 烟弹 两条独立赛道） =====
 const SHIPPING_FEE = 9.99;
 const FREE_SHIPPING_THRESHOLD = 150;
 
-const GIFT_TRACKS = {
-    disposable: {
-        excludedProductIds: [6],     // 烟弹不计入此赛道
-        giftProductIds: [1, 3],      // 赠品候选：鸭嘴兽 / 小黑条
-        labelZh: '一次性电子烟',
-        labelEs: 'desechables'
-    },
-    pod: {
-        includedProductIds: [6],     // 仅 RELX 烟弹
-        giftProductIds: [6],         // 赠品：烟弹自身
-        labelZh: '烟弹',
-        labelEs: 'pods'
-    }
-};
-
-let currentGiftTrack = null;
-
-function getCartItemProductId(item) {
-    const first = String(item.id).split('-')[0];
-    const n = parseInt(first, 10);
-    return Number.isNaN(n) ? null : n;
-}
-
-function paidItemBelongsToTrack(item, trackName) {
-    if (item.isFree) return false;
-    const pid = getCartItemProductId(item);
-    const t = GIFT_TRACKS[trackName];
-    if (t.includedProductIds) return t.includedProductIds.includes(pid);
-    if (t.excludedProductIds) return !t.excludedProductIds.includes(pid);
-    return true;
-}
-
-function getItemGiftTrack(item) {
-    if (!item.isFree) return null;
-    if (item.giftTrack) return item.giftTrack;
-    // 兼容旧购物车：根据赠品的产品 ID 推断
-    const pid = getCartItemProductId(item);
-    return pid === 6 ? 'pod' : 'disposable';
-}
-
-function getQuantityInTrack(trackName) {
-    return cart
-        .filter(i => paidItemBelongsToTrack(i, trackName))
-        .reduce((s, i) => s + i.quantity, 0);
-}
-
-function getFreeItemsInTrack(trackName) {
-    return cart.filter(i => i.isFree && getItemGiftTrack(i) === trackName);
-}
-
-function getEntitledFreeCountInTrack(trackName) {
-    return Math.floor(getQuantityInTrack(trackName) / 5);
-}
-
 function getNonFreeQuantity() {
     return cart.filter(i => !i.isFree).reduce((s, i) => s + i.quantity, 0);
-}
-
-function getFreeItemsInCart() {
-    return cart.filter(i => i.isFree);
-}
-
-function getEntitledFreeCount() {
-    return Object.keys(GIFT_TRACKS).reduce((s, t) => s + getEntitledFreeCountInTrack(t), 0);
-}
-
-function removeFreeItemFromCart() {
-    cart = cart.filter(i => !i.isFree);
-    saveCartToStorage();
-    updateCartUI();
-}
-
-function checkFreeItemEligibility() {
-    // 移除多余赠品（每个赛道独立处理）
-    let removedAny = false;
-    for (const trackName of Object.keys(GIFT_TRACKS)) {
-        const entitled = getEntitledFreeCountInTrack(trackName);
-        const trackFree = getFreeItemsInTrack(trackName);
-        if (entitled < trackFree.length) {
-            const excess = trackFree.length - entitled;
-            // 删除最近加入的 excess 个赠品（按索引精准删除，避免同名 id 误伤）
-            for (let i = 0; i < excess; i++) {
-                const target = trackFree[trackFree.length - 1 - i];
-                const idx = cart.findIndex(it => it === target);
-                if (idx >= 0) cart.splice(idx, 1);
-            }
-            removedAny = true;
-        }
-    }
-    if (removedAny) {
-        saveCartToStorage();
-        updateCartUI();
-    }
-
-    // 弹窗（按赛道顺序处理待领赠品）
-    for (const trackName of Object.keys(GIFT_TRACKS)) {
-        if (getEntitledFreeCountInTrack(trackName) > getFreeItemsInTrack(trackName).length) {
-            showFreeItemModal(trackName);
-            return;
-        }
-    }
-}
-
-function showFreeItemModal(trackName) {
-    currentGiftTrack = trackName || 'disposable';
-    const modal = document.getElementById('free-item-modal');
-    showFreeItemProductStep();
-    modal.style.display = 'flex';
-}
-
-function closeFreeItemModal() {
-    document.getElementById('free-item-modal').style.display = 'none';
-    openCartSidebar();
-}
-
-function showFreeItemProductStep() {
-    if (!currentGiftTrack) currentGiftTrack = 'disposable';
-    const track = GIFT_TRACKS[currentGiftTrack];
-    const productsEl = document.getElementById('free-item-products');
-    const flavorsEl = document.getElementById('free-item-flavors');
-    flavorsEl.style.display = 'none';
-    productsEl.style.display = 'grid';
-
-    const freeProducts = products.filter(p => track.giftProductIds.includes(p.id));
-    productsEl.innerHTML = freeProducts.map(p => `
-        <div class="free-item-product-card" onclick="showFreeItemFlavors(${p.id})">
-            <img src="${p.image}" alt="${p.name}" loading="lazy" decoding="async" onerror="this.style.display='none'">
-            <div class="free-item-product-name">${p.name}</div>
-            <div class="free-item-product-price">免费 / Gratis</div>
-        </div>
-    `).join('');
-}
-
-function showFreeItemFlavors(productId) {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-    document.getElementById('free-item-products').style.display = 'none';
-    const flavorsEl = document.getElementById('free-item-flavors');
-    flavorsEl.style.display = 'block';
-
-    document.getElementById('free-item-flavor-list').innerHTML = (product.flavors || [])
-        .filter(f => !isSoldOut(productId, f.name))
-        .map(f => `
-        <button class="free-flavor-btn" onclick="addFreeItemToCart(${productId}, '${f.name}', '${f.nameCn || f.name}', '${f.image}')">
-            <img src="${f.image}" alt="${f.nameCn || f.name}" loading="lazy" decoding="async" onerror="this.style.display='none'">
-            <span>${f.nameCn || f.name}</span>
-        </button>
-    `).join('');
-}
-
-function addFreeItemToCart(productId, flavorName, flavorNameCn, flavorImage) {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-    const freeItem = {
-        id: `FREE-${productId}-${flavorName}-${Date.now()}`,
-        name: `${product.name} · ${flavorNameCn} [赠品]`,
-        price: 0,
-        image: flavorImage,
-        quantity: 1,
-        isFree: true,
-        giftTrack: currentGiftTrack || 'disposable'
-    };
-    cart.push(freeItem);
-    saveCartToStorage();
-    updateCartUI();
-
-    // 还有未领取的赠品则继续弹窗，优先停留在当前赛道
-    const pending = Object.keys(GIFT_TRACKS).filter(t =>
-        getEntitledFreeCountInTrack(t) > getFreeItemsInTrack(t).length
-    );
-    if (pending.length) {
-        currentGiftTrack = pending.includes(currentGiftTrack) ? currentGiftTrack : pending[0];
-        showFreeItemProductStep();
-    } else {
-        document.getElementById('free-item-modal').style.display = 'none';
-        currentGiftTrack = null;
-        openCartCheckoutModal();
-    }
 }
 
 function isShippingQuoteRequired() {
@@ -272,6 +95,11 @@ function loadCartFromStorage() {
         const savedCart = localStorage.getItem(CART_STORAGE_KEY);
         if (savedCart) {
             cart = JSON.parse(savedCart);
+            const activeCart = cart.filter(item => !item.isFree);
+            if (activeCart.length !== cart.length) {
+                cart = activeCart;
+                localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+            }
         }
     } catch (error) {
         console.error('加载购物车数据失败:', error);
@@ -304,14 +132,12 @@ function addToCart(product, quantity = 1) {
 
     saveCartToStorage();
     updateCartUI();
-    checkFreeItemEligibility();
 }
 
 function removeFromCart(productId) {
     cart = cart.filter(item => item.id !== productId);
     saveCartToStorage();
     updateCartUI();
-    checkFreeItemEligibility();
 }
 
 function updateCartItemQuantity(productId, quantity) {
@@ -323,7 +149,6 @@ function updateCartItemQuantity(productId, quantity) {
             item.quantity = quantity;
             saveCartToStorage();
             updateCartUI();
-            checkFreeItemEligibility();
         }
     }
 }
@@ -1076,8 +901,8 @@ const TRANSLATIONS = {
         about_quality_desc: 'Evaluamos regularmente a nuestros proveedores para garantizar que cada producto cumpla con los más altos estándares de calidad.',
         about_service_title: 'Atención Rápida y Cercana',
         about_service_desc: 'Respondemos a cada mensaje sin demora. Olvídate de esperar — nuestro equipo está siempre disponible para atenderte.',
-        about_offers_title: 'Ofertas y Promociones Frecuentes',
-        about_offers_desc: 'Compra 5 y llévate 1 gratis, descuentos especiales y promociones continuas para que disfrutes al mejor precio.',
+        about_offers_title: 'Precios transparentes',
+        about_offers_desc: 'Todos los precios se muestran claramente para que puedas confirmar el producto y los gastos de envío antes de comprar.',
 
         // 页脚
         footer_desc: 'Tienda de vapeadores premium en España',
@@ -1169,8 +994,8 @@ const TRANSLATIONS = {
         about_quality_desc: '我们定期严格筛选合作工厂，每一支产品都经过品质把关，只将最好的带给您。',
         about_service_title: '高效贴心服务',
         about_service_desc: '告别消息不回、久等不达。我们与客户之间的对接极为迅速，您的每一条消息都会得到及时回复。',
-        about_offers_title: '活动多优惠多',
-        about_offers_desc: '买五送一、不定期特惠，让您以最实惠的价格享受最优质的电子烟体验。',
+        about_offers_title: '价格透明',
+        about_offers_desc: '所有商品价格清晰标示，下单前即可确认商品与配送费用。',
 
         // 页脚
         footer_desc: '西班牙优质口粮专卖店',
