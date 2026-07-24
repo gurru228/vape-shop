@@ -77,6 +77,31 @@
             <p data-lang-key="hero_subtitle">六种精选口味，满足您的需求</p>
         </section>
 
+        <!-- 活动广告栏 -->
+        <section class="promo-section" aria-label="满减活动">
+            <div class="promo-section-inner">
+                <div class="promo-numbers">
+                    <div class="promo-tier">
+                        <span class="promo-num">-8</span>
+                        <span class="promo-tier-cond">满 €90</span>
+                    </div>
+                    <span class="promo-plus">/</span>
+                    <div class="promo-tier">
+                        <span class="promo-num">-20</span>
+                        <span class="promo-tier-cond">满 €180</span>
+                    </div>
+                </div>
+                <div class="promo-divider"></div>
+                <div class="promo-text">
+                    <span class="promo-deal-badge">囤货季 · OFERTA</span>
+                    <div class="promo-title">下单立减，越囤越省</div>
+                    <p class="promo-subtitle">全场满 <span>€90 减 €8</span>，满 <span>€180 减 €20</span>，结算自动扣减，无需优惠码。</p>
+                    <p class="promo-subtitle-es">Descuento automático: <span>€90 → -€8</span> · <span>€180 → -€20</span>. Sin código.</p>
+                    <a href="#products" class="promo-cta-btn">立即选购 / Comprar ahora <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </section>
+
         <!-- 产品展示 -->
         <section id="products" class="products">
             <h2 class="section-title" data-lang-key="products_title">精选产品</h2>
@@ -223,6 +248,7 @@
             </div>
         </div>
         <div class="cart-footer">
+            <div id="cart-tier-hint" class="cart-tier-hint" style="display:none"></div>
             <div class="cart-total">
                 <span data-lang-key="cart_total">总计:</span>
                 <span id="cart-total-price">€0.00</span>
@@ -245,6 +271,10 @@
                 <button class="modal-back-btn" id="checkout-back-to-cart"><i class="fas fa-arrow-left"></i> 返回购物车</button>
                 <h2>确认订单 / Confirmar pedido</h2>
                 <div id="checkout-cart-summary" class="checkout-cart-summary"></div>
+                <div class="checkout-total-row" id="tiered-discount-row" style="display:none">
+                    <span>满减优惠 / Descuento:</span>
+                    <strong id="tiered-discount-display" style="color:#16a34a">-€0.00</strong>
+                </div>
                 <div class="checkout-total-row" id="shipping-row" style="display:none">
                     <span>运费 / Envío:</span>
                     <strong id="shipping-fee-display">€0.00</strong>

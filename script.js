@@ -50,9 +50,32 @@ function clearDiscount() {
     activeDiscount = null;
 }
 
+// ===== 满减活动（自动，无需优惠码）=====
+// 阶梯取最高可用档；与运费规则独立
+const TIERED_DISCOUNTS = [
+    { threshold: 180, amount: 20 },
+    { threshold: 90, amount: 8 },
+];
+
+function getTieredDiscount(original) {
+    for (const tier of TIERED_DISCOUNTS) {
+        if (original >= tier.threshold) return tier;
+    }
+    return null;
+}
+
+function getTieredDiscountAmount(original) {
+    const tier = getTieredDiscount(original);
+    return tier ? tier.amount : 0;
+}
+
 function getDiscountedTotal(original) {
-    if (!activeDiscount) return original;
-    return +(original * (1 - activeDiscount.percent / 100)).toFixed(2);
+    let total = original;
+    if (activeDiscount) {
+        total = total * (1 - activeDiscount.percent / 100);
+    }
+    total = total - getTieredDiscountAmount(original);
+    return +Math.max(0, total).toFixed(2);
 }
 
 const SHIPPING_FEE = 9.99;
@@ -213,7 +236,37 @@ function updateCartSidebar() {
     }
 
     // 更新总价
-    cartTotalPrice.textContent = `${CONFIG.defaultCurrency}${getCartTotalPrice().toFixed(2)}`;
+    const original = getCartTotalPrice();
+    const tieredAmount = getTieredDiscountAmount(original);
+    cartTotalPrice.textContent = `${CONFIG.defaultCurrency}${getDiscountedTotal(original).toFixed(2)}`;
+
+    // 凑单提示
+    const hintEl = document.getElementById('cart-tier-hint');
+    if (hintEl) {
+        if (cart.length === 0) {
+            hintEl.style.display = 'none';
+        } else {
+            const next = [...TIERED_DISCOUNTS].reverse().find(t => original < t.threshold);
+            if (tieredAmount > 0) {
+                const applied = getTieredDiscount(original);
+                let msg = `已省 ${CONFIG.defaultCurrency}${applied.amount} / Ahorras ${CONFIG.defaultCurrency}${applied.amount}`;
+                if (next) {
+                    const diff = (next.threshold - original).toFixed(2);
+                    msg += `　再买 ${CONFIG.defaultCurrency}${diff} 省 ${CONFIG.defaultCurrency}${next.amount}`;
+                }
+                hintEl.innerHTML = `<i class="fas fa-gift"></i> ${msg}`;
+                hintEl.classList.add('active');
+                hintEl.style.display = 'flex';
+            } else if (next) {
+                const diff = (next.threshold - original).toFixed(2);
+                hintEl.innerHTML = `<i class="fas fa-gift"></i> 再买 ${CONFIG.defaultCurrency}${diff} 立减 ${CONFIG.defaultCurrency}${next.amount} / Gasta ${CONFIG.defaultCurrency}${diff} más y ahorra ${CONFIG.defaultCurrency}${next.amount}`;
+                hintEl.classList.remove('active');
+                hintEl.style.display = 'flex';
+            } else {
+                hintEl.style.display = 'none';
+            }
+        }
+    }
 }
 
 function createCartItemElement(item) {
@@ -635,12 +688,14 @@ function openCartCheckoutModal() {
         const deliveryType = isDelivery ? 'delivery' : isPostal ? 'postal' : 'pickup';
         const finalAddress = isDelivery ? deliveryData.formatted : isPostal ? postalData.formatted : '';
         const subtotal = cart.filter(i => !i.isFree).reduce((s, i) => s + i.price * i.quantity, 0);
-        const total = +(subtotal + shippingFee).toFixed(2);
+        const tieredDiscount = getTieredDiscountAmount(subtotal);
+        const total = +(getDiscountedTotal(subtotal) + shippingFee).toFixed(2);
         const orderNumber = 'ORD-' + Date.now();
 
         return { cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress,
             deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '',
             discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0,
+            tieredDiscount,
             shippingFee, agentRef: sessionStorage.getItem('agent_ref') || '',
             paymentMethod, orderNumber, total };
     }
@@ -1657,15 +1712,27 @@ function updateCheckoutTotal() {
     const discounted = getDiscountedTotal(original);
     const shipping = getShippingFee();
     const finalTotal = +(discounted + shipping).toFixed(2);
+    const tieredAmount = getTieredDiscountAmount(original);
 
     const totalEl = document.getElementById('checkout-total-display');
     const originalEl = document.getElementById('checkout-original-price');
     const shippingRow = document.getElementById('shipping-row');
     const shippingEl = document.getElementById('shipping-fee-display');
+    const tieredRow = document.getElementById('tiered-discount-row');
+    const tieredEl = document.getElementById('tiered-discount-display');
+
+    if (tieredRow && tieredEl) {
+        if (tieredAmount > 0) {
+            tieredEl.textContent = `-€${tieredAmount.toFixed(2)}`;
+            tieredRow.style.display = 'flex';
+        } else {
+            tieredRow.style.display = 'none';
+        }
+    }
 
     if (totalEl) totalEl.textContent = `€${finalTotal.toFixed(2)}`;
     if (originalEl) {
-        if (activeDiscount) {
+        if (activeDiscount || tieredAmount > 0) {
             originalEl.textContent = `€${(original + shipping).toFixed(2)}`;
             originalEl.style.display = 'block';
         } else {

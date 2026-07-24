@@ -333,6 +333,25 @@ body.zh {
     color: var(--color-gray-900);
 }
 
+.promo-tier {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.promo-tier .promo-num {
+    font-size: 3.4rem;
+}
+
+.promo-tier-cond {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+}
+
 .promo-plus {
     font-size: 2.5rem;
     font-weight: 300;
@@ -429,7 +448,34 @@ body.zh {
     .promo-section-inner { flex-direction: column; gap: 1.5rem; text-align: center; }
     .promo-divider { width: 60px; height: 1px; }
     .promo-num { font-size: 3.5rem; }
+    .promo-tier .promo-num { font-size: 2.8rem; }
     .promo-title { font-size: 1.4rem; }
+}
+
+/* 购物车凑单提示 */
+.cart-tier-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-gray-700);
+    background: var(--color-gray-100);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.6rem 0.85rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+}
+
+.cart-tier-hint.active {
+    color: #16a34a;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.cart-tier-hint i {
+    flex-shrink: 0;
 }
 
 /* ===== 产品区域 ===== */
