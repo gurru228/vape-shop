@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>囤货季满减 · 活动海报</title>
+<style>
+  :root{
+    --black:#000; --gray900:#171717; --gray600:#525252; --gray500:#737373;
+    --gray400:#a3a3a3; --gray200:#e5e5e5; --gray100:#f5f5f5; --gray50:#fafafa; --white:#fff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",Arial,sans-serif;
+    background:var(--gray100);
+    display:flex;justify-content:center;align-items:flex-start;
+    padding:32px 16px;min-height:100vh;
+  }
+  /* 竖版海报 1080x1350 比例 (4:5) */
+  .poster{
+    width:1080px;max-width:100%;
+    aspect-ratio:1080/1350;
+    background:var(--white);
+    border:1px solid var(--gray200);
+    display:flex;flex-direction:column;
+    position:relative;overflow:hidden;
+  }
+  .inner{
+    flex:1;display:flex;flex-direction:column;
+    padding:72px 72px 60px;
+  }
+  /* 顶部品牌栏 */
+  .brand{
+    display:flex;align-items:center;justify-content:space-between;
+    border-bottom:1px solid var(--gray200);
+    padding-bottom:28px;
+  }
+  .brand-name{
+    font-size:30px;font-weight:800;letter-spacing:-0.02em;color:var(--gray900);
+  }
+  .brand-loc{
+    font-size:16px;font-weight:600;color:var(--gray500);letter-spacing:0.02em;
+  }
+  /* 徽章 */
+  .badge{
+    align-self:flex-start;margin-top:56px;
+    background:var(--gray900);color:#fff;
+    font-size:18px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;
+    padding:10px 22px;border-radius:6px;
+  }
+  /* 主标题 */
+  .headline{
+    margin-top:28px;
+    font-size:88px;font-weight:800;line-height:1.02;letter-spacing:-0.03em;color:var(--gray900);
+  }
+  .subhead{
+    margin-top:22px;
+    font-size:26px;font-weight:500;color:var(--gray600);line-height:1.5;
+  }
+  /* 满减档位 */
+  .tiers{
+    margin-top:56px;display:flex;gap:0;
+    border:1px solid var(--gray200);border-radius:20px;overflow:hidden;
+  }
+  .tier{
+    flex:1;padding:44px 32px;display:flex;flex-direction:column;align-items:center;text-align:center;
+  }
+  .tier + .tier{border-left:1px solid var(--gray200);}
+  .tier-cond{
+    font-size:22px;font-weight:600;color:var(--gray500);letter-spacing:0.04em;
+  }
+  .tier-num{
+    margin-top:14px;
+    font-size:120px;font-weight:800;line-height:0.9;letter-spacing:-0.04em;color:var(--gray900);
+  }
+  .tier-unit{
+    margin-top:12px;font-size:24px;font-weight:600;color:var(--gray600);
+  }
+  .tier-tag{
+    margin-top:16px;font-size:16px;font-weight:600;color:#16a34a;
+    background:#f0fdf4;border:1px solid #bbf7d0;border-radius:20px;padding:5px 16px;
+  }
+  /* 说明行 */
+  .note{
+    margin-top:40px;display:flex;flex-direction:column;gap:14px;
+  }
+  .note-item{
+    display:flex;align-items:center;gap:14px;
+    font-size:22px;font-weight:500;color:var(--gray600);
+  }
+  .dot{
+    width:8px;height:8px;border-radius:50%;background:var(--gray900);flex-shrink:0;
+  }
+  /* 底部信息栏 */
+  .footer{
+    margin-top:auto;padding-top:40px;border-top:1px solid var(--gray200);
+    display:flex;align-items:flex-end;justify-content:space-between;gap:24px;
+  }
+  .footer-contact{display:flex;flex-direction:column;gap:10px;}
+  .footer-web{font-size:24px;font-weight:700;color:var(--gray900);letter-spacing:-0.01em;}
+  .footer-vx{font-size:22px;font-weight:600;color:var(--gray600);}
+  .footer-cta{
+    background:var(--gray900);color:#fff;
+    font-size:24px;font-weight:700;
+    padding:20px 40px;border-radius:12px;white-space:nowrap;
+  }
+  .disclaimer{
+    text-align:center;font-size:15px;color:var(--gray400);
+    padding:20px 72px;border-top:1px solid var(--gray100);
+  }
+  /* 打印 */
+  @media print{
+    body{background:#fff;padding:0;}
+    .poster{border:none;width:100%;height:100vh;}
+  }
+</style>
+</head>
+<body>
+  <div class="poster">
+    <div class="inner">
+      <div class="brand">
+        <div class="brand-name">口粮专卖店 · VapeShop</div>
+        <div class="brand-loc">MADRID · 本地现货</div>
+      </div>
+
+      <div class="badge">囤货季 · Oferta</div>
+      <h1 class="headline">下单立减<br>越囤越省</h1>
+      <p class="subhead">全场满减 · 结算自动扣减 · 无需优惠码<br>Descuento automático, sin código</p>
+
+      <div class="tiers">
+        <div class="tier">
+          <div class="tier-cond">满 €90</div>
+          <div class="tier-num">-8</div>
+          <div class="tier-unit">立减 €8</div>
+          <div class="tier-tag">约 9 折</div>
+        </div>
+        <div class="tier">
+          <div class="tier-cond">满 €180</div>
+          <div class="tier-num">-20</div>
+          <div class="tier-unit">立减 €20</div>
+          <div class="tier-tag">囤货最省</div>
+        </div>
+      </div>
+
+      <div class="note">
+        <div class="note-item"><span class="dot"></span>4款热门口粮 · 正品现货 · 当天/次日达</div>
+        <div class="note-item"><span class="dot"></span>假一赔十 · 隐私包装 · Bizum / Stripe / 货到付款</div>
+        <div class="note-item"><span class="dot"></span>满 €150 西班牙本地免运费</div>
+      </div>
+
+      <div class="footer">
+        <div class="footer-contact">
+          <div class="footer-web">vapeshop2026.netlify.app</div>
+          <div class="footer-vx">VX：【你的微信号】</div>
+        </div>
+        <div class="footer-cta">立即选购 →</div>
+      </div>
+    </div>
+    <div class="disclaimer">吸烟有害健康 · 仅限成年人购买 · Solo para mayores de edad</div>
+  </div>
+</body>
+</html>
