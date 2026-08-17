@@ -29,3 +29,6 @@ build/
 *.swp
 *.swo
 *~images_original/
+
+# Local Netlify folder
+.netlify

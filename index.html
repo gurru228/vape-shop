@@ -716,5 +716,15 @@
             });
         }
     </script>
+    <script>
+        (function () {
+            try {
+                if (sessionStorage.getItem('vs_tracked')) return;
+                sessionStorage.setItem('vs_tracked', '1');
+                var from = new URLSearchParams(location.search).get('from') || '';
+                fetch('/.netlify/functions/track-click?from=' + encodeURIComponent(from) + '&path=' + encodeURIComponent(location.pathname) + '&ref=' + encodeURIComponent(document.referrer)).catch(function () {});
+            } catch (e) {}
+        })();
+    </script>
 </body>
 </html>

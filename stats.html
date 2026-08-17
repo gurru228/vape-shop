@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>点击统计 · 口粮专卖</title>
+<style>
+  :root { --bg:#0a0a0a; --card:#141414; --border:#262626; --text:#f5f5f5; --muted:#9ca3af; --accent:#4ade80; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: Inter, "Noto Sans SC", -apple-system, sans-serif; padding: 24px; }
+  .wrap { max-width: 1000px; margin: 0 auto; }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+  .lock { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; text-align: center; }
+  .lock input { background: #1f1f1f; border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 10px 14px; font-size: 14px; width: 240px; margin-right: 8px; }
+  button { background: var(--accent); color: #052e16; border: none; border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .card .num { font-size: 28px; font-weight: 700; color: var(--accent); }
+  .card .label { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; font-size: 13px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 500; background: #101010; }
+  tr:last-child td { border-bottom: none; }
+  td a { color: var(--accent); text-decoration: none; }
+  .tag { display: inline-block; background: #1f2937; border-radius: 6px; padding: 2px 8px; font-size: 12px; }
+  .tag.discord { background: #3730a3; } .tag.telegram { background: #0e7490; } .tag.xhs { background: #9d174d; } .tag.direct { background: #374151; }
+  .err { color: #f87171; font-size: 13px; margin-top: 8px; }
+  .refresh { color: var(--muted); font-size: 12px; margin: 8px 0 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>实时点击统计</h1>
+  <div class="sub">口粮专卖 · vapeshop2026.netlify.app</div>
+
+  <div class="lock" id="lock">
+    <p style="margin-bottom:12px;color:var(--muted);font-size:14px;">输入管理密码查看</p>
+    <input type="password" id="pwd" placeholder="管理密码">
+    <button onclick="savePwd()">查看</button>
+    <div class="err" id="lock-err"></div>
+  </div>
+
+  <div id="dash" style="display:none">
+    <div class="refresh">每 15 秒自动刷新 · 上次更新：<span id="last-update">-</span></div>
+    <div class="cards" id="cards"></div>
+    <table>
+      <thead>
+        <tr><th>时间</th><th>渠道</th><th>页面</th><th>位置</th><th>来源</th><th>设备</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="err" id="err"></div>
+  </div>
+</div>
+
+<script>
+var pwd = localStorage.getItem('vs_stats_pwd') || '';
+function savePwd() {
+  pwd = document.getElementById('pwd').value.trim();
+  if (!pwd) return;
+  localStorage.setItem('vs_stats_pwd', pwd);
+  document.getElementById('lock-err').textContent = '';
+  load();
+}
+function showErr(m) { document.getElementById('err').textContent = m; }
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+function fmtTime(iso) {
+  var d = new Date(iso);
+  return d.toLocaleDateString('zh-CN',{month:'2-digit',day:'2-digit'}) + ' ' +
+         d.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+}
+
+function isToday(iso) {
+  var d = new Date(iso), n = new Date();
+  return d.getFullYear()===n.getFullYear() && d.getMonth()===n.getMonth() && d.getDate()===n.getDate();
+}
+
+function render(list) {
+  var today = list.filter(function(c){ return isToday(c.t); });
+  var by = {};
+  list.forEach(function(c){
+    var k = c.from || 'direct';
+    by[k] = (by[k]||0) + 1;
+  });
+  var html = '';
+  html += card(today.length, '今日点击');
+  html += card(list.length, '总点击');
+  var names = {discord:'Discord', telegram:'Telegram', xhs:'小红书', direct:'直接访问'};
+  Object.keys(by).sort(function(a,b){return by[b]-by[a];}).forEach(function(k){
+    html += card(by[k], '渠道 · ' + (names[k] || k));
+  });
+  document.getElementById('cards').innerHTML = html;
+
+  document.getElementById('rows').innerHTML = list.slice(0,100).map(function(c){
+    var ch = c.from || 'direct';
+    return '<tr>' +
+      '<td>' + fmtTime(c.t) + '</td>' +
+      '<td><span class="tag ' + esc(ch) + '">' + esc(names[ch] || ch) + '</span></td>' +
+      '<td>' + esc(c.path) + '</td>' +
+      '<td>' + esc(c.city ? c.city + ', ' + c.country : c.country || '-') + '</td>' +
+      '<td>' + (c.ref ? '<a href="' + esc(c.ref) + '" target="_blank">' + esc(c.ref.slice(0,40)) + '</a>' : '-') + '</td>' +
+      '<td title="' + esc(c.device) + '">' + esc(c.device.slice(0,30)) + '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+function card(num, label) {
+  return '<div class="card"><div class="num">' + num + '</div><div class="label">' + label + '</div></div>';
+}
+
+function load() {
+  if (!pwd) { document.getElementById('lock').style.display = 'block'; document.getElementById('dash').style.display = 'none'; return; }
+  fetch('/.netlify/functions/get-clicks?password=' + encodeURIComponent(pwd))
+    .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
+    .then(function(o){
+      if (!o.ok) { showErr('密码错误或接口异常'); document.getElementById('lock').style.display='block'; document.getElementById('dash').style.display='none'; return; }
+      document.getElementById('lock').style.display = 'none';
+      document.getElementById('dash').style.display = 'block';
+      document.getElementById('last-update').textContent = new Date().toLocaleTimeString('zh-CN');
+      render(o.j.clicks || []);
+      showErr('');
+    })
+    .catch(function(e){ showErr('加载失败：' + e.message); });
+}
+
+load();
+setInterval(load, 15000);
+</script>
+</body>
+</html>
