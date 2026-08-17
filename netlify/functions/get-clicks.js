@@ -1,9 +1,14 @@
-const { getStore } = require('@netlify/blobs');
+const { getStore, connectLambda } = require('@netlify/blobs');
 
 exports.handler = async (event) => {
     const { password } = event.queryStringParameters || {};
     if (!password || password !== process.env.ADMIN_PASSWORD) {
         return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
+    }
+    try {
+        connectLambda(event);
+    } catch (e) {
+        // runtime may have configured blobs via environment already
     }
     try {
         const store = getStore('clicks');

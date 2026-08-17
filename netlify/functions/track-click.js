@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { getStore } = require('@netlify/blobs');
+const { getStore, connectLambda } = require('@netlify/blobs');
 
 const MAX_LOG = 3000;
 const LOG_KEY = 'log';
@@ -8,6 +8,26 @@ exports.handler = async (event) => {
     const q = event.queryStringParameters || {};
     const headers = event.headers || {};
     const ip = headers['x-nf-client-connection-ip'] || '';
+
+    try {
+        connectLambda(event);
+    } catch (e) {
+        // runtime may have configured blobs via environment already
+    }
+
+    if (q.debug === '1') {
+        return {
+            statusCode: 200,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                hasBlobsField: typeof event.blobs === 'string' && event.blobs.length > 0,
+                siteIdHeader: headers['x-nf-site-id'] || null,
+                deployIdHeader: headers['x-nf-deploy-id'] || null,
+                envContext: typeof process.env.NETLIFY_BLOBS_CONTEXT === 'string' && process.env.NETLIFY_BLOBS_CONTEXT.length > 0
+            })
+        };
+    }
+
     const entry = {
         t: new Date().toISOString(),
         from: (q.from || 'direct').slice(0, 50),
