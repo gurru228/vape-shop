@@ -1,6 +1,9 @@
 const crypto = require('crypto');
 const { getStore, connectLambda } = require('@netlify/blobs');
 
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
 const MAX_LOG = 3000;
 const LOG_KEY = 'log';
 
@@ -52,6 +55,24 @@ exports.handler = async (event) => {
         list.push(entry);
         if (list.length > MAX_LOG) list = list.slice(list.length - MAX_LOG);
         await store.set(LOG_KEY, JSON.stringify(list));
+
+        if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
+            const time = new Date(entry.t).toLocaleString('zh-CN', { timeZone: 'Europe/Madrid' });
+            const loc = entry.city ? `${entry.city}, ${entry.country}` : (entry.country || '未知');
+            const text = `👀 有人进入网站\n\n` +
+                `🕐 ${time} (Madrid)\n` +
+                `📍 ${loc}\n` +
+                `📄 ${entry.path}\n` +
+                `📣 渠道: ${entry.from || 'direct'}\n` +
+                `🔗 来源: ${entry.ref || '直接'}\n` +
+                `📱 ${entry.device}`;
+            await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, disable_web_page_preview: true })
+            }).catch(err => console.error('Telegram visit notify failed:', err));
+        }
+
         return {
             statusCode: 200,
             headers: { 'Content-Type': 'application/json' },

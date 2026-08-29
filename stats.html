@@ -82,7 +82,12 @@ function isToday(iso) {
   return d.getFullYear()===n.getFullYear() && d.getMonth()===n.getMonth() && d.getDate()===n.getDate();
 }
 
-function render(list) {
+function isTodayOrder(o) {
+  var d = new Date(o.created_at), n = new Date();
+  return d.getFullYear()===n.getFullYear() && d.getMonth()===n.getMonth() && d.getDate()===n.getDate();
+}
+
+function render(list, orders) {
   var today = list.filter(function(c){ return isToday(c.t); });
   var by = {};
   list.forEach(function(c){
@@ -91,6 +96,12 @@ function render(list) {
   });
   var html = '';
   html += card(today.length, '今日点击');
+  if (orders) {
+    var todayOrders = orders.filter(function(o){ return isTodayOrder(o); }).length;
+    var rate = today.length ? (todayOrders / today.length * 100) : 0;
+    html += card(todayOrders, '今日下单');
+    html += card(rate.toFixed(1) + '%', '转化率');
+  }
   html += card(list.length, '总点击');
   var names = {discord:'Discord', telegram:'Telegram', xhs:'小红书', direct:'直接访问'};
   Object.keys(by).sort(function(a,b){return by[b]-by[a];}).forEach(function(k){
@@ -124,7 +135,11 @@ function load() {
       document.getElementById('lock').style.display = 'none';
       document.getElementById('dash').style.display = 'block';
       document.getElementById('last-update').textContent = new Date().toLocaleTimeString('zh-CN');
-      render(o.j.clicks || []);
+      var clicks = o.j.clicks || [];
+      fetch('/.netlify/functions/get-orders?password=' + encodeURIComponent(pwd) + '&status=all')
+        .then(function(r){ return r.json(); })
+        .then(function(orders){ render(clicks, Array.isArray(orders) ? orders : null); })
+        .catch(function(){ render(clicks, null); });
       showErr('');
     })
     .catch(function(e){ showErr('加载失败：' + e.message); });
