@@ -1174,8 +1174,14 @@ const TRANSLATIONS = {
         contact: 'Contacto',
 
         // 英雄区域
-        hero_title: 'Vapeadores Premium, Experiencia Pura',
-        hero_subtitle: 'Seis sabores seleccionados para sus necesidades',
+        hero_kicker: 'Destacado',
+        hero_title: 'Dash',
+        hero_subtitle: '4000 puffs · Amplia variedad de sabores · Toque helado y suave',
+        hero_spec_puffs: 'puffs',
+        hero_spec_flavors: 'sabores',
+        hero_spec_price: 'precio',
+        hero_cta_flavors: 'Elegir sabor',
+        hero_cta_all: 'Ver todo',
 
         // 产品区域
         products_title: 'Productos Destacados',
@@ -1267,8 +1273,14 @@ const TRANSLATIONS = {
         contact: '联系',
 
         // 英雄区域
-        hero_title: '优质电子烟，纯净体验',
-        hero_subtitle: '六种精选口味，满足您的需求',
+        hero_kicker: '主推',
+        hero_title: '鸭嘴兽 Dash',
+        hero_subtitle: '4000口量 · 多款口味随心选 · 冰感顺滑不刺激',
+        hero_spec_puffs: '口（整机）',
+        hero_spec_flavors: '种口味',
+        hero_spec_price: '目录价',
+        hero_cta_flavors: '选择口味',
+        hero_cta_all: '全部产品',
 
         // 产品区域
         products_title: '精选产品',
@@ -2071,8 +2083,9 @@ function updateCheckoutTotal() {
     scheduleServerQuote();
 }
 
-// ===== 滚动进场动画 =====
+// ===== 滚动进场动画（只用于商品卡，其它区块见 motion.js 的 data-reveal） =====
 function initScrollAnimations() {
+    if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -2085,13 +2098,7 @@ function initScrollAnimations() {
     // 产品卡片错落进场
     document.querySelectorAll('.product-card').forEach((el, i) => {
         el.classList.add('fade-up');
-        el.style.transitionDelay = `${i * 0.08}s`;
-        observer.observe(el);
-    });
-
-    // 标题和副标题
-    document.querySelectorAll('.section-title, .section-subtitle, .payment-info').forEach(el => {
-        el.classList.add('fade-up');
+        el.style.transitionDelay = `${(i % 3) * 0.08}s`;
         observer.observe(el);
     });
 }

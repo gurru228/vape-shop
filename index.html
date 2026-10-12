@@ -14,7 +14,7 @@
     <meta property="og:url" content="https://vapeshop2026.netlify.app/">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#24312b">
+    <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="口粮专卖">
@@ -22,10 +22,11 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Serif+SC:wght@600&family=Source+Sans+3:wght@400;600&family=Source+Serif+4:wght@600&display=swap" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Serif+SC:wght@600&family=Source+Sans+3:wght@400;600&family=Source+Serif+4:wght@600&display=swap"></noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"></noscript>
     <script>
         try { if (!localStorage.getItem('age_confirmed_18')) document.documentElement.classList.add('age-locked'); } catch (e) {}
+        if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion-ok');
     </script>
 </head>
 <body>
@@ -74,9 +75,24 @@
     <!-- 主内容 -->
     <main class="main">
         <!-- 英雄区域 -->
-        <section class="hero">
-            <h1 data-lang-key="hero_title">优质电子烟，纯净体验</h1>
-            <p data-lang-key="hero_subtitle">六种精选口味，满足您的需求</p>
+        <section class="hero hero-featured" aria-labelledby="hero-title">
+            <div class="hero-copy">
+                <p class="hero-kicker"><span class="hero-kicker-age">18+</span><span data-lang-key="hero_kicker">主推</span></p>
+                <h1 id="hero-title" data-lang-key="hero_title">鸭嘴兽 Dash</h1>
+                <p class="hero-sub" data-lang-key="hero_subtitle">4000口量 · 多款口味随心选 · 冰感顺滑不刺激</p>
+                <dl class="hero-specs">
+                    <div><dt data-lang-key="hero_spec_puffs">口（整机）</dt><dd>4000</dd></div>
+                    <div><dt data-lang-key="hero_spec_flavors">种口味</dt><dd>29</dd></div>
+                    <div><dt data-lang-key="hero_spec_price">目录价</dt><dd>€17.90</dd></div>
+                </dl>
+                <div class="hero-actions">
+                    <a href="#platypus" class="btn-pill" data-lang-key="hero_cta_flavors">选择口味</a>
+                    <a href="#products" class="btn-link"><span data-lang-key="hero_cta_all">全部产品</span> <svg class="icon" aria-hidden="true"><use href="#i-arrow-right" xlink:href="#i-arrow-right"></use></svg></a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <img src="images/dash/jasmine-longjing.webp" alt="鸭嘴兽 Dash · 龙井" width="400" height="600" fetchpriority="high" decoding="async" data-parallax>
+            </div>
         </section>
 
         <!-- 活动广告栏 -->
@@ -119,7 +135,7 @@
             </div>
         </section>
 
-        <section id="platypus" class="platypus-section" aria-labelledby="platypus-title">
+        <section id="platypus" class="platypus-section" aria-labelledby="platypus-title" data-reveal>
             <div id="platypus-mount"><h2 id="platypus-title" class="section-title">鸭嘴兽 / Dash</h2></div>
             <p class="nicotine-warning" role="note">
                 本产品含有尼古丁，尼古丁是一种极易上瘾的物质。仅向成年人销售。
@@ -141,7 +157,7 @@
         <!-- 关于我们 -->
         <section id="about" class="about-section">
             <h2 class="section-title" data-lang-key="about_title">关于我们</h2>
-            <div class="about-content">
+            <div class="about-content" data-reveal>
                 <div class="about-card">
                     <div class="about-icon"><svg class="icon" aria-hidden="true"><use href="#i-bolt" xlink:href="#i-bolt"></use></svg></div>
                     <h3 data-lang-key="about_speed_title">当天极速配送</h3>
@@ -169,7 +185,7 @@
         <section id="contact" class="payment-info">
             <h2 class="section-title" data-lang-key="payment_title">安全支付</h2>
             <p class="section-subtitle" data-lang-key="payment_subtitle">多种支付方式，安全便捷</p>
-            <div class="payment-methods-grid">
+            <div class="payment-methods-grid" data-reveal>
                 <div class="payment-method-card">
                     <svg class="icon payment-icon" aria-hidden="true"><use href="#i-phone" xlink:href="#i-phone"></use></svg>
                     <h3 data-lang-key="bizum_title">Bizum</h3>
@@ -764,6 +780,7 @@
     <script src="real-photos.js"></script>
     <script src="script.js"></script>
     <script src="platypus.js" defer></script>
+    <script src="motion.js" defer></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
