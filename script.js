@@ -1350,10 +1350,11 @@ function createProductCard(product) {
         : [];
 
     const flavorsHtml = product.flavors ? `
+        <p class="card-selected-flavor" aria-live="polite"></p>
         <div class="flavor-tags"></div>
         <div class="flavor-selector">
             ${sortedFlavors.map((f, i) => `
-                <button class="flavor-btn${i === 0 ? ' active' : ''}" data-flavor-index="${i}" data-product-id="${product.id}" data-flavor="${f.name}" title="${f.name}">
+                <button type="button" class="flavor-btn${i === 0 ? ' active' : ''}" aria-pressed="${i === 0}" data-flavor-index="${i}" data-product-id="${product.id}" data-flavor="${f.name}" title="${f.name}">
                     <img src="${f.image}" alt="${f.name}" loading="lazy" decoding="async" onerror="this.style.display='none'">
                     <span>${currentLanguage === 'zh' ? f.nameCn : f.name}</span>
                 </button>
@@ -1372,6 +1373,7 @@ function createProductCard(product) {
         <div class="product-info">
             <h3 class="product-name">${product.name}</h3>
             <p class="product-description">${product.description[currentLanguage]}</p>
+            ${flavorsHtml}
             <div class="product-footer">
                 <div class="product-price">${CONFIG.defaultCurrency}${product.price.toFixed(2)}</div>
                 <button type="button" class="card-add-btn add-to-cart-btn" data-product-id="${product.id}">
@@ -1379,7 +1381,6 @@ function createProductCard(product) {
                     <span class="card-add-label">${TRANSLATIONS[currentLanguage].add_to_cart}</span>
                 </button>
             </div>
-            ${flavorsHtml}
         </div>
     `;
 
@@ -1387,23 +1388,38 @@ function createProductCard(product) {
     if (product.flavors) {
         const mainImg = card.querySelector('.product-main-img');
         const tagsEl = card.querySelector('.flavor-tags');
-        function renderCardTags(flavor) {
-            if (!tagsEl) return;
-            tagsEl.innerHTML = (flavor.tags || []).map(tag => `<span class="flavor-tag ${tag.c}">${tag.t}</span>`).join('');
-        }
-        renderCardTags(sortedFlavors[0]);
-        card.querySelectorAll('.flavor-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                card.querySelectorAll('.flavor-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const flavor = sortedFlavors[parseInt(btn.dataset.flavorIndex)];
+        const selectedEl = card.querySelector('.card-selected-flavor');
+        function renderCardFlavor(flavor) {
+            if (mainImg) {
                 mainImg.src = flavor.image;
                 mainImg.alt = flavor.name;
-                renderCardTags(flavor);
-                syncQuickAdd(card, product, flavor);
+            }
+            selectedEl.textContent = currentLanguage === 'zh'
+                ? `已选：${flavor.nameCn}` : `Elegido: ${flavor.name}`;
+            tagsEl.innerHTML = (flavor.tags || []).map(tag => `<span class="flavor-tag ${tag.c}">${tag.t}</span>`).join('');
+            syncQuickAdd(card, product, flavor);
+        }
+        renderCardFlavor(sortedFlavors[0]);
+        card.querySelectorAll('.flavor-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                card.querySelectorAll('.flavor-btn').forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-pressed', 'false');
+                });
+                btn.classList.add('active');
+                btn.setAttribute('aria-pressed', 'true');
+                const flavor = sortedFlavors[parseInt(btn.dataset.flavorIndex)];
+                renderCardFlavor(flavor);
+                // 首次从页面中部选口味时，让整张卡片进入视口，加购无需手动翻页。
+                if (window.matchMedia('(max-width: 768px), (max-width: 1024px) and (max-height: 500px)').matches) {
+                    const rect = card.getBoundingClientRect();
+                    const headerBottom = document.querySelector('.header')?.getBoundingClientRect().bottom || 0;
+                    if (rect.top < headerBottom + 12 || rect.bottom > window.innerHeight - 12) {
+                        card.scrollIntoView({ block: 'start', behavior: 'instant' });
+                    }
+                }
             });
         });
-        syncQuickAdd(card, product, sortedFlavors[0]);
     }
 
     // 点击卡片（按钮以外区域）或在卡片上按 Enter / Space 打开详情页
@@ -2023,7 +2039,19 @@ function initScrollAnimations() {
 }
 
 // ===== 页面加载完成后初始化 =====
+function initCatalogViewport() {
+    const header = document.querySelector('.header');
+    if (!header) return;
+    const syncHeaderHeight = () => {
+        document.documentElement.style.setProperty('--catalog-header-height', `${Math.ceil(header.getBoundingClientRect().height)}px`);
+    };
+    syncHeaderHeight();
+    if ('ResizeObserver' in window) new ResizeObserver(syncHeaderHeight).observe(header);
+    else window.addEventListener('resize', syncHeaderHeight);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    initCatalogViewport();
     init();
     initSupabase();
     setTimeout(initScrollAnimations, 50);

@@ -1,4 +1,5 @@
-const CACHE_NAME = 'vapeshop-v11-detail-layout';
+const CACHE_NAME = 'vapeshop-v12-catalog-layout';
+const LOCAL_PREVIEW = ['localhost', '127.0.0.1', '[::1]'].includes(self.location.hostname);
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -9,7 +10,7 @@ const STATIC_ASSETS = [
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(
+  if (!LOCAL_PREVIEW) event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
   );
   self.skipWaiting();
@@ -25,6 +26,8 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // 本地开发直接读取最新文件，避免预览仍显示旧布局。
+  if (LOCAL_PREVIEW) return;
   // 只缓存 GET 请求，跳过 API 请求
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
