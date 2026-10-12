@@ -3764,8 +3764,8 @@ html.detail-locked, html.detail-locked body { overflow: hidden; }
         padding: .65rem;
         overflow: hidden;
     }
-    .detail-image-wrap { align-items: center; }
-    .detail-image-wrap img { object-position: center; }
+    .detail-image-wrap { align-items: flex-start; }
+    .detail-image-wrap img { object-position: center top; }
     .detail-info { gap: .5rem; }
     .detail-head { padding-right: 2.75rem; }
     .detail-close { top: .35rem; right: .35rem; }
