@@ -1479,16 +1479,18 @@ function openProductDetail(product, activeFlavorIndex = 0, returnFocusEl = null)
         renderDetailTags(flavor);
         flavorsEl.querySelectorAll('.detail-flavor-btn').forEach((b, i) => {
             b.classList.toggle('active', i === index);
+            b.setAttribute('aria-pressed', String(i === index));
         });
+        addCartBtn.disabled = isSoldOut(product.id, flavor.name);
     }
 
     if (product.flavors) {
         flavorNameEl.style.display = 'block';
         flavorsEl.innerHTML = product.flavors.map((f, i) => {
             const soldOut = isSoldOut(product.id, f.name);
-            return `<button class="detail-flavor-btn${i === activeFlavorIndex ? ' active' : ''}${soldOut ? ' sold-out-flavor' : ''}" data-index="${i}">
-                <img src="${f.image}" alt="${f.name}" loading="lazy" decoding="async">
-                <span>${currentLanguage === 'zh' ? f.nameCn : f.name}</span>
+            return `<button type="button" class="detail-flavor-btn${i === activeFlavorIndex ? ' active' : ''}${soldOut ? ' sold-out-flavor' : ''}" data-index="${i}" aria-pressed="${i === activeFlavorIndex}"${soldOut ? ' aria-disabled="true"' : ''}>
+                <img src="${f.image}" alt="" loading="lazy" decoding="async">
+                <span class="detail-flavor-label">${currentLanguage === 'zh' ? f.nameCn : f.name}</span>
                 ${soldOut ? '<span class="soldout-label">售罄</span>' : ''}
             </button>`;
         }).join('');
@@ -1504,6 +1506,7 @@ function openProductDetail(product, activeFlavorIndex = 0, returnFocusEl = null)
         flavorsEl.innerHTML = '';
         mainImg.src = product.image || '';
         mainImg.alt = product.name;
+        addCartBtn.disabled = false;
     }
 
     // 加入购物车
@@ -1519,6 +1522,15 @@ function openProductDetail(product, activeFlavorIndex = 0, returnFocusEl = null)
 
     detailReturnFocus = returnFocusEl || document.activeElement;
     overlay.classList.add('open');
+    document.documentElement.classList.add('detail-locked');
+    // 只滚动口味列表本身，让当前口味可见
+    flavorsEl.scrollTop = 0;
+    const activeBtn = flavorsEl.querySelector('.detail-flavor-btn.active');
+    if (activeBtn) {
+        const listRect = flavorsEl.getBoundingClientRect();
+        const btnRect = activeBtn.getBoundingClientRect();
+        flavorsEl.scrollTop = Math.max(0, btnRect.top - listRect.top - (listRect.height - btnRect.height) / 2);
+    }
     document.getElementById('detail-close').focus({ preventScroll: true });
 }
 
@@ -1526,6 +1538,7 @@ function closeProductDetail({ restoreFocus = true } = {}) {
     const overlay = document.getElementById('product-detail');
     if (!overlay.classList.contains('open')) return;
     overlay.classList.remove('open');
+    document.documentElement.classList.remove('detail-locked');
     const target = detailReturnFocus;
     detailReturnFocus = null;
     if (restoreFocus && target && target.isConnected && typeof target.focus === 'function') {
@@ -1548,7 +1561,8 @@ function initProductDetail() {
         }
         if (e.key !== 'Tab') return;
         const focusables = [...overlay.querySelectorAll('button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])')]
-            .filter(el => el.offsetParent !== null);
+            // SVG <use href> is not a keyboard focus target.
+            .filter(el => el instanceof HTMLElement && el.offsetParent !== null);
         if (!focusables.length) return;
         const first = focusables[0];
         const last = focusables[focusables.length - 1];

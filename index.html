@@ -467,22 +467,26 @@
 
     <!-- 产品详情页 -->
     <div id="product-detail" class="product-detail-overlay" role="dialog" aria-modal="true" aria-labelledby="detail-name">
-        <button type="button" class="detail-close" id="detail-close" aria-label="关闭 / Cerrar"><svg class="icon" aria-hidden="true"><use href="#i-close" xlink:href="#i-close"></use></svg></button>
         <div class="detail-content">
+            <button type="button" class="detail-close" id="detail-close" aria-label="关闭 / Cerrar"><svg class="icon" aria-hidden="true"><use href="#i-close" xlink:href="#i-close"></use></svg></button>
             <div class="detail-image-wrap">
                 <img id="detail-main-img" src="" alt="">
             </div>
             <div class="detail-info">
-                <h2 id="detail-name"></h2>
-                <p id="detail-flavor" class="detail-flavor-name"></p>
-                <div id="detail-flavor-tags" class="flavor-tags"></div>
-                <p id="detail-desc" class="detail-desc"></p>
-                <div id="detail-flavors" class="detail-flavor-selector"></div>
-                <div class="detail-price" id="detail-price"></div>
-                <button class="buy-btn detail-add-cart" id="detail-add-cart">
-                    <svg class="icon" aria-hidden="true"><use href="#i-plus" xlink:href="#i-plus"></use></svg>
-                    <span data-lang-key="add_to_cart">加入购物车</span>
-                </button>
+                <div class="detail-head">
+                    <h2 id="detail-name"></h2>
+                    <p id="detail-flavor" class="detail-flavor-name" aria-live="polite"></p>
+                    <div id="detail-flavor-tags" class="flavor-tags"></div>
+                    <p id="detail-desc" class="detail-desc"></p>
+                </div>
+                <div id="detail-flavors" class="detail-flavor-selector" role="group" aria-label="口味 / Sabores"></div>
+                <div class="detail-action">
+                    <div class="detail-price" id="detail-price"></div>
+                    <button type="button" class="buy-btn detail-add-cart" id="detail-add-cart">
+                        <svg class="icon" aria-hidden="true"><use href="#i-plus" xlink:href="#i-plus"></use></svg>
+                        <span data-lang-key="add_to_cart">加入购物车</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
