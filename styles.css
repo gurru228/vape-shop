@@ -3817,3 +3817,127 @@ html.detail-locked, html.detail-locked body { overflow: hidden; }
     .detail-flavor-btn .detail-flavor-label { font-size: .78rem; }
     .detail-add-cart .icon { display: none; }
 }
+
+/* ===== 购物车与结账：局部恢复柔和圆角，只作用于这两处，不影响全局与商品卡 ===== */
+#cart-sidebar,
+#checkout-modal {
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-pill: 999px;
+}
+
+/* 购物车：关闭、条目、底部按钮 */
+#cart-sidebar .cart-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: var(--radius-pill);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+#cart-sidebar .cart-close:hover { background: var(--surface-alt); }
+#cart-sidebar .remove-item-btn { border-radius: var(--radius-sm); }
+#cart-sidebar .cart-actions { gap: .75rem; }
+#cart-sidebar .cart-checkout-btn,
+#cart-sidebar .cart-clear-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    font-family: inherit;
+    line-height: 1.3;
+    overflow-wrap: break-word;
+}
+#cart-sidebar .cart-checkout-btn { min-height: 52px; padding: .85rem 1.25rem; }
+#cart-sidebar .cart-clear-btn {
+    min-height: 44px;
+    padding: .65rem 1.25rem;
+    border: 1px solid var(--color-gray-300);
+}
+#cart-sidebar .cart-checkout-btn:disabled,
+#cart-sidebar .cart-clear-btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+/* 结账弹窗：关闭 / 返回 */
+#checkout-modal .close-modal {
+    top: 1rem;
+    right: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 1.15rem;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-pill);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+#checkout-modal .close-modal:hover { background: var(--surface-alt); }
+#checkout-modal .modal-back-btn {
+    min-height: 36px;
+    margin-left: -.55rem;
+    padding: .35rem .75rem .35rem .55rem;
+    border-radius: var(--radius-pill);
+    font-family: inherit;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+#checkout-modal .modal-back-btn:hover { background: var(--surface-alt); }
+
+/* 输入框：圆角来自局部变量，focus 加一圈柔和描边 */
+#checkout-modal .checkout-form-group input:focus,
+#checkout-modal .postal-fields input:focus,
+#checkout-modal .postal-fields select:focus { box-shadow: 0 0 0 3px rgba(82, 103, 91, .22); }
+
+/* 取货方式卡片：细边框，选中用外圈加粗，避免布局跳动 */
+#checkout-modal .delivery-option-btn {
+    min-width: 0;
+    padding: 1rem .875rem;
+    border: 1px solid var(--border-color);
+    overflow-wrap: break-word;
+}
+#checkout-modal .delivery-option-btn:hover { border-color: var(--primary-color); }
+#checkout-modal .delivery-option-btn.active {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 1px var(--primary-color);
+}
+#checkout-modal .pickup-info-box {
+    border-radius: var(--radius-md);
+    padding: .85rem 1.1rem;
+}
+
+/* 提交按钮 */
+#checkout-modal .btn { border-radius: var(--radius-md); }
+#checkout-modal .btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+#checkout-modal .checkout-submit {
+    min-height: 52px;
+    margin: .5rem 0 .85rem;
+    padding: .85rem 2rem;
+    line-height: 1.3;
+}
+
+/* 完成页：WhatsApp 与完成按钮等宽纵向排列，留出间距 */
+#checkout-step-done .btn-whatsapp,
+#checkout-step-done #checkout-done-close {
+    width: 100%;
+    min-height: 50px;
+    padding: .8rem 1.25rem;
+    border-radius: var(--radius-md);
+    line-height: 1.3;
+    text-align: center;
+    white-space: normal;
+}
+#checkout-step-done .btn-whatsapp { margin-top: 1.25rem; }
+#checkout-step-done #checkout-done-close {
+    margin-top: .75rem;
+    border-color: var(--border-color);
+}
+
+@media (max-width: 480px) {
+    #checkout-modal .close-modal { top: .75rem; right: .75rem; }
+    #checkout-modal .checkout-submit { width: 100%; }
+}
