@@ -2951,6 +2951,7 @@ body.zh .logo {
 
 /* 主推首屏：鸭嘴兽 */
 .main { padding-top: var(--space-lg); }
+.main section[id] { scroll-margin-top: 110px; }
 .hero.hero-featured {
     position: relative;
     display: grid;
@@ -3171,6 +3172,9 @@ body.zh .hero.hero-featured h1 { letter-spacing: -0.02em; }
     border-radius: calc(var(--radius-lg) - 6px);
     background: var(--surface-alt);
 }
+.product-card .product-main-img { aspect-ratio: 1 / 1; object-fit: cover; }
+.product-card[data-product-id="1"] .product-main-img,
+.product-card[data-product-id="6"] .product-main-img { aspect-ratio: 2 / 3; }
 .product-card:hover .product-image-clickable img { transform: scale(1.03); }
 .product-image-clickable img { transition: transform 700ms var(--ease-out); }
 .product-info { padding: 1.25rem 1.4rem 1.4rem; }
@@ -3396,8 +3400,8 @@ a:focus-visible,
     .hero.hero-featured {
         grid-template-columns: minmax(0, 1fr) 92px;
         gap: 0.9rem;
-        margin-bottom: 0.5rem;
-        padding: 0.9rem 1rem;
+        margin-bottom: 0.4rem;
+        padding: 0.7rem 0.9rem;
         border-radius: var(--radius-lg);
         background: var(--surface-alt);
     }
@@ -3406,8 +3410,8 @@ a:focus-visible,
     .hero.hero-featured .hero-sub { display: none; }
     .hero-specs {
         gap: 0 1rem;
-        margin: 0.35rem 0 0.55rem;
-        padding-top: 0.4rem;
+        margin: 0.25rem 0 0.45rem;
+        padding-top: 0.3rem;
     }
     .hero-specs dd { font-size: 1rem; }
     .hero-specs dt { font-size: 0.68rem; }
@@ -3418,6 +3422,8 @@ a:focus-visible,
     .hero-visual img { width: 92px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); }
 
     .promo-section { padding: 0.4rem 0.75rem; margin-bottom: 0.4rem; border-radius: var(--radius-md); }
+    .promo-section .promo-section-inner { flex-wrap: nowrap; gap: 0.75rem; }
+    .promo-section .promo-text { min-width: 0; }
     .promo-section .promo-tier .promo-num { font-size: 1.05rem; }
     .promo-section .promo-title { font-size: 0.85rem; }
     .promo-section .promo-cta-btn { margin-top: 0; padding: 0.15rem 0; }
@@ -3435,6 +3441,9 @@ a:focus-visible,
     }
     .products-grid { margin-top: 0.75rem; }
     .product-card .product-image { max-height: 180px; margin: 0.4rem 0.4rem 0; }
+    .product-card .product-info { padding: 0.65rem 0.9rem 0.85rem; }
+    .product-card .product-name { margin-bottom: 0.35rem; }
+    .product-card .product-description { margin-bottom: 0.6rem; }
     .product-card:hover { transform: none; box-shadow: none; border-color: var(--border-color); }
     .nav { padding: 0.35rem 0.75rem 0.1rem; }
     .nav-items { padding: 0.1rem 0 0; gap: 0.6rem; }

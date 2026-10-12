@@ -1177,11 +1177,11 @@ const TRANSLATIONS = {
         hero_kicker: 'Destacado',
         hero_title: 'Dash',
         hero_subtitle: '4000 puffs · Amplia variedad de sabores · Toque helado y suave',
-        hero_spec_puffs: 'puffs (producto)',
+        hero_spec_puffs: 'puffs',
         hero_spec_flavors: 'sabores',
-        hero_spec_price: 'precio de catálogo',
+        hero_spec_price: 'precio',
         hero_cta_flavors: 'Elegir sabor',
-        hero_cta_all: 'Todos los productos',
+        hero_cta_all: 'Ver todo',
 
         // 产品区域
         products_title: 'Productos Destacados',

@@ -1,6 +1,6 @@
 /**
  * 选择性动效：data-reveal 区块进场 + 首屏商品图轻微视差。
- * 系统开启「减少动态效果」时全部关闭；视差只在宽屏和鼠标设备上启用。
+ * 系统开启「减少动态效果」时全部关闭；视差只在宽度大于 960px 时启用。
  */
 (function () {
     const root = document.documentElement;
@@ -24,7 +24,7 @@
     const parallaxItems = Array.from(document.querySelectorAll('[data-parallax]'));
     if (!parallaxItems.length) return;
 
-    const wide = window.matchMedia('(min-width: 961px) and (pointer: fine)');
+    const wide = window.matchMedia('(min-width: 961px)');
     const STRENGTH = 0.12;
     const LIMIT = 40;
     let ticking = false;
