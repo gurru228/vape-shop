@@ -1,14 +1,18 @@
 /**
  * 本地静态站 + 报价 / 手动下单函数。
- * node scripts/dev-server.js
- * 打开 http://127.0.0.1:8888
+ * PORT=47400 npm run dev
+ * 打开 http://localhost:47400
  */
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+// Load local server credentials before importing handlers. Never serve this file.
+if (typeof process.loadEnvFile === 'function' && fs.existsSync(path.join(__dirname, '../.env.local'))) {
+    process.loadEnvFile(path.join(__dirname, '../.env.local'));
+}
 const quote = require('../netlify/functions/quote');
-const saveOrder = require('../netlify/functions/save-bizum-order');
+const saveOrder = require('../netlify/functions/submit-order');
 
 const PORT = Number(process.env.PORT) || 8888;
 const ROOT = path.join(__dirname, '..');
@@ -27,10 +31,9 @@ const TYPES = {
 
 const functions = {
     '/.netlify/functions/quote': quote,
+    '/.netlify/functions/submit-order': saveOrder,
     '/.netlify/functions/save-bizum-order': saveOrder,
-    '/.netlify/functions/get-inventory': {
-        handler: async () => ({ statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: '[]' })
-    },
+    '/.netlify/functions/get-inventory': require('../netlify/functions/get-inventory'),
     '/.netlify/functions/track-click': {
         handler: async () => ({ statusCode: 204, body: '' })
     }
@@ -42,12 +45,18 @@ const server = http.createServer(async (req, res) => {
     if (fn) {
         const chunks = [];
         for await (const chunk of req) chunks.push(chunk);
-        const result = await fn.handler({
-            httpMethod: req.method,
-            headers: req.headers,
-            body: Buffer.concat(chunks).toString('utf8'),
-            path: url.pathname,
-        });
+        let result;
+        try {
+            result = await fn.handler({
+                httpMethod: req.method,
+                headers: req.headers,
+                body: Buffer.concat(chunks).toString('utf8'),
+                path: url.pathname,
+            });
+        } catch (error) {
+            console.error('Local function failed:', url.pathname, error.message);
+            result = { statusCode: 500, body: JSON.stringify({ error: 'server_error' }) };
+        }
         res.writeHead(result.statusCode || 200, result.headers || { 'Content-Type': 'application/json' });
         res.end(result.body || '');
         return;
@@ -55,7 +64,7 @@ const server = http.createServer(async (req, res) => {
 
     const rel = decodeURIComponent(url.pathname === '/' ? '/index.html' : url.pathname);
     const filePath = path.normalize(path.join(ROOT, rel));
-    if (!filePath.startsWith(ROOT)) {
+    if (!filePath.startsWith(ROOT + path.sep) || rel.split('/').some(part => part.startsWith('.')) || !['.html', ...Object.keys(TYPES)].includes(path.extname(filePath))) {
         res.writeHead(403);
         res.end('forbidden');
         return;

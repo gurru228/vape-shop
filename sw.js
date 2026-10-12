@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vapeshop-v7-printmaking';
+const CACHE_NAME = 'vapeshop-v8-order-checkout';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

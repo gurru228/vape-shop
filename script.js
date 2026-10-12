@@ -364,7 +364,7 @@ async function submitOrder() {
         });
         if (!quote) throw new Error(quoteErrorMessage('empty_cart'));
         applyServerQuote(quote);
-        const res = await fetch('/.netlify/functions/save-bizum-order', {
+        const res = await fetch('/.netlify/functions/submit-order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
