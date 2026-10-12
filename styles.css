@@ -818,164 +818,6 @@ body.zh {
     opacity: 1;
 }
 
-/* ===== 产品详情全屏页 ===== */
-.product-detail-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 1100;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-lg);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity var(--transition-base);
-}
-
-.product-detail-overlay.open {
-    opacity: 1;
-    pointer-events: all;
-}
-
-.detail-close {
-    position: absolute;
-    top: var(--space-lg);
-    right: var(--space-lg);
-    background: rgba(255,255,255,0.15);
-    border: none;
-    color: #fff;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    font-size: var(--font-size-lg);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background var(--transition-fast);
-}
-
-.detail-close:hover {
-    background: rgba(255,255,255,0.3);
-}
-
-.detail-content {
-    display: flex;
-    gap: var(--space-2xl);
-    align-items: center;
-    max-width: 900px;
-    width: 100%;
-    max-height: 90vh;
-}
-
-.detail-image-wrap {
-    flex: 0 0 auto;
-    width: 340px;
-    max-height: 80vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.detail-image-wrap img {
-    width: 100%;
-    max-height: 80vh;
-    object-fit: contain;
-    border-radius: var(--radius-lg);
-}
-
-.detail-info {
-    flex: 1;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
-}
-
-.detail-info h2 {
-    font-size: var(--font-size-3xl);
-    font-weight: 700;
-}
-
-.detail-flavor-name {
-    font-size: var(--font-size-xl);
-    color: rgba(255,255,255,0.7);
-}
-
-.detail-desc {
-    color: rgba(255,255,255,0.6);
-    font-size: var(--font-size-base);
-    line-height: 1.6;
-}
-
-.detail-flavor-selector {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.detail-flavor-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    border: 2px solid rgba(255,255,255,0.2);
-    border-radius: var(--radius-md);
-    padding: 4px;
-    background: none;
-    cursor: pointer;
-    transition: border-color var(--transition-fast);
-    width: 72px;
-    color: rgba(255,255,255,0.6);
-}
-
-.detail-flavor-btn img {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: var(--radius-sm);
-}
-
-.detail-flavor-btn span {
-    font-size: 0.65rem;
-    text-align: center;
-    line-height: 1.2;
-    word-break: break-word;
-}
-
-.detail-flavor-btn:hover {
-    border-color: rgba(255,255,255,0.5);
-}
-
-.detail-flavor-btn.active {
-    border-color: #fff;
-    color: #fff;
-}
-
-.detail-price {
-    font-size: var(--font-size-3xl);
-    font-weight: 700;
-}
-
-.detail-add-cart {
-    align-self: flex-start;
-    margin-top: var(--space-sm);
-}
-
-@media (max-width: 768px) {
-    .detail-content {
-        flex-direction: column;
-        overflow-y: auto;
-        gap: var(--space-lg);
-    }
-
-    .detail-image-wrap {
-        width: 100%;
-        max-height: 50vh;
-    }
-}
-
 /* ===== 口味选择器 ===== */
 .flavor-selector {
     display: flex;
@@ -3827,17 +3669,6 @@ body.is-card-dragging * { cursor: grabbing !important; }
     transition: transform 220ms var(--ease-out), opacity 220ms var(--ease-out);
 }
 
-/* 关闭状态下详情层内的按钮不可聚焦 */
-.product-detail-overlay {
-    visibility: hidden;
-    transition: opacity var(--transition-base), visibility 0s linear 260ms;
-}
-.product-detail-overlay.open {
-    visibility: visible;
-    transition: opacity var(--transition-base), visibility 0s;
-}
-.detail-close:focus-visible { outline-color: #ffffff; }
-
 @media (max-width: 768px) {
     .detail-dropzone {
         min-height: 48px;
@@ -4057,7 +3888,7 @@ body { background-image: url('images/design/paper.svg'); }
 .footer .footer-section h3, .footer .footer-section h4,
 .footer .footer-section p, .footer .footer-bottom,
 .footer .footer-legal-links a, .footer .footer-section a { color: var(--on-primary); }
-.detail-content, .checkout-container {
+.checkout-container {
     background: var(--surface) url('images/design/paper.svg');
     border: 3px double var(--border-color);
 }
@@ -4071,13 +3902,31 @@ body { background-image: url('images/design/paper.svg'); }
 
 /* ===== 产品详情：左图右列表，加购按钮固定在列表正下方 =====
    The dialog is bounded to the viewport; only the flavor list scrolls. */
-html.detail-locked { overflow: hidden; }
+html.detail-locked, html.detail-locked body { overflow: hidden; }
 .product-detail-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity var(--transition-base), visibility 0s linear 260ms;
     background: rgba(36, 39, 31, 0.72);
     padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
     overscroll-behavior: contain;
 }
+.product-detail-overlay.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+    transition: opacity var(--transition-base), visibility 0s;
+}
 .detail-content {
+    background: var(--surface) url('images/design/paper.svg');
+    border: 3px double var(--border-color);
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -4094,6 +3943,13 @@ html.detail-locked { overflow: hidden; }
     box-shadow: 6px 6px 0 #24271f26;
 }
 .detail-close {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-lg);
+    cursor: pointer;
+    transition: background var(--transition-fast);
     top: .5rem;
     right: .5rem;
     z-index: 2;
@@ -4107,6 +3963,9 @@ html.detail-locked { overflow: hidden; }
 .detail-close:hover { background: var(--surface-alt); }
 .detail-close:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .detail-image-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: auto;
     min-width: 0;
     min-height: 0;
@@ -4138,6 +3997,7 @@ html.detail-locked { overflow: hidden; }
     margin: 0;
     font-family: var(--font-family-display);
     font-size: 1.75rem;
+    font-weight: 700;
     line-height: 1.15;
     color: var(--ink);
     overflow-wrap: anywhere;
@@ -4146,14 +4006,14 @@ html.detail-locked { overflow: hidden; }
     margin: .3rem 0 0;
     font-size: 1.05rem;
     font-weight: 600;
-    color: var(--accent);
+    color: var(--ink);
     overflow-wrap: anywhere;
 }
 .detail-head .flavor-tags { margin: .4rem 0 0; }
 .detail-head .flavor-tags:empty { display: none; }
 .detail-desc {
     margin: .45rem 0 0;
-    color: var(--muted);
+    color: var(--ink);
     font-size: .875rem;
     line-height: 1.5;
 }
@@ -4173,6 +4033,9 @@ html.detail-locked { overflow: hidden; }
 }
 .detail-flavor-selector:empty { display: none; }
 .detail-flavor-btn {
+    display: flex;
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
     position: relative;
     flex-direction: row;
     align-items: center;
@@ -4214,8 +4077,13 @@ html.detail-locked { overflow: hidden; }
     box-shadow: inset 0 0 0 1px var(--ink), inset 4px 0 0 var(--accent);
 }
 .detail-flavor-btn.active .detail-flavor-label { font-weight: 700; }
+.detail-flavor-btn.sold-out-flavor { cursor: not-allowed; }
 .detail-flavor-btn.sold-out-flavor:hover { border-color: var(--border-color); }
 .detail-flavor-btn .soldout-label {
+    font-size: .65rem;
+    line-height: 1.2;
+    text-align: center;
+    word-break: break-word;
     position: static;
     flex: 0 0 auto;
     background: #8f2f22;

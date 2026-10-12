@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vapeshop-v10-detail-split';
+const CACHE_NAME = 'vapeshop-v11-detail-layout';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
