@@ -31,9 +31,10 @@ async function initSupabase() {
 }
 
 // ===== 配置信息 =====
+const SHOP_CONTACT = (typeof window !== 'undefined' && window.SHOP_CONTACT) || require('./lib/contact');
+
 const CONFIG = {
-    bizumPhone: '+34 697 332 407',
-    whatsappPhone: '34697332407', // 与全站 wa.me/34697332407 以及 lib/pricing.js 相同
+    whatsappPhone: SHOP_CONTACT.WHATSAPP_PHONE,
     defaultCurrency: '€',
     storeName: '口粮专卖店'
 };
@@ -184,7 +185,9 @@ function quoteErrorMessage(code) {
         empty_cart: '购物车是空的 / El carrito está vacío',
         delivery_minimum: '外送至少需要5件商品 / Se necesitan mínimo 5 unidades para entrega a domicilio',
         missing_customer: '请填写姓名和手机号 / Por favor complete su nombre y teléfono',
-        cash_postal_unavailable: '现金支付不支持邮寄 / El pago en efectivo no está disponible para envío postal'
+        missing_street: '请填写街道和门牌号 / Por favor introduzca la calle y número',
+        missing_postal: '请填写完整邮寄地址（收件人、街道、邮编、城市）/ Rellene todos los campos de dirección postal',
+        save_failed: '订单没有提交成功，请稍后再试一次 / No se pudo enviar el pedido. Inténtelo de nuevo'
     };
     return messages[code] || '价格计算失败，请稍后重试 / No se pudo calcular el precio';
 }
@@ -313,34 +316,51 @@ function applyServerQuote(quote) {
     }
 }
 
-async function placeWhatsAppOrder() {
+function validateCheckoutFields() {
+    const value = id => document.getElementById(id)?.value.trim() || '';
+    const { deliveryType } = currentDeliveryContext();
+    if (!value('checkout-customer-name') || !value('checkout-customer-phone')) return 'missing_customer';
+    if (deliveryType === 'delivery') {
+        if (getNonFreeQuantity() < 5) return 'delivery_minimum';
+        if (!value('checkout-delivery-street')) return 'missing_street';
+    }
+    if (deliveryType === 'postal' && ['checkout-postal-recipient', 'checkout-postal-street', 'checkout-postal-cp', 'checkout-postal-city'].some(id => !value(id))) {
+        return 'missing_postal';
+    }
+    return null;
+}
+
+// 只登记订单：服务器保存后经 Telegram 通知卖家，由卖家联系客户
+async function submitOrder() {
     const errorEl = document.getElementById('checkout-error');
+    const submitBtn = document.getElementById('checkout-submit');
     const showError = (message) => {
-        if (errorEl) {
-            errorEl.textContent = message;
-            errorEl.style.display = 'block';
-        } else {
-            alert(message);
-        }
+        errorEl.textContent = message;
+        errorEl.style.display = 'block';
     };
     if (!cartRequestItems().length) {
-        alert(TRANSLATIONS[currentLanguage].cart_empty);
+        showError(quoteErrorMessage('empty_cart'));
         return;
     }
+    const invalid = validateCheckoutFields();
+    if (invalid) {
+        showError(quoteErrorMessage(invalid));
+        return;
+    }
+    errorEl.style.display = 'none';
+
     const fields = collectCheckoutFields();
-    if (fields.isDelivery && getNonFreeQuantity() < 5) {
-        showError(quoteErrorMessage('delivery_minimum'));
-        return;
-    }
-    const popup = window.open('about:blank', '_blank');
-    const buttons = [document.getElementById('cart-whatsapp-order'), document.getElementById('btn-pay-whatsapp')];
-    buttons.forEach(btn => { if (btn) btn.disabled = true; });
+    const orderNumber = 'ORD-' + Date.now();
+    const label = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.textContent = TRANSLATIONS[currentLanguage].checkout_submitting;
     try {
         const quote = await fetchServerQuote({
             customerName: fields.name,
             customerPhone: fields.phone,
             address: fields.address,
-            deliveryTime: fields.deliveryTime
+            deliveryTime: fields.deliveryTime,
+            orderNumber
         });
         if (!quote) throw new Error(quoteErrorMessage('empty_cart'));
         applyServerQuote(quote);
@@ -355,29 +375,35 @@ async function placeWhatsAppOrder() {
                 address: fields.address,
                 deliveryTime: fields.deliveryTime,
                 country: fields.country,
-                paymentMethod: 'whatsapp',
+                orderNumber,
                 agentRef: sessionStorage.getItem('agent_ref') || '',
                 ...(currentUser ? { userId: currentUser.id } : {})
             })
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok || (data.error && !data.whatsappUrl)) throw new Error(quoteErrorMessage(data.error));
-        const url = data.whatsappUrl || quote.whatsappUrl;
-        if (!url || !url.includes(`wa.me/${CONFIG.whatsappPhone}`)) throw new Error(quoteErrorMessage());
-        if (popup) popup.location.href = url;
-        else window.location.href = url;
-        const modal = document.getElementById('checkout-modal');
-        if (modal) modal.style.display = 'none';
+        if (!res.ok || data.error) throw new Error(quoteErrorMessage(data.error || 'save_failed'));
+        if (data.saved === false) throw new Error(quoteErrorMessage('save_failed'));
+        if (activeDiscount) markCodeAsUsed(activeDiscount.code);
         clearCart();
-        alert(data.saved === false
-            ? 'WhatsApp 已打开。系统暂未保存订单，请务必发送这条消息。\nWhatsApp está abierto. El pedido no se guardó: envíe el mensaje.'
-            : '请在 WhatsApp 中发送订单消息，我们会据此处理。\nEnvíe el mensaje del pedido por WhatsApp.');
+        showOrderDone(data.orderNumber || orderNumber);
     } catch (err) {
-        if (popup) popup.close();
-        showError(err.message || quoteErrorMessage());
+        showError(err.message || quoteErrorMessage('save_failed'));
     } finally {
-        buttons.forEach(btn => { if (btn) btn.disabled = false; });
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = label;
     }
+}
+
+function showOrderDone(orderNumber) {
+    document.getElementById('checkout-step-info').style.display = 'none';
+    const done = document.getElementById('checkout-step-done');
+    document.getElementById('checkout-done-order').textContent = orderNumber;
+    done.style.display = 'block';
+    done.focus({ preventScroll: true });
+    document.getElementById('checkout-done-close').onclick = () => {
+        document.getElementById('checkout-modal').style.display = 'none';
+        showPostCheckoutPrompt(orderNumber);
+    };
 }
 
 // ===== 购物车系统 =====
@@ -588,6 +614,7 @@ function createCartItemElement(item) {
 function flyToCart(btn, imageSrc) {
     const cartIcon = document.getElementById('cart-toggle');
     if (!cartIcon) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const btnRect = btn.getBoundingClientRect();
     const cartRect = cartIcon.getBoundingClientRect();
@@ -605,12 +632,6 @@ function flyToCart(btn, imageSrc) {
     }
     document.body.appendChild(flyEl);
 
-    // 按钮变绿反馈动画
-    btn.classList.remove('added');
-    void btn.offsetWidth;
-    btn.classList.add('added');
-    btn.addEventListener('animationend', () => btn.classList.remove('added'), { once: true });
-
     const startX = btnRect.left + btnRect.width / 2 - FLY_SIZE / 2;
     const startY = btnRect.top + btnRect.height / 2 - FLY_SIZE / 2;
     const endX = cartRect.left + cartRect.width / 2 - FLY_SIZE / 2;
@@ -619,21 +640,18 @@ function flyToCart(btn, imageSrc) {
     flyEl.style.left = `${startX}px`;
     flyEl.style.top = `${startY}px`;
 
-    const duration = 700;
+    const duration = 620;
     const startTime = performance.now();
 
     function animate(now) {
         const t = Math.min((now - startTime) / duration, 1);
-        const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-        const arc = Math.sin(Math.PI * t) * -120;
-        const x = startX + (endX - startX) * ease;
-        const y = startY + (endY - startY) * ease + arc;
-        const scale = 1 - t * 0.7;
-        const rot = t * 360;
+        const ease = 1 - Math.pow(1 - t, 4);
+        const arc = Math.sin(Math.PI * t) * -80;
+        const x = (endX - startX) * ease;
+        const y = (endY - startY) * ease + arc;
+        const scale = 1 - t * 0.65;
         const opacity = t > 0.85 ? (1 - t) / 0.15 : 1;
-        flyEl.style.left = `${x}px`;
-        flyEl.style.top = `${y}px`;
-        flyEl.style.transform = `scale(${scale}) rotate(${rot}deg)`;
+        flyEl.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
         flyEl.style.opacity = opacity;
         if (t < 1) {
             requestAnimationFrame(animate);
@@ -756,11 +774,6 @@ function setupCartEventListeners() {
         });
     }
 
-    const cartWhatsapp = document.getElementById('cart-whatsapp-order');
-    if (cartWhatsapp) cartWhatsapp.addEventListener('click', () => placeWhatsAppOrder());
-    const checkoutWhatsapp = document.getElementById('btn-pay-whatsapp');
-    if (checkoutWhatsapp) checkoutWhatsapp.addEventListener('click', () => placeWhatsAppOrder());
-
     document.getElementById('time-slots')?.addEventListener('click', (event) => {
         const btn = event.target.closest('.time-slot');
         if (!btn) return;
@@ -802,13 +815,10 @@ function openCartCheckoutModal() {
     const totalEl = document.getElementById('checkout-total-display');
     const errorEl = document.getElementById('checkout-error');
     const stepInfo = document.getElementById('checkout-step-info');
-    const stepBizum = document.getElementById('checkout-step-bizum');
 
     // 重置状态
     stepInfo.style.display = 'block';
-    stepBizum.style.display = 'none';
-    document.getElementById('checkout-step-cash').style.display = 'none';
-    document.getElementById('checkout-step-alipay').style.display = 'none';
+    document.getElementById('checkout-step-done').style.display = 'none';
     errorEl.style.display = 'none';
     document.getElementById('checkout-customer-name').value = '';
     document.getElementById('checkout-customer-phone').value = '';
@@ -848,7 +858,6 @@ function openCartCheckoutModal() {
         document.getElementById('address-group').style.display = mode === 'delivery' ? 'block' : 'none';
         document.getElementById('time-group').style.display = mode === 'delivery' ? 'block' : 'none';
         document.getElementById('postal-group').style.display = mode === 'postal' ? 'block' : 'none';
-        document.getElementById('btn-pay-cash').style.display = mode === 'postal' ? 'none' : '';
         updateCheckoutTotal();
         errorEl.style.display = 'none';
     };
@@ -879,288 +888,8 @@ function openCartCheckoutModal() {
         modal.style.display = 'none';
         openCartSidebar();
     };
-    document.getElementById('bizum-back-btn').onclick = () => {
-        document.getElementById('checkout-step-bizum').style.display = 'none';
-        document.getElementById('checkout-step-info').style.display = 'block';
-    };
-
-    document.getElementById('wechat-back-btn').onclick = () => {
-        document.getElementById('checkout-step-wechat').style.display = 'none';
-        document.getElementById('checkout-step-info').style.display = 'block';
-    };
-
-    document.getElementById('alipay-back-btn').onclick = () => {
-        document.getElementById('checkout-step-alipay').style.display = 'none';
-        document.getElementById('checkout-step-info').style.display = 'block';
-    };
-
-    function getDeliveryAddress() {
-        const s = document.getElementById('checkout-delivery-street').value.trim();
-        const f = document.getElementById('checkout-delivery-floor').value.trim();
-        const d = document.getElementById('checkout-delivery-district').value.trim();
-        return { street: s, floor: f, district: d,
-            formatted: [s + (f ? `, ${f}` : ''), d ? `Madrid – ${d}` : 'Madrid'].filter(Boolean).join('\n') };
-    }
-
-    function getPostalAddress() {
-        const r = document.getElementById('checkout-postal-recipient').value.trim();
-        const s = document.getElementById('checkout-postal-street').value.trim();
-        const f = document.getElementById('checkout-postal-floor').value.trim();
-        const cp = document.getElementById('checkout-postal-cp').value.trim();
-        const city = document.getElementById('checkout-postal-city').value.trim();
-        const prov = document.getElementById('checkout-postal-province').value.trim();
-        const countrySel = document.getElementById('checkout-postal-country');
-        const countryCode = countrySel?.value || 'ES';
-        const countryLabel = countrySel?.selectedOptions?.[0]?.textContent.trim() || 'España';
-        const quoteFlag = countryCode !== 'ES' ? '⚠️ 运费另询 / Envío a confirmar' : '';
-        return { recipient: r, street: s, floor: f, cp, city, province: prov, countryCode, countryLabel,
-            formatted: [r, s + (f ? ` ${f}` : ''), `${cp} ${city}`.trim(), prov, countryLabel, quoteFlag].filter(Boolean).join('\n') };
-    }
-
-    // 收集并校验表单，返回 payload 或 null
-    async function buildOrderPayload(paymentMethod) {
-        const name = document.getElementById('checkout-customer-name').value.trim();
-        const phone = document.getElementById('checkout-customer-phone').value.trim();
-        const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
-        const isPostal = document.getElementById('btn-postal').classList.contains('active');
-        const deliveryData = getDeliveryAddress();
-        const postalData = getPostalAddress();
-        if (!name || !phone) {
-            errorEl.textContent = '请填写姓名和手机号 / Por favor complete su nombre y teléfono';
-            errorEl.style.display = 'block';
-            return null;
-        }
-        if (isDelivery && !deliveryData.street) {
-            errorEl.textContent = '请填写街道和门牌号 / Por favor introduzca la calle y número';
-            errorEl.style.display = 'block';
-            return null;
-        }
-        if (isPostal && (!postalData.recipient || !postalData.street || !postalData.cp || !postalData.city)) {
-            errorEl.textContent = '请填写完整邮寄地址（收件人、街道、邮编、城市）/ Rellene todos los campos de dirección postal';
-            errorEl.style.display = 'block';
-            return null;
-        }
-        errorEl.style.display = 'none';
-
-        const deliveryType = isDelivery ? 'delivery' : isPostal ? 'postal' : 'pickup';
-        const finalAddress = isDelivery ? deliveryData.formatted : isPostal ? postalData.formatted : '';
-        const orderNumber = 'ORD-' + Date.now();
-        let quote;
-        try {
-            quote = await fetchServerQuote({
-                customerName: name,
-                customerPhone: phone,
-                address: finalAddress,
-                orderNumber
-            });
-        } catch (err) {
-            errorEl.textContent = err.message;
-            errorEl.style.display = 'block';
-            return null;
-        }
-        if (!quote) return null;
-        applyServerQuote(quote);
-
-        return {
-            items: cartRequestItems(),
-            customerName: name,
-            customerPhone: phone,
-            deliveryType,
-            address: finalAddress,
-            deliveryTime: isDelivery ? selectedDeliverySlot() : '',
-            country: document.getElementById('checkout-postal-country')?.value || 'ES',
-            agentRef: sessionStorage.getItem('agent_ref') || '',
-            paymentMethod,
-            orderNumber,
-            total: quote.total
-        };
-    }
-
-    // 提交订单到服务器（客户点"我已付款"后才调用）
-    async function submitOrder(payload, confirmBtn, confirmBtnOriginalHTML) {
-        confirmBtn.disabled = true;
-        confirmBtn.textContent = '提交中...';
-        try {
-            // 如果用户已登录，带上 userId
-            const finalPayload = { ...payload };
-            if (currentUser) finalPayload.userId = currentUser.id;
-
-            const res = await fetch('/.netlify/functions/save-bizum-order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(finalPayload)
-            });
-            const data = await res.json();
-            if (!res.ok || data.error || data.supabase_error) throw new Error(data.error || data.supabase_error || 'Error');
-            if (activeDiscount) markCodeAsUsed(activeDiscount.code);
-            modal.style.display = 'none';
-            clearCart();
-            // 未登录则提示注册
-            showPostCheckoutPrompt(payload.orderNumber);
-            if (currentUser) alert('谢谢！我们收到您的付款通知，确认后会联系您。\n¡Gracias! Le contactaremos al confirmar el pago.');
-        } catch (err) {
-            alert('提交失败，请重试 / Error al enviar, inténtelo de nuevo');
-            confirmBtn.disabled = false;
-            confirmBtn.innerHTML = confirmBtnOriginalHTML;
-        }
-    }
-
-    // Bizum 支付
-    document.getElementById('btn-pay-bizum').onclick = async () => {
-        const payload = await buildOrderPayload('bizum');
-        if (!payload) return;
-
-        document.getElementById('bizum-amount-display').textContent = `${CONFIG.defaultCurrency}${payload.total.toFixed(2)}`;
-        document.getElementById('bizum-order-display').textContent = payload.orderNumber;
-        const waMsg = encodeURIComponent(`Hola! Acabo de hacer el pago por Bizum.\nPedido: ${payload.orderNumber}\nImporte: €${payload.total.toFixed(2)}\n(附上截图 / adjunto captura)`);
-        document.getElementById('bizum-whatsapp-btn').href = `https://wa.me/34697332407?text=${waMsg}`;
-        stepInfo.style.display = 'none';
-        stepBizum.style.display = 'block';
-
-        const bizumCheck = document.getElementById('bizum-screenshot-check');
-        bizumCheck.checked = false;
-        const confirmBtn = document.getElementById('bizum-confirm-btn');
-        confirmBtn.disabled = true;
-        bizumCheck.onchange = () => { confirmBtn.disabled = !bizumCheck.checked; };
-        const originalHTML = confirmBtn.innerHTML;
-        confirmBtn.onclick = () => submitOrder(payload, confirmBtn, originalHTML);
-        document.getElementById('checkout-cancel-btn').onclick = () => modal.style.display = 'none';
-    };
-
-    // 微信支付
-    document.getElementById('btn-pay-wechat').onclick = async () => {
-        const payload = await buildOrderPayload('wechat');
-        if (!payload) return;
-
-        document.getElementById('wechat-amount-display').textContent = `${CONFIG.defaultCurrency}${payload.total.toFixed(2)}`;
-        document.getElementById('wechat-order-display').textContent = payload.orderNumber;
-        const waMsg = encodeURIComponent(`你好！我刚完成微信支付。\n订单号: ${payload.orderNumber}\n金额: €${payload.total.toFixed(2)}\n（附上截图 / adjunto captura）`);
-        document.getElementById('wechat-whatsapp-btn').href = `https://wa.me/34697332407?text=${waMsg}`;
-        stepInfo.style.display = 'none';
-        document.getElementById('checkout-step-wechat').style.display = 'block';
-
-        const wechatCheck = document.getElementById('wechat-screenshot-check');
-        wechatCheck.checked = false;
-        const confirmBtn = document.getElementById('wechat-confirm-btn');
-        confirmBtn.disabled = true;
-        wechatCheck.onchange = () => { confirmBtn.disabled = !wechatCheck.checked; };
-        const originalHTML = confirmBtn.innerHTML;
-        confirmBtn.onclick = () => submitOrder(payload, confirmBtn, originalHTML);
-        document.getElementById('wechat-cancel-btn').onclick = () => modal.style.display = 'none';
-    };
-
-    // 支付宝支付
-    document.getElementById('btn-pay-alipay').onclick = async () => {
-        const payload = await buildOrderPayload('alipay');
-        if (!payload) return;
-
-        document.getElementById('alipay-amount-display').textContent = `${CONFIG.defaultCurrency}${payload.total.toFixed(2)}`;
-        document.getElementById('alipay-order-display').textContent = payload.orderNumber;
-        const waMsg = encodeURIComponent(`你好！我刚完成支付宝付款。\n订单号: ${payload.orderNumber}\n金额: €${payload.total.toFixed(2)}\n（附上截图 / adjunto captura）`);
-        document.getElementById('alipay-whatsapp-btn').href = `https://wa.me/34697332407?text=${waMsg}`;
-        stepInfo.style.display = 'none';
-        document.getElementById('checkout-step-alipay').style.display = 'block';
-
-        const alipayCheck = document.getElementById('alipay-screenshot-check');
-        alipayCheck.checked = false;
-        const confirmBtn = document.getElementById('alipay-confirm-btn');
-        confirmBtn.disabled = true;
-        alipayCheck.onchange = () => { confirmBtn.disabled = !alipayCheck.checked; };
-        const originalHTML = confirmBtn.innerHTML;
-        confirmBtn.onclick = () => submitOrder(payload, confirmBtn, originalHTML);
-        document.getElementById('alipay-cancel-btn').onclick = () => modal.style.display = 'none';
-    };
-
-    // 现金支付
-    document.getElementById('btn-pay-cash').onclick = async () => {
-        const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
-        const isPostal = document.getElementById('btn-postal').classList.contains('active');
-        if (isPostal) {
-            errorEl.textContent = '现金支付不支持邮寄 / El pago en efectivo no está disponible para envío postal';
-            errorEl.style.display = 'block';
-            return;
-        }
-        if (isDelivery && getNonFreeQuantity() < 5) {
-            errorEl.textContent = '外送至少需要5件商品 / Se necesitan mínimo 5 unidades para entrega a domicilio';
-            errorEl.style.display = 'block';
-            return;
-        }
-        const payload = await buildOrderPayload('cash');
-        if (!payload) return;
-
-        document.getElementById('cash-amount-display').textContent = `${CONFIG.defaultCurrency}${payload.total.toFixed(2)}`;
-        document.getElementById('cash-order-display').textContent = payload.orderNumber;
-        stepInfo.style.display = 'none';
-        document.getElementById('checkout-step-cash').style.display = 'block';
-
-        const confirmBtn = document.getElementById('cash-confirm-btn');
-        const originalHTML = confirmBtn.innerHTML;
-        confirmBtn.onclick = () => submitOrder(payload, confirmBtn, originalHTML);
-        document.getElementById('cash-cancel-btn').onclick = () => modal.style.display = 'none';
-    };
-
-    document.getElementById('cash-back-btn').onclick = () => {
-        document.getElementById('checkout-step-cash').style.display = 'none';
-        stepInfo.style.display = 'block';
-    };
-
-    // 银行卡支付
-    document.getElementById('btn-pay-card').onclick = async () => {
-        const name = document.getElementById('checkout-customer-name').value.trim();
-        const phone = document.getElementById('checkout-customer-phone').value.trim();
-        const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
-        const isPostal = document.getElementById('btn-postal').classList.contains('active');
-        const deliveryData = getDeliveryAddress();
-        const postalData = getPostalAddress();
-        if (!name || !phone) {
-            errorEl.textContent = '请填写姓名和手机号 / Por favor complete su nombre y teléfono';
-            errorEl.style.display = 'block';
-            return;
-        }
-        if (isDelivery && !deliveryData.street) {
-            errorEl.textContent = '请填写街道和门牌号 / Por favor introduzca la calle y número';
-            errorEl.style.display = 'block';
-            return;
-        }
-        if (isPostal && (!postalData.recipient || !postalData.street || !postalData.cp || !postalData.city)) {
-            errorEl.textContent = '请填写完整邮寄地址（收件人、街道、邮编、城市）/ Rellene todos los campos de dirección postal';
-            errorEl.style.display = 'block';
-            return;
-        }
-        errorEl.style.display = 'none';
-        document.getElementById('btn-pay-card').disabled = true;
-        document.getElementById('btn-pay-card').textContent = '跳转中...';
-
-        const deliveryType = isDelivery ? 'delivery' : isPostal ? 'postal' : 'pickup';
-        const finalAddress = isDelivery ? deliveryData.formatted : isPostal ? postalData.formatted : '';
-
-        try {
-            const res = await fetch('/.netlify/functions/create-checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    items: cartRequestItems(),
-                    customerName: name,
-                    customerPhone: phone,
-                    deliveryType,
-                    address: finalAddress,
-                    deliveryTime: isDelivery ? selectedDeliverySlot() : '',
-                    country: document.getElementById('checkout-postal-country')?.value || 'ES',
-                    agentRef: sessionStorage.getItem('agent_ref') || '',
-                    ...(currentUser ? { userId: currentUser.id } : {})
-                })
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error);
-            if (activeDiscount) markCodeAsUsed(activeDiscount.code);
-            window.location.href = data.url;
-        } catch (err) {
-            errorEl.textContent = '出错了，请重试 / Error, inténtelo de nuevo';
-            errorEl.style.display = 'block';
-            document.getElementById('btn-pay-card').disabled = false;
-            document.getElementById('btn-pay-card').innerHTML = '<svg class="icon" aria-hidden="true"><use href="#i-card" xlink:href="#i-card"></use></svg><span>Tarjeta</span><small>信用/借记卡</small>';
-        }
-    };
+    document.getElementById('checkout-submit').onclick = () => submitOrder();
+    document.getElementById('checkout-customer-name').focus({ preventScroll: true });
 }
 
 // ===== 双语文本数据 =====
@@ -1174,9 +903,9 @@ const TRANSLATIONS = {
         contact: 'Contacto',
 
         // 英雄区域
-        hero_kicker: 'Destacado',
+        hero_kicker: 'Selección para adultos',
         hero_title: 'Dash',
-        hero_subtitle: '4000 puffs · Amplia variedad de sabores · Toque helado y suave',
+        hero_subtitle: '4000 puffs · Consulte sabores, disponibilidad y especificaciones',
         hero_spec_puffs: 'puffs',
         hero_spec_flavors: 'sabores',
         hero_spec_price: 'precio',
@@ -1188,26 +917,16 @@ const TRANSLATIONS = {
         products_subtitle: 'Múltiples tipos, múltiples sabores — encuentra el tuyo',
 
         // 产品描述
-        dash_desc: '4000 puffs · Amplia variedad de sabores · Toque helado y suave',
+        dash_desc: '4000 puffs · Consulte sabores, disponibilidad y especificaciones',
         icemax_desc: 'Sabor intenso a menta con efecto refrescante',
         lil_black_desc: 'Compacto y discreto, ideal para llevar',
         iceking_desc: 'Sabor frío potente, experiencia refrescante extrema',
 
-        // 支付区域
-        payment_title: 'Métodos de Pago',
-        payment_subtitle: 'Múltiples opciones de pago, seguras y convenientes',
-        bizum_title: 'Bizum',
-        bizum_desc: 'Transferencia directa a la cuenta del vendedor, sin comisiones',
-        bizum_private: 'Número visible solo al finalizar el pedido',
-        bizum_screenshot: 'Se requiere captura de pantalla para confirmar',
-        wechat_title: 'WeChat Pay',
-        wechat_desc: 'Escanee el código QR con WeChat para pagar al instante',
-        card_title: 'Tarjeta Bancaria',
-        card_desc: 'Acepta Visa, Mastercard y otras tarjetas principales. Procesado de forma segura a través de Stripe.',
-        card_secure: 'Cifrado SSL, pago 100% seguro',
-        phone: 'Teléfono:',
-        note: 'Nota:',
-        order_note: 'Por favor indique el número de pedido',
+        // 联系
+        contact_title: 'Contacto',
+        contact_lede: 'Tras recibir su pedido, el vendedor se pondrá en contacto con usted para confirmar los productos y la hora de recogida o entrega. Si prefiere una atención personalizada, escríbanos por WhatsApp.',
+        whatsapp_cta: 'Escríbanos por WhatsApp',
+        whatsapp_question: '¿Alguna duda? Pregúntenos por WhatsApp',
 
         // 管理员区域
         admin_title: 'Gestión de Productos',
@@ -1225,16 +944,14 @@ const TRANSLATIONS = {
         edit_product: 'Editar',
         delete_product: 'Eliminar',
 
-        // 模态框
-        confirm_purchase: 'Confirmar Compra',
-        payment_steps: 'Pasos de Pago:',
-        step1: 'Abra su aplicación bancaria',
-        step2: 'Seleccione la función Bizum',
-        step3: 'Ingrese el número de teléfono:',
-        step4: 'Ingrese la cantidad:',
-        step5: 'En la nota, indique el número de pedido:',
-        step6: 'Complete el pago y tome una captura de pantalla',
-        i_paid: 'He Pagado',
+        // 下单
+        checkout_submit: 'Enviar pedido',
+        checkout_submitting: 'Enviando…',
+        order_done_title: 'Pedido enviado',
+        order_number_label: 'Pedido',
+        order_done_contact: 'El vendedor se pondrá en contacto con usted para confirmar los productos y la hora de recogida o entrega.',
+        order_done_whatsapp: 'Si prefiere una atención personalizada, también puede escribirnos por WhatsApp.',
+        order_done_close: 'Cerrar',
         cancel: 'Cancelar',
 
         // 关于
@@ -1256,9 +973,10 @@ const TRANSLATIONS = {
         cart_title: 'Carrito de compras',
         cart_empty: 'El carrito está vacío',
         cart_total: 'Total:',
-        cart_checkout: 'Ir a pagar',
+        cart_checkout: 'Tramitar pedido',
         cart_clear: 'Vaciar carrito',
         add_to_cart: 'Añadir al carrito',
+        added_to_cart: 'Añadido',
         remove_from_cart: 'Eliminar',
         quantity: 'Cantidad',
         subtotal: 'Subtotal'
@@ -1273,9 +991,9 @@ const TRANSLATIONS = {
         contact: '联系',
 
         // 英雄区域
-        hero_kicker: '主推',
+        hero_kicker: '成年人精选',
         hero_title: '鸭嘴兽 Dash',
-        hero_subtitle: '4000口量 · 多款口味随心选 · 冰感顺滑不刺激',
+        hero_subtitle: '4000口量 · 查看口味、库存与产品规格',
         hero_spec_puffs: '口（整机）',
         hero_spec_flavors: '种口味',
         hero_spec_price: '目录价',
@@ -1292,21 +1010,11 @@ const TRANSLATIONS = {
         lil_black_desc: '小巧隐蔽，便携设计',
         iceking_desc: '极强冰感，极致清凉体验',
 
-        // 支付区域
-        payment_title: '支付方式',
-        payment_subtitle: '多种支付方式，安全便捷',
-        bizum_title: 'Bizum',
-        bizum_desc: '直接转账到商家账户，快速安全，无需手续费',
-        bizum_private: '下单后显示转账号码',
-        bizum_screenshot: '转账后需提供截图确认',
-        wechat_title: '微信支付',
-        wechat_desc: '扫码即付，快捷方便，支持微信钱包',
-        card_title: '银行卡支付',
-        card_desc: '支持 Visa、Mastercard 等主流银行卡，通过 Stripe 安全加密处理',
-        card_secure: 'SSL 加密，安全有保障',
-        phone: '电话:',
-        note: '备注:',
-        order_note: '请注明订单号',
+        // 联系
+        contact_title: '联系我们',
+        contact_lede: '下单后，卖家会主动联系您确认商品、取货或配送时间。想一对一沟通，可以直接在 WhatsApp 上给我们发消息。',
+        whatsapp_cta: '在 WhatsApp 上联系我们',
+        whatsapp_question: '有疑问？在 WhatsApp 上问我们',
 
         // 管理员区域
         admin_title: '产品管理',
@@ -1324,16 +1032,14 @@ const TRANSLATIONS = {
         edit_product: '编辑',
         delete_product: '删除',
 
-        // 模态框
-        confirm_purchase: '确认购买',
-        payment_steps: '支付步骤:',
-        step1: '打开您的银行App',
-        step2: '选择Bizum功能',
-        step3: '输入电话号码:',
-        step4: '输入金额:',
-        step5: '备注中注明订单号:',
-        step6: '完成支付并截图',
-        i_paid: '我已付款',
+        // 下单
+        checkout_submit: '提交订单',
+        checkout_submitting: '提交中…',
+        order_done_title: '订单已提交',
+        order_number_label: '订单号',
+        order_done_contact: '卖家会尽快联系您，确认商品和取货或配送时间。',
+        order_done_whatsapp: '如需一对一处理，也可以直接在 WhatsApp 上给我们发消息。',
+        order_done_close: '完成',
         cancel: '取消',
 
         // 关于
@@ -1355,9 +1061,10 @@ const TRANSLATIONS = {
         cart_title: '购物车',
         cart_empty: '购物车是空的',
         cart_total: '总计:',
-        cart_checkout: '去结算',
+        cart_checkout: '确认订单',
         cart_clear: '清空购物车',
         add_to_cart: '加入购物车',
+        added_to_cart: '已加入',
         remove_from_cart: '删除',
         quantity: '数量',
         subtotal: '小计'
@@ -1371,8 +1078,8 @@ let products = [
         name: '鸭嘴兽 (Dash)',
         price: 17.9,
         description: {
-            es: '4000 puffs · Amplia variedad de sabores · Toque helado y suave',
-            zh: '4000口量 · 多款口味随心选 · 冰感顺滑不刺激'
+            es: '4000 puffs · Consulte sabores, disponibilidad y especificaciones',
+            zh: '4000口量 · 查看口味、库存与产品规格'
         },
         image: 'images/dash/coconut-water.webp',
         flavors: [
@@ -1535,18 +1242,10 @@ let products = [
 
 // ===== 状态管理 =====
 let currentLanguage = detectLanguage();
-let currentOrderId = 1;
 
 // ===== DOM 元素 =====
 const domElements = {
-    languageSwitcher: document.querySelector('.language-switcher'),
-    productsGrid: document.getElementById('products-grid'),
-    purchaseModal: document.getElementById('purchase-modal'),
-    modalProductInfo: document.getElementById('modal-product-info'),
-    modalPhone: document.getElementById('modal-phone'),
-    modalAmount: document.getElementById('modal-amount'),
-    modalOrder: document.getElementById('modal-order'),
-    confirmPurchase: document.getElementById('confirm-purchase')
+    productsGrid: document.getElementById('products-grid')
 };
 
 // ===== 语言切换功能 =====
@@ -1624,7 +1323,19 @@ function syncQuickAdd(card, product, flavor) {
     const flavorLabel = currentLanguage === 'zh' ? flavor.nameCn : flavor.name;
     btn.setAttribute('aria-label', soldOut
         ? `${product.name} ${flavorLabel} 已售罄 / Agotado`
-        : `+1 ${product.name} ${flavorLabel}`);
+        : `${TRANSLATIONS[currentLanguage].add_to_cart}: ${product.name} ${flavorLabel}`);
+}
+
+function confirmCardAdd(btn) {
+    const label = btn.querySelector('.card-add-label');
+    if (!label) return;
+    clearTimeout(btn._addedTimer);
+    btn.classList.add('is-added');
+    label.textContent = TRANSLATIONS[currentLanguage].added_to_cart;
+    btn._addedTimer = setTimeout(() => {
+        btn.classList.remove('is-added');
+        label.textContent = TRANSLATIONS[currentLanguage].add_to_cart;
+    }, 1400);
 }
 
 function createProductCard(product) {
@@ -1663,8 +1374,9 @@ function createProductCard(product) {
             <p class="product-description">${product.description[currentLanguage]}</p>
             <div class="product-footer">
                 <div class="product-price">${CONFIG.defaultCurrency}${product.price.toFixed(2)}</div>
-                <button type="button" class="quick-add-btn add-to-cart-btn" data-product-id="${product.id}" aria-label="${TRANSLATIONS[currentLanguage].add_to_cart}">
-                    <span class="quick-add-plus">+1</span>
+                <button type="button" class="card-add-btn add-to-cart-btn" data-product-id="${product.id}">
+                    <svg class="icon" aria-hidden="true"><use href="#i-plus" xlink:href="#i-plus"></use></svg>
+                    <span class="card-add-label">${TRANSLATIONS[currentLanguage].add_to_cart}</span>
                 </button>
             </div>
             ${flavorsHtml}
@@ -1707,7 +1419,7 @@ function createProductCard(product) {
         }
     });
 
-    // 快速加入购物车按钮
+    // 加入购物车按钮
     const addToCartBtn = card.querySelector('.add-to-cart-btn');
     addToCartBtn.addEventListener('click', () => {
         if (addToCartBtn.disabled) return;
@@ -1726,6 +1438,7 @@ function createProductCard(product) {
             ? { ...product, id: cartId, name: `${product.name} - ${currentLanguage === 'zh' ? activeFlavor.nameCn : activeFlavor.name}`, image: activeFlavor.image }
             : product;
         addToCart(cartProduct, 1);
+        confirmCardAdd(addToCartBtn);
         flyToCart(addToCartBtn, cartProduct.image);
     });
 
@@ -2054,60 +1767,11 @@ function initCardDrag() {
     window.addEventListener('blur', () => finish(false));
 }
 
-// ===== 购买模态框功能 =====
-function openPurchaseModal(product) {
-    if (!domElements.purchaseModal || !domElements.modalProductInfo) return;
-
-    // 生成订单号
-    const orderId = `ORDER-${String(currentOrderId++).padStart(3, '0')}`;
-
-    // 更新模态框内容
-    domElements.modalProductInfo.innerHTML = `
-        <div class="modal-product">
-            <h3>${product.name}</h3>
-            <p>${product.description[currentLanguage]}</p>
-            <p><strong>${TRANSLATIONS[currentLanguage].price}:</strong> ${CONFIG.defaultCurrency}${product.price.toFixed(2)}</p>
-        </div>
-    `;
-
-    domElements.modalPhone.textContent = CONFIG.bizumPhone;
-    domElements.modalAmount.textContent = `${CONFIG.defaultCurrency}${product.price.toFixed(2)}`;
-    domElements.modalOrder.textContent = orderId;
-
-    // 显示模态框
-    domElements.purchaseModal.style.display = 'flex';
-
-    // 添加模态框关闭事件
-    const closeModal = document.querySelector('.close-modal');
-    const cancelBtn = document.getElementById('cancel-purchase');
-    const confirmBtn = document.getElementById('confirm-purchase');
-
-    const closeModalHandler = () => {
-        domElements.purchaseModal.style.display = 'none';
-    };
-
-    closeModal.addEventListener('click', closeModalHandler);
-    cancelBtn.addEventListener('click', closeModalHandler);
-
-    confirmBtn.addEventListener('click', () => {
-        alert(`¡Gracias! Hemos registrado su pedido ${orderId}. Por favor envíe el comprobante de pago a nuestro WhatsApp.`);
-        closeModalHandler();
-    });
-
-    // 点击模态框外部关闭
-    domElements.purchaseModal.addEventListener('click', (e) => {
-        if (e.target === domElements.purchaseModal) {
-            closeModalHandler();
-        }
-    });
-}
-
-// ===== 初始化函数 =====
-function initBizumInfo() {
-    const phoneElements = document.querySelectorAll('#bizum-phone, #footer-phone');
-    phoneElements.forEach(element => {
-        element.textContent = CONFIG.bizumPhone;
-    });
+// ===== 联系方式：所有 WhatsApp 链接和号码都来自 lib/contact.js =====
+function initContactLinks() {
+    const url = SHOP_CONTACT.whatsappChatUrl();
+    document.querySelectorAll('[data-whatsapp-link]').forEach(link => { link.href = url; });
+    document.querySelectorAll('[data-whatsapp-display]').forEach(el => { el.textContent = SHOP_CONTACT.whatsappDisplay(); });
 }
 
 // ===== 库存系统 =====
@@ -2145,20 +1809,13 @@ function getStockForCartItem(item) {
 
 function showStockWarning(message) {
     const el = document.createElement('div');
-    el.className = 'cart-notification';
-    el.innerHTML = `<svg class="icon" aria-hidden="true"><use href="#i-alert" xlink:href="#i-alert"></use></svg><span>${message}</span>`;
-    Object.assign(el.style, {
-        position: 'fixed', top: '20px', right: '20px',
-        backgroundColor: '#dc2626', color: '#fff',
-        padding: 'var(--space-md) var(--space-lg)',
-        borderRadius: 'var(--radius-md)',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-        zIndex: '2000', display: 'flex', alignItems: 'center',
-        gap: 'var(--space-sm)', animation: 'slideIn 0.3s ease'
-    });
+    el.className = 'shop-toast is-warning';
+    el.setAttribute('role', 'status');
+    el.innerHTML = `<svg class="icon" aria-hidden="true"><use href="#i-alert" xlink:href="#i-alert"></use></svg><span></span>`;
+    el.querySelector('span').textContent = message;
     document.body.appendChild(el);
     setTimeout(() => {
-        el.style.animation = 'slideOut 0.3s ease';
+        el.classList.add('is-leaving');
         setTimeout(() => el.remove(), 300);
     }, 3000);
 }
@@ -2257,8 +1914,7 @@ function init() {
     initProductDetail();
     initCardDrag();
 
-    // 初始化Bizum信息
-    initBizumInfo();
+    initContactLinks();
 
     // 设置默认语言
     switchLanguage(currentLanguage);
@@ -2609,7 +2265,7 @@ function closeOrdersPanel() {
     document.getElementById('orders-overlay').classList.remove('active');
 }
 
-const STATUS_ZH = { pending: '待确认', paid: '已付款', shipped: '已发货', delivered: '已完成', cancelled: '已取消' };
+const STATUS_ZH = { pending: '待确认', paid: '已确认', shipped: '已发货', delivered: '已完成', cancelled: '已取消' };
 
 async function loadUserOrders() {
     const content = document.getElementById('orders-panel-content');

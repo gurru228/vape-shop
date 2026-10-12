@@ -3,8 +3,6 @@ const assert = require('node:assert/strict');
 const {
     WHATSAPP_PHONE,
     quoteCart,
-    toStripeLineItems,
-    stripeTotalCents,
 } = require('../lib/pricing');
 
 const DASH = '1-Jasmine LongJing Tea';
@@ -131,7 +129,7 @@ test('whatsapp link uses the shop number and server totals', () => {
     assert.equal(text.includes('€1.00'), false);
 });
 
-test('stripe line items charge the server total, not the tampered price', () => {
+test('manual order and Telegram notification use server totals, not tampered prices', () => {
     const quote = quoteCart({
         items: [
             { id: DASH, quantity: 6, price: 0.01 },
@@ -144,7 +142,18 @@ test('stripe line items charge the server total, not the tampered price', () => 
     assert.equal(quote.discountAmount, 8);
     assert.equal(quote.shippingFee, 9.99);
     assert.equal(quote.total, 154.39);
-    const lineItems = toStripeLineItems(quote);
-    assert.equal(stripeTotalCents(lineItems), quote.totalCents);
-    assert.equal(lineItems.some(item => item.price_data.unit_amount === 1), false);
+    const { buildOrderRecord, telegramText } = require('../lib/orders');
+    const order = buildOrderRecord({
+        quote, orderNumber: 'ORD-1234567890123', customerName: 'Ana',
+        customerPhone: '+34 600 000 000', address: 'Madrid',
+    });
+    assert.equal(order.total, 154.39);
+    assert.equal(order.shipping_fee, 9.99);
+    assert.equal(order.payment_status, 'pending');
+    assert.equal(order.payment_method, 'whatsapp');
+    assert.equal(order.items[0].price, 17.9);
+    const notification = telegramText(order, 'Nuevo pedido');
+    assert.equal(notification.includes('Total: €154.39'), true);
+    assert.equal(notification.includes('€0.01'), false);
+    assert.equal(notification.includes('Ana'), true);
 });

@@ -6,59 +6,36 @@ const {
     buildOrderRecord,
     telegramText,
     sendTelegram,
-    whatsappLink,
-    PAYMENT_METHODS,
+    ORDER_CHANNEL,
 } = require('../../lib/orders');
 
-const METHOD_LABEL = {
-    bizum: 'Bizum',
-    wechat: 'WeChat',
-    alipay: 'Alipay',
-    cash: 'Efectivo',
-    whatsapp: 'WhatsApp',
-};
-
+// 下单登记：网站不收款，订单保存后通过 Telegram 通知卖家，由卖家联系客户确认。
 exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') return json(405, { error: 'method_not_allowed' });
 
     try {
         const body = JSON.parse(event.body || '{}');
-        const paymentMethod = body.paymentMethod || 'bizum';
-        if (!PAYMENT_METHODS.has(paymentMethod) || paymentMethod === 'card') {
-            return json(400, { error: 'invalid_payment_method' });
-        }
-
-        const isWhatsapp = paymentMethod === 'whatsapp';
         const customerName = String(body.customerName || '').trim();
         const customerPhone = String(body.customerPhone || '').trim();
-        if (!isWhatsapp && (!customerName || !customerPhone)) {
+        if (!customerName || !customerPhone) {
             return json(400, { error: 'missing_customer' });
         }
 
-        const priced = priceQuote({ ...body, paymentMethod });
+        const priced = priceQuote(body, { placingOrder: true });
         if (priced.error) return priced.error;
         const quote = priced.quote;
         const orderNumber = normalizeOrderNumber(body.orderNumber);
-        const link = isWhatsapp ? whatsappLink(quote, {
-            customerName,
-            customerPhone,
-            address: body.address,
-            deliveryTime: body.deliveryTime,
-            orderNumber,
-        }) : undefined;
 
         const order = buildOrderRecord({
             quote,
             orderNumber,
             customerName,
             customerPhone,
-            paymentMethod,
-            paymentStatus: 'pending',
             address: body.address || '',
             deliveryTime: body.deliveryTime || '',
             agentRef: body.agentRef,
             userId: body.userId,
-            source: isWhatsapp ? 'whatsapp' : undefined,
+            source: ORDER_CHANNEL,
         });
 
         const saved = await insertOrder(order);
@@ -67,22 +44,17 @@ exports.handler = async (event) => {
             return json(200, {
                 orderNumber,
                 total: quote.total,
-                whatsappUrl: link,
                 saved: false,
                 supabase_error: saved.text,
                 supabase_status: saved.status,
             });
         }
 
-        const heading = isWhatsapp
-            ? '💬 Nuevo pedido WhatsApp'
-            : `🛒 Nuevo pedido ${METHOD_LABEL[paymentMethod] || paymentMethod}`;
-        const statusLine = isWhatsapp
-            ? '\n\n💬 Estado: Pendiente por WhatsApp'
-            : '\n\n⏳ Estado: Pendiente confirmacion';
+        const heading = '💬 Nuevo pedido WhatsApp';
+        const statusLine = '\n\n💬 Estado: Pendiente por WhatsApp';
         await sendTelegram(telegramText(order, heading) + statusLine);
 
-        return json(200, { orderNumber, total: quote.total, whatsappUrl: link, saved: true });
+        return json(200, { orderNumber, total: quote.total, saved: true });
     } catch (err) {
         console.error('save-bizum-order error:', err);
         return json(500, { error: err.message });

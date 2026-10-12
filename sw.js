@@ -1,8 +1,9 @@
-const CACHE_NAME = 'vapeshop-v5';
+const CACHE_NAME = 'vapeshop-v7-printmaking';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/styles.css',
+  '/lib/contact.js',
   '/script.js',
   '/manifest.json'
 ];
