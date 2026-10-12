@@ -20,33 +20,22 @@
     <meta name="apple-mobile-web-app-title" content="口粮专卖">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Noto+Sans+SC:wght@400;700&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Noto+Sans+SC:wght@400;700&display=swap"></noscript>
+    <script>
+        try { if (!localStorage.getItem('age_confirmed_18')) document.documentElement.classList.add('age-locked'); } catch (e) {}
+    </script>
 </head>
 <body>
-    <!-- 语言切换 -->
-    <div class="language-switcher" id="lang-switcher">
-        <div class="lang-popup" id="lang-popup">
-            <button id="lang-es" class="lang-btn active" data-lang="es">
-                <i class="fas fa-globe-europe"></i> ES
-            </button>
-            <button id="lang-zh" class="lang-btn" data-lang="zh">
-                <i class="fas fa-globe-asia"></i> 中文
-            </button>
-        </div>
-        <button class="lang-toggle-btn" id="lang-toggle" aria-label="切换语言">
-            <i class="fas fa-globe"></i>
-        </button>
-    </div>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="icon-sprite" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"><symbol id="i-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></symbol><symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></symbol><symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol><symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol><symbol id="i-user-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></symbol><symbol id="i-receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 7h8"/><path d="M8 11h8"/><path d="M8 15h5"/></symbol><symbol id="i-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></symbol><symbol id="i-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol><symbol id="i-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol><symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></symbol><symbol id="i-award" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></symbol><symbol id="i-headset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11a9 9 0 0 1 18 0"/><path d="M21 16v2a2 2 0 0 1-2 2h-1v-6h1a2 2 0 0 1 2 2z"/><path d="M3 16v2a2 2 0 0 0 2 2h1v-6H5a2 2 0 0 0-2 2z"/></symbol><symbol id="i-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1"/></symbol><symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></symbol><symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol><symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></symbol><symbol id="i-wechat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 17c-3.3 0-6-2.2-6-5s2.7-5 6-5 6 2.2 6 5-2.7 5-6 5z"/><path d="M14 8.2A6.5 6.5 0 0 1 20 14c0 2.2-1.5 4.1-3.7 5L15 21l-1.2-2.1A7 7 0 0 1 8 16"/></symbol><symbol id="i-qr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3z"/><path d="M21 14v3"/><path d="M14 21h3"/><path d="M21 21h.01"/></symbol><symbol id="i-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></symbol><symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></symbol><symbol id="i-whatsapp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></symbol><symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol><symbol id="i-gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C9 3 12 8 12 8s3-5 4.5-5a2.5 2.5 0 0 1 0 5"/></symbol><symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol><symbol id="i-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol><symbol id="i-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></symbol><symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></symbol><symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol><symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol><symbol id="i-x-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></symbol><symbol id="i-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></symbol><symbol id="i-store" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol><symbol id="i-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18h2"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol><symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol><symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol><symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol><symbol id="i-comment" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol><symbol id="i-cash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></symbol><symbol id="i-alipay" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 12h4"/><path d="M9 10v4"/><path d="M15 10v4"/></symbol><symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></symbol></svg>
 
     <!-- 导航栏 -->
     <header class="header">
         <nav class="nav">
             <div class="logo">
-                <i class="fas fa-smoking"></i>
+                <svg class="icon" aria-hidden="true"><use href="#i-spark" xlink:href="#i-spark"></use></svg>
                 <div class="logo-text">
                     <span data-lang-key="store_name">口粮专卖店</span>
                     <small class="logo-subtitle" data-lang-key="logo_subtitle">口粮专卖店</small>
@@ -56,22 +45,26 @@
                 <a href="#products" data-lang-key="products">产品</a>
                 <a href="#about" data-lang-key="about">关于</a>
                 <a href="#contact" data-lang-key="contact">联系</a>
+                <div class="nav-lang" id="lang-switcher" role="group" aria-label="语言 / Idioma">
+                    <button type="button" id="lang-zh" class="lang-btn" data-lang="zh">中文</button>
+                    <button type="button" id="lang-es" class="lang-btn" data-lang="es">ES</button>
+                </div>
             </div>
             <!-- 账户按钮 -->
             <div class="account-icon-container">
                 <button id="account-toggle" class="account-toggle" aria-label="账户">
-                    <i class="fas fa-user"></i>
+                    <svg class="icon" aria-hidden="true"><use href="#i-user" xlink:href="#i-user"></use></svg>
                     <span id="account-label">登录</span>
                 </button>
                 <div id="account-dropdown" class="account-dropdown" style="display:none">
-                    <button id="my-orders-btn"><i class="fas fa-receipt"></i> 我的订单</button>
-                    <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> 退出登录</button>
+                    <button id="my-orders-btn"><svg class="icon" aria-hidden="true"><use href="#i-receipt" xlink:href="#i-receipt"></use></svg> 我的订单</button>
+                    <button id="logout-btn"><svg class="icon" aria-hidden="true"><use href="#i-logout" xlink:href="#i-logout"></use></svg> 退出登录</button>
                 </div>
             </div>
             <!-- 购物车图标 -->
             <div class="cart-icon-container">
                 <button id="cart-toggle" class="cart-toggle" aria-label="购物车">
-                    <i class="fas fa-shopping-cart"></i>
+                    <svg class="icon" aria-hidden="true"><use href="#i-cart" xlink:href="#i-cart"></use></svg>
                     <span id="cart-count" class="cart-count">0</span>
                 </button>
             </div>
@@ -106,7 +99,7 @@
                     <div class="promo-title">下单立减，越囤越省</div>
                     <p class="promo-subtitle">全场满 <span>€90 减 €8</span>，满 <span>€180 减 €20</span>，结算自动扣减，无需优惠码。</p>
                     <p class="promo-subtitle-es">Descuento automático: <span>€90 → -€8</span> · <span>€180 → -€20</span>. Sin código.</p>
-                    <a href="#products" class="promo-cta-btn">立即选购 / Comprar ahora <i class="fas fa-arrow-right"></i></a>
+                    <a href="#products" class="promo-cta-btn">立即选购 / Comprar ahora <svg class="icon" aria-hidden="true"><use href="#i-arrow-right" xlink:href="#i-arrow-right"></use></svg></a>
                 </div>
             </div>
         </section>
@@ -115,10 +108,26 @@
         <section id="products" class="products">
             <h2 class="section-title" data-lang-key="products_title">精选产品</h2>
             <p class="section-subtitle" data-lang-key="products_subtitle">多种类型，多种口味，总有一款适合您</p>
+            <p class="nicotine-warning" role="note">
+                <strong>18+ · 尼古丁警告 / Advertencia</strong>
+                本产品含有尼古丁，尼古丁是一种极易上瘾的物质。仅向成年人销售。
+                Este producto contiene nicotina, una sustancia muy adictiva. Venta solo a mayores de 18 años.
+            </p>
 
             <div class="products-grid" id="products-grid">
                 <!-- 产品卡片通过JavaScript动态生成 -->
             </div>
+        </section>
+
+        <section id="reviews" class="reviews-section" aria-labelledby="reviews-title">
+            <h2 id="reviews-title" class="section-title">顾客评价 / Reseñas</h2>
+            <div id="reviews-mount"></div>
+        </section>
+
+        <section id="real-photos" class="real-photos-section" aria-labelledby="real-photos-title">
+            <h2 id="real-photos-title" class="section-title">实拍 / Fotos reales</h2>
+            <p class="section-subtitle">店里的真实照片，不是网图。 / Fotos del propio local, no de archivo.</p>
+            <div id="real-photos-mount"></div>
         </section>
 
         <!-- 关于我们 -->
@@ -126,22 +135,22 @@
             <h2 class="section-title" data-lang-key="about_title">关于我们</h2>
             <div class="about-content">
                 <div class="about-card">
-                    <div class="about-icon"><i class="fas fa-bolt"></i></div>
+                    <div class="about-icon"><svg class="icon" aria-hidden="true"><use href="#i-bolt" xlink:href="#i-bolt"></use></svg></div>
                     <h3 data-lang-key="about_speed_title">当天极速配送</h3>
                     <p data-lang-key="about_speed_desc">收到订单立即处理，马德里范围内当天送达，以最快的速度送到您手中是我们的初衷。</p>
                 </div>
                 <div class="about-card">
-                    <div class="about-icon"><i class="fas fa-award"></i></div>
+                    <div class="about-icon"><svg class="icon" aria-hidden="true"><use href="#i-award" xlink:href="#i-award"></use></svg></div>
                     <h3 data-lang-key="about_quality_title">严选优质产品</h3>
                     <p data-lang-key="about_quality_desc">我们定期严格筛选合作工厂，每一支产品都经过品质把关，只将最好的带给您。</p>
                 </div>
                 <div class="about-card">
-                    <div class="about-icon"><i class="fas fa-headset"></i></div>
+                    <div class="about-icon"><svg class="icon" aria-hidden="true"><use href="#i-headset" xlink:href="#i-headset"></use></svg></div>
                     <h3 data-lang-key="about_service_title">高效贴心服务</h3>
                     <p data-lang-key="about_service_desc">告别消息不回、久等不达。我们与客户之间的对接极为迅速，您的每一条消息都会得到及时回复。</p>
                 </div>
                 <div class="about-card">
-                    <div class="about-icon"><i class="fas fa-tags"></i></div>
+                    <div class="about-icon"><svg class="icon" aria-hidden="true"><use href="#i-tag" xlink:href="#i-tag"></use></svg></div>
                     <h3 data-lang-key="about_offers_title">价格透明</h3>
                     <p data-lang-key="about_offers_desc">所有商品价格清晰标示，下单前即可确认商品与配送费用。</p>
                 </div>
@@ -154,41 +163,41 @@
             <p class="section-subtitle" data-lang-key="payment_subtitle">多种支付方式，安全便捷</p>
             <div class="payment-methods-grid">
                 <div class="payment-method-card">
-                    <i class="fas fa-mobile-alt payment-icon"></i>
+                    <svg class="icon payment-icon" aria-hidden="true"><use href="#i-phone" xlink:href="#i-phone"></use></svg>
                     <h3 data-lang-key="bizum_title">Bizum</h3>
                     <p data-lang-key="bizum_desc">直接转账到商家账户，快速安全，无需手续费</p>
                     <div class="payment-detail-row">
-                        <i class="fas fa-lock"></i>
+                        <svg class="icon" aria-hidden="true"><use href="#i-lock" xlink:href="#i-lock"></use></svg>
                         <span data-lang-key="bizum_private">下单后显示转账号码</span>
                     </div>
                     <div class="payment-detail-row">
-                        <i class="fas fa-camera"></i>
+                        <svg class="icon" aria-hidden="true"><use href="#i-camera" xlink:href="#i-camera"></use></svg>
                         <span data-lang-key="bizum_screenshot">转账后需提供截图确认</span>
                     </div>
                 </div>
                 <div class="payment-method-card">
-                    <i class="fab fa-weixin payment-icon" style="color:#07C160"></i>
+                    <svg class="icon payment-icon" style="color:#07C160" aria-hidden="true"><use href="#i-wechat" xlink:href="#i-wechat"></use></svg>
                     <h3>微信支付</h3>
                     <p>扫码支付，适合国内用户，快捷方便</p>
                     <div class="payment-detail-row">
-                        <i class="fas fa-qrcode"></i>
+                        <svg class="icon" aria-hidden="true"><use href="#i-qr" xlink:href="#i-qr"></use></svg>
                         <span>下单后显示收款二维码</span>
                     </div>
                     <div class="payment-detail-row">
-                        <i class="fas fa-camera"></i>
+                        <svg class="icon" aria-hidden="true"><use href="#i-camera" xlink:href="#i-camera"></use></svg>
                         <span>转账后需提供截图确认</span>
                     </div>
                 </div>
                 <div class="payment-method-card">
-                    <i class="fas fa-credit-card payment-icon"></i>
+                    <svg class="icon payment-icon" aria-hidden="true"><use href="#i-card" xlink:href="#i-card"></use></svg>
                     <h3 data-lang-key="card_title">银行卡支付</h3>
                     <p data-lang-key="card_desc">支持 Visa、Mastercard 等主流银行卡，通过 Stripe 安全加密处理</p>
                     <div class="payment-detail-row">
-                        <i class="fas fa-shield-alt"></i>
+                        <svg class="icon" aria-hidden="true"><use href="#i-shield" xlink:href="#i-shield"></use></svg>
                         <span data-lang-key="card_secure">SSL 加密，安全有保障</span>
                     </div>
                     <div class="payment-detail-row">
-                        <i class="fab fa-cc-visa"></i>
+                        <svg class="icon" aria-hidden="true"><use href="#i-card" xlink:href="#i-card"></use></svg>
                         <span>Visa &nbsp;·&nbsp; Mastercard &nbsp;·&nbsp; Amex</span>
                     </div>
                 </div>
@@ -205,13 +214,18 @@
             </div>
             <div class="footer-section">
                 <h4 data-lang-key="contact">联系</h4>
-                <p><i class="fas fa-phone"></i> <span id="footer-phone">+34 697 332 407</span></p>
-                <p><i class="fab fa-whatsapp"></i> <span id="footer-whatsapp">+34 697 332 407</span></p>
-                <p><i class="fas fa-envelope"></i> vapeshop2026vapeshop@gmail.com</p>
+                <p><svg class="icon" aria-hidden="true"><use href="#i-phone" xlink:href="#i-phone"></use></svg> <span id="footer-phone">+34 697 332 407</span></p>
+                <p><svg class="icon" aria-hidden="true"><use href="#i-whatsapp" xlink:href="#i-whatsapp"></use></svg> <span id="footer-whatsapp">+34 697 332 407</span></p>
+                <p><svg class="icon" aria-hidden="true"><use href="#i-mail" xlink:href="#i-mail"></use></svg> vapeshop2026vapeshop@gmail.com</p>
             </div>
         </div>
+        <p class="nicotine-warning nicotine-warning-footer" role="note">
+            本产品含有尼古丁，尼古丁是一种极易上瘾的物质。仅限18岁及以上。
+            Este producto contiene nicotina, una sustancia muy adictiva. Solo mayores de 18 años.
+        </p>
         <div class="footer-bottom">
             <p data-lang-key="copyright">© 2026 口粮专卖店. 保留所有权利。</p>
+            <p class="footer-legal-links"><a href="privacy.html">隐私政策 / Política de privacidad</a></p>
         </div>
     </footer>
 
@@ -244,12 +258,12 @@
         <div class="cart-header">
             <h3 data-lang-key="cart_title">购物车</h3>
             <button id="cart-close" class="cart-close" aria-label="关闭购物车">
-                <i class="fas fa-times"></i>
+                <svg class="icon" aria-hidden="true"><use href="#i-close" xlink:href="#i-close"></use></svg>
             </button>
         </div>
         <div class="cart-content">
             <div id="cart-empty" class="cart-empty">
-                <i class="fas fa-shopping-cart"></i>
+                <svg class="icon" aria-hidden="true"><use href="#i-cart" xlink:href="#i-cart"></use></svg>
                 <p data-lang-key="cart_empty">购物车是空的</p>
             </div>
             <div id="cart-items" class="cart-items">
@@ -263,6 +277,10 @@
                 <span id="cart-total-price">€0.00</span>
             </div>
             <div class="cart-actions">
+                <button type="button" id="cart-whatsapp-order" class="btn-whatsapp">
+                    <svg class="icon" aria-hidden="true"><use href="#i-whatsapp" xlink:href="#i-whatsapp"></use></svg>
+                    通过 WhatsApp 下单 / Pedir por WhatsApp
+                </button>
                 <button id="cart-checkout" class="cart-checkout-btn" data-lang-key="cart_checkout">去结算</button>
                 <button id="cart-clear" class="cart-clear-btn" data-lang-key="cart_clear">清空购物车</button>
             </div>
@@ -277,7 +295,7 @@
 
             <!-- Step 1: 客户信息 + 支付方式 -->
             <div id="checkout-step-info">
-                <button class="modal-back-btn" id="checkout-back-to-cart"><i class="fas fa-arrow-left"></i> 返回购物车</button>
+                <button class="modal-back-btn" id="checkout-back-to-cart"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left" xlink:href="#i-arrow-left"></use></svg> 返回购物车</button>
                 <h2>确认订单 / Confirmar pedido</h2>
                 <div id="checkout-cart-summary" class="checkout-cart-summary"></div>
                 <div class="checkout-total-row" id="tiered-discount-row" style="display:none">
@@ -297,7 +315,7 @@
                 </div>
                 <div class="coupon-row" style="display:none">
                     <div class="coupon-input-wrap" id="coupon-input-wrap">
-                        <i class="fas fa-tag"></i>
+                        <svg class="icon" aria-hidden="true"><use href="#i-tag" xlink:href="#i-tag"></use></svg>
                         <input type="text" id="coupon-input" placeholder="优惠码 / Código de descuento" autocomplete="off">
                         <button id="coupon-apply-btn" onclick="handleCouponApply()">使用</button>
                     </div>
@@ -316,17 +334,17 @@
                     <label>取货方式 / Tipo de entrega</label>
                     <div class="delivery-options">
                         <button class="delivery-option-btn active" id="btn-pickup" type="button">
-                            <i class="fas fa-store"></i>
+                            <svg class="icon" aria-hidden="true"><use href="#i-store" xlink:href="#i-store"></use></svg>
                             <span>自取 / Recogida</span>
                             <small>Metro El Capricho</small>
                         </button>
                         <button class="delivery-option-btn" id="btn-delivery" type="button">
-                            <i class="fas fa-motorcycle"></i>
+                            <svg class="icon" aria-hidden="true"><use href="#i-truck" xlink:href="#i-truck"></use></svg>
                             <span>外送 / Entrega</span>
                             <small>≥5件 · 马德里当天送达</small>
                         </button>
                         <button class="delivery-option-btn" id="btn-postal" type="button">
-                            <i class="fas fa-envelope"></i>
+                            <svg class="icon" aria-hidden="true"><use href="#i-mail" xlink:href="#i-mail"></use></svg>
                             <span>邮寄 / Correo</span>
                             <small>满€150 西班牙本地免运费<br>欧盟其他国家运费自理</small>
                         </button>
@@ -334,9 +352,9 @@
                 </div>
                 <div class="checkout-form-group" id="pickup-info-group">
                     <div class="pickup-info-box">
-                        <div class="pickup-info-row"><i class="fas fa-map-marker-alt"></i> <strong>Metro El Capricho</strong></div>
-                        <div class="pickup-info-row"><i class="fas fa-clock"></i> 周一至周四 · Lunes–Jueves: <strong>全天 / Todo el día</strong></div>
-                        <div class="pickup-info-row"><i class="fas fa-clock"></i> 周末 · Fines de semana: <strong>11:00 – 18:00</strong></div>
+                        <div class="pickup-info-row"><svg class="icon" aria-hidden="true"><use href="#i-pin" xlink:href="#i-pin"></use></svg> <strong>Metro El Capricho</strong></div>
+                        <div class="pickup-info-row"><svg class="icon" aria-hidden="true"><use href="#i-clock" xlink:href="#i-clock"></use></svg> 周一至周四 · Lunes–Jueves: <strong>全天 / Todo el día</strong></div>
+                        <div class="pickup-info-row"><svg class="icon" aria-hidden="true"><use href="#i-clock" xlink:href="#i-clock"></use></svg> 周末 · Fines de semana: <strong>11:00 – 18:00</strong></div>
                     </div>
                 </div>
                 <div class="checkout-form-group" id="address-group" style="display:none">
@@ -348,14 +366,14 @@
                             <input type="text" id="checkout-delivery-district" placeholder="区 / Barrio (ej. Hortaleza)">
                         </div>
                     </div>
-                    <small class="delivery-note"><i class="fas fa-map-marker-alt"></i> 仅限马德里范围内当天送达 / Solo entrega en Madrid el mismo día</small>
+                    <small class="delivery-note"><svg class="icon" aria-hidden="true"><use href="#i-pin" xlink:href="#i-pin"></use></svg> 仅限马德里范围内当天送达 / Solo entrega en Madrid el mismo día</small>
                 </div>
                 <div class="checkout-form-group" id="time-group" style="display:none">
                     <label>期望送达时间 / Horario de entrega</label>
-                    <div class="time-range-row">
-                        <input type="time" id="checkout-time-from" value="10:00">
-                        <span class="time-range-sep">至 / a</span>
-                        <input type="time" id="checkout-time-to" value="14:00">
+                    <div class="time-slots" id="time-slots">
+                        <button type="button" class="time-slot active" data-from="10:00" data-to="14:00">10:00–14:00</button>
+                        <button type="button" class="time-slot" data-from="14:00" data-to="18:00">14:00–18:00</button>
+                        <button type="button" class="time-slot" data-from="18:00" data-to="21:00">18:00–21:00</button>
                     </div>
                 </div>
                 <div class="checkout-form-group" id="postal-group" style="display:none">
@@ -397,46 +415,51 @@
                             <option value="CY">Chipre / 塞浦路斯</option>
                         </select>
                     </div>
-                    <small class="delivery-note"><i class="fas fa-info-circle"></i> 满€150 西班牙本地免运费（否则运费€9.99）/ Envío gratis a España península desde €150 (si no €9.99)</small>
+                    <small class="delivery-note"><svg class="icon" aria-hidden="true"><use href="#i-info" xlink:href="#i-info"></use></svg> 满€150 西班牙本地免运费（否则运费€9.99）/ Envío gratis a España península desde €150 (si no €9.99)</small>
                     <div id="postal-quote-note" class="delivery-note delivery-note-quote" style="display:none;margin-top:0.5rem">
-                        <i class="fas fa-comment-dots"></i>
+                        <svg class="icon" aria-hidden="true"><use href="#i-comment" xlink:href="#i-comment"></use></svg>
                         欧盟其他国家：结账不收运费，下单后我们将通过 WhatsApp 与您确认运费 / Resto UE: el envío no se cobra ahora — le contactaremos por WhatsApp para confirmar el coste
                     </div>
                 </div>
                 <p class="payment-choose-label">选择支付方式 / Método de pago:</p>
                 <div class="payment-options">
                     <button class="payment-option-btn" id="btn-pay-bizum">
-                        <i class="fas fa-mobile-alt"></i>
+                        <svg class="icon" aria-hidden="true"><use href="#i-phone" xlink:href="#i-phone"></use></svg>
                         <span>Bizum</span>
                         <small>转账支付</small>
                     </button>
                     <button class="payment-option-btn" id="btn-pay-wechat">
-                        <i class="fab fa-weixin"></i>
+                        <svg class="icon" aria-hidden="true"><use href="#i-wechat" xlink:href="#i-wechat"></use></svg>
                         <span>微信支付</span>
                         <small>WeChat Pay</small>
                     </button>
                     <button class="payment-option-btn" id="btn-pay-alipay">
-                        <i class="fab fa-alipay"></i>
+                        <svg class="icon" aria-hidden="true"><use href="#i-alipay" xlink:href="#i-alipay"></use></svg>
                         <span>支付宝</span>
                         <small>Alipay</small>
                     </button>
                     <button class="payment-option-btn" id="btn-pay-card">
-                        <i class="fas fa-credit-card"></i>
+                        <svg class="icon" aria-hidden="true"><use href="#i-card" xlink:href="#i-card"></use></svg>
                         <span>Tarjeta</span>
                         <small>信用/借记卡</small>
                     </button>
                     <button class="payment-option-btn" id="btn-pay-cash">
-                        <i class="fas fa-money-bill-wave"></i>
+                        <svg class="icon" aria-hidden="true"><use href="#i-cash" xlink:href="#i-cash"></use></svg>
                         <span>现金</span>
                         <small>自取/外送时付款</small>
                     </button>
                 </div>
+                <button type="button" id="btn-pay-whatsapp" class="btn-whatsapp checkout-whatsapp-order">
+                    <svg class="icon" aria-hidden="true"><use href="#i-whatsapp" xlink:href="#i-whatsapp"></use></svg>
+                    通过 WhatsApp 下单 / Pedir por WhatsApp
+                </button>
+                <p class="checkout-legal">下单即表示您确认已满 18 岁，并已阅读<a href="privacy.html" target="_blank" rel="noopener">隐私政策 / Política de privacidad</a>。</p>
                 <p id="checkout-error" class="checkout-error" style="display:none"></p>
             </div>
 
             <!-- Step 2: 微信支付说明 -->
             <div id="checkout-step-wechat" style="display:none">
-                <button class="modal-back-btn" id="wechat-back-btn"><i class="fas fa-arrow-left"></i> 返回修改 / Volver</button>
+                <button class="modal-back-btn" id="wechat-back-btn"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left" xlink:href="#i-arrow-left"></use></svg> 返回修改 / Volver</button>
                 <h2>微信支付 / WeChat Pay</h2>
                 <div class="bizum-steps">
                     <div class="bizum-step-row">
@@ -460,11 +483,11 @@
                     </div>
                 </div>
                 <a id="wechat-whatsapp-btn" class="btn-whatsapp" href="#" target="_blank">
-                    <i class="fab fa-whatsapp"></i>
+                    <svg class="icon" aria-hidden="true"><use href="#i-whatsapp" xlink:href="#i-whatsapp"></use></svg>
                     发送截图到 WhatsApp / Enviar captura
                 </a>
                 <div class="no-whatsapp-hint">
-                    <i class="fas fa-envelope"></i>
+                    <svg class="icon" aria-hidden="true"><use href="#i-mail" xlink:href="#i-mail"></use></svg>
                     没有 WhatsApp？发截图到邮箱：
                     <a href="mailto:vapeshop2026vapeshop@gmail.com?subject=微信付款截图" class="email-link">vapeshop2026vapeshop@gmail.com</a>
                     <span class="hint-note">邮件主题注明订单号 / Indique el número de pedido en el asunto</span>
@@ -481,7 +504,7 @@
 
             <!-- Step 2: 支付宝支付说明 -->
             <div id="checkout-step-alipay" style="display:none">
-                <button class="modal-back-btn" id="alipay-back-btn"><i class="fas fa-arrow-left"></i> 返回修改 / Volver</button>
+                <button class="modal-back-btn" id="alipay-back-btn"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left" xlink:href="#i-arrow-left"></use></svg> 返回修改 / Volver</button>
                 <h2>支付宝 / Alipay</h2>
                 <div class="bizum-steps">
                     <div class="bizum-step-row">
@@ -505,11 +528,11 @@
                     </div>
                 </div>
                 <a id="alipay-whatsapp-btn" class="btn-whatsapp" href="#" target="_blank">
-                    <i class="fab fa-whatsapp"></i>
+                    <svg class="icon" aria-hidden="true"><use href="#i-whatsapp" xlink:href="#i-whatsapp"></use></svg>
                     发送截图到 WhatsApp / Enviar captura
                 </a>
                 <div class="no-whatsapp-hint">
-                    <i class="fas fa-envelope"></i>
+                    <svg class="icon" aria-hidden="true"><use href="#i-mail" xlink:href="#i-mail"></use></svg>
                     没有 WhatsApp？发截图到邮箱：
                     <a href="mailto:vapeshop2026vapeshop@gmail.com?subject=支付宝付款截图" class="email-link">vapeshop2026vapeshop@gmail.com</a>
                     <span class="hint-note">邮件主题注明订单号 / Indique el número de pedido en el asunto</span>
@@ -526,7 +549,7 @@
 
             <!-- Step 2: 现金支付说明 -->
             <div id="checkout-step-cash" style="display:none">
-                <button class="modal-back-btn" id="cash-back-btn"><i class="fas fa-arrow-left"></i> 返回修改 / Volver</button>
+                <button class="modal-back-btn" id="cash-back-btn"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left" xlink:href="#i-arrow-left"></use></svg> 返回修改 / Volver</button>
                 <h2>现金支付 / Pago en Efectivo</h2>
                 <div class="bizum-steps">
                     <div class="bizum-step-row">
@@ -547,7 +570,7 @@
                     </div>
                 </div>
                 <div class="cash-note-box">
-                    <i class="fas fa-info-circle"></i>
+                    <svg class="icon" aria-hidden="true"><use href="#i-info" xlink:href="#i-info"></use></svg>
                     <span>自取无门槛 · 外送≥5件 · 不支持邮寄 / Recogida sin mínimo · Entrega ≥5 uds · No disponible para correo</span>
                 </div>
                 <div class="modal-actions" style="margin-top:0.75rem">
@@ -558,7 +581,7 @@
 
             <!-- Step 2: Bizum 支付说明 -->
             <div id="checkout-step-bizum" style="display:none">
-                <button class="modal-back-btn" id="bizum-back-btn"><i class="fas fa-arrow-left"></i> 返回修改 / Volver</button>
+                <button class="modal-back-btn" id="bizum-back-btn"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left" xlink:href="#i-arrow-left"></use></svg> 返回修改 / Volver</button>
                 <h2>Bizum 支付 / Pago Bizum</h2>
                 <div class="bizum-steps">
                     <div class="bizum-step-row">
@@ -570,7 +593,7 @@
                         <span>转账至以下号码 / Transfiera al siguiente número:</span>
                     </div>
                     <div class="bizum-phone-box">
-                        <i class="fas fa-phone"></i>
+                        <svg class="icon" aria-hidden="true"><use href="#i-phone" xlink:href="#i-phone"></use></svg>
                         <strong>+34 697 332 407</strong>
                     </div>
                     <div class="bizum-step-row">
@@ -587,11 +610,11 @@
                     </div>
                 </div>
                 <a id="bizum-whatsapp-btn" class="btn-whatsapp" href="#" target="_blank">
-                    <i class="fab fa-whatsapp"></i>
+                    <svg class="icon" aria-hidden="true"><use href="#i-whatsapp" xlink:href="#i-whatsapp"></use></svg>
                     发送截图到 WhatsApp / Enviar captura
                 </a>
                 <div class="no-whatsapp-hint">
-                    <i class="fas fa-envelope"></i>
+                    <svg class="icon" aria-hidden="true"><use href="#i-mail" xlink:href="#i-mail"></use></svg>
                     没有 WhatsApp？发截图到邮箱：
                     <a href="mailto:vapeshop2026vapeshop@gmail.com?subject=Bizum付款截图" class="email-link">vapeshop2026vapeshop@gmail.com</a>
                     <span class="hint-note">邮件主题注明订单号 / Indique el número de pedido en el asunto</span>
@@ -610,7 +633,7 @@
 
     <!-- 产品详情页 -->
     <div id="product-detail" class="product-detail-overlay">
-        <button class="detail-close" id="detail-close"><i class="fas fa-times"></i></button>
+        <button class="detail-close" id="detail-close"><svg class="icon" aria-hidden="true"><use href="#i-close" xlink:href="#i-close"></use></svg></button>
         <div class="detail-content">
             <div class="detail-image-wrap">
                 <img id="detail-main-img" src="" alt="">
@@ -623,7 +646,7 @@
                 <div id="detail-flavors" class="detail-flavor-selector"></div>
                 <div class="detail-price" id="detail-price"></div>
                 <button class="buy-btn detail-add-cart" id="detail-add-cart">
-                    <i class="fas fa-cart-plus"></i>
+                    <svg class="icon" aria-hidden="true"><use href="#i-plus" xlink:href="#i-plus"></use></svg>
                     <span data-lang-key="add_to_cart">加入购物车</span>
                 </button>
             </div>
@@ -638,7 +661,7 @@
             <p class="welcome-sub">首单专享优惠，使用下方优惠码享受 <strong>9折</strong> 优惠</p>
             <div class="welcome-code-box" id="welcome-code-box" onclick="copyWelcomeCode()">
                 <span class="welcome-code">BIENVENIDO</span>
-                <span class="welcome-copy-hint" id="copy-hint"><i class="fas fa-copy"></i> 点击复制</span>
+                <span class="welcome-copy-hint" id="copy-hint"><svg class="icon" aria-hidden="true"><use href="#i-copy" xlink:href="#i-copy"></use></svg> 点击复制</span>
             </div>
             <p class="welcome-terms">结账时填入优惠码即可使用 · Válido en tu primer pedido</p>
             <button class="btn btn-primary welcome-start-btn" onclick="closeWelcomeModal()">开始购物 / Empezar</button>
@@ -648,7 +671,7 @@
     <!-- 登录/注册弹窗 -->
     <div id="auth-modal" class="modal" style="display:none">
         <div class="modal-content auth-modal-content">
-            <button class="modal-close-btn" id="auth-modal-close"><i class="fas fa-times"></i></button>
+            <button class="modal-close-btn" id="auth-modal-close"><svg class="icon" aria-hidden="true"><use href="#i-close" xlink:href="#i-close"></use></svg></button>
             <div class="auth-tabs">
                 <button class="auth-tab active" id="tab-login-btn">登录</button>
                 <button class="auth-tab" id="tab-register-btn">注册</button>
@@ -679,18 +702,18 @@
     <div id="orders-overlay" class="cart-overlay"></div>
     <div id="orders-panel" class="orders-panel">
         <div class="orders-panel-header">
-            <h2><i class="fas fa-receipt"></i> 我的订单</h2>
-            <button id="orders-panel-close"><i class="fas fa-times"></i></button>
+            <h2><svg class="icon" aria-hidden="true"><use href="#i-receipt" xlink:href="#i-receipt"></use></svg> 我的订单</h2>
+            <button id="orders-panel-close"><svg class="icon" aria-hidden="true"><use href="#i-close" xlink:href="#i-close"></use></svg></button>
         </div>
         <div id="orders-panel-content">
-            <div class="orders-loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
+            <div class="orders-loading"><svg class="icon icon-spin" aria-hidden="true"><use href="#i-spinner" xlink:href="#i-spinner"></use></svg> 加载中...</div>
         </div>
     </div>
 
     <!-- 新用户欢迎注册弹窗 -->
     <div id="welcome-register-modal" class="modal" style="display:none">
         <div class="modal-content post-checkout-content">
-            <button class="modal-close-btn" id="welcome-register-close"><i class="fas fa-times"></i></button>
+            <button class="modal-close-btn" id="welcome-register-close"><svg class="icon" aria-hidden="true"><use href="#i-close" xlink:href="#i-close"></use></svg></button>
             <div style="font-size:2rem;margin-bottom:0.75rem">👋</div>
             <h3>欢迎来到口粮专卖店</h3>
             <p class="post-checkout-subtitle">注册账号，随时查看订单状态和历史记录</p>
@@ -707,7 +730,7 @@
     <!-- 购后注册提示 -->
     <div id="post-checkout-modal" class="modal" style="display:none">
         <div class="modal-content post-checkout-content">
-            <h3><i class="fas fa-user-plus"></i> 创建账号追踪订单</h3>
+            <h3><svg class="icon" aria-hidden="true"><use href="#i-user-plus" xlink:href="#i-user-plus"></use></svg> 创建账号追踪订单</h3>
             <p class="post-checkout-subtitle">注册后可随时查看订单状态，完全免费</p>
             <input class="auth-input" type="email" id="post-email" placeholder="邮箱地址">
             <input class="auth-input" type="password" id="post-password" placeholder="密码（6位以上）">
@@ -717,6 +740,20 @@
         </div>
     </div>
 
+    <div id="age-gate" class="age-gate" role="dialog" aria-modal="true" aria-labelledby="age-gate-title">
+        <div class="age-gate-card">
+            <p class="age-gate-kicker">18+</p>
+            <h2 id="age-gate-title">年龄确认 / Confirmación de edad</h2>
+            <p>本店销售含尼古丁的电子烟，仅限 18 岁及以上成年人浏览和购买。<br>Esta tienda vende productos con nicotina. Solo para mayores de 18 años.</p>
+            <p class="nicotine-warning">本产品含有尼古丁，尼古丁是一种极易上瘾的物质。<br>Este producto contiene nicotina, una sustancia muy adictiva.</p>
+            <button type="button" id="age-confirm" class="btn btn-primary">我已满 18 岁 / Tengo 18 años o más</button>
+            <button type="button" id="age-deny" class="btn btn-secondary">未满 18 岁 / Soy menor de 18</button>
+            <p id="age-deny-msg" class="age-deny-msg" hidden>未满 18 岁不能进入本店。 / Los menores de 18 años no pueden entrar.</p>
+        </div>
+    </div>
+
+    <script src="reviews.js"></script>
+    <script src="real-photos.js"></script>
     <script src="script.js"></script>
     <script>
         if ('serviceWorker' in navigator) {

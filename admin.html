@@ -275,6 +275,7 @@
                 <button class="chip" data-group="payment" data-value="alipay" onclick="setFilter(this)">支付宝</button>
                 <button class="chip" data-group="payment" data-value="card" onclick="setFilter(this)">银行卡</button>
                 <button class="chip" data-group="payment" data-value="cash" onclick="setFilter(this)">现金</button>
+                <button class="chip" data-group="payment" data-value="whatsapp" onclick="setFilter(this)">WhatsApp</button>
             </div>
             <div class="filter-group">
                 <span class="filter-group-label">配送</span>
@@ -677,8 +678,8 @@
         container.innerHTML = orders.map(order => {
             const date       = new Date(order.created_at).toLocaleString('zh-CN');
             const itemsList  = (order.items || []).map(i => `${i.name} ×${i.quantity}`).join(' · ');
-            const payBadge   = order.payment_method === 'bizum' ? 'badge-bizum' : order.payment_method === 'cash' ? 'badge-cash' : order.payment_method === 'wechat' ? 'badge-bizum' : order.payment_method === 'alipay' ? 'badge-alipay' : 'badge-card';
-            const payLabel   = order.payment_method === 'bizum' ? '<i class="fas fa-mobile-alt"></i> Bizum' : order.payment_method === 'cash' ? '<i class="fas fa-money-bill-wave"></i> 现金' : order.payment_method === 'wechat' ? '<i class="fab fa-weixin"></i> 微信' : order.payment_method === 'alipay' ? '<i class="fab fa-alipay"></i> 支付宝' : '<i class="fas fa-credit-card"></i> 银行卡';
+            const payBadge   = order.payment_method === 'bizum' ? 'badge-bizum' : order.payment_method === 'cash' ? 'badge-cash' : order.payment_method === 'wechat' ? 'badge-bizum' : order.payment_method === 'alipay' ? 'badge-alipay' : order.payment_method === 'whatsapp' ? 'badge-bizum' : 'badge-card';
+            const payLabel   = order.payment_method === 'bizum' ? '<i class="fas fa-mobile-alt"></i> Bizum' : order.payment_method === 'cash' ? '<i class="fas fa-money-bill-wave"></i> 现金' : order.payment_method === 'wechat' ? '<i class="fab fa-weixin"></i> 微信' : order.payment_method === 'alipay' ? '<i class="fab fa-alipay"></i> 支付宝' : order.payment_method === 'whatsapp' ? '<i class="fab fa-whatsapp"></i> WhatsApp' : '<i class="fas fa-credit-card"></i> 银行卡';
             const statusBadge = STATUS_BADGE[order.payment_status] || 'badge-pending';
             const statusLabel = STATUS_LABELS[order.payment_status] || order.payment_status;
             const isDelivery  = order.delivery_type === 'delivery';

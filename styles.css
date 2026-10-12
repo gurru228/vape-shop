@@ -36,8 +36,8 @@
     --space-2xl: 4rem;
 
     /* 字体 */
-    --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-family-chinese: 'Noto Sans SC', sans-serif;
+    --font-family-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-family-chinese: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", sans-serif;
     --font-size-base: 16px;
     --font-size-sm: 0.875rem;
     --font-size-lg: 1.125rem;
@@ -2694,4 +2694,178 @@ body {
         padding-right: 0;
         transition: padding-right 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     }
+}
+
+/* ===== 内联图标、导航语言、年龄确认、评价与实拍 ===== */
+.icon {
+    width: 1.15em;
+    height: 1.15em;
+    display: inline-block;
+    vertical-align: -0.15em;
+    flex-shrink: 0;
+}
+.icon-spin { animation: icon-spin 0.8s linear infinite; }
+@keyframes icon-spin { to { transform: rotate(360deg); } }
+.payment-option-btn .icon,
+.about-icon .icon,
+.payment-icon.icon { width: 1.6rem; height: 1.6rem; }
+.logo .icon,
+.cart-toggle .icon,
+.account-toggle .icon { width: 1.25rem; height: 1.25rem; }
+.btn-whatsapp .icon { width: 1.2rem; height: 1.2rem; }
+.success-icon .icon { width: 4.5rem; height: 4.5rem; color: #22c55e; }
+
+.nav-lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: 0.75rem;
+}
+.nav-lang .lang-btn {
+    min-height: 36px;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--border-color);
+    background: var(--color-white);
+    border-radius: 999px;
+}
+.nav-lang .lang-btn.active {
+    background: var(--color-black);
+    color: var(--color-white);
+    border-color: var(--color-black);
+}
+
+.quick-add-btn {
+    min-width: 52px;
+    min-height: 44px;
+    padding: 0 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    touch-action: manipulation;
+}
+.quick-add-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.quantity-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
+    touch-action: manipulation;
+}
+.quantity-value { min-width: 1.5rem; font-size: 1rem; }
+
+.checkout-whatsapp-order { margin: 0.25rem 0 0.75rem; border: none; cursor: pointer; font-family: inherit; }
+.checkout-legal { font-size: 0.8rem; color: var(--color-gray-600); margin: 0 0 0.75rem; }
+.checkout-legal a { color: inherit; }
+
+.time-slots { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.time-slot {
+    min-height: 44px;
+    padding: 0.5rem 0.9rem;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: var(--color-white);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.time-slot.active { background: var(--color-black); color: var(--color-white); border-color: var(--color-black); }
+
+.nicotine-warning {
+    margin: 0.75rem 0 1rem;
+    padding: 0.75rem 0.9rem;
+    background: #fff7ed;
+    border: 1px solid #fdba74;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: #9a3412;
+}
+.nicotine-warning strong { display: block; margin-bottom: 0.2rem; }
+.nicotine-warning-footer { margin: 1rem 0; }
+
+.footer-legal-links { margin-top: 0.35rem; }
+.footer-legal-links a { color: inherit; }
+
+html.age-locked { overflow: hidden; }
+.age-gate {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 4000;
+    background: rgba(0, 0, 0, 0.72);
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+html.age-locked .age-gate { display: flex; }
+.age-gate-card {
+    width: min(440px, 100%);
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+}
+.age-gate-kicker { font-size: 2rem; font-weight: 800; margin-bottom: 0.25rem; }
+.age-gate-card h2 { font-size: 1.25rem; margin-bottom: 0.75rem; }
+.age-gate-card .btn { width: 100%; margin-top: 0.6rem; }
+.age-deny-msg { color: #b91c1c; margin-top: 0.75rem; font-weight: 600; }
+
+.reviews-empty, .real-photos-help {
+    color: var(--color-gray-600);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+}
+.review-card, .real-photo-slot, .real-photo {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem;
+    background: var(--color-gray-50);
+}
+.review-card { margin-bottom: 0.75rem; }
+.review-card.is-placeholder { border-style: dashed; }
+.review-placeholder {
+    display: inline-block;
+    margin-bottom: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #9a3412;
+}
+.real-photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+}
+.real-photo-slot {
+    min-height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--color-gray-500);
+    border-style: dashed;
+    background: repeating-linear-gradient(-45deg, #fafafa, #fafafa 8px, #f3f3f3 8px, #f3f3f3 16px);
+}
+.real-photo img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; }
+.real-photo figcaption { margin-top: 0.45rem; font-size: 0.85rem; color: var(--color-gray-600); }
+
+@media (max-width: 768px) {
+    .main { padding: 0.5rem 1rem 2.5rem; }
+    .logo-subtitle { display: none; }
+    .nav { padding: 0.45rem 0.85rem; }
+    .hero { padding: 0.35rem 0 0; margin-bottom: 0.25rem; }
+    .hero h1 { font-size: 1.25rem; margin-bottom: 0.15rem; }
+    .hero p { font-size: 0.85rem; }
+    .promo-section { padding: 0.65rem 0.85rem; margin-bottom: 0.5rem; }
+    .promo-section .promo-section-inner { flex-direction: row; gap: 0.75rem; text-align: left; align-items: center; }
+    .promo-section .promo-divider, .promo-section .promo-deal-badge, .promo-subtitle, .promo-subtitle-es { display: none; }
+    .promo-section .promo-tier .promo-num { font-size: 1.45rem; }
+    .promo-section .promo-title { font-size: 0.95rem; margin: 0; }
+    .promo-section .promo-cta-btn { margin-top: 0.35rem; padding: 0.4rem 0.75rem; }
+    .products > .section-subtitle { display: none; }
+    .products .section-title { font-size: 1.2rem; margin-bottom: 0.25rem; }
+    .products .nicotine-warning { font-size: 0.72rem; padding: 0.4rem 0.55rem; margin: 0.25rem 0 0.45rem; }
+    .product-card .product-image { max-height: 180px; }
+    .product-card .product-image img { width: 100%; max-height: 180px; object-fit: contain; }
+    .product-card .product-info { padding: 0.75rem 0.9rem 0.9rem; }
+    .nav-items { gap: 0.75rem; }
+    .nav-lang { margin-left: 0.25rem; }
 }

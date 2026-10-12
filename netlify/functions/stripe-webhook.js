@@ -28,6 +28,9 @@ async function markPaid(sessionId) {
 async function sendTelegramNotification(order) {
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
     const itemLines = order.items.map(i => `  • ${i.name} x${i.quantity} — €${(i.price * i.quantity).toFixed(2)}`).join('\n');
+    const subtotal = order.items.reduce((sum, i) => sum + Number(i.price) * Number(i.quantity), 0);
+    const discount = +(subtotal + Number(order.shipping_fee || 0) - Number(order.total)).toFixed(2);
+    const discountLine = discount > 0.001 ? `\n🏷 Descuento: -€${discount.toFixed(2)}` : '';
     const deliveryInfo = order.delivery_type === 'delivery'
         ? `\n📦 Entrega a domicilio\n📍 ${order.address}\n🕐 ${order.delivery_time}`
         : order.delivery_type === 'postal'
@@ -38,7 +41,8 @@ async function sendTelegramNotification(order) {
         `👤 ${order.customer_name}\n` +
         `📱 ${order.customer_phone}\n` +
         `\n${itemLines}\n` +
-        `\n💶 Total: €${order.total.toFixed(2)}` +
+        discountLine +
+        `\n💶 Total: €${Number(order.total).toFixed(2)}` +
         deliveryInfo;
     await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
         method: 'POST',

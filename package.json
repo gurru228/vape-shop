@@ -1,6 +1,9 @@
 {
   "name": "vape-shop",
   "version": "1.0.0",
+  "scripts": {
+    "test": "node --test tests/pricing.test.js"
+  },
   "dependencies": {
     "stripe": "^14.21.0",
     "@supabase/supabase-js": "^2.49.4",
