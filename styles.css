@@ -3736,3 +3736,168 @@ body.zh .pl-selected-name { font-family: var(--font-family-display-zh); }
 @media (max-width: 768px) {
     .platypus-section { padding: 1.25rem 1rem; border-radius: var(--radius-lg); }
 }
+
+/* ===== 拖拽卡片查看详情 ===== */
+.product-card {
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: pan-y pinch-zoom;
+}
+.product-card img { -webkit-user-drag: none; }
+.product-card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+@media (hover: hover) and (pointer: fine) {
+    .product-card { cursor: grab; }
+}
+.product-card.is-drag-source,
+.product-card.is-drag-source:hover {
+    opacity: 0.4;
+    transform: none;
+    box-shadow: none;
+    border-color: var(--border-color);
+}
+.product-card.is-drag-source:hover .product-image-clickable img { transform: none; }
+body.is-card-dragging,
+body.is-card-dragging * { cursor: grabbing !important; }
+
+.detail-dropzone {
+    position: sticky;
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: fit-content;
+    max-width: calc(100% - 2rem);
+    min-height: 52px;
+    margin: var(--space-lg) auto 0;
+    padding: 0.65rem 1.4rem 0.65rem 1.1rem;
+    background: rgba(255, 255, 255, 0.9);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px dashed var(--color-gray-400);
+    border-radius: var(--radius-pill);
+    color: var(--ink);
+    transition: border-color var(--transition-fast), background-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-base), transform var(--transition-base);
+}
+.detail-dropzone .icon { color: var(--muted); transition: color var(--transition-fast); }
+.detail-dropzone-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+}
+.detail-dropzone-label,
+.detail-dropzone-release {
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+}
+.detail-dropzone-release { display: none; }
+.detail-dropzone.is-over .detail-dropzone-label { display: none; }
+.detail-dropzone.is-over .detail-dropzone-release { display: block; }
+.detail-dropzone-hint {
+    display: none;
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+@media (pointer: coarse) {
+    .detail-dropzone-hint { display: block; }
+    .detail-dropzone.is-armed .detail-dropzone-hint { display: none; }
+}
+.detail-dropzone.is-armed {
+    border-style: solid;
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-4px);
+}
+.detail-dropzone.is-armed .icon { color: var(--accent); }
+.detail-dropzone.is-over {
+    background: var(--accent-soft);
+    color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), var(--shadow-md);
+    transform: translateY(-4px) scale(1.04);
+}
+.detail-dropzone.is-over .detail-dropzone-hint { color: var(--accent); }
+
+.drag-ghost {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 220px;
+    padding: 0.4rem 0.9rem 0.4rem 0.4rem;
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    pointer-events: none;
+    will-change: transform;
+    animation: drag-ghost-pick 160ms var(--ease-out);
+}
+@keyframes drag-ghost-pick {
+    from { scale: 0.94; opacity: 0; }
+    to { scale: 1; opacity: 1; }
+}
+.drag-ghost img {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    background: var(--surface-alt);
+}
+.drag-ghost-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.3;
+}
+.drag-ghost-name,
+.drag-ghost-flavor {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.drag-ghost-name { font-size: 0.9rem; font-weight: 600; color: var(--ink); }
+.drag-ghost-flavor { font-size: 0.75rem; color: var(--muted); }
+.drag-ghost-flavor:empty { display: none; }
+.drag-ghost.is-settling {
+    transition: transform 220ms var(--ease-out), opacity 220ms var(--ease-out);
+}
+
+/* 关闭状态下详情层内的按钮不可聚焦 */
+.product-detail-overlay {
+    visibility: hidden;
+    transition: opacity var(--transition-base), visibility 0s linear 260ms;
+}
+.product-detail-overlay.open {
+    visibility: visible;
+    transition: opacity var(--transition-base), visibility 0s;
+}
+.detail-close:focus-visible { outline-color: #ffffff; }
+
+@media (max-width: 768px) {
+    .detail-dropzone {
+        min-height: 48px;
+        gap: 0.6rem;
+        padding: 0.55rem 1.1rem 0.55rem 0.9rem;
+    }
+    .detail-dropzone-label,
+    .detail-dropzone-release { font-size: 0.8125rem; }
+    .detail-dropzone-label > [lang],
+    .detail-dropzone-release > [lang] { display: block; }
+    .detail-dropzone-sep { display: none; }
+    .detail-dropzone-hint { margin-top: 0.15rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .detail-dropzone.is-armed,
+    .detail-dropzone.is-over { transform: none; }
+    .drag-ghost { animation: none; }
+}

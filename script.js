@@ -1631,6 +1631,8 @@ function createProductCard(product) {
     const card = document.createElement('div');
     card.className = 'product-card';
     card.dataset.productId = product.id;
+    card.tabIndex = 0;
+    card.setAttribute('aria-label', `${product.name}，按 Enter 查看详情 / Pulsa Enter para ver detalles`);
 
     const sortedFlavors = product.flavors
         ? [...product.flavors].sort((a, b) => isSoldOut(product.id, a.name) - isSoldOut(product.id, b.name))
@@ -1692,12 +1694,17 @@ function createProductCard(product) {
         syncQuickAdd(card, product, sortedFlavors[0]);
     }
 
-    // 点击图片打开详情页
-    card.querySelector('.product-image-clickable').addEventListener('click', () => {
-        const activeFlavorIndex = product.flavors
-            ? parseInt(card.querySelector('.flavor-btn.active').dataset.flavorIndex)
-            : 0;
-        openProductDetail(product, activeFlavorIndex);
+    // 点击卡片（按钮以外区域）或在卡片上按 Enter / Space 打开详情页
+    card.addEventListener('click', (e) => {
+        if (e.target.closest(CARD_CONTROLS_SELECTOR)) return;
+        openCardDetail(card);
+    });
+    card.addEventListener('keydown', (e) => {
+        if (e.target !== card) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openCardDetail(card);
+        }
     });
 
     // 快速加入购物车按钮
@@ -1726,7 +1733,9 @@ function createProductCard(product) {
 }
 
 // ===== 产品详情页 =====
-function openProductDetail(product, activeFlavorIndex = 0) {
+let detailReturnFocus = null;
+
+function openProductDetail(product, activeFlavorIndex = 0, returnFocusEl = null) {
     const overlay = document.getElementById('product-detail');
     const mainImg = document.getElementById('detail-main-img');
     const nameEl = document.getElementById('detail-name');
@@ -1791,19 +1800,258 @@ function openProductDetail(product, activeFlavorIndex = 0) {
             ? { ...product, id: `${product.id}-${activeFlavor.name}`, name: `${product.name} - ${currentLanguage === 'zh' ? activeFlavor.nameCn : activeFlavor.name}`, image: activeFlavor.image }
             : product;
         addToCart(cartProduct, 1);
-        overlay.classList.remove('open');
+        closeProductDetail({ restoreFocus: false });
         toggleCartSidebar();
     };
 
+    detailReturnFocus = returnFocusEl || document.activeElement;
     overlay.classList.add('open');
+    document.getElementById('detail-close').focus({ preventScroll: true });
+}
+
+function closeProductDetail({ restoreFocus = true } = {}) {
+    const overlay = document.getElementById('product-detail');
+    if (!overlay.classList.contains('open')) return;
+    overlay.classList.remove('open');
+    const target = detailReturnFocus;
+    detailReturnFocus = null;
+    if (restoreFocus && target && target.isConnected && typeof target.focus === 'function') {
+        target.focus({ preventScroll: true });
+    }
 }
 
 function initProductDetail() {
     const overlay = document.getElementById('product-detail');
-    document.getElementById('detail-close').addEventListener('click', () => overlay.classList.remove('open'));
+    document.getElementById('detail-close').addEventListener('click', () => closeProductDetail());
     overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) overlay.classList.remove('open');
+        if (e.target === overlay) closeProductDetail();
     });
+    document.addEventListener('keydown', (e) => {
+        if (!overlay.classList.contains('open')) return;
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            closeProductDetail();
+            return;
+        }
+        if (e.key !== 'Tab') return;
+        const focusables = [...overlay.querySelectorAll('button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])')]
+            .filter(el => el.offsetParent !== null);
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (!overlay.contains(document.activeElement)) {
+            e.preventDefault();
+            first.focus();
+        } else if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+        }
+    });
+}
+
+// ===== 拖拽卡片查看详情 =====
+const CARD_CONTROLS_SELECTOR = 'button, a, input, select, textarea, .flavor-selector';
+
+// 卡片上的口味按钮按库存排过序，需按口味名映射回 product.flavors 的下标
+function openCardDetail(card) {
+    const product = products.find(p => String(p.id) === card.dataset.productId);
+    if (!product) return;
+    let flavorIndex = 0;
+    const activeBtn = card.querySelector('.flavor-btn.active');
+    if (product.flavors && activeBtn) {
+        flavorIndex = Math.max(0, product.flavors.findIndex(f => f.name === activeBtn.dataset.flavor));
+    }
+    openProductDetail(product, flavorIndex, card);
+}
+
+function initCardDrag() {
+    const grid = domElements.productsGrid;
+    const dropzone = document.getElementById('detail-dropzone');
+    if (!grid || !dropzone || !window.PointerEvent) return;
+
+    const MOUSE_THRESHOLD = 6;
+    const TOUCH_SLOP = 10;
+    const LONG_PRESS_MS = 280;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    let gesture = null;
+    let suppressClick = false;
+
+    function buildGhost(card) {
+        const ghost = document.createElement('div');
+        ghost.className = 'drag-ghost';
+        ghost.setAttribute('aria-hidden', 'true');
+        const img = card.querySelector('.product-main-img');
+        const activeFlavor = card.querySelector('.flavor-btn.active span');
+        ghost.innerHTML = `
+            ${img ? `<img src="${img.currentSrc || img.src}" alt="">` : ''}
+            <span class="drag-ghost-text">
+                <span class="drag-ghost-name"></span>
+                <span class="drag-ghost-flavor"></span>
+            </span>
+        `;
+        ghost.querySelector('.drag-ghost-name').textContent = card.querySelector('.product-name').textContent;
+        ghost.querySelector('.drag-ghost-flavor').textContent = activeFlavor ? activeFlavor.textContent.trim() : '';
+        document.body.appendChild(ghost);
+        return ghost;
+    }
+
+    function placeGhost(x, y) {
+        const g = gesture;
+        if (!g || !g.ghost) return;
+        const { w, h } = g.ghostSize;
+        // 预览放在指针上方，避免挡住手指和放置区的文字
+        g.ghost.style.transform = `translate3d(${Math.round(x - w / 2)}px, ${Math.round(y - h - 28)}px, 0)`;
+    }
+
+    function isOverDropzone(x, y) {
+        const r = dropzone.getBoundingClientRect();
+        const pad = 12;
+        return x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad;
+    }
+
+    function activate() {
+        const g = gesture;
+        if (!g || g.active) return;
+        clearTimeout(g.timer);
+        g.active = true;
+        g.card.classList.add('is-drag-source');
+        document.body.classList.add('is-card-dragging');
+        dropzone.classList.add('is-armed');
+        g.ghost = buildGhost(g.card);
+        g.ghostSize = { w: g.ghost.offsetWidth, h: g.ghost.offsetHeight };
+        placeGhost(g.lastX, g.lastY);
+    }
+
+    function removeGhost(ghost, toRect) {
+        if (!ghost) return;
+        if (reduceMotion.matches || !toRect) {
+            ghost.remove();
+            return;
+        }
+        const w = ghost.offsetWidth;
+        const h = ghost.offsetHeight;
+        const x = toRect.left + toRect.width / 2 - w / 2;
+        const y = toRect.top + toRect.height / 2 - h / 2;
+        ghost.classList.add('is-settling');
+        ghost.style.transform = `translate3d(${Math.round(x)}px, ${Math.round(y)}px, 0) scale(0.9)`;
+        ghost.style.opacity = '0';
+        const done = () => ghost.remove();
+        ghost.addEventListener('transitionend', done, { once: true });
+        setTimeout(done, 400);
+    }
+
+    function finish(dropped) {
+        const g = gesture;
+        if (!g) return;
+        gesture = null;
+        clearTimeout(g.timer);
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        window.removeEventListener('pointercancel', onCancel);
+        if (!g.active) return;
+
+        suppressClick = true;
+        setTimeout(() => { suppressClick = false; }, 0);
+        g.card.classList.remove('is-drag-source');
+        document.body.classList.remove('is-card-dragging');
+        dropzone.classList.remove('is-armed', 'is-over');
+
+        if (dropped) {
+            removeGhost(g.ghost, dropzone.getBoundingClientRect());
+            openCardDetail(g.card);
+        } else {
+            removeGhost(g.ghost, g.card.getBoundingClientRect());
+        }
+    }
+
+    function onMove(e) {
+        const g = gesture;
+        if (!g || e.pointerId !== g.pointerId) return;
+        g.lastX = e.clientX;
+        g.lastY = e.clientY;
+        const dx = e.clientX - g.startX;
+        const dy = e.clientY - g.startY;
+
+        if (!g.active) {
+            const dist = Math.hypot(dx, dy);
+            if (g.type === 'mouse') {
+                if (dist > MOUSE_THRESHOLD) activate();
+            } else if (dist > TOUCH_SLOP) {
+                // 横向拖动直接开始；纵向移动交给页面滚动
+                if (Math.abs(dx) > Math.abs(dy) * 1.2) activate();
+                else finish(false);
+            }
+            if (!g.active) return;
+        }
+
+        e.preventDefault();
+        placeGhost(e.clientX, e.clientY);
+        dropzone.classList.toggle('is-over', isOverDropzone(e.clientX, e.clientY));
+    }
+
+    function onUp(e) {
+        const g = gesture;
+        if (!g || e.pointerId !== g.pointerId) return;
+        finish(g.active && isOverDropzone(e.clientX, e.clientY));
+    }
+
+    function onCancel(e) {
+        if (gesture && e.pointerId === gesture.pointerId) finish(false);
+    }
+
+    grid.addEventListener('pointerdown', (e) => {
+        if (gesture || !e.isPrimary) return;
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        if (e.target.closest(CARD_CONTROLS_SELECTOR)) return;
+        const card = e.target.closest('.product-card');
+        if (!card || !grid.contains(card)) return;
+
+        gesture = {
+            card,
+            pointerId: e.pointerId,
+            type: e.pointerType,
+            startX: e.clientX,
+            startY: e.clientY,
+            lastX: e.clientX,
+            lastY: e.clientY,
+            active: false,
+            ghost: null,
+            timer: null
+        };
+        if (e.pointerType !== 'mouse') {
+            gesture.timer = setTimeout(() => {
+                activate();
+                if (navigator.vibrate) navigator.vibrate(10);
+            }, LONG_PRESS_MS);
+        }
+        window.addEventListener('pointermove', onMove, { passive: false });
+        window.addEventListener('pointerup', onUp);
+        window.addEventListener('pointercancel', onCancel);
+    });
+
+    // 拖动中阻止触摸滚动（需非 passive 监听）
+    grid.addEventListener('touchmove', (e) => {
+        if (gesture && gesture.active) e.preventDefault();
+    }, { passive: false });
+
+    grid.addEventListener('contextmenu', (e) => {
+        if (gesture && gesture.type !== 'mouse') e.preventDefault();
+    });
+
+    grid.addEventListener('dragstart', (e) => e.preventDefault());
+
+    document.addEventListener('click', (e) => {
+        if (!suppressClick) return;
+        suppressClick = false;
+        e.preventDefault();
+        e.stopPropagation();
+    }, true);
+
+    window.addEventListener('blur', () => finish(false));
 }
 
 // ===== 购买模态框功能 =====
@@ -2007,6 +2255,7 @@ function init() {
 
     // 初始化产品详情页
     initProductDetail();
+    initCardDrag();
 
     // 初始化Bizum信息
     initBizumInfo();

@@ -133,6 +133,15 @@
             <div class="products-grid" id="products-grid">
                 <!-- 产品卡片通过JavaScript动态生成 -->
             </div>
+
+            <div class="detail-dropzone" id="detail-dropzone">
+                <svg class="icon" aria-hidden="true"><use href="#i-expand" xlink:href="#i-expand"></use></svg>
+                <span class="detail-dropzone-text">
+                    <span class="detail-dropzone-label"><span lang="zh-CN">拖到这里查看详情</span><span class="detail-dropzone-sep"> / </span><span lang="es">Arrastra aquí para ver detalles</span></span>
+                    <span class="detail-dropzone-release" aria-hidden="true"><span lang="zh-CN">松开查看详情</span><span class="detail-dropzone-sep"> / </span><span lang="es">Suelta para ver detalles</span></span>
+                    <span class="detail-dropzone-hint">长按卡片拖动 / Mantén pulsada la tarjeta</span>
+                </span>
+            </div>
         </section>
 
         <section id="platypus" class="platypus-section" aria-labelledby="platypus-title" data-reveal>
@@ -656,8 +665,8 @@
     </div>
 
     <!-- 产品详情页 -->
-    <div id="product-detail" class="product-detail-overlay">
-        <button class="detail-close" id="detail-close"><svg class="icon" aria-hidden="true"><use href="#i-close" xlink:href="#i-close"></use></svg></button>
+    <div id="product-detail" class="product-detail-overlay" role="dialog" aria-modal="true" aria-labelledby="detail-name">
+        <button type="button" class="detail-close" id="detail-close" aria-label="关闭 / Cerrar"><svg class="icon" aria-hidden="true"><use href="#i-close" xlink:href="#i-close"></use></svg></button>
         <div class="detail-content">
             <div class="detail-image-wrap">
                 <img id="detail-main-img" src="" alt="">
