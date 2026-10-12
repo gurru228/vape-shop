@@ -3818,6 +3818,61 @@ html.detail-locked, html.detail-locked body { overflow: hidden; }
     .detail-add-cart .icon { display: none; }
 }
 
+/* ===== 产品与口味控件：延续购物车的柔和圆角 ===== */
+#products .product-card {
+    border-radius: 16px;
+}
+#products .product-card .product-image {
+    border-radius: 12px;
+}
+#products .product-card .flavor-btn {
+    border-radius: 10px;
+}
+#products .product-card .flavor-btn img {
+    border-radius: 6px;
+}
+#products .product-card .card-add-btn {
+    border-radius: 12px;
+}
+
+/* 产品详情：保持左图右口味与滚动区域，仅柔化现有边框 */
+#product-detail .detail-content {
+    border-radius: 20px;
+}
+#product-detail .detail-close {
+    border-radius: 999px;
+}
+#product-detail .detail-image-wrap {
+    border-radius: 12px;
+}
+#product-detail .detail-flavor-btn {
+    border-radius: 10px;
+}
+#product-detail .detail-flavor-btn img {
+    border-radius: 6px;
+}
+#product-detail .detail-flavor-btn .soldout-label {
+    border-radius: 6px;
+}
+#product-detail .detail-add-cart {
+    border-radius: 12px;
+}
+
+/* 其他常用信息框也使用同一组圆角层级 */
+#about .about-card,
+#age-gate .age-gate-card,
+#welcome-modal > .modal-content,
+#auth-modal > .modal-content,
+#welcome-register-modal > .modal-content,
+#post-checkout-modal > .modal-content {
+    border-radius: 16px;
+}
+#account-dropdown,
+.welcome-code-box,
+.modal-instructions {
+    border-radius: 12px;
+}
+
 /* ===== 购物车与结账：局部恢复柔和圆角，只作用于这两处，不影响全局与商品卡 ===== */
 #cart-sidebar,
 #checkout-modal {
