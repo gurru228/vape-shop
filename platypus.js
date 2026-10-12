@@ -380,8 +380,9 @@
         document.addEventListener('pointerdown', e => {
             if (state.tipTarget && !state.tipTarget.contains(e.target)) hideTip();
         });
-        window.addEventListener('scroll', hideTip, { passive: true });
-        window.addEventListener('resize', hideTip);
+        const follow = () => { if (state.tipTarget && document.body.contains(state.tipTarget)) showTip(state.tipTarget); };
+        window.addEventListener('scroll', follow, { passive: true });
+        window.addEventListener('resize', follow);
 
         state.lang = siteLang();
         new MutationObserver(() => {

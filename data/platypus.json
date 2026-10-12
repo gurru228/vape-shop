@@ -45,9 +45,9 @@
       "en": "The dots are approximate positions on the existing photo, not a manufacturer diagram. “Placeholder” means the catalog does not list that spec."
     },
     "flavorTip": {
-      "zh": "{name}。目录标签：{tags}。整机口数：{puffs}（商品描述里的数字，不是单口味实测）。",
-      "es": "{name}. Etiquetas del catálogo: {tags}. Cifra del producto: {puffs} puffs (en la ficha, no por sabor).",
-      "en": "{name}. Catalog tags: {tags}. Product puff count: {puffs} (from the product description, not a per-flavor test)."
+      "zh": "目录标签：{tags}。整机口数：{puffs}（商品描述里的数字，不是单口味实测）。",
+      "es": "Etiquetas del catálogo: {tags}. Cifra del producto: {puffs} puffs (en la ficha, no por sabor).",
+      "en": "Catalog tags: {tags}. Product puff count: {puffs} (from the product description, not a per-flavor test)."
     },
     "placeholder": {
       "zh": "占位",
@@ -103,9 +103,9 @@
         "en": "Battery"
       },
       "info": {
-        "zh": "［占位］目录没有电池容量。整机记载为 4000 口。",
-        "es": "[Marcador] El catálogo no indica la batería. El producto figura con 4000 puffs.",
-        "en": "[Placeholder] The catalog has no battery capacity. The product is listed as 4000 puffs."
+        "zh": "［占位］目录没有电池容量。",
+        "es": "[Marcador] El catálogo no indica la batería.",
+        "en": "[Placeholder] The catalog has no battery capacity."
       }
     },
     {

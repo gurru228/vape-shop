@@ -34,7 +34,7 @@
 
 - `puffs`：整机口数，来自 `script.js` 的商品描述（4000）。不是每个口味的实测值。
 - `description`：中文和西语抄自 `script.js`；英文是同一句的翻译。
-- `ui`：标题、提示语等界面文字。`flavorTip` 里的 `{name}`、`{tags}`、`{puffs}` 会被替换。
+- `ui`：标题、提示语等界面文字。`flavorTip` 里的 `{tags}`、`{puffs}`（以及可选的 `{name}`）会被替换；`puffLine` 里的 `{puffs}` 同理。
 
 改完刷新页面即可。线上若看不到更新，可能是浏览器缓存，强制刷新一次。
 
