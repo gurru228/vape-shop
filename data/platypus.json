@@ -1,0 +1,821 @@
+{
+  "_comment": "Edit this file to change the Platypus (鸭嘴兽 / Dash) section. See data/README.md. Do not add puff counts, nicotine strength, or part specs that are not already in script.js. es/en tag words are translations of the Chinese catalog tags, not new tasting notes. es flavor names reuse the English catalog name because the shop has no Spanish flavor names. Hotspot x/y are approximate percentages on the existing photos and are placeholders.",
+  "productId": 1,
+  "catalogName": "鸭嘴兽 (Dash)",
+  "priceCents": 1790,
+  "puffs": 4000,
+  "puffsSource": "script.js product id 1 description: 4000口量 / 4000 puffs. This is the whole product, not a per-flavor measurement.",
+  "description": {
+    "zh": "4000口量 · 多款口味随心选 · 冰感顺滑不刺激",
+    "es": "4000 puffs · Amplia variedad de sabores · Toque helado y suave",
+    "en": "4000 puffs · Many flavors · Cool, smooth draw"
+  },
+  "descriptionNote": "zh and es are copied from script.js. en is a translation of that same sentence, not a new specification.",
+  "defaultImage": "images/dash/coconut-water.webp",
+  "imageNote": "Photos already in images/dash/. Each file is a flavor photo of the same Dash device. There is no separate device diagram and no file named platypus or ornitorrinco.",
+  "ui": {
+    "title": {
+      "zh": "鸭嘴兽",
+      "es": "Dash",
+      "en": "Platypus (Dash)"
+    },
+    "kicker": {
+      "zh": "目录商品",
+      "es": "Producto del catálogo",
+      "en": "Catalog product"
+    },
+    "selected": {
+      "zh": "当前口味",
+      "es": "Sabor elegido",
+      "en": "Selected flavor"
+    },
+    "priceLabel": {
+      "zh": "目录价格",
+      "es": "Precio del catálogo",
+      "en": "Catalog price"
+    },
+    "dragHint": {
+      "zh": "选中的口味标签可以用鼠标或手指拖动。键盘：聚焦标签后用方向键移动。",
+      "es": "La ficha del sabor se arrastra con el ratón o el dedo. Teclado: enfoque la ficha y use las flechas.",
+      "en": "Drag the selected flavor token with a mouse or finger. Keyboard: focus the token and use the arrow keys."
+    },
+    "positionNote": {
+      "zh": "图上的圆点是按现有照片估的位置，不是厂家结构图。标成「占位」的文字表示目录里没有这项规格。",
+      "es": "Los puntos son posiciones aproximadas sobre la foto existente, no un plano del fabricante. «Marcador» significa que el catálogo no trae ese dato.",
+      "en": "The dots are approximate positions on the existing photo, not a manufacturer diagram. “Placeholder” means the catalog does not list that spec."
+    },
+    "flavorTip": {
+      "zh": "目录标签：{tags}。整机口数：{puffs}（商品描述里的数字，不是单口味实测）。",
+      "es": "Etiquetas del catálogo: {tags}. Cifra del producto: {puffs} puffs (en la ficha, no por sabor).",
+      "en": "Catalog tags: {tags}. Product puff count: {puffs} (from the product description, not a per-flavor test)."
+    },
+    "placeholder": {
+      "zh": "占位",
+      "es": "Marcador",
+      "en": "Placeholder"
+    },
+    "puffLine": {
+      "zh": "整机 {puffs} 口（商品描述）。",
+      "es": "Producto: {puffs} puffs (según la ficha).",
+      "en": "Product: {puffs} puffs (from the listing)."
+    },
+    "noneSelected": {
+      "zh": "尚未选择",
+      "es": "Ninguno",
+      "en": "None yet"
+    },
+    "boardEmpty": {
+      "zh": "点上面的口味，标签会出现在这里。",
+      "es": "Pulse un sabor y su ficha aparecerá aquí.",
+      "en": "Pick a flavor and its token appears here."
+    },
+    "tokenRole": {
+      "zh": "可拖动标签",
+      "es": "ficha arrastrable",
+      "en": "draggable token"
+    }
+  },
+  "hotspots": [
+    {
+      "id": "mouthpiece",
+      "x": 51,
+      "y": 31,
+      "placeholder": true,
+      "label": {
+        "zh": "吸嘴",
+        "es": "Boquilla",
+        "en": "Mouthpiece"
+      },
+      "info": {
+        "zh": "［占位］目录没有单独的吸嘴规格。",
+        "es": "[Marcador] El catálogo no trae una ficha de la boquilla.",
+        "en": "[Placeholder] The catalog has no separate mouthpiece spec."
+      }
+    },
+    {
+      "id": "battery",
+      "x": 51,
+      "y": 64,
+      "placeholder": true,
+      "label": {
+        "zh": "电池",
+        "es": "Batería",
+        "en": "Battery"
+      },
+      "info": {
+        "zh": "［占位］目录没有电池容量。",
+        "es": "[Marcador] El catálogo no indica la batería.",
+        "en": "[Placeholder] The catalog has no battery capacity."
+      }
+    },
+    {
+      "id": "airflow",
+      "x": 51,
+      "y": 87,
+      "placeholder": true,
+      "label": {
+        "zh": "气流",
+        "es": "Flujo de aire",
+        "en": "Airflow"
+      },
+      "info": {
+        "zh": "［占位］目录没有气流规格。",
+        "es": "[Marcador] El catálogo no trae datos del flujo de aire.",
+        "en": "[Placeholder] The catalog has no airflow spec."
+      }
+    }
+  ],
+  "flavors": [
+    {
+      "id": "1-Jasmine LongJing Tea",
+      "name": {
+        "zh": "龙井",
+        "en": "Jasmine LongJing Tea",
+        "es": "Jasmine LongJing Tea"
+      },
+      "image": "images/dash/jasmine-longjing.webp",
+      "tags": {
+        "zh": [
+          "清新",
+          "茶香"
+        ],
+        "en": [
+          "fresh",
+          "tea"
+        ],
+        "es": [
+          "fresco",
+          "té"
+        ]
+      }
+    },
+    {
+      "id": "1-Lemon Tea",
+      "name": {
+        "zh": "柠檬茶",
+        "en": "Lemon Tea",
+        "es": "Lemon Tea"
+      },
+      "image": "images/dash/sparkling-iced-lemon-tea.webp",
+      "tags": {
+        "zh": [
+          "酸甜",
+          "清爽"
+        ],
+        "en": [
+          "sweet-tart",
+          "crisp"
+        ],
+        "es": [
+          "agridulce",
+          "fresco"
+        ]
+      }
+    },
+    {
+      "id": "1-Green Grape",
+      "name": {
+        "zh": "青提",
+        "en": "Green Grape",
+        "es": "Green Grape"
+      },
+      "image": "images/dash/green-grape.webp",
+      "tags": {
+        "zh": [
+          "甜润",
+          "果香"
+        ],
+        "en": [
+          "sweet",
+          "fruit"
+        ],
+        "es": [
+          "dulce",
+          "fruta"
+        ]
+      }
+    },
+    {
+      "id": "1-Sweet Honeydew",
+      "name": {
+        "zh": "甜蜜瓜",
+        "en": "Sweet Honeydew",
+        "es": "Sweet Honeydew"
+      },
+      "image": "images/dash/sweet-honeydew.webp",
+      "tags": {
+        "zh": [
+          "甜",
+          "清甜"
+        ],
+        "en": [
+          "sweet",
+          "light sweet"
+        ],
+        "es": [
+          "dulce",
+          "dulce suave"
+        ]
+      }
+    },
+    {
+      "id": "1-Crystal Grape",
+      "name": {
+        "zh": "紫晶葡萄",
+        "en": "Crystal Grape",
+        "es": "Crystal Grape"
+      },
+      "image": "images/dash/tangy-grape.webp",
+      "tags": {
+        "zh": [
+          "甜",
+          "果香"
+        ],
+        "en": [
+          "sweet",
+          "fruit"
+        ],
+        "es": [
+          "dulce",
+          "fruta"
+        ]
+      }
+    },
+    {
+      "id": "1-Mineral Water",
+      "name": {
+        "zh": "矿泉水",
+        "en": "Mineral Water",
+        "es": "Mineral Water"
+      },
+      "image": "images/dash/mineral-water.webp",
+      "tags": {
+        "zh": [
+          "清淡",
+          "清爽"
+        ],
+        "en": [
+          "mild",
+          "crisp"
+        ],
+        "es": [
+          "suave",
+          "fresco"
+        ]
+      }
+    },
+    {
+      "id": "1-Coconut Water",
+      "name": {
+        "zh": "椰子水",
+        "en": "Coconut Water",
+        "es": "Coconut Water"
+      },
+      "image": "images/dash/coconut-water.webp",
+      "tags": {
+        "zh": [
+          "清甜",
+          "椰香"
+        ],
+        "en": [
+          "light sweet",
+          "coconut"
+        ],
+        "es": [
+          "dulce suave",
+          "coco"
+        ]
+      }
+    },
+    {
+      "id": "1-Alpine White Peach",
+      "name": {
+        "zh": "高山白桃",
+        "en": "Alpine White Peach",
+        "es": "Alpine White Peach"
+      },
+      "image": "images/dash/alpine-white-peach.webp",
+      "tags": {
+        "zh": [
+          "清甜",
+          "果香",
+          "清爽"
+        ],
+        "en": [
+          "light sweet",
+          "fruit",
+          "crisp"
+        ],
+        "es": [
+          "dulce suave",
+          "fruta",
+          "fresco"
+        ]
+      }
+    },
+    {
+      "id": "1-Floral Oolong",
+      "name": {
+        "zh": "花香乌龙",
+        "en": "Floral Oolong",
+        "es": "Floral Oolong"
+      },
+      "image": "images/dash/floral-oolong.webp",
+      "tags": {
+        "zh": [
+          "花香",
+          "茶香",
+          "醇厚"
+        ],
+        "en": [
+          "floral",
+          "tea",
+          "rich"
+        ],
+        "es": [
+          "floral",
+          "té",
+          "intenso"
+        ]
+      }
+    },
+    {
+      "id": "1-Honey Yuzu Tea",
+      "name": {
+        "zh": "蜂蜜柚子茶",
+        "en": "Honey Yuzu Tea",
+        "es": "Honey Yuzu Tea"
+      },
+      "image": "images/dash/honey-yuzu-tea.webp",
+      "tags": {
+        "zh": [
+          "酸甜",
+          "蜜香",
+          "茶香"
+        ],
+        "en": [
+          "sweet-tart",
+          "honey",
+          "tea"
+        ],
+        "es": [
+          "agridulce",
+          "miel",
+          "té"
+        ]
+      }
+    },
+    {
+      "id": "1-Salted Fizz",
+      "name": {
+        "zh": "海盐气泡",
+        "en": "Salted Fizz",
+        "es": "Salted Fizz"
+      },
+      "image": "images/dash/salted-fizz.webp",
+      "tags": {
+        "zh": [
+          "酸甜",
+          "咸甜",
+          "清爽"
+        ],
+        "en": [
+          "sweet-tart",
+          "salty-sweet",
+          "crisp"
+        ],
+        "es": [
+          "agridulce",
+          "salado y dulce",
+          "fresco"
+        ]
+      }
+    },
+    {
+      "id": "1-Kiwi Ice",
+      "name": {
+        "zh": "猕猴桃冰",
+        "en": "Kiwi Ice",
+        "es": "Kiwi Ice"
+      },
+      "image": "images/dash/kiwi-ice.webp",
+      "tags": {
+        "zh": [
+          "冰凉",
+          "酸甜",
+          "果香"
+        ],
+        "en": [
+          "icy",
+          "sweet-tart",
+          "fruit"
+        ],
+        "es": [
+          "helado",
+          "agridulce",
+          "fruta"
+        ]
+      }
+    },
+    {
+      "id": "1-Red Wine Ice",
+      "name": {
+        "zh": "红酒冰",
+        "en": "Red Wine Ice",
+        "es": "Red Wine Ice"
+      },
+      "image": "images/dash/red-wine-ice.webp",
+      "tags": {
+        "zh": [
+          "冰凉",
+          "醇厚",
+          "果香"
+        ],
+        "en": [
+          "icy",
+          "rich",
+          "fruit"
+        ],
+        "es": [
+          "helado",
+          "intenso",
+          "fruta"
+        ]
+      }
+    },
+    {
+      "id": "1-Matcha Smoothie",
+      "name": {
+        "zh": "抹茶思慕雪",
+        "en": "Matcha Smoothie",
+        "es": "Matcha Smoothie"
+      },
+      "image": "images/dash/matcha-smoothie.webp",
+      "tags": {
+        "zh": [
+          "醇厚",
+          "茶香"
+        ],
+        "en": [
+          "rich",
+          "tea"
+        ],
+        "es": [
+          "intenso",
+          "té"
+        ]
+      }
+    },
+    {
+      "id": "1-Peach Ice",
+      "name": {
+        "zh": "水蜜桃冰",
+        "en": "Peach Ice",
+        "es": "Peach Ice"
+      },
+      "image": "images/dash/peach-ice.webp",
+      "tags": {
+        "zh": [
+          "冰凉",
+          "甜"
+        ],
+        "en": [
+          "icy",
+          "sweet"
+        ],
+        "es": [
+          "helado",
+          "dulce"
+        ]
+      }
+    },
+    {
+      "id": "1-Pink Guava",
+      "name": {
+        "zh": "粉红番石榴",
+        "en": "Pink Guava",
+        "es": "Pink Guava"
+      },
+      "image": "images/dash/pink-guava.webp",
+      "tags": {
+        "zh": [
+          "甜",
+          "果香"
+        ],
+        "en": [
+          "sweet",
+          "fruit"
+        ],
+        "es": [
+          "dulce",
+          "fruta"
+        ]
+      }
+    },
+    {
+      "id": "1-Black Dragon Ice",
+      "name": {
+        "zh": "黑龙冰",
+        "en": "Black Dragon Ice",
+        "es": "Black Dragon Ice"
+      },
+      "image": "images/dash/black-dragon-ice.webp",
+      "tags": {
+        "zh": [
+          "冰凉",
+          "清爽"
+        ],
+        "en": [
+          "icy",
+          "crisp"
+        ],
+        "es": [
+          "helado",
+          "fresco"
+        ]
+      }
+    },
+    {
+      "id": "1-Corn Gelato",
+      "name": {
+        "zh": "玉米冰激凌",
+        "en": "Corn Gelato",
+        "es": "Corn Gelato"
+      },
+      "image": "images/dash/corn-gelato.webp",
+      "tags": {
+        "zh": [
+          "甜",
+          "醇厚"
+        ],
+        "en": [
+          "sweet",
+          "rich"
+        ],
+        "es": [
+          "dulce",
+          "intenso"
+        ]
+      }
+    },
+    {
+      "id": "1-White Freeze",
+      "name": {
+        "zh": "老冰棍",
+        "en": "White Freeze",
+        "es": "White Freeze"
+      },
+      "image": "images/dash/white-freeze.webp",
+      "tags": {
+        "zh": [
+          "冰凉",
+          "甜"
+        ],
+        "en": [
+          "icy",
+          "sweet"
+        ],
+        "es": [
+          "helado",
+          "dulce"
+        ]
+      }
+    },
+    {
+      "id": "1-Passion Grapefruit",
+      "name": {
+        "zh": "百香西柚",
+        "en": "Passion Grapefruit",
+        "es": "Passion Grapefruit"
+      },
+      "image": "images/dash/passion-grapefruit.webp",
+      "tags": {
+        "zh": [
+          "酸甜",
+          "果香"
+        ],
+        "en": [
+          "sweet-tart",
+          "fruit"
+        ],
+        "es": [
+          "agridulce",
+          "fruta"
+        ]
+      }
+    },
+    {
+      "id": "1-Lush Ice",
+      "name": {
+        "zh": "西瓜冰",
+        "en": "Lush Ice",
+        "es": "Lush Ice"
+      },
+      "image": "images/dash/lush-ice.webp",
+      "tags": {
+        "zh": [
+          "冰凉",
+          "甜"
+        ],
+        "en": [
+          "icy",
+          "sweet"
+        ],
+        "es": [
+          "helado",
+          "dulce"
+        ]
+      }
+    },
+    {
+      "id": "1-Lemon Pineapple",
+      "name": {
+        "zh": "柠檬菠萝",
+        "en": "Lemon Pineapple",
+        "es": "Lemon Pineapple"
+      },
+      "image": "images/dash/lemon-pineapple.webp",
+      "tags": {
+        "zh": [
+          "酸甜",
+          "清爽"
+        ],
+        "en": [
+          "sweet-tart",
+          "crisp"
+        ],
+        "es": [
+          "agridulce",
+          "fresco"
+        ]
+      }
+    },
+    {
+      "id": "1-Green Apple Ice",
+      "name": {
+        "zh": "青苹果冰",
+        "en": "Green Apple Ice",
+        "es": "Green Apple Ice"
+      },
+      "image": "images/dash/green-apple-ice.webp",
+      "tags": {
+        "zh": [
+          "冰凉",
+          "酸甜"
+        ],
+        "en": [
+          "icy",
+          "sweet-tart"
+        ],
+        "es": [
+          "helado",
+          "agridulce"
+        ]
+      }
+    },
+    {
+      "id": "1-Tea Guan Yin King",
+      "name": {
+        "zh": "铁观音",
+        "en": "Tea Guan Yin King",
+        "es": "Tea Guan Yin King"
+      },
+      "image": "images/dash/tea-guan-yin-king.webp",
+      "tags": {
+        "zh": [
+          "茶香",
+          "醇厚"
+        ],
+        "en": [
+          "tea",
+          "rich"
+        ],
+        "es": [
+          "té",
+          "intenso"
+        ]
+      }
+    },
+    {
+      "id": "1-Taro Ice",
+      "name": {
+        "zh": "香芋冰",
+        "en": "Taro Ice",
+        "es": "Taro Ice"
+      },
+      "image": "images/dash/taro-ice.webp",
+      "tags": {
+        "zh": [
+          "甜",
+          "醇厚"
+        ],
+        "en": [
+          "sweet",
+          "rich"
+        ],
+        "es": [
+          "dulce",
+          "intenso"
+        ]
+      }
+    },
+    {
+      "id": "1-Lychee Ice",
+      "name": {
+        "zh": "荔枝冰",
+        "en": "Lychee Ice",
+        "es": "Lychee Ice"
+      },
+      "image": "images/dash/lychee-ice.webp",
+      "tags": {
+        "zh": [
+          "冰凉",
+          "甜"
+        ],
+        "en": [
+          "icy",
+          "sweet"
+        ],
+        "es": [
+          "helado",
+          "dulce"
+        ]
+      }
+    },
+    {
+      "id": "1-Hibiscus Ice Tea",
+      "name": {
+        "zh": "洛神花冰茶",
+        "en": "Hibiscus Ice Tea",
+        "es": "Hibiscus Ice Tea"
+      },
+      "image": "images/dash/hibiscus-ice-tea.webp",
+      "tags": {
+        "zh": [
+          "冰凉",
+          "酸甜",
+          "花香"
+        ],
+        "en": [
+          "icy",
+          "sweet-tart",
+          "floral"
+        ],
+        "es": [
+          "helado",
+          "agridulce",
+          "floral"
+        ]
+      }
+    },
+    {
+      "id": "1-Ludou Ice",
+      "name": {
+        "zh": "绿豆冰",
+        "en": "Ludou Ice",
+        "es": "Ludou Ice"
+      },
+      "image": "images/dash/ludou-ice.webp",
+      "tags": {
+        "zh": [
+          "冰凉",
+          "清甜"
+        ],
+        "en": [
+          "icy",
+          "light sweet"
+        ],
+        "es": [
+          "helado",
+          "dulce suave"
+        ]
+      }
+    },
+    {
+      "id": "1-Lime Ice",
+      "name": {
+        "zh": "青柠冰",
+        "en": "Lime Ice",
+        "es": "Lime Ice"
+      },
+      "image": "images/dash/lime-ice.webp",
+      "tags": {
+        "zh": [
+          "冰凉",
+          "酸",
+          "清爽"
+        ],
+        "en": [
+          "icy",
+          "sour",
+          "crisp"
+        ],
+        "es": [
+          "helado",
+          "ácido",
+          "fresco"
+        ]
+      }
+    }
+  ]
+}
