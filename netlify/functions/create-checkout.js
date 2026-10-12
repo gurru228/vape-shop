@@ -1,90 +1,67 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
+const { toStripeLineItems } = require('../../lib/pricing');
+const {
+    json,
+    priceQuote,
+    normalizeOrderNumber,
+    insertOrder,
+    buildOrderRecord,
+} = require('../../lib/orders');
+
 const BASE_URL = process.env.URL || 'https://tangerine-heliotrope-a2bd74.netlify.app';
 
-async function saveOrder(order) {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
-            'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify(order)
-    });
-    if (!res.ok) throw new Error(await res.text());
+function getStripe() {
+    if (!process.env.STRIPE_SECRET_KEY) {
+        throw new Error('STRIPE_SECRET_KEY is not set');
+    }
+    return require('stripe')(process.env.STRIPE_SECRET_KEY);
 }
 
 exports.handler = async (event) => {
-    if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
+    if (event.httpMethod !== 'POST') return json(405, { error: 'method_not_allowed' });
 
     try {
-        const { cart, customerName, customerPhone, deliveryType, address, deliveryTime, shippingFee, agentRef, userId } = JSON.parse(event.body);
-        if (!cart?.length || !customerName || !customerPhone) {
-            return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields' }) };
-        }
+        const body = JSON.parse(event.body || '{}');
+        const { customerName, customerPhone, deliveryType, address, deliveryTime, agentRef, userId } = body;
+        if (!customerName || !customerPhone) return json(400, { error: 'missing_customer' });
 
-        const orderNumber = `ORD-${Date.now()}`;
-        const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
-        const shipping = parseFloat(shippingFee) || 0;
-        const total = +(subtotal + shipping).toFixed(2);
+        const priced = priceQuote({ ...body, paymentMethod: 'card' });
+        if (priced.error) return priced.error;
+        const quote = priced.quote;
 
-        const lineItems = cart.map(item => ({
-            price_data: {
-                currency: 'eur',
-                product_data: { name: item.name },
-                unit_amount: Math.round(item.price * 100),
-            },
-            quantity: item.quantity,
-        }));
-        if (shipping > 0) {
-            lineItems.push({
-                price_data: {
-                    currency: 'eur',
-                    product_data: { name: 'Envio postal / 邮费' },
-                    unit_amount: Math.round(shipping * 100),
-                },
-                quantity: 1,
-            });
-        }
-
-        const session = await stripe.checkout.sessions.create({
+        const orderNumber = normalizeOrderNumber(body.orderNumber);
+        const lineItems = toStripeLineItems(quote);
+        const session = await getStripe().checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: lineItems,
             mode: 'payment',
             success_url: `${BASE_URL}/checkout-success.html?order=${orderNumber}`,
             cancel_url: `${BASE_URL}/`,
-            metadata: { order_number: orderNumber, customer_name: customerName, customer_phone: customerPhone }
+            metadata: {
+                order_number: orderNumber,
+                customer_name: String(customerName).slice(0, 500),
+                customer_phone: String(customerPhone).slice(0, 500),
+                total_cents: String(quote.totalCents),
+            },
         });
 
-        const orderData = {
-            order_number: orderNumber,
-            customer_name: customerName,
-            customer_phone: customerPhone,
-            items: cart,
-            total,
-            shipping_fee: shipping,
-            payment_method: 'card',
-            payment_status: 'stripe_pending',
-            stripe_session_id: session.id,
-            delivery_type: deliveryType || 'pickup',
+        const order = buildOrderRecord({
+            quote,
+            orderNumber,
+            customerName,
+            customerPhone,
+            paymentMethod: 'card',
+            paymentStatus: 'stripe_pending',
             address: address || '',
-            delivery_time: deliveryTime || '',
-            ...(agentRef ? { agent_ref: agentRef } : {}),
-            ...(userId ? { user_id: userId } : {})
-        };
-        // 只保存订单记录，通知和库存扣减等 Stripe webhook 确认付款后再做
-        await saveOrder(orderData).catch(err => console.error('Supabase save failed:', err));
+            deliveryTime: deliveryType === 'delivery' ? (deliveryTime || '') : (deliveryTime || ''),
+            agentRef,
+            userId,
+            stripeSessionId: session.id,
+        });
+        await insertOrder(order).catch(err => console.error('Supabase save failed:', err));
 
-        return {
-            statusCode: 200,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: session.url, orderNumber })
-        };
+        return json(200, { url: session.url, orderNumber, total: quote.total });
     } catch (err) {
         console.error('create-checkout error:', err);
-        return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
+        return json(500, { error: err.message });
     }
 };

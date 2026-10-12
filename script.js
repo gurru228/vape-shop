@@ -4,11 +4,28 @@ const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsIn
 let sbClient = null;
 let currentUser = null;
 
-function initSupabase() {
+let supabaseLoading = null;
+function loadSupabaseSdk() {
+    if (window.supabase?.createClient) return Promise.resolve();
+    if (supabaseLoading) return supabaseLoading;
+    supabaseLoading = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('Supabase SDK failed'));
+        document.head.appendChild(script);
+    });
+    return supabaseLoading;
+}
+
+async function initSupabase() {
     try {
+        await loadSupabaseSdk();
         if (!window.supabase) throw new Error('Supabase SDK未加载');
         sbClient = window.supabase.createClient(_SB_URL, _SB_KEY);
-    } catch(e) {
+        initAuth();
+    } catch (e) {
         console.error('Supabase init error:', e);
     }
 }
@@ -16,9 +33,14 @@ function initSupabase() {
 // ===== 配置信息 =====
 const CONFIG = {
     bizumPhone: '+34 697 332 407',
+    whatsappPhone: '34697332407', // 与全站 wa.me/34697332407 以及 lib/pricing.js 相同
     defaultCurrency: '€',
     storeName: '口粮专卖店'
 };
+
+function icon(name) {
+    return `<svg class="icon" aria-hidden="true"><use href="#i-${name}"></use></svg>`;
+}
 
 // ===== 优惠码系统 =====
 const DISCOUNT_CODES = {}; // 优惠码活动暂停
@@ -100,6 +122,262 @@ function getShippingFee() {
     const subtotal = cart.filter(i => !i.isFree).reduce((s, i) => s + i.price * i.quantity, 0);
     const discounted = getDiscountedTotal(subtotal);
     return discounted >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+}
+
+let latestQuote = null;
+let quoteSeq = 0;
+let quoteTimer = null;
+
+function cartRequestItems() {
+    return cart.filter(item => !item.isFree).map(item => ({
+        id: String(item.id),
+        quantity: item.quantity
+    }));
+}
+
+function currentDeliveryContext() {
+    const isDelivery = document.getElementById('btn-delivery')?.classList.contains('active');
+    const isPostal = document.getElementById('btn-postal')?.classList.contains('active');
+    return {
+        deliveryType: isDelivery ? 'delivery' : isPostal ? 'postal' : 'pickup',
+        country: document.getElementById('checkout-postal-country')?.value || 'ES'
+    };
+}
+
+function selectedDeliverySlot() {
+    const active = document.querySelector('#time-slots .time-slot.active');
+    if (!active) return '10:00 - 14:00';
+    return `${active.dataset.from} - ${active.dataset.to}`;
+}
+
+function collectCheckoutFields() {
+    const name = document.getElementById('checkout-customer-name')?.value.trim() || '';
+    const phone = document.getElementById('checkout-customer-phone')?.value.trim() || '';
+    const { deliveryType, country } = currentDeliveryContext();
+    const street = document.getElementById('checkout-delivery-street')?.value.trim() || '';
+    const floor = document.getElementById('checkout-delivery-floor')?.value.trim() || '';
+    const district = document.getElementById('checkout-delivery-district')?.value.trim() || '';
+    const deliveryAddress = [street + (floor ? `, ${floor}` : ''), district ? `Madrid – ${district}` : (street ? 'Madrid' : '')].filter(Boolean).join('\n');
+    const recipient = document.getElementById('checkout-postal-recipient')?.value.trim() || '';
+    const postalStreet = document.getElementById('checkout-postal-street')?.value.trim() || '';
+    const postalFloor = document.getElementById('checkout-postal-floor')?.value.trim() || '';
+    const cp = document.getElementById('checkout-postal-cp')?.value.trim() || '';
+    const city = document.getElementById('checkout-postal-city')?.value.trim() || '';
+    const province = document.getElementById('checkout-postal-province')?.value.trim() || '';
+    const countrySel = document.getElementById('checkout-postal-country');
+    const countryLabel = countrySel?.selectedOptions?.[0]?.textContent.trim() || '';
+    const quoteFlag = country !== 'ES' ? '运费另询 / Envío a confirmar' : '';
+    const postalAddress = [recipient, postalStreet + (postalFloor ? ` ${postalFloor}` : ''), `${cp} ${city}`.trim(), province, countryLabel, quoteFlag].filter(Boolean).join('\n');
+    const address = deliveryType === 'delivery' ? deliveryAddress : deliveryType === 'postal' ? postalAddress : '';
+    return {
+        name, phone, deliveryType, country, address,
+        isDelivery: deliveryType === 'delivery',
+        isPostal: deliveryType === 'postal',
+        deliveryTime: deliveryType === 'delivery' ? selectedDeliverySlot() : ''
+    };
+}
+
+function quoteErrorMessage(code) {
+    const messages = {
+        unknown_item: '有商品无法计价，请删除后重新添加 / Hay un producto no disponible. Quítelo y vuelva a añadirlo',
+        invalid_quantity: '数量无效 / Cantidad no válida',
+        empty_cart: '购物车是空的 / El carrito está vacío',
+        delivery_minimum: '外送至少需要5件商品 / Se necesitan mínimo 5 unidades para entrega a domicilio',
+        missing_customer: '请填写姓名和手机号 / Por favor complete su nombre y teléfono',
+        cash_postal_unavailable: '现金支付不支持邮寄 / El pago en efectivo no está disponible para envío postal'
+    };
+    return messages[code] || '价格计算失败，请稍后重试 / No se pudo calcular el precio';
+}
+
+async function fetchServerQuote(extra) {
+    const items = cartRequestItems();
+    if (!items.length) {
+        quoteSeq += 1;
+        latestQuote = null;
+        return null;
+    }
+    const seq = ++quoteSeq;
+    const res = await fetch('/.netlify/functions/quote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items, ...currentDeliveryContext(), ...(extra || {}) })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (seq !== quoteSeq) return null;
+    if (!res.ok || data.ok === false || data.error) {
+        latestQuote = null;
+        const err = new Error(quoteErrorMessage(data.error));
+        err.code = data.error;
+        throw err;
+    }
+    latestQuote = data;
+    return data;
+}
+
+function scheduleServerQuote() {
+    clearTimeout(quoteTimer);
+    quoteTimer = setTimeout(() => {
+        fetchServerQuote().then(quote => {
+            if (quote) applyServerQuote(quote);
+        }).catch(err => {
+            const totalEl = document.getElementById('cart-total-price');
+            if (totalEl) totalEl.textContent = '—';
+            const errorEl = document.getElementById('checkout-error');
+            if (errorEl && document.getElementById('checkout-modal')?.style.display === 'flex') {
+                errorEl.textContent = err.message;
+                errorEl.style.display = 'block';
+            }
+        });
+    }, 160);
+}
+
+function applyServerQuote(quote) {
+    const totalEl = document.getElementById('cart-total-price');
+    if (totalEl) totalEl.textContent = `${CONFIG.defaultCurrency}${Number(quote.total).toFixed(2)}`;
+
+    document.querySelectorAll('.cart-item').forEach(row => {
+        const line = quote.lines.find(item => item.id === String(row.dataset.productId));
+        if (!line) return;
+        const nameEl = row.querySelector('.cart-item-name');
+        const subEl = row.querySelector('.cart-item-subtotal');
+        if (nameEl) nameEl.textContent = line.name;
+        if (subEl) subEl.textContent = `${CONFIG.defaultCurrency}${Number(line.lineTotal).toFixed(2)}`;
+    });
+
+    const hintEl = document.getElementById('cart-tier-hint');
+    if (hintEl) {
+        if (quote.appliedDiscount) {
+            let msg = `已省 ${CONFIG.defaultCurrency}${quote.appliedDiscount.amount} / Ahorras ${CONFIG.defaultCurrency}${quote.appliedDiscount.amount}`;
+            if (quote.nextTier) {
+                msg += `　再买 ${CONFIG.defaultCurrency}${Number(quote.nextTier.remaining).toFixed(2)} 省 ${CONFIG.defaultCurrency}${quote.nextTier.amount}`;
+            }
+            hintEl.innerHTML = `${icon('gift')} ${msg}`;
+            hintEl.classList.add('active');
+            hintEl.style.display = 'flex';
+        } else if (quote.nextTier) {
+            const remaining = Number(quote.nextTier.remaining).toFixed(2);
+            hintEl.innerHTML = `${icon('gift')} 再买 ${CONFIG.defaultCurrency}${remaining} 立减 ${CONFIG.defaultCurrency}${quote.nextTier.amount} / Gasta ${CONFIG.defaultCurrency}${remaining} más y ahorra ${CONFIG.defaultCurrency}${quote.nextTier.amount}`;
+            hintEl.classList.remove('active');
+            hintEl.style.display = 'flex';
+        } else {
+            hintEl.style.display = 'none';
+        }
+    }
+
+    const summaryEl = document.getElementById('checkout-cart-summary');
+    if (summaryEl && document.getElementById('checkout-modal')?.style.display === 'flex') {
+        summaryEl.innerHTML = quote.lines.map(line => `
+            <div class="checkout-summary-item">
+                <span>${line.name} ×${line.quantity}</span>
+                <span>${CONFIG.defaultCurrency}${Number(line.lineTotal).toFixed(2)}</span>
+            </div>
+        `).join('');
+    }
+
+    const tieredRow = document.getElementById('tiered-discount-row');
+    const tieredEl = document.getElementById('tiered-discount-display');
+    if (tieredRow && tieredEl) {
+        if (quote.discountAmount > 0) {
+            tieredEl.textContent = `-€${Number(quote.discountAmount).toFixed(2)}`;
+            tieredRow.style.display = 'flex';
+        } else {
+            tieredRow.style.display = 'none';
+        }
+    }
+    const totalDisplay = document.getElementById('checkout-total-display');
+    const originalEl = document.getElementById('checkout-original-price');
+    if (totalDisplay) totalDisplay.textContent = `€${Number(quote.total).toFixed(2)}`;
+    if (originalEl) {
+        if (quote.discountAmount > 0) {
+            originalEl.textContent = `€${(Number(quote.subtotal) + Number(quote.shippingFee)).toFixed(2)}`;
+            originalEl.style.display = 'block';
+        } else {
+            originalEl.style.display = 'none';
+        }
+    }
+    const shippingRow = document.getElementById('shipping-row');
+    const shippingEl = document.getElementById('shipping-fee-display');
+    if (shippingRow && shippingEl) {
+        if (quote.shippingFee > 0) {
+            shippingEl.textContent = `€${Number(quote.shippingFee).toFixed(2)}`;
+            shippingRow.style.display = 'flex';
+        } else if (quote.shippingQuoteRequired) {
+            shippingEl.textContent = '另询 WhatsApp / A confirmar';
+            shippingRow.style.display = 'flex';
+        } else if (quote.deliveryType === 'postal') {
+            shippingEl.textContent = '免费 / Gratis';
+            shippingRow.style.display = 'flex';
+        } else {
+            shippingRow.style.display = 'none';
+        }
+    }
+}
+
+async function placeWhatsAppOrder() {
+    const errorEl = document.getElementById('checkout-error');
+    const showError = (message) => {
+        if (errorEl) {
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        } else {
+            alert(message);
+        }
+    };
+    if (!cartRequestItems().length) {
+        alert(TRANSLATIONS[currentLanguage].cart_empty);
+        return;
+    }
+    const fields = collectCheckoutFields();
+    if (fields.isDelivery && getNonFreeQuantity() < 5) {
+        showError(quoteErrorMessage('delivery_minimum'));
+        return;
+    }
+    const popup = window.open('about:blank', '_blank');
+    const buttons = [document.getElementById('cart-whatsapp-order'), document.getElementById('btn-pay-whatsapp')];
+    buttons.forEach(btn => { if (btn) btn.disabled = true; });
+    try {
+        const quote = await fetchServerQuote({
+            customerName: fields.name,
+            customerPhone: fields.phone,
+            address: fields.address,
+            deliveryTime: fields.deliveryTime
+        });
+        if (!quote) throw new Error(quoteErrorMessage('empty_cart'));
+        applyServerQuote(quote);
+        const res = await fetch('/.netlify/functions/save-bizum-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                items: cartRequestItems(),
+                customerName: fields.name,
+                customerPhone: fields.phone,
+                deliveryType: fields.deliveryType,
+                address: fields.address,
+                deliveryTime: fields.deliveryTime,
+                country: fields.country,
+                paymentMethod: 'whatsapp',
+                agentRef: sessionStorage.getItem('agent_ref') || '',
+                ...(currentUser ? { userId: currentUser.id } : {})
+            })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || (data.error && !data.whatsappUrl)) throw new Error(quoteErrorMessage(data.error));
+        const url = data.whatsappUrl || quote.whatsappUrl;
+        if (!url || !url.includes(`wa.me/${CONFIG.whatsappPhone}`)) throw new Error(quoteErrorMessage());
+        if (popup) popup.location.href = url;
+        else window.location.href = url;
+        const modal = document.getElementById('checkout-modal');
+        if (modal) modal.style.display = 'none';
+        clearCart();
+        alert(data.saved === false
+            ? 'WhatsApp 已打开。系统暂未保存订单，请务必发送这条消息。\nWhatsApp está abierto. El pedido no se guardó: envíe el mensaje.'
+            : '请在 WhatsApp 中发送订单消息，我们会据此处理。\nEnvíe el mensaje del pedido por WhatsApp.');
+    } catch (err) {
+        if (popup) popup.close();
+        showError(err.message || quoteErrorMessage());
+    } finally {
+        buttons.forEach(btn => { if (btn) btn.disabled = false; });
+    }
 }
 
 // ===== 购物车系统 =====
@@ -235,38 +513,14 @@ function updateCartSidebar() {
         });
     }
 
-    // 更新总价
-    const original = getCartTotalPrice();
-    const tieredAmount = getTieredDiscountAmount(original);
-    cartTotalPrice.textContent = `${CONFIG.defaultCurrency}${getDiscountedTotal(original).toFixed(2)}`;
-
-    // 凑单提示
-    const hintEl = document.getElementById('cart-tier-hint');
-    if (hintEl) {
-        if (cart.length === 0) {
-            hintEl.style.display = 'none';
-        } else {
-            const next = [...TIERED_DISCOUNTS].reverse().find(t => original < t.threshold);
-            if (tieredAmount > 0) {
-                const applied = getTieredDiscount(original);
-                let msg = `已省 ${CONFIG.defaultCurrency}${applied.amount} / Ahorras ${CONFIG.defaultCurrency}${applied.amount}`;
-                if (next) {
-                    const diff = (next.threshold - original).toFixed(2);
-                    msg += `　再买 ${CONFIG.defaultCurrency}${diff} 省 ${CONFIG.defaultCurrency}${next.amount}`;
-                }
-                hintEl.innerHTML = `<i class="fas fa-gift"></i> ${msg}`;
-                hintEl.classList.add('active');
-                hintEl.style.display = 'flex';
-            } else if (next) {
-                const diff = (next.threshold - original).toFixed(2);
-                hintEl.innerHTML = `<i class="fas fa-gift"></i> 再买 ${CONFIG.defaultCurrency}${diff} 立减 ${CONFIG.defaultCurrency}${next.amount} / Gasta ${CONFIG.defaultCurrency}${diff} más y ahorra ${CONFIG.defaultCurrency}${next.amount}`;
-                hintEl.classList.remove('active');
-                hintEl.style.display = 'flex';
-            } else {
-                hintEl.style.display = 'none';
-            }
-        }
+    if (cart.length === 0) {
+        cartTotalPrice.textContent = `${CONFIG.defaultCurrency}0.00`;
+        const hintEl = document.getElementById('cart-tier-hint');
+        if (hintEl) hintEl.style.display = 'none';
+        return;
     }
+    cartTotalPrice.textContent = '…';
+    scheduleServerQuote();
 }
 
 function createCartItemElement(item) {
@@ -278,10 +532,11 @@ function createCartItemElement(item) {
     const imageHtml = itemImage ?
         `<img src="${itemImage}" alt="${item.name}" class="cart-item-image" loading="lazy" decoding="async">` :
         `<div class="product-image-placeholder">
-            <i class="fas fa-smoking"></i>
+            <svg class="icon" aria-hidden="true"><use href="#i-spark" xlink:href="#i-spark"></use></svg>
         </div>`;
 
-    const subtotal = item.price * item.quantity;
+    const quoted = latestQuote?.lines?.find(line => line.id === String(item.id));
+    const subtotalText = quoted ? `${CONFIG.defaultCurrency}${Number(quoted.lineTotal).toFixed(2)}` : '…';
 
     itemElement.innerHTML = `
         <div class="cart-item-image-container">
@@ -289,7 +544,7 @@ function createCartItemElement(item) {
         </div>
         <div class="cart-item-details">
             <div class="cart-item-name">${item.name}${item.isFree ? ' <span class="free-badge">免费</span>' : ''}</div>
-            <div class="cart-item-subtotal">${item.isFree ? '<span style="color:#16a34a;font-weight:600">免费赠品</span>' : `${CONFIG.defaultCurrency}${subtotal.toFixed(2)}`}</div>
+            <div class="cart-item-subtotal">${item.isFree ? '<span style="color:#16a34a;font-weight:600">免费赠品</span>' : subtotalText}</div>
             <div class="cart-item-controls">
                 ${item.isFree ? '' : `
                 <div class="quantity-control">
@@ -298,7 +553,7 @@ function createCartItemElement(item) {
                     <button class="quantity-btn plus" data-product-id="${item.id}">+</button>
                 </div>`}
                 <button class="remove-item-btn" data-product-id="${item.id}">
-                    <i class="fas fa-trash"></i>
+                    <svg class="icon" aria-hidden="true"><use href="#i-trash" xlink:href="#i-trash"></use></svg>
                     <span data-lang-key="remove_from_cart">${TRANSLATIONS[currentLanguage].remove_from_cart}</span>
                 </button>
             </div>
@@ -398,7 +653,7 @@ function showCartNotification(productName, quantity) {
     const notification = document.createElement('div');
     notification.className = 'cart-notification';
     notification.innerHTML = `
-        <i class="fas fa-check-circle"></i>
+        <svg class="icon" aria-hidden="true"><use href="#i-check-circle" xlink:href="#i-check-circle"></use></svg>
         <span>${quantity} × ${productName} 已添加到购物车</span>
     `;
 
@@ -500,6 +755,19 @@ function setupCartEventListeners() {
             }
         });
     }
+
+    const cartWhatsapp = document.getElementById('cart-whatsapp-order');
+    if (cartWhatsapp) cartWhatsapp.addEventListener('click', () => placeWhatsAppOrder());
+    const checkoutWhatsapp = document.getElementById('btn-pay-whatsapp');
+    if (checkoutWhatsapp) checkoutWhatsapp.addEventListener('click', () => placeWhatsAppOrder());
+
+    document.getElementById('time-slots')?.addEventListener('click', (event) => {
+        const btn = event.target.closest('.time-slot');
+        if (!btn) return;
+        document.querySelectorAll('#time-slots .time-slot').forEach(el => {
+            el.classList.toggle('active', el === btn);
+        });
+    });
 }
 
 function toggleCartSidebar() {
@@ -569,8 +837,6 @@ function openCartCheckoutModal() {
         postalCountry.onchange = refreshPostalCountryUI;
     }
     refreshPostalCountryUI();
-    document.getElementById('checkout-time-from').value = '10:00';
-    document.getElementById('checkout-time-to').value = '14:00';
     document.getElementById('btn-pickup').classList.add('active');
     document.getElementById('btn-delivery').classList.remove('active');
     document.getElementById('btn-postal').classList.remove('active');
@@ -601,12 +867,7 @@ function openCartCheckoutModal() {
     document.getElementById('btn-postal').onclick = () => setDeliveryMode('postal');
 
     // 填充购物车摘要
-    summaryEl.innerHTML = cart.map(item => `
-        <div class="checkout-summary-item">
-            <span>${item.name} ×${item.quantity}</span>
-            <span>${CONFIG.defaultCurrency}${(item.price * item.quantity).toFixed(2)}</span>
-        </div>
-    `).join('');
+    summaryEl.innerHTML = '<div class="checkout-summary-item"><span>正在计算价格… / Calculando…</span></div>';
     updateCheckoutTotal();
 
     modal.style.display = 'flex';
@@ -657,17 +918,13 @@ function openCartCheckoutModal() {
     }
 
     // 收集并校验表单，返回 payload 或 null
-    function buildOrderPayload(paymentMethod) {
+    async function buildOrderPayload(paymentMethod) {
         const name = document.getElementById('checkout-customer-name').value.trim();
         const phone = document.getElementById('checkout-customer-phone').value.trim();
         const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
         const isPostal = document.getElementById('btn-postal').classList.contains('active');
         const deliveryData = getDeliveryAddress();
         const postalData = getPostalAddress();
-        const timeFrom = document.getElementById('checkout-time-from').value;
-        const timeTo = document.getElementById('checkout-time-to').value;
-        const shippingFee = getShippingFee();
-
         if (!name || !phone) {
             errorEl.textContent = '请填写姓名和手机号 / Por favor complete su nombre y teléfono';
             errorEl.style.display = 'block';
@@ -687,17 +944,36 @@ function openCartCheckoutModal() {
 
         const deliveryType = isDelivery ? 'delivery' : isPostal ? 'postal' : 'pickup';
         const finalAddress = isDelivery ? deliveryData.formatted : isPostal ? postalData.formatted : '';
-        const subtotal = cart.filter(i => !i.isFree).reduce((s, i) => s + i.price * i.quantity, 0);
-        const tieredDiscount = getTieredDiscountAmount(subtotal);
-        const total = +(getDiscountedTotal(subtotal) + shippingFee).toFixed(2);
         const orderNumber = 'ORD-' + Date.now();
+        let quote;
+        try {
+            quote = await fetchServerQuote({
+                customerName: name,
+                customerPhone: phone,
+                address: finalAddress,
+                orderNumber
+            });
+        } catch (err) {
+            errorEl.textContent = err.message;
+            errorEl.style.display = 'block';
+            return null;
+        }
+        if (!quote) return null;
+        applyServerQuote(quote);
 
-        return { cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress,
-            deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '',
-            discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0,
-            tieredDiscount,
-            shippingFee, agentRef: sessionStorage.getItem('agent_ref') || '',
-            paymentMethod, orderNumber, total };
+        return {
+            items: cartRequestItems(),
+            customerName: name,
+            customerPhone: phone,
+            deliveryType,
+            address: finalAddress,
+            deliveryTime: isDelivery ? selectedDeliverySlot() : '',
+            country: document.getElementById('checkout-postal-country')?.value || 'ES',
+            agentRef: sessionStorage.getItem('agent_ref') || '',
+            paymentMethod,
+            orderNumber,
+            total: quote.total
+        };
     }
 
     // 提交订单到服务器（客户点"我已付款"后才调用）
@@ -730,8 +1006,8 @@ function openCartCheckoutModal() {
     }
 
     // Bizum 支付
-    document.getElementById('btn-pay-bizum').onclick = () => {
-        const payload = buildOrderPayload('bizum');
+    document.getElementById('btn-pay-bizum').onclick = async () => {
+        const payload = await buildOrderPayload('bizum');
         if (!payload) return;
 
         document.getElementById('bizum-amount-display').textContent = `${CONFIG.defaultCurrency}${payload.total.toFixed(2)}`;
@@ -752,8 +1028,8 @@ function openCartCheckoutModal() {
     };
 
     // 微信支付
-    document.getElementById('btn-pay-wechat').onclick = () => {
-        const payload = buildOrderPayload('wechat');
+    document.getElementById('btn-pay-wechat').onclick = async () => {
+        const payload = await buildOrderPayload('wechat');
         if (!payload) return;
 
         document.getElementById('wechat-amount-display').textContent = `${CONFIG.defaultCurrency}${payload.total.toFixed(2)}`;
@@ -774,8 +1050,8 @@ function openCartCheckoutModal() {
     };
 
     // 支付宝支付
-    document.getElementById('btn-pay-alipay').onclick = () => {
-        const payload = buildOrderPayload('alipay');
+    document.getElementById('btn-pay-alipay').onclick = async () => {
+        const payload = await buildOrderPayload('alipay');
         if (!payload) return;
 
         document.getElementById('alipay-amount-display').textContent = `${CONFIG.defaultCurrency}${payload.total.toFixed(2)}`;
@@ -796,7 +1072,7 @@ function openCartCheckoutModal() {
     };
 
     // 现金支付
-    document.getElementById('btn-pay-cash').onclick = () => {
+    document.getElementById('btn-pay-cash').onclick = async () => {
         const isDelivery = document.getElementById('btn-delivery').classList.contains('active');
         const isPostal = document.getElementById('btn-postal').classList.contains('active');
         if (isPostal) {
@@ -809,7 +1085,7 @@ function openCartCheckoutModal() {
             errorEl.style.display = 'block';
             return;
         }
-        const payload = buildOrderPayload('cash');
+        const payload = await buildOrderPayload('cash');
         if (!payload) return;
 
         document.getElementById('cash-amount-display').textContent = `${CONFIG.defaultCurrency}${payload.total.toFixed(2)}`;
@@ -836,9 +1112,6 @@ function openCartCheckoutModal() {
         const isPostal = document.getElementById('btn-postal').classList.contains('active');
         const deliveryData = getDeliveryAddress();
         const postalData = getPostalAddress();
-        const timeFrom = document.getElementById('checkout-time-from').value;
-        const timeTo = document.getElementById('checkout-time-to').value;
-        const shippingFee = getShippingFee();
         if (!name || !phone) {
             errorEl.textContent = '请填写姓名和手机号 / Por favor complete su nombre y teléfono';
             errorEl.style.display = 'block';
@@ -865,7 +1138,17 @@ function openCartCheckoutModal() {
             const res = await fetch('/.netlify/functions/create-checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress, deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0, shippingFee, agentRef: sessionStorage.getItem('agent_ref') || '', ...(currentUser ? { userId: currentUser.id } : {}) })
+                body: JSON.stringify({
+                    items: cartRequestItems(),
+                    customerName: name,
+                    customerPhone: phone,
+                    deliveryType,
+                    address: finalAddress,
+                    deliveryTime: isDelivery ? selectedDeliverySlot() : '',
+                    country: document.getElementById('checkout-postal-country')?.value || 'ES',
+                    agentRef: sessionStorage.getItem('agent_ref') || '',
+                    ...(currentUser ? { userId: currentUser.id } : {})
+                })
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
@@ -875,7 +1158,7 @@ function openCartCheckoutModal() {
             errorEl.textContent = '出错了，请重试 / Error, inténtelo de nuevo';
             errorEl.style.display = 'block';
             document.getElementById('btn-pay-card').disabled = false;
-            document.getElementById('btn-pay-card').innerHTML = '<i class="fas fa-credit-card"></i><span>Tarjeta</span><small>信用/借记卡</small>';
+            document.getElementById('btn-pay-card').innerHTML = '<svg class="icon" aria-hidden="true"><use href="#i-card" xlink:href="#i-card"></use></svg><span>Tarjeta</span><small>信用/借记卡</small>';
         }
     };
 }
@@ -1239,7 +1522,7 @@ let products = [
 ];
 
 // ===== 状态管理 =====
-let currentLanguage = 'zh'; // 默认语言：中文
+let currentLanguage = detectLanguage();
 let currentOrderId = 1;
 
 // ===== DOM 元素 =====
@@ -1255,39 +1538,34 @@ const domElements = {
 };
 
 // ===== 语言切换功能 =====
+function detectLanguage() {
+    try {
+        const saved = localStorage.getItem('shop_lang');
+        if (saved === 'zh' || saved === 'es') return saved;
+    } catch (e) {}
+    const browserLang = (navigator.language || 'zh').toLowerCase();
+    if (browserLang.startsWith('es')) return 'es';
+    if (browserLang.startsWith('zh')) return 'zh';
+    return 'zh';
+}
+
 function initLanguageSwitcher() {
-    const langButtons = document.querySelectorAll('.lang-btn');
-    const popup = document.getElementById('lang-popup');
-    const toggleBtn = document.getElementById('lang-toggle');
-
-    // 弹窗开关
-    if (toggleBtn && popup) {
-        toggleBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            popup.classList.toggle('open');
-        });
-        // 点击页面其他地方关闭
-        document.addEventListener('click', () => popup.classList.remove('open'));
-        popup.addEventListener('click', (e) => e.stopPropagation());
-    }
-
-    langButtons.forEach(button => {
+    document.querySelectorAll('.lang-btn').forEach(button => {
         button.addEventListener('click', () => {
-            const lang = button.dataset.lang;
-            langButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            switchLanguage(lang);
-            // 切换后关闭弹窗
-            if (popup) popup.classList.remove('open');
+            try { localStorage.setItem('shop_lang', button.dataset.lang); } catch (e) {}
+            switchLanguage(button.dataset.lang);
         });
     });
 }
 
 function switchLanguage(lang) {
     currentLanguage = lang;
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
 
     // 更新html lang属性
-    document.documentElement.lang = lang;
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'es';
 
     // 更新body类名
     document.body.classList.remove('es', 'zh');
@@ -1326,6 +1604,17 @@ function renderProducts() {
     });
 }
 
+function syncQuickAdd(card, product, flavor) {
+    const btn = card.querySelector('.add-to-cart-btn');
+    if (!btn || !flavor) return;
+    const soldOut = isSoldOut(product.id, flavor.name);
+    btn.disabled = soldOut;
+    const flavorLabel = currentLanguage === 'zh' ? flavor.nameCn : flavor.name;
+    btn.setAttribute('aria-label', soldOut
+        ? `${product.name} ${flavorLabel} 已售罄 / Agotado`
+        : `+1 ${product.name} ${flavorLabel}`);
+}
+
 function createProductCard(product) {
     const card = document.createElement('div');
     card.className = 'product-card';
@@ -1351,21 +1640,20 @@ function createProductCard(product) {
         <div class="product-image product-image-clickable">
             ${product.image ?
                 `<img src="${product.image}" alt="${product.name}" class="product-main-img" loading="lazy" decoding="async">` :
-                `<div class="product-image-placeholder"><i class="fas fa-smoking"></i></div>`
+                `<div class="product-image-placeholder"><svg class="icon" aria-hidden="true"><use href="#i-spark" xlink:href="#i-spark"></use></svg></div>`
             }
-            <div class="product-image-hint"><i class="fas fa-expand"></i></div>
+            <div class="product-image-hint"><svg class="icon" aria-hidden="true"><use href="#i-expand" xlink:href="#i-expand"></use></svg></div>
         </div>
         <div class="product-info">
             <h3 class="product-name">${product.name}</h3>
             <p class="product-description">${product.description[currentLanguage]}</p>
-            ${flavorsHtml}
             <div class="product-footer">
                 <div class="product-price">${CONFIG.defaultCurrency}${product.price.toFixed(2)}</div>
-                <button class="quick-add-btn add-to-cart-btn" data-product-id="${product.id}" title="${TRANSLATIONS[currentLanguage].add_to_cart}">
-                    <i class="fas fa-cart-plus"></i>
-                    <span class="quick-add-label">${TRANSLATIONS[currentLanguage].add_to_cart}</span>
+                <button type="button" class="quick-add-btn add-to-cart-btn" data-product-id="${product.id}" aria-label="${TRANSLATIONS[currentLanguage].add_to_cart}">
+                    <span class="quick-add-plus">+1</span>
                 </button>
             </div>
+            ${flavorsHtml}
         </div>
     `;
 
@@ -1386,8 +1674,10 @@ function createProductCard(product) {
                 mainImg.src = flavor.image;
                 mainImg.alt = flavor.name;
                 renderCardTags(flavor);
+                syncQuickAdd(card, product, flavor);
             });
         });
+        syncQuickAdd(card, product, sortedFlavors[0]);
     }
 
     // 点击图片打开详情页
@@ -1401,11 +1691,20 @@ function createProductCard(product) {
     // 快速加入购物车按钮
     const addToCartBtn = card.querySelector('.add-to-cart-btn');
     addToCartBtn.addEventListener('click', () => {
+        if (addToCartBtn.disabled) return;
         const activeFlavor = product.flavors
             ? sortedFlavors[parseInt(card.querySelector('.flavor-btn.active').dataset.flavorIndex)]
             : null;
+        const cartId = activeFlavor ? `${product.id}-${activeFlavor.name}` : String(product.id);
+        const stock = activeFlavor ? getStock(product.id, activeFlavor.name) : getStock(product.id, 'default');
+        const existing = cart.find(item => String(item.id) === cartId);
+        const nextQty = (existing ? existing.quantity : 0) + 1;
+        if (stock !== null && nextQty > stock) {
+            showStockWarning(stock === 0 ? `${product.name} 已售罄` : `库存不足，仅剩 ${stock} 个`);
+            return;
+        }
         const cartProduct = activeFlavor
-            ? { ...product, id: `${product.id}-${activeFlavor.name}`, name: `${product.name} - ${currentLanguage === 'zh' ? activeFlavor.nameCn : activeFlavor.name}`, image: activeFlavor.image }
+            ? { ...product, id: cartId, name: `${product.name} - ${currentLanguage === 'zh' ? activeFlavor.nameCn : activeFlavor.name}`, image: activeFlavor.image }
             : product;
         addToCart(cartProduct, 1);
         flyToCart(addToCartBtn, cartProduct.image);
@@ -1587,7 +1886,7 @@ function getStockForCartItem(item) {
 function showStockWarning(message) {
     const el = document.createElement('div');
     el.className = 'cart-notification';
-    el.innerHTML = `<i class="fas fa-exclamation-circle"></i><span>${message}</span>`;
+    el.innerHTML = `<svg class="icon" aria-hidden="true"><use href="#i-alert" xlink:href="#i-alert"></use></svg><span>${message}</span>`;
     Object.assign(el.style, {
         position: 'fixed', top: '20px', right: '20px',
         backgroundColor: '#dc2626', color: '#fff',
@@ -1623,7 +1922,68 @@ function applyInventoryToUI() {
     });
 }
 
+function initAgeGate() {
+    const confirmBtn = document.getElementById('age-confirm');
+    const denyBtn = document.getElementById('age-deny');
+    const denyMsg = document.getElementById('age-deny-msg');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', () => {
+            try { localStorage.setItem('age_confirmed_18', '1'); } catch (e) {}
+            document.documentElement.classList.remove('age-locked');
+        });
+    }
+    if (denyBtn) {
+        denyBtn.addEventListener('click', () => {
+            if (denyMsg) denyMsg.hidden = false;
+        });
+    }
+}
+
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+}
+
+function renderReviews() {
+    const mount = document.getElementById('reviews-mount');
+    if (!mount) return;
+    const reviews = Array.isArray(window.SHOP_REVIEWS) ? window.SHOP_REVIEWS.filter(Boolean) : [];
+    if (!reviews.length) {
+        mount.innerHTML = '<p class="reviews-empty">暂时还没有顾客评价。请店主把真实评价写进 <code>reviews.js</code>，页面不会显示编造的评价。<br>Aún no hay reseñas. Añádalas en <code>reviews.js</code>. No publicamos reseñas inventadas.</p>';
+        return;
+    }
+    mount.innerHTML = reviews.map(review => {
+        const mark = review.placeholder
+            ? '<span class="review-placeholder">占位示例，不是真实评价 / Ejemplo, no es una reseña real</span>'
+            : '';
+        return `<article class="review-card ${review.placeholder ? 'is-placeholder' : ''}">${mark}<p>${escapeHtml(review.text)}</p><footer><strong>${escapeHtml(review.name || '')}</strong>${review.product ? ` · ${escapeHtml(review.product)}` : ''} <time>${escapeHtml(review.date || '')}</time></footer></article>`;
+    }).join('');
+}
+
+function renderRealPhotos() {
+    const mount = document.getElementById('real-photos-mount');
+    if (!mount) return;
+    const photos = Array.isArray(window.REAL_PHOTOS) ? window.REAL_PHOTOS.filter(photo => photo && photo.src) : [];
+    if (!photos.length) {
+        mount.innerHTML = `
+            <p class="real-photos-help">把您自己拍的照片放到 <code>images/real/</code>，再写进 <code>real-photos.js</code>。不要使用网图或生成图。<br>Guarde fotos propias en <code>images/real/</code> y regístrelas en <code>real-photos.js</code>. No use fotos de stock ni generadas.</p>
+            <div class="real-photos-grid">
+                ${[1, 2, 3].map(n => `<div class="real-photo-slot" role="img" aria-label="实拍空位 ${n}"><span>实拍空位 ${n}<br>Hueco ${n}</span></div>`).join('')}
+            </div>`;
+        return;
+    }
+    mount.innerHTML = `<div class="real-photos-grid">${photos.map(photo => `
+        <figure class="real-photo">
+            <img src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.alt || '实拍')}" loading="lazy" decoding="async">
+            <figcaption>${escapeHtml(photo.alt || '')}${photo.altEs ? ` / ${escapeHtml(photo.altEs)}` : ''}</figcaption>
+        </figure>`).join('')}</div>`;
+}
+
 function init() {
+    initAgeGate();
+    renderReviews();
+    renderRealPhotos();
     // 初始化语言切换
     initLanguageSwitcher();
 
@@ -1674,8 +2034,8 @@ function copyWelcomeCode() {
     navigator.clipboard.writeText('BIENVENIDO').then(() => {
         const hint = document.getElementById('copy-hint');
         if (hint) {
-            hint.innerHTML = '<i class="fas fa-check"></i> 已复制';
-            setTimeout(() => { hint.innerHTML = '<i class="fas fa-copy"></i> 点击复制'; }, 2000);
+            hint.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#i-check" xlink:href="#i-check"></use></svg> 已复制';
+            setTimeout(() => { hint.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#i-copy" xlink:href="#i-copy"></use></svg> 点击复制'; }, 2000);
         }
     });
 }
@@ -1693,66 +2053,22 @@ function handleCouponApply() {
     if (res.ok) {
         const label = currentLanguage === 'zh' ? res.label : res.labelEs;
         result.className = 'coupon-result success';
-        result.innerHTML = `<i class="fas fa-check-circle"></i> ${label} (-${res.percent}%)`;
+        result.innerHTML = `<svg class="icon" aria-hidden="true"><use href="#i-check-circle" xlink:href="#i-check-circle"></use></svg> ${label} (-${res.percent}%)`;
         input.disabled = true;
         document.getElementById('coupon-apply-btn').textContent = '已使用';
         document.getElementById('coupon-apply-btn').disabled = true;
         updateCheckoutTotal();
     } else if (res.reason === 'used') {
         result.className = 'coupon-result error';
-        result.innerHTML = '<i class="fas fa-times-circle"></i> 此优惠码已使用过 / Este código ya fue utilizado';
+        result.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#i-x-circle" xlink:href="#i-x-circle"></use></svg> 此优惠码已使用过 / Este código ya fue utilizado';
     } else {
         result.className = 'coupon-result error';
-        result.innerHTML = '<i class="fas fa-times-circle"></i> 优惠码无效 / Código inválido';
+        result.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#i-x-circle" xlink:href="#i-x-circle"></use></svg> 优惠码无效 / Código inválido';
     }
 }
 
 function updateCheckoutTotal() {
-    const original = getCartTotalPrice();
-    const discounted = getDiscountedTotal(original);
-    const shipping = getShippingFee();
-    const finalTotal = +(discounted + shipping).toFixed(2);
-    const tieredAmount = getTieredDiscountAmount(original);
-
-    const totalEl = document.getElementById('checkout-total-display');
-    const originalEl = document.getElementById('checkout-original-price');
-    const shippingRow = document.getElementById('shipping-row');
-    const shippingEl = document.getElementById('shipping-fee-display');
-    const tieredRow = document.getElementById('tiered-discount-row');
-    const tieredEl = document.getElementById('tiered-discount-display');
-
-    if (tieredRow && tieredEl) {
-        if (tieredAmount > 0) {
-            tieredEl.textContent = `-€${tieredAmount.toFixed(2)}`;
-            tieredRow.style.display = 'flex';
-        } else {
-            tieredRow.style.display = 'none';
-        }
-    }
-
-    if (totalEl) totalEl.textContent = `€${finalTotal.toFixed(2)}`;
-    if (originalEl) {
-        if (activeDiscount || tieredAmount > 0) {
-            originalEl.textContent = `€${(original + shipping).toFixed(2)}`;
-            originalEl.style.display = 'block';
-        } else {
-            originalEl.style.display = 'none';
-        }
-    }
-    if (shippingRow && shippingEl) {
-        if (shipping > 0) {
-            shippingEl.textContent = `€${shipping.toFixed(2)}`;
-            shippingRow.style.display = 'flex';
-        } else if (isShippingQuoteRequired()) {
-            shippingEl.textContent = '另询 WhatsApp / A confirmar';
-            shippingRow.style.display = 'flex';
-        } else if (document.getElementById('btn-postal')?.classList.contains('active')) {
-            shippingEl.textContent = '免费 / Gratis';
-            shippingRow.style.display = 'flex';
-        } else {
-            shippingRow.style.display = 'none';
-        }
-    }
+    scheduleServerQuote();
 }
 
 // ===== 滚动进场动画 =====
@@ -1782,9 +2098,8 @@ function initScrollAnimations() {
 
 // ===== 页面加载完成后初始化 =====
 document.addEventListener('DOMContentLoaded', () => {
-    initSupabase();
     init();
-    initAuth();
+    initSupabase();
     setTimeout(initScrollAnimations, 50);
 });
 
@@ -1872,12 +2187,6 @@ function initAuth() {
         openAuthModal('login');
     });
 
-    // 首次访问且未登录时，延迟3秒弹出注册提示
-    setTimeout(() => {
-        if (!currentUser && !localStorage.getItem('welcome_dismissed')) {
-            document.getElementById('welcome-register-modal').style.display = 'flex';
-        }
-    }, 3000);
 }
 
 function updateAccountUI() {
@@ -2048,16 +2357,16 @@ const STATUS_ZH = { pending: '待确认', paid: '已付款', shipped: '已发货
 
 async function loadUserOrders() {
     const content = document.getElementById('orders-panel-content');
-    content.innerHTML = '<div class="orders-loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
-    if (!currentUser) { content.innerHTML = '<div class="orders-empty"><i class="fas fa-user"></i><p>请先登录</p></div>'; return; }
+    content.innerHTML = '<div class="orders-loading"><svg class="icon icon-spin" aria-hidden="true"><use href="#i-spinner" xlink:href="#i-spinner"></use></svg> 加载中...</div>';
+    if (!currentUser) { content.innerHTML = '<div class="orders-empty"><svg class="icon" aria-hidden="true"><use href="#i-user" xlink:href="#i-user"></use></svg><p>请先登录</p></div>'; return; }
 
     const { data, error } = await sbClient
         .from('orders')
         .select('*')
         .order('created_at', { ascending: false });
 
-    if (error) { content.innerHTML = `<div class="orders-empty"><i class="fas fa-exclamation-circle"></i><p>加载失败</p></div>`; return; }
-    if (!data?.length) { content.innerHTML = '<div class="orders-empty"><i class="fas fa-receipt"></i><p>暂无订单</p></div>'; return; }
+    if (error) { content.innerHTML = `<div class="orders-empty"><svg class="icon" aria-hidden="true"><use href="#i-alert" xlink:href="#i-alert"></use></svg><p>加载失败</p></div>`; return; }
+    if (!data?.length) { content.innerHTML = '<div class="orders-empty"><svg class="icon" aria-hidden="true"><use href="#i-receipt" xlink:href="#i-receipt"></use></svg><p>暂无订单</p></div>'; return; }
 
     content.innerHTML = data.map(order => {
         const items = (order.items || []).map(i => `${i.name} ×${i.quantity}`).join('、');

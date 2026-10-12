@@ -1,94 +1,90 @@
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const {
+    json,
+    priceQuote,
+    normalizeOrderNumber,
+    insertOrder,
+    buildOrderRecord,
+    telegramText,
+    sendTelegram,
+    whatsappLink,
+    PAYMENT_METHODS,
+} = require('../../lib/orders');
 
-// 注：库存不在下单时扣减；改为后台确认付款（payment_status -> paid/shipped/delivered）时由 update-order.js 扣减。
-
-async function sendTelegramNotification(order) {
-    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
-    const itemLines = order.items.map(i => `  • ${i.name} x${i.quantity} — €${(i.price * i.quantity).toFixed(2)}`).join('\n');
-    const deliveryInfo = order.delivery_type === 'delivery'
-        ? `\n📦 Entrega a domicilio\n📍 ${order.address}\n🕐 ${order.delivery_time}`
-        : order.delivery_type === 'postal'
-        ? `\n✉️ Envio postal\n📍 ${order.address}${order.shipping_fee > 0 ? `\n📬 Envio: €${order.shipping_fee.toFixed(2)}` : '\n📬 Envio gratuito'}`
-        : '\n🏪 Recogida en tienda';
-    const methodLabel = { bizum: 'Bizum', wechat: 'WeChat', alipay: 'Alipay', cash: 'Efectivo' }[order.payment_method] || 'Bizum';
-    const text = `🛒 Nuevo pedido ${methodLabel}\n\n` +
-        `📋 ${order.order_number}\n` +
-        `👤 ${order.customer_name}\n` +
-        `📱 ${order.customer_phone}\n` +
-        `\n${itemLines}\n` +
-        `\n💶 Total: €${order.total.toFixed(2)}` +
-        deliveryInfo +
-        `\n\n⏳ Estado: Pendiente confirmacion`;
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text })
-    }).catch(err => console.error('Telegram notify failed:', err));
-}
+const METHOD_LABEL = {
+    bizum: 'Bizum',
+    wechat: 'WeChat',
+    alipay: 'Alipay',
+    cash: 'Efectivo',
+    whatsapp: 'WhatsApp',
+};
 
 exports.handler = async (event) => {
-    if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
+    if (event.httpMethod !== 'POST') return json(405, { error: 'method_not_allowed' });
 
     try {
-        const { cart, customerName, customerPhone, deliveryType, address, deliveryTime, shippingFee, agentRef, paymentMethod, orderNumber: clientOrderNumber, userId } = JSON.parse(event.body);
-        if (!cart?.length || !customerName || !customerPhone) {
-            return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields' }) };
+        const body = JSON.parse(event.body || '{}');
+        const paymentMethod = body.paymentMethod || 'bizum';
+        if (!PAYMENT_METHODS.has(paymentMethod) || paymentMethod === 'card') {
+            return json(400, { error: 'invalid_payment_method' });
         }
 
-        const orderNumber = clientOrderNumber || `ORD-${Date.now()}`;
-        const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
-        const shipping = parseFloat(shippingFee) || 0;
-        const total = +(subtotal + shipping).toFixed(2);
+        const isWhatsapp = paymentMethod === 'whatsapp';
+        const customerName = String(body.customerName || '').trim();
+        const customerPhone = String(body.customerPhone || '').trim();
+        if (!isWhatsapp && (!customerName || !customerPhone)) {
+            return json(400, { error: 'missing_customer' });
+        }
 
-        const order = {
-            order_number: orderNumber,
-            customer_name: customerName,
-            customer_phone: customerPhone,
-            items: cart,
-            total,
-            shipping_fee: shipping,
-            payment_method: paymentMethod || 'bizum',
-            payment_status: 'pending',
-            delivery_type: deliveryType || 'pickup',
-            address: address || '',
-            delivery_time: deliveryTime || '',
-            ...(agentRef ? { agent_ref: agentRef } : {}),
-            ...(userId ? { user_id: userId } : {})
-        };
+        const priced = priceQuote({ ...body, paymentMethod });
+        if (priced.error) return priced.error;
+        const quote = priced.quote;
+        const orderNumber = normalizeOrderNumber(body.orderNumber);
+        const link = isWhatsapp ? whatsappLink(quote, {
+            customerName,
+            customerPhone,
+            address: body.address,
+            deliveryTime: body.deliveryTime,
+            orderNumber,
+        }) : undefined;
 
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'apikey': SUPABASE_KEY,
-                'Authorization': `Bearer ${SUPABASE_KEY}`,
-                'Prefer': 'return=minimal'
-            },
-            body: JSON.stringify(order)
+        const order = buildOrderRecord({
+            quote,
+            orderNumber,
+            customerName,
+            customerPhone,
+            paymentMethod,
+            paymentStatus: 'pending',
+            address: body.address || '',
+            deliveryTime: body.deliveryTime || '',
+            agentRef: body.agentRef,
+            userId: body.userId,
+            source: isWhatsapp ? 'whatsapp' : undefined,
         });
 
-        if (!res.ok) {
-            const errText = await res.text();
-            console.error('Supabase save failed:', errText);
-            return {
-                statusCode: 200,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ supabase_error: errText, supabase_status: res.status })
-            };
+        const saved = await insertOrder(order);
+        if (!saved.ok) {
+            console.error('Supabase save failed:', saved.text);
+            return json(200, {
+                orderNumber,
+                total: quote.total,
+                whatsappUrl: link,
+                saved: false,
+                supabase_error: saved.text,
+                supabase_status: saved.status,
+            });
         }
 
-        await sendTelegramNotification(order);
+        const heading = isWhatsapp
+            ? '💬 Nuevo pedido WhatsApp'
+            : `🛒 Nuevo pedido ${METHOD_LABEL[paymentMethod] || paymentMethod}`;
+        const statusLine = isWhatsapp
+            ? '\n\n💬 Estado: Pendiente por WhatsApp'
+            : '\n\n⏳ Estado: Pendiente confirmacion';
+        await sendTelegram(telegramText(order, heading) + statusLine);
 
-        return {
-            statusCode: 200,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderNumber, total })
-        };
+        return json(200, { orderNumber, total: quote.total, whatsappUrl: link, saved: true });
     } catch (err) {
         console.error('save-bizum-order error:', err);
-        return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
+        return json(500, { error: err.message });
     }
 };
