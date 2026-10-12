@@ -1595,7 +1595,7 @@ function initProductDetail() {
     });
 }
 
-// ===== 拖拽卡片查看详情 =====
+// ===== 点击卡片查看详情 =====
 const CARD_CONTROLS_SELECTOR = 'button, a, input, select, textarea, .flavor-selector';
 
 // 卡片上的口味按钮按库存排过序，需按口味名映射回 product.flavors 的下标
@@ -1608,193 +1608,6 @@ function openCardDetail(card) {
         flavorIndex = Math.max(0, product.flavors.findIndex(f => f.name === activeBtn.dataset.flavor));
     }
     openProductDetail(product, flavorIndex, card);
-}
-
-function initCardDrag() {
-    const grid = domElements.productsGrid;
-    const dropzone = document.getElementById('detail-dropzone');
-    if (!grid || !dropzone || !window.PointerEvent) return;
-
-    const MOUSE_THRESHOLD = 6;
-    const TOUCH_SLOP = 10;
-    const LONG_PRESS_MS = 280;
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-    let gesture = null;
-    let suppressClick = false;
-
-    function buildGhost(card) {
-        const ghost = document.createElement('div');
-        ghost.className = 'drag-ghost';
-        ghost.setAttribute('aria-hidden', 'true');
-        const img = card.querySelector('.product-main-img');
-        const activeFlavor = card.querySelector('.flavor-btn.active span');
-        ghost.innerHTML = `
-            ${img ? `<img src="${img.currentSrc || img.src}" alt="">` : ''}
-            <span class="drag-ghost-text">
-                <span class="drag-ghost-name"></span>
-                <span class="drag-ghost-flavor"></span>
-            </span>
-        `;
-        ghost.querySelector('.drag-ghost-name').textContent = card.querySelector('.product-name').textContent;
-        ghost.querySelector('.drag-ghost-flavor').textContent = activeFlavor ? activeFlavor.textContent.trim() : '';
-        document.body.appendChild(ghost);
-        return ghost;
-    }
-
-    function placeGhost(x, y) {
-        const g = gesture;
-        if (!g || !g.ghost) return;
-        const { w, h } = g.ghostSize;
-        // 预览放在指针上方，避免挡住手指和放置区的文字
-        g.ghost.style.transform = `translate3d(${Math.round(x - w / 2)}px, ${Math.round(y - h - 28)}px, 0)`;
-    }
-
-    function isOverDropzone(x, y) {
-        const r = dropzone.getBoundingClientRect();
-        const pad = 12;
-        return x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad;
-    }
-
-    function activate() {
-        const g = gesture;
-        if (!g || g.active) return;
-        clearTimeout(g.timer);
-        g.active = true;
-        g.card.classList.add('is-drag-source');
-        document.body.classList.add('is-card-dragging');
-        dropzone.classList.add('is-armed');
-        g.ghost = buildGhost(g.card);
-        g.ghostSize = { w: g.ghost.offsetWidth, h: g.ghost.offsetHeight };
-        placeGhost(g.lastX, g.lastY);
-    }
-
-    function removeGhost(ghost, toRect) {
-        if (!ghost) return;
-        if (reduceMotion.matches || !toRect) {
-            ghost.remove();
-            return;
-        }
-        const w = ghost.offsetWidth;
-        const h = ghost.offsetHeight;
-        const x = toRect.left + toRect.width / 2 - w / 2;
-        const y = toRect.top + toRect.height / 2 - h / 2;
-        ghost.classList.add('is-settling');
-        ghost.style.transform = `translate3d(${Math.round(x)}px, ${Math.round(y)}px, 0) scale(0.9)`;
-        ghost.style.opacity = '0';
-        const done = () => ghost.remove();
-        ghost.addEventListener('transitionend', done, { once: true });
-        setTimeout(done, 400);
-    }
-
-    function finish(dropped) {
-        const g = gesture;
-        if (!g) return;
-        gesture = null;
-        clearTimeout(g.timer);
-        window.removeEventListener('pointermove', onMove);
-        window.removeEventListener('pointerup', onUp);
-        window.removeEventListener('pointercancel', onCancel);
-        if (!g.active) return;
-
-        suppressClick = true;
-        setTimeout(() => { suppressClick = false; }, 0);
-        g.card.classList.remove('is-drag-source');
-        document.body.classList.remove('is-card-dragging');
-        dropzone.classList.remove('is-armed', 'is-over');
-
-        if (dropped) {
-            removeGhost(g.ghost, dropzone.getBoundingClientRect());
-            openCardDetail(g.card);
-        } else {
-            removeGhost(g.ghost, g.card.getBoundingClientRect());
-        }
-    }
-
-    function onMove(e) {
-        const g = gesture;
-        if (!g || e.pointerId !== g.pointerId) return;
-        g.lastX = e.clientX;
-        g.lastY = e.clientY;
-        const dx = e.clientX - g.startX;
-        const dy = e.clientY - g.startY;
-
-        if (!g.active) {
-            const dist = Math.hypot(dx, dy);
-            if (g.type === 'mouse') {
-                if (dist > MOUSE_THRESHOLD) activate();
-            } else if (dist > TOUCH_SLOP) {
-                // 横向拖动直接开始；纵向移动交给页面滚动
-                if (Math.abs(dx) > Math.abs(dy) * 1.2) activate();
-                else finish(false);
-            }
-            if (!g.active) return;
-        }
-
-        e.preventDefault();
-        placeGhost(e.clientX, e.clientY);
-        dropzone.classList.toggle('is-over', isOverDropzone(e.clientX, e.clientY));
-    }
-
-    function onUp(e) {
-        const g = gesture;
-        if (!g || e.pointerId !== g.pointerId) return;
-        finish(g.active && isOverDropzone(e.clientX, e.clientY));
-    }
-
-    function onCancel(e) {
-        if (gesture && e.pointerId === gesture.pointerId) finish(false);
-    }
-
-    grid.addEventListener('pointerdown', (e) => {
-        if (gesture || !e.isPrimary) return;
-        if (e.pointerType === 'mouse' && e.button !== 0) return;
-        if (e.target.closest(CARD_CONTROLS_SELECTOR)) return;
-        const card = e.target.closest('.product-card');
-        if (!card || !grid.contains(card)) return;
-
-        gesture = {
-            card,
-            pointerId: e.pointerId,
-            type: e.pointerType,
-            startX: e.clientX,
-            startY: e.clientY,
-            lastX: e.clientX,
-            lastY: e.clientY,
-            active: false,
-            ghost: null,
-            timer: null
-        };
-        if (e.pointerType !== 'mouse') {
-            gesture.timer = setTimeout(() => {
-                activate();
-                if (navigator.vibrate) navigator.vibrate(10);
-            }, LONG_PRESS_MS);
-        }
-        window.addEventListener('pointermove', onMove, { passive: false });
-        window.addEventListener('pointerup', onUp);
-        window.addEventListener('pointercancel', onCancel);
-    });
-
-    // 拖动中阻止触摸滚动（需非 passive 监听）
-    grid.addEventListener('touchmove', (e) => {
-        if (gesture && gesture.active) e.preventDefault();
-    }, { passive: false });
-
-    grid.addEventListener('contextmenu', (e) => {
-        if (gesture && gesture.type !== 'mouse') e.preventDefault();
-    });
-
-    grid.addEventListener('dragstart', (e) => e.preventDefault());
-
-    document.addEventListener('click', (e) => {
-        if (!suppressClick) return;
-        suppressClick = false;
-        e.preventDefault();
-        e.stopPropagation();
-    }, true);
-
-    window.addEventListener('blur', () => finish(false));
 }
 
 // ===== 联系方式：所有 WhatsApp 链接和号码都来自 lib/contact.js =====
@@ -1886,51 +1699,8 @@ function initAgeGate() {
     }
 }
 
-function escapeHtml(value) {
-    return String(value ?? '').replace(/[&<>"']/g, ch => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[ch]));
-}
-
-function renderReviews() {
-    const mount = document.getElementById('reviews-mount');
-    if (!mount) return;
-    const reviews = Array.isArray(window.SHOP_REVIEWS) ? window.SHOP_REVIEWS.filter(Boolean) : [];
-    if (!reviews.length) {
-        mount.innerHTML = '<p class="reviews-empty">暂时还没有顾客评价。请店主把真实评价写进 <code>reviews.js</code>，页面不会显示编造的评价。<br>Aún no hay reseñas. Añádalas en <code>reviews.js</code>. No publicamos reseñas inventadas.</p>';
-        return;
-    }
-    mount.innerHTML = reviews.map(review => {
-        const mark = review.placeholder
-            ? '<span class="review-placeholder">占位示例，不是真实评价 / Ejemplo, no es una reseña real</span>'
-            : '';
-        return `<article class="review-card ${review.placeholder ? 'is-placeholder' : ''}">${mark}<p>${escapeHtml(review.text)}</p><footer><strong>${escapeHtml(review.name || '')}</strong>${review.product ? ` · ${escapeHtml(review.product)}` : ''} <time>${escapeHtml(review.date || '')}</time></footer></article>`;
-    }).join('');
-}
-
-function renderRealPhotos() {
-    const mount = document.getElementById('real-photos-mount');
-    if (!mount) return;
-    const photos = Array.isArray(window.REAL_PHOTOS) ? window.REAL_PHOTOS.filter(photo => photo && photo.src) : [];
-    if (!photos.length) {
-        mount.innerHTML = `
-            <p class="real-photos-help">把您自己拍的照片放到 <code>images/real/</code>，再写进 <code>real-photos.js</code>。不要使用网图或生成图。<br>Guarde fotos propias en <code>images/real/</code> y regístrelas en <code>real-photos.js</code>. No use fotos de stock ni generadas.</p>
-            <div class="real-photos-grid">
-                ${[1, 2, 3].map(n => `<div class="real-photo-slot" role="img" aria-label="实拍空位 ${n}"><span>实拍空位 ${n}<br>Hueco ${n}</span></div>`).join('')}
-            </div>`;
-        return;
-    }
-    mount.innerHTML = `<div class="real-photos-grid">${photos.map(photo => `
-        <figure class="real-photo">
-            <img src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.alt || '实拍')}" loading="lazy" decoding="async">
-            <figcaption>${escapeHtml(photo.alt || '')}${photo.altEs ? ` / ${escapeHtml(photo.altEs)}` : ''}</figcaption>
-        </figure>`).join('')}</div>`;
-}
-
 function init() {
     initAgeGate();
-    renderReviews();
-    renderRealPhotos();
     // 初始化语言切换
     initLanguageSwitcher();
 
@@ -1942,7 +1712,6 @@ function init() {
 
     // 初始化产品详情页
     initProductDetail();
-    initCardDrag();
 
     initContactLinks();
 

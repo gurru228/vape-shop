@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vapeshop-v12-catalog-layout';
+const CACHE_NAME = 'vapeshop-v13-simplified-home';
 const LOCAL_PREVIEW = ['localhost', '127.0.0.1', '[::1]'].includes(self.location.hostname);
 const STATIC_ASSETS = [
   '/',
@@ -34,15 +34,13 @@ self.addEventListener('fetch', event => {
   if (url.pathname.startsWith('/.netlify/')) return;
 
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      const network = fetch(event.request).then(res => {
-        if (res.ok && res.type === 'basic') {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        }
-        return res;
-      });
-      return cached || network;
-    })
+    // 网络优先：始终取最新的 HTML/CSS/JS，离线时才用缓存
+    fetch(event.request).then(res => {
+      if (res.ok && res.type === 'basic') {
+        const clone = res.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+      }
+      return res;
+    }).catch(() => caches.match(event.request))
   );
 });
