@@ -44,9 +44,9 @@
     --space-2xl: 4rem;
     --space-3xl: 6rem;
 
-    /* Inter 负责拉丁文（西语字符完整），Noto Sans SC 负责中文。系统字体先显示。 */
-    --font-family-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
-    --font-family-chinese: "Inter", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    /* Nunito 负责西语与数字，Chiron GoRound TC 负责中文圆体；系统字体先显示。 */
+    --font-family-sans: "Nunito", "Chiron GoRound TC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    --font-family-chinese: var(--font-family-sans);
     --font-family-display: var(--font-family-sans);
     --font-family-display-zh: var(--font-family-chinese);
     --font-size-base: 16px;
@@ -85,6 +85,10 @@ body {
 
 body.zh {
     font-family: var(--font-family-chinese), var(--font-family-sans);
+}
+
+button, input, select, textarea {
+    font-family: inherit;
 }
 
 /* ===== 顶部促销滚动条 ===== */
@@ -3250,10 +3254,10 @@ a:focus-visible,
     --color-gray-100: #eee8db;
     --color-gray-200: #ded7c6;
     --color-gray-300: #c7bfad;
-    --font-family-sans: "Libre Franklin", "Noto Sans SC", sans-serif;
-    --font-family-chinese: "Noto Sans SC", "Libre Franklin", sans-serif;
-    --font-family-display: "IM Fell English", Georgia, serif;
-    --font-family-display-zh: "Noto Serif SC", "IM Fell English", serif;
+    --font-family-sans: "Nunito", "Chiron GoRound TC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    --font-family-chinese: var(--font-family-sans);
+    --font-family-display: var(--font-family-sans);
+    --font-family-display-zh: var(--font-family-chinese);
     --radius-sm: 2px;
     --radius-md: 3px;
     --radius-lg: 3px;
