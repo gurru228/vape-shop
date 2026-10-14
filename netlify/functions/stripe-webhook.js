@@ -1,8 +1,7 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const { formatOrderDetails, sendTelegram } = require('../lib/telegram');
 
 async function getOrder(sessionId) {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/orders?stripe_session_id=eq.${sessionId}&select=*`, {
@@ -26,25 +25,7 @@ async function markPaid(sessionId) {
 }
 
 async function sendTelegramNotification(order) {
-    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
-    const itemLines = order.items.map(i => `  • ${i.name} x${i.quantity} — €${(i.price * i.quantity).toFixed(2)}`).join('\n');
-    const deliveryInfo = order.delivery_type === 'delivery'
-        ? `\n📦 Entrega a domicilio\n📍 ${order.address}\n🕐 ${order.delivery_time}`
-        : order.delivery_type === 'postal'
-        ? `\n✉️ Envio postal\n📍 ${order.address}${order.shipping_fee > 0 ? `\n📬 Envio: €${order.shipping_fee.toFixed(2)}` : '\n📬 Envio gratuito'}`
-        : '\n🏪 Recogida en tienda';
-    const text = `✅ Pago con tarjeta confirmado\n\n` +
-        `📋 ${order.order_number}\n` +
-        `👤 ${order.customer_name}\n` +
-        `📱 ${order.customer_phone}\n` +
-        `\n${itemLines}\n` +
-        `\n💶 Total: €${order.total.toFixed(2)}` +
-        deliveryInfo;
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text })
-    }).catch(err => console.error('Telegram notify failed:', err));
+    await sendTelegram(`✅ 新订单 · 刷卡已付款 Pago con tarjeta confirmado\n\n` + formatOrderDetails(order));
 }
 
 // 解析 cart item 的 productId 和 flavorName。

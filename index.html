@@ -726,14 +726,26 @@
         }
     </script>
     <script>
-        (function () {
+        // 访问提醒：每个浏览器 30 分钟内最多一次；自动化浏览器/爬虫不发送
+        window.addEventListener('load', function () {
             try {
-                if (sessionStorage.getItem('vs_tracked')) return;
-                sessionStorage.setItem('vs_tracked', '1');
+                if (navigator.webdriver || /bot|crawl|spider|headless|lighthouse/i.test(navigator.userAgent)) return;
+                var KEY = 'vs_last_ping', WINDOW_MS = 30 * 60 * 1000, now = Date.now();
+                var storage;
+                try { storage = window.localStorage; storage.getItem(KEY); } catch (e) { storage = window.sessionStorage; }
+                var last = parseInt(storage.getItem(KEY), 10);
+                if (last && now - last < WINDOW_MS) return;
+                storage.setItem(KEY, String(now));
+
                 var from = new URLSearchParams(location.search).get('from') || '';
-                fetch('/.netlify/functions/track-click?from=' + encodeURIComponent(from) + '&path=' + encodeURIComponent(location.pathname) + '&ref=' + encodeURIComponent(document.referrer)).catch(function () {});
+                var url = '/.netlify/functions/track-click?from=' + encodeURIComponent(from) + '&path=' + encodeURIComponent(location.pathname) + '&ref=' + encodeURIComponent(document.referrer);
+                var sessionPromise = (typeof sbClient !== 'undefined' && sbClient) ? sbClient.auth.getSession() : Promise.resolve(null);
+                sessionPromise.catch(function () { return null; }).then(function (res) {
+                    var token = res && res.data && res.data.session && res.data.session.access_token;
+                    fetch(url, token ? { headers: { 'Authorization': 'Bearer ' + token } } : undefined).catch(function () {});
+                });
             } catch (e) {}
-        })();
+        });
     </script>
 </body>
 </html>

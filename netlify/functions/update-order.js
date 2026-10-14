@@ -1,6 +1,16 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const { STATUS_LABELS, formatOrderDetails, whatsappLink, sendTelegram } = require('../lib/telegram');
+
+async function sendStatusNotification(order, oldStatus, newStatus) {
+    const label = (s) => STATUS_LABELS[s] || s || '-';
+    const wa = whatsappLink(order, newStatus);
+    await sendTelegram(`🔔 订单状态更新 Estado actualizado\n\n` +
+        `${label(oldStatus)} → ${label(newStatus)}\n\n` +
+        formatOrderDetails(order) +
+        (wa ? `\n\n👇 WhatsApp:\n${wa}` : ''));
+}
 
 // 表示"库存已扣减"的状态
 const CONSUMING = new Set(['paid', 'shipped', 'delivered']);
@@ -63,7 +73,7 @@ exports.handler = async (event) => {
     }
 
     // 读取当前状态决定库存动作
-    const orderRes = await fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${orderId}&select=payment_status,items`, {
+    const orderRes = await fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${orderId}&select=*`, {
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
     });
     const orders = await orderRes.json();
@@ -93,6 +103,10 @@ exports.handler = async (event) => {
         },
         body: JSON.stringify({ payment_status: status })
     });
+
+    if (res.ok && order && order.payment_status !== status) {
+        await sendStatusNotification(order, order.payment_status, status);
+    }
 
     return {
         statusCode: res.ok ? 200 : 500,

@@ -1,33 +1,15 @@
 const { getVerifiedUserId } = require('../lib/verify-user');
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const { METHOD_LABELS, formatOrderDetails, sendTelegram } = require('../lib/telegram');
 
 // 注：库存不在下单时扣减；改为后台确认付款（payment_status -> paid/shipped/delivered）时由 update-order.js 扣减。
 
 async function sendTelegramNotification(order) {
-    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
-    const itemLines = order.items.map(i => `  • ${i.name} x${i.quantity} — €${(i.price * i.quantity).toFixed(2)}`).join('\n');
-    const deliveryInfo = order.delivery_type === 'delivery'
-        ? `\n📦 Entrega a domicilio\n📍 ${order.address}\n🕐 ${order.delivery_time}`
-        : order.delivery_type === 'postal'
-        ? `\n✉️ Envio postal\n📍 ${order.address}${order.shipping_fee > 0 ? `\n📬 Envio: €${order.shipping_fee.toFixed(2)}` : '\n📬 Envio gratuito'}`
-        : '\n🏪 Recogida en tienda';
-    const methodLabel = { bizum: 'Bizum', wechat: 'WeChat', alipay: 'Alipay', cash: 'Efectivo' }[order.payment_method] || 'Bizum';
-    const text = `🛒 Nuevo pedido ${methodLabel}\n\n` +
-        `📋 ${order.order_number}\n` +
-        `👤 ${order.customer_name}\n` +
-        `📱 ${order.customer_phone}\n` +
-        `\n${itemLines}\n` +
-        `\n💶 Total: €${order.total.toFixed(2)}` +
-        deliveryInfo +
-        `\n\n⏳ Estado: Pendiente confirmacion`;
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text })
-    }).catch(err => console.error('Telegram notify failed:', err));
+    const methodLabel = METHOD_LABELS[order.payment_method] || 'Bizum';
+    await sendTelegram(`🛒 新订单 Nuevo pedido ${methodLabel}\n\n` +
+        formatOrderDetails(order) +
+        `\n\n⏳ Estado: Pendiente confirmacion / 待确认`);
 }
 
 exports.handler = async (event) => {

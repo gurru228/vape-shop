@@ -1212,21 +1212,8 @@
             }
         } catch (e) { /* response 不是 JSON，忽略 */ }
         const order = allOrders.find(o => o.id === orderId);
-        if (order) {
-            order.payment_status = status;
-            // 状态变更时推 Telegram 提醒 + WhatsApp 链接
-            fetch('/.netlify/functions/notify-status', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    customerName: order.customer_name,
-                    customerPhone: order.customer_phone,
-                    orderNumber: order.order_number,
-                    status,
-                    total: order.total
-                })
-            }).catch(() => {});
-        }
+        // Telegram 状态提醒（含地址 + WhatsApp 链接）由 update-order 服务端发送
+        if (order) order.payment_status = status;
         renderStats(allOrders);
         applyFilters();
     }
