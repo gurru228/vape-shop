@@ -2053,7 +2053,8 @@ async function loadUserOrders() {
 
     const { data, error } = await sbClient
         .from('orders')
-        .select('*')
+        .select('order_number, created_at, payment_status, items, total')
+        .eq('user_id', currentUser.id)
         .order('created_at', { ascending: false });
 
     if (error) { content.innerHTML = `<div class="orders-empty"><i class="fas fa-exclamation-circle"></i><p>加载失败</p></div>`; return; }
