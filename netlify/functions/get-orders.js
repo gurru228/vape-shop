@@ -25,7 +25,6 @@ exports.handler = async (event) => {
     if (status && status !== 'all') url += `&payment_status=eq.${status}`;
 
     console.log('Fetching:', url);
-    console.log('Key prefix:', SUPABASE_KEY.substring(0, 20));
 
     const res = await fetch(url, {
         headers: {

@@ -13,6 +13,19 @@ function initSupabase() {
     }
 }
 
+// 下单请求头：已登录则附带 access token，由服务端验证后确定 user_id
+async function orderRequestHeaders() {
+    const headers = { 'Content-Type': 'application/json' };
+    try {
+        const { data } = sbClient ? await sbClient.auth.getSession() : { data: null };
+        const token = data?.session?.access_token;
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+    } catch (e) {
+        console.error('getSession error:', e);
+    }
+    return headers;
+}
+
 // ===== 配置信息 =====
 const CONFIG = {
     bizumPhone: '+34 697 332 407',
@@ -705,14 +718,10 @@ function openCartCheckoutModal() {
         confirmBtn.disabled = true;
         confirmBtn.textContent = '提交中...';
         try {
-            // 如果用户已登录，带上 userId
-            const finalPayload = { ...payload };
-            if (currentUser) finalPayload.userId = currentUser.id;
-
             const res = await fetch('/.netlify/functions/save-bizum-order', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(finalPayload)
+                headers: await orderRequestHeaders(),
+                body: JSON.stringify(payload)
             });
             const data = await res.json();
             if (!res.ok || data.error || data.supabase_error) throw new Error(data.error || data.supabase_error || 'Error');
@@ -864,8 +873,8 @@ function openCartCheckoutModal() {
         try {
             const res = await fetch('/.netlify/functions/create-checkout', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress, deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0, shippingFee, agentRef: sessionStorage.getItem('agent_ref') || '', ...(currentUser ? { userId: currentUser.id } : {}) })
+                headers: await orderRequestHeaders(),
+                body: JSON.stringify({ cart, customerName: name, customerPhone: phone, deliveryType, address: finalAddress, deliveryTime: isDelivery ? `${timeFrom} - ${timeTo}` : '', discountCode: activeDiscount?.code || '', discountPercent: activeDiscount?.percent || 0, shippingFee, agentRef: sessionStorage.getItem('agent_ref') || '' })
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
@@ -2053,7 +2062,8 @@ async function loadUserOrders() {
 
     const { data, error } = await sbClient
         .from('orders')
-        .select('*')
+        .select('order_number, created_at, payment_status, items, total')
+        .eq('user_id', currentUser.id)
         .order('created_at', { ascending: false });
 
     if (error) { content.innerHTML = `<div class="orders-empty"><i class="fas fa-exclamation-circle"></i><p>加载失败</p></div>`; return; }
