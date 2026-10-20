@@ -107,7 +107,7 @@
                 <p class="hero-sub" data-lang-key="hero_subtitle">4000口量 · 查看口味、库存与产品规格</p>
                 <dl class="hero-specs">
                     <div><dt data-lang-key="hero_spec_puffs">口（整机）</dt><dd>4000</dd></div>
-                    <div><dt data-lang-key="hero_spec_flavors">种口味</dt><dd>29</dd></div>
+                    <div><dt data-lang-key="hero_spec_flavors">种口味</dt><dd>31</dd></div>
                     <div><dt data-lang-key="hero_spec_price">目录价</dt><dd>€17.90</dd></div>
                 </dl>
                 <div class="hero-actions">
@@ -441,16 +441,19 @@
     <div id="product-detail" class="product-detail-overlay" role="dialog" aria-modal="true" aria-labelledby="detail-name">
         <div class="detail-content">
             <button type="button" class="detail-close" id="detail-close" aria-label="关闭 / Cerrar"><svg class="icon" aria-hidden="true"><use href="#i-close" xlink:href="#i-close"></use></svg></button>
-            <div class="detail-image-wrap">
-                <img id="detail-main-img" src="" alt="">
-            </div>
-            <div class="detail-info">
+            <div class="detail-media">
+                <div class="detail-image-wrap">
+                    <img id="detail-main-img" src="" alt="">
+                </div>
                 <div class="detail-head">
                     <h2 id="detail-name"></h2>
                     <p id="detail-flavor" class="detail-flavor-name" aria-live="polite"></p>
                     <div id="detail-flavor-tags" class="flavor-tags"></div>
                     <p id="detail-desc" class="detail-desc"></p>
                 </div>
+            </div>
+            <div class="detail-info">
+                <p class="detail-flavors-title" id="detail-flavors-title"><span data-lang-key="detail_flavors_title">选择口味</span> <span class="detail-flavors-count" id="detail-flavors-count"></span></p>
                 <div id="detail-flavors" class="detail-flavor-selector" role="group" aria-label="口味 / Sabores"></div>
                 <div class="detail-action">
                     <div class="detail-price" id="detail-price"></div>

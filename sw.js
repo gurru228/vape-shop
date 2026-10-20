@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vapeshop-v14-retain-flavor-layout';
+const CACHE_NAME = 'vapeshop-v15-landscape-detail';
 const LOCAL_PREVIEW = ['localhost', '127.0.0.1', '[::1]'].includes(self.location.hostname);
 const STATIC_ASSETS = [
   '/',
