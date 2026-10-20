@@ -556,7 +556,7 @@ function createCartItemElement(item) {
 
     const itemImage = item.image || '';
     const imageHtml = itemImage ?
-        `<img src="${itemImage}" alt="${item.name}" class="cart-item-image" loading="lazy" decoding="async">` :
+        `<img src="${itemImage}" alt="${cartItemLabel(item)}" class="cart-item-image" loading="lazy" decoding="async">` :
         `<div class="product-image-placeholder">
             <svg class="icon" aria-hidden="true"><use href="#i-spark" xlink:href="#i-spark"></use></svg>
         </div>`;
@@ -569,8 +569,8 @@ function createCartItemElement(item) {
             ${imageHtml}
         </div>
         <div class="cart-item-details">
-            <div class="cart-item-name">${item.name}${item.isFree ? ' <span class="free-badge">免费</span>' : ''}</div>
-            <div class="cart-item-subtotal">${item.isFree ? '<span style="color:#16a34a;font-weight:600">免费赠品</span>' : subtotalText}</div>
+            <div class="cart-item-name">${cartItemLabel(item)}${item.isFree ? ` <span class="free-badge">${tr('free')}</span>` : ''}</div>
+            <div class="cart-item-subtotal">${item.isFree ? `<span style="color:#16a34a;font-weight:600">${tr('free_gift')}</span>` : subtotalText}</div>
             <div class="cart-item-controls">
                 ${item.isFree ? '' : `
                 <div class="quantity-control">
@@ -598,7 +598,7 @@ function createCartItemElement(item) {
     if (plusBtn) plusBtn.addEventListener('click', () => {
         const stock = getStockForCartItem(item);
         if (stock !== null && item.quantity >= stock) {
-            showStockWarning(stock === 0 ? `${item.name} 已售罄` : `库存不足，仅剩 ${stock} 个`);
+            showStockWarning(stock === 0 ? tr('sold_out_msg', { name: cartItemLabel(item) }) : tr('low_stock_msg', { n: stock }));
             return;
         }
         updateCartItemQuantity(item.id, item.quantity + 1);
@@ -751,7 +751,7 @@ function setupCartEventListeners() {
             if (insufficient.length > 0) {
                 const msg = insufficient.map(item => {
                     const stock = getStockForCartItem(item);
-                    return stock === 0 ? `「${item.name}」已售罄` : `「${item.name}」库存不足，仅剩 ${stock} 个`;
+                    return stock === 0 ? tr('sold_out_msg', { name: `「${cartItemLabel(item)}」` }) : `「${cartItemLabel(item)}」${tr('low_stock_msg', { n: stock })}`;
                 }).join('\n');
                 showStockWarning(msg.replace(/\n/g, ' / '));
                 return;
@@ -896,8 +896,13 @@ function openCartCheckoutModal() {
 const TRANSLATIONS = {
     es: {
         // 导航
-        store_name: '口粮专卖店',
-        logo_subtitle: '口粮专卖店',
+        store_name: 'VapeShop Madrid',
+        logo_subtitle: 'Vapeadores en España',
+        account_login: 'Entrar',
+        account_aria: 'Cuenta',
+        cart_aria: 'Carrito',
+        my_orders: 'Mis pedidos',
+        logout: 'Cerrar sesión',
         products: 'Productos',
         about: 'Nosotros',
         contact: 'Contacto',
@@ -905,8 +910,8 @@ const TRANSLATIONS = {
         // 英雄区域
         hero_kicker: 'Selección para adultos',
         hero_title: 'Dash',
-        hero_subtitle: '4000 puffs · Consulte sabores, disponibilidad y especificaciones',
-        hero_spec_puffs: 'puffs',
+        hero_subtitle: '4000 caladas · Consulte sabores, disponibilidad y especificaciones',
+        hero_spec_puffs: 'caladas',
         hero_spec_flavors: 'sabores',
         hero_spec_price: 'precio',
         hero_cta_flavors: 'Elegir sabor',
@@ -914,10 +919,17 @@ const TRANSLATIONS = {
 
         // 产品区域
         products_title: 'Productos Destacados',
-        products_subtitle: 'Múltiples tipos, múltiples sabores — encuentra el tuyo',
+        products_subtitle: '{products} productos · {flavors} sabores en total',
+        nicotine_title: 'Advertencia sanitaria',
+        promo_badge: 'OFERTA',
+        promo_title: 'Cuanto más compras, más ahorras',
+        promo_from_90: 'Desde €90',
+        promo_from_180: 'Desde €180',
+        promo_cta: 'Comprar ahora',
+        promo_aria: 'Descuentos por volumen',
 
         // 产品描述
-        dash_desc: '4000 puffs · Consulte sabores, disponibilidad y especificaciones',
+        dash_desc: '4000 caladas · Consulte sabores, disponibilidad y especificaciones',
         icemax_desc: 'Sabor intenso a menta con efecto refrescante',
         lil_black_desc: 'Compacto y discreto, ideal para llevar',
         iceking_desc: 'Sabor frío potente, experiencia refrescante extrema',
@@ -967,7 +979,8 @@ const TRANSLATIONS = {
 
         // 页脚
         footer_desc: 'Tienda de vapeadores premium en España',
-        copyright: '© 2026 口粮专卖店. Todos los derechos reservados.',
+        copyright: '© 2026 VapeShop Madrid. Todos los derechos reservados.',
+        privacy: 'Política de privacidad',
 
         // 购物车
         cart_title: 'Carrito de compras',
@@ -978,6 +991,20 @@ const TRANSLATIONS = {
         add_to_cart: 'Añadir al carrito',
         detail_flavors_title: 'Elige sabor',
         added_to_cart: 'Añadido',
+        sold_out: 'Agotado',
+        sold_out_msg: '{name}: agotado',
+        low_stock_msg: 'Stock insuficiente: solo quedan {n}',
+        selected_flavor: 'Sabor: {name}',
+        flavor_count: '{n} sabores',
+        view_all_flavors: 'Ver todos',
+        more_flavors: 'Ver los {n} sabores',
+        card_aria: '{name}. Pulsa Enter para ver detalles',
+        add_to_cart_aria: 'Añadir al carrito: {name}',
+        sold_out_aria: '{name}: agotado',
+        close: 'Cerrar',
+        close_cart: 'Cerrar carrito',
+        free: 'Gratis',
+        free_gift: 'Regalo',
         remove_from_cart: 'Eliminar',
         quantity: 'Cantidad',
         subtotal: 'Subtotal'
@@ -987,6 +1014,11 @@ const TRANSLATIONS = {
         // 导航
         store_name: '口粮专卖店',
         logo_subtitle: '西班牙优质电子烟',
+        account_login: '登录',
+        account_aria: '账户',
+        cart_aria: '购物车',
+        my_orders: '我的订单',
+        logout: '退出登录',
         products: '产品',
         about: '关于',
         contact: '联系',
@@ -1003,7 +1035,14 @@ const TRANSLATIONS = {
 
         // 产品区域
         products_title: '精选产品',
-        products_subtitle: '多种类型，多种口味，总有一款适合您',
+        products_subtitle: '{products} 款产品 · 共 {flavors} 种口味',
+        nicotine_title: '尼古丁警告',
+        promo_badge: '囤货季',
+        promo_title: '下单立减，越囤越省',
+        promo_from_90: '满 €90',
+        promo_from_180: '满 €180',
+        promo_cta: '立即选购',
+        promo_aria: '满减活动',
 
         // 产品描述
         dash_desc: '人体工学设计，口感柔和持久',
@@ -1057,6 +1096,7 @@ const TRANSLATIONS = {
         // 页脚
         footer_desc: '西班牙优质口粮专卖店',
         copyright: '© 2026 口粮专卖店. 保留所有权利。',
+        privacy: '隐私政策',
 
         // 购物车
         cart_title: '购物车',
@@ -1067,20 +1107,195 @@ const TRANSLATIONS = {
         add_to_cart: '加入购物车',
         detail_flavors_title: '选择口味',
         added_to_cart: '已加入',
+        sold_out: '售罄',
+        sold_out_msg: '{name} 已售罄',
+        low_stock_msg: '库存不足，仅剩 {n} 个',
+        selected_flavor: '已选：{name}',
+        flavor_count: '{n} 种口味',
+        view_all_flavors: '查看全部',
+        more_flavors: '查看全部 {n} 种口味',
+        card_aria: '{name}，按 Enter 查看详情',
+        add_to_cart_aria: '加入购物车：{name}',
+        sold_out_aria: '{name} 已售罄',
+        close: '关闭',
+        close_cart: '关闭购物车',
+        free: '免费',
+        free_gift: '免费赠品',
         remove_from_cart: '删除',
         quantity: '数量',
         subtotal: '小计'
     }
 };
 
+// Flavor `name` (English) stays the stock / cart key; Spanish labels are display-only.
+// IceMax "Sour Guava Ice" and "Tangy Grape" are labelled by their images (Kyoho grape / guava).
+const FLAVOR_NAMES_ES = {
+    '100 Plus': '100 Plus',
+    'Alpine White Peach': 'Melocotón blanco alpino',
+    'Banana': 'Plátano',
+    'Bayberry Green Salt': 'Yamamomo con sal',
+    'Black Dragon Ice': 'Dragón negro helado',
+    'Blueberry Raspberry': 'Arándano y frambuesa',
+    'Coconut Ice': 'Coco helado',
+    'Coconut Water': 'Agua de coco',
+    'Coffee': 'Café',
+    'Corn Gelato': 'Helado de maíz',
+    'Crispy Apple': 'Manzana crujiente',
+    'Crystal Grape': 'Uva amatista',
+    'Da Hong Pao': 'Té Da Hong Pao',
+    'Durian': 'Durián',
+    'Floral Oolong': 'Oolong floral',
+    'Fresh Lemon': 'Limón fresco',
+    'Fresh Mint': 'Menta fresca',
+    'Grape Ice': 'Uva negra helada',
+    'Green Apple Ice': 'Manzana verde helada',
+    'Green Bean Ice': 'Soja verde helada',
+    'Green Grape': 'Uva verde',
+    'Green Grape Ice': 'Uva verde helada',
+    'Green Tea': 'Té verde',
+    'Guava': 'Guayaba',
+    'Hibiscus Ice Tea': 'Té de hibisco helado',
+    'Honeydew': 'Melón',
+    'Honey Yuzu Tea': 'Té de miel y yuzu',
+    'Iced Black Tea': 'Té negro helado',
+    'Iced Lemon Mint': 'Limón y menta helados',
+    'Iced Pocari': 'Isotónica helada',
+    'Ice Pop': 'Polo de hielo',
+    'Jasmine Longjing': 'Longjing al jazmín',
+    'Jasmine LongJing Tea': 'Té Longjing',
+    'Jasmine Milk Tea': 'Té con leche al jazmín',
+    'Jasmine Tea': 'Té de jazmín',
+    'Kiwi Ice': 'Kiwi helado',
+    'Lemon Cherry': 'Limón y cereza',
+    'Lemon Pineapple': 'Limón y piña',
+    'Lemon Tea': 'Té de limón',
+    'Lime Ice': 'Lima helada',
+    'Longan': 'Longan',
+    'Longjing': 'Té Longjing',
+    'Longjing Ice Tea': 'Té Longjing helado',
+    'Ludou Ice': 'Soja verde helada',
+    'Lush Ice': 'Sandía helada',
+    'Lychee': 'Lichi',
+    'Lychee Ice': 'Lichi helado',
+    'Mango': 'Mango',
+    'Matcha Smoothie': 'Batido de matcha',
+    'Miami Mint': 'Menta Miami',
+    'Mineral Water': 'Agua mineral',
+    'Mint Mojito': 'Mojito de menta',
+    'Mixed Berries': 'Frutos del bosque',
+    'Mojito': 'Mojito',
+    'Mung Bean': 'Soja verde',
+    'Passion Fruit': 'Maracuyá',
+    'Passion Grapefruit': 'Maracuyá y pomelo',
+    'Peach': 'Melocotón',
+    'Peach Ice': 'Melocotón helado',
+    'Peach Oolong': 'Oolong de melocotón',
+    'Peach Tea': 'Té de melocotón',
+    'Pink Guava': 'Guayaba rosa',
+    'Plum': 'Ciruela',
+    'Plum Pineapple': 'Piña con ciruela salada',
+    'Red Wine Ice': 'Vino tinto helado',
+    'Salted Fizz': 'Burbujas de sal marina',
+    'Salted Lemon': 'Limón salado',
+    'Sour Guava Ice': 'Uva Kyoho',
+    'Sprite Lime': 'Lima limón',
+    'Sweet Honeydew': 'Melón dulce',
+    'Tangy Grape': 'Guayaba',
+    'Taro Ice': 'Taro helado',
+    'Taro Ice Cream': 'Helado de taro',
+    'Tea Guan Yin King': 'Té Tieguanyin',
+    'Tieguanyin': 'Té Tieguanyin',
+    'Vitamin C Orange': 'Naranja con vitamina C',
+    'Watermelon Ice': 'Sandía helada',
+    'White Freeze': 'Polo de hielo',
+    'Yogurt': 'Yogur'
+};
+
+const TAG_LABELS_ES = {
+    '冰凉': 'Frío', '强冰': 'Muy frío', '清凉': 'Mentolado', '清爽': 'Refrescante', '清新': 'Fresco',
+    '清淡': 'Suave', '甜': 'Dulce', '清甜': 'Dulce suave', '甜润': 'Dulce', '酸': 'Ácido',
+    '酸甜': 'Agridulce', '咸甜': 'Salado', '果香': 'Afrutado', '花香': 'Floral', '茶香': 'Té',
+    '蜜香': 'Meloso', '椰香': 'Coco', '醇厚': 'Con cuerpo', '浓郁': 'Intenso', '苦香': 'Tostado'
+};
+
+function tr(key, vars = {}) {
+    const text = TRANSLATIONS[currentLanguage][key] ?? TRANSLATIONS.zh[key] ?? key;
+    return text.replace(/\{(\w+)\}/g, (_, name) => vars[name] ?? '');
+}
+
+function productLabel(product) {
+    return currentLanguage === 'es' ? (product.nameEs || product.name) : product.name;
+}
+
+function flavorLabel(flavor) {
+    return currentLanguage === 'zh' ? flavor.nameCn : (FLAVOR_NAMES_ES[flavor.name] || flavor.name);
+}
+
+function flavorTagsHtml(flavor) {
+    return (flavor.tags || []).map(tag => {
+        const label = currentLanguage === 'zh' ? tag.t : (TAG_LABELS_ES[tag.t] || tag.t);
+        return `<span class="flavor-tag ${tag.c}">${label}</span>`;
+    }).join('');
+}
+
+// Cart ids are "<productId>" or "<productId>-<flavor name>"; the stored name stays in the
+// language it was added in, so the label is rebuilt from the catalogue when possible.
+function cartItemLabel(item) {
+    const id = String(item.id);
+    const dash = id.indexOf('-');
+    const product = products.find(p => String(p.id) === (dash === -1 ? id : id.slice(0, dash)));
+    if (!product) return item.name;
+    if (dash === -1) return productLabel(product);
+    const flavor = product.flavors?.find(f => f.name === id.slice(dash + 1));
+    return flavor ? `${productLabel(product)} - ${flavorLabel(flavor)}` : item.name;
+}
+
+const CJK = /[\u3400-\u9fff\uff08\uff09\u3001-\u3002]/;
+
+// "中文 / Español" (either order) → the half in the current language.
+function pickBilingual(text, lang) {
+    const match = text.match(/^(\s*)(.*?\S)\s*\/\s+(\S.*?)(\s*)$/s);
+    if (!match) return text;
+    const [, lead, first, second, trail] = match;
+    const firstZh = CJK.test(first), secondZh = CJK.test(second);
+    if (firstZh === secondZh) return text;
+    const zh = firstZh ? first : second;
+    const es = firstZh ? second : first;
+    return lead + (lang === 'zh' ? zh : es) + trail;
+}
+
+function applyBilingual(lang) {
+    document.querySelectorAll('[data-bi]').forEach(scope => {
+        const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT);
+        let node;
+        while ((node = walker.nextNode())) {
+            if (node._bilingual === undefined) {
+                if (!node.textContent.includes('/')) continue;
+                node._bilingual = node.textContent;
+            }
+            node.textContent = pickBilingual(node._bilingual, lang);
+        }
+        scope.querySelectorAll('[placeholder], [aria-label]').forEach(el => {
+            ['placeholder', 'aria-label'].forEach(attr => {
+                if (!el.hasAttribute(attr)) return;
+                if (attr === 'aria-label' && el.hasAttribute('data-lang-aria')) return;
+                const key = attr === 'placeholder' ? 'biPlaceholder' : 'biAria';
+                if (el.dataset[key] === undefined) el.dataset[key] = el.getAttribute(attr);
+                el.setAttribute(attr, pickBilingual(el.dataset[key], lang));
+            });
+        });
+    });
+}
+
 // ===== 产品数据 =====
 let products = [
     {
         id: 1,
         name: '鸭嘴兽 (Dash)',
+        nameEs: 'Dash',
         price: 17.9,
         description: {
-            es: '4000 puffs · Consulte sabores, disponibilidad y especificaciones',
+            es: '4000 caladas · Consulte sabores, disponibilidad y especificaciones',
             zh: '4000口量 · 查看口味、库存与产品规格'
         },
         image: 'images/dash/coconut-water.webp',
@@ -1121,9 +1336,10 @@ let products = [
     {
         id: 2,
         name: '冰爆 (IceMax)',
+        nameEs: 'IceMax',
         price: 22.9,
         description: {
-            es: 'Ultra Freeze Taste · 12000 puffs · 3% Nicotine',
+            es: 'Sabor ultrafrío · 12000 caladas · 3 % de nicotina',
             zh: '极致冰爽口感 · 12000口 · 3%尼古丁'
         },
         image: 'images/icemax/passion-grapefruit.webp',
@@ -1146,9 +1362,10 @@ let products = [
     {
         id: 3,
         name: '小黑条 (Quik)',
+        nameEs: 'Quik',
         price: 17.9,
         description: {
-            es: 'Quik 5000 puffs · Compacto y discreto, ideal para llevar',
+            es: 'Quik · 5000 caladas · Compacto y discreto, ideal para llevar',
             zh: 'Quik 5000口 · 小巧便携，随时随地'
         },
         image: 'images/lilblack/peach.webp',
@@ -1167,6 +1384,7 @@ let products = [
     {
         id: 4,
         name: '冰王 (Elfbar IceKing)',
+        nameEs: 'Elfbar IceKing',
         price: 45,
         description: {
             es: 'Elfbar IceKing · 40000 caladas · Sabor frío potente, experiencia refrescante extrema',
@@ -1185,6 +1403,7 @@ let products = [
     {
         id: 5,
         name: '高维 (GOwif)',
+        nameEs: 'GOwif',
         price: 25.9,
         description: {
             es: 'GOwif · 18000 caladas · Sabores únicos y refrescantes',
@@ -1212,9 +1431,10 @@ let products = [
     {
         id: 6,
         name: 'RELX 悦刻幻五代烟弹 (3支装)',
+        nameEs: 'Cápsulas RELX Phantom 5 (pack de 3)',
         price: 14.9,
         description: {
-            es: 'RELX Phantom Pod · 3 unidades · Compatible con RELX Phantom · Sabores premium',
+            es: 'Cápsulas RELX Phantom 5 · 3 unidades · Compatibles con RELX Phantom · Sabores selectos',
             zh: 'RELX 幻五代烟弹 · 3支装 · 适配幻五代主机 · 精选口味'
         },
         image: 'images/relx/mixed-berries.webp',
@@ -1293,18 +1513,40 @@ function switchLanguage(lang) {
             element.textContent = TRANSLATIONS[lang][key];
         }
     });
+    document.querySelectorAll('[data-lang-aria]').forEach(element => {
+        element.setAttribute('aria-label', tr(element.dataset.langAria));
+    });
+    applyBilingual(lang);
+    updateCatalogCounts();
+    updateAccountUI();
 
     // 重新渲染产品卡片
     renderProducts();
     applyInventoryToUI();
+    updateCartUI();
+}
+
+function updateCatalogCounts() {
+    const homeProducts = products.filter(p => HOME_PRODUCT_ORDER.includes(p.id));
+    const flavorTotal = homeProducts.reduce((sum, p) => sum + (p.flavors ? p.flavors.length : 1), 0);
+    const subtitle = document.getElementById('products-subtitle');
+    if (subtitle) subtitle.textContent = tr('products_subtitle', { products: homeProducts.length, flavors: flavorTotal });
+    const heroCount = document.getElementById('hero-flavor-count');
+    const dash = products.find(p => p.id === 1);
+    if (heroCount && dash) heroCount.textContent = dash.flavors.length;
+    const heroImg = document.getElementById('hero-img');
+    if (heroImg && dash) heroImg.alt = `${productLabel(dash)} · ${flavorLabel(dash.flavors[0])}`;
 }
 
 // ===== 产品渲染功能 =====
+const HOME_PRODUCT_ORDER = [1, 5, 2, 6, 3, 4];
+const CARD_PREVIEW_FLAVORS = 5;
+
 function renderProducts() {
     if (!domElements.productsGrid) return;
     domElements.productsGrid.innerHTML = '';
 
-    const homeProductOrder = [1, 5, 2, 6, 3, 4];
+    const homeProductOrder = HOME_PRODUCT_ORDER;
 
     // 产品排序：全部售罄的排最后
     const sorted = products.filter(product => homeProductOrder.includes(product.id)).sort((a, b) => {
@@ -1324,10 +1566,10 @@ function syncQuickAdd(card, product, flavor) {
     if (!btn || !flavor) return;
     const soldOut = isSoldOut(product.id, flavor.name);
     btn.disabled = soldOut;
-    const flavorLabel = currentLanguage === 'zh' ? flavor.nameCn : flavor.name;
-    btn.setAttribute('aria-label', soldOut
-        ? `${product.name} ${flavorLabel} 已售罄 / Agotado`
-        : `${TRANSLATIONS[currentLanguage].add_to_cart}: ${product.name} ${flavorLabel}`);
+    const name = `${productLabel(product)} ${flavorLabel(flavor)}`;
+    btn.setAttribute('aria-label', soldOut ? tr('sold_out_aria', { name }) : tr('add_to_cart_aria', { name }));
+    const label = btn.querySelector('.card-add-label');
+    if (label && !btn.classList.contains('is-added')) label.textContent = soldOut ? tr('sold_out') : tr('add_to_cart');
 }
 
 function confirmCardAdd(btn) {
@@ -1347,42 +1589,54 @@ function createProductCard(product) {
     card.className = 'product-card';
     card.dataset.productId = product.id;
     card.tabIndex = 0;
-    card.setAttribute('aria-label', `${product.name}，按 Enter 查看详情 / Pulsa Enter para ver detalles`);
+    card.setAttribute('aria-label', tr('card_aria', { name: productLabel(product) }));
 
     const sortedFlavors = product.flavors
         ? [...product.flavors].sort((a, b) => isSoldOut(product.id, a.name) - isSoldOut(product.id, b.name))
         : [];
+    const allSoldOut = product.flavors
+        ? sortedFlavors.every(f => isSoldOut(product.id, f.name))
+        : isSoldOut(product.id, 'default');
+    card.classList.toggle('is-sold-out', allSoldOut);
 
+    const previewFlavors = sortedFlavors.slice(0, CARD_PREVIEW_FLAVORS);
     const flavorsHtml = product.flavors ? `
         <p class="card-selected-flavor" aria-live="polite"></p>
         <div class="flavor-tags"></div>
-        <div class="flavor-selector">
-            ${sortedFlavors.map((f, i) => `
-                <button type="button" class="flavor-btn${i === 0 ? ' active' : ''}" aria-pressed="${i === 0}" data-flavor-index="${i}" data-product-id="${product.id}" data-flavor="${f.name}" title="${f.name}">
-                    <img src="${f.image}" alt="${f.name}" loading="lazy" decoding="async" onerror="this.style.display='none'">
-                    <span>${currentLanguage === 'zh' ? f.nameCn : f.name}</span>
-                </button>
-            `).join('')}
+        <div class="flavor-preview">
+            <div class="flavor-selector" role="group" aria-label="${tr('detail_flavors_title')}">
+                ${previewFlavors.map((f, i) => `
+                    <button type="button" class="flavor-btn${i === 0 ? ' active' : ''}" aria-pressed="${i === 0}" data-flavor-index="${i}" data-product-id="${product.id}" data-flavor="${f.name}" title="${flavorLabel(f)}" aria-label="${flavorLabel(f)}">
+                        <img src="${f.image}" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'">
+                    </button>
+                `).join('')}
+            </div>
+            <button type="button" class="card-all-flavors" aria-label="${tr('more_flavors', { n: product.flavors.length })}">
+                <span class="card-all-flavors-count">${tr('flavor_count', { n: product.flavors.length })}</span>
+                <span class="card-all-flavors-link">${tr('view_all_flavors')} <svg class="icon" aria-hidden="true"><use href="#i-arrow-right" xlink:href="#i-arrow-right"></use></svg></span>
+            </button>
         </div>
     ` : '';
 
+    const cardImage = product.flavors ? (previewFlavors[0].landscape || previewFlavors[0].image) : product.image;
     card.innerHTML = `
         <div class="product-image product-image-clickable">
-            ${product.image ?
-                `<img src="${product.image}" alt="${product.name}" class="product-main-img" loading="lazy" decoding="async">` :
+            ${cardImage ?
+                `<img src="${cardImage}" alt="${productLabel(product)}" class="product-main-img${product.flavors && previewFlavors[0].landscape ? ' is-landscape' : ''}" loading="lazy" decoding="async">` :
                 `<div class="product-image-placeholder"><svg class="icon" aria-hidden="true"><use href="#i-spark" xlink:href="#i-spark"></use></svg></div>`
             }
+            ${allSoldOut ? `<span class="card-soldout-badge">${tr('sold_out')}</span>` : ''}
             <div class="product-image-hint"><svg class="icon" aria-hidden="true"><use href="#i-expand" xlink:href="#i-expand"></use></svg></div>
         </div>
         <div class="product-info">
-            <h3 class="product-name">${product.name}</h3>
+            <h3 class="product-name">${productLabel(product)}</h3>
             <p class="product-description">${product.description[currentLanguage]}</p>
             ${flavorsHtml}
             <div class="product-footer">
                 <div class="product-price">${CONFIG.defaultCurrency}${product.price.toFixed(2)}</div>
                 <button type="button" class="card-add-btn add-to-cart-btn" data-product-id="${product.id}">
                     <svg class="icon" aria-hidden="true"><use href="#i-plus" xlink:href="#i-plus"></use></svg>
-                    <span class="card-add-label">${TRANSLATIONS[currentLanguage].add_to_cart}</span>
+                    <span class="card-add-label">${tr('add_to_cart')}</span>
                 </button>
             </div>
         </div>
@@ -1395,15 +1649,15 @@ function createProductCard(product) {
         const selectedEl = card.querySelector('.card-selected-flavor');
         function renderCardFlavor(flavor) {
             if (mainImg) {
-                mainImg.src = flavor.image;
-                mainImg.alt = flavor.name;
+                mainImg.src = flavor.landscape || flavor.image;
+                mainImg.classList.toggle('is-landscape', Boolean(flavor.landscape));
+                mainImg.alt = `${productLabel(product)} · ${flavorLabel(flavor)}`;
             }
-            selectedEl.textContent = currentLanguage === 'zh'
-                ? `已选：${flavor.nameCn}` : `Elegido: ${flavor.name}`;
-            tagsEl.innerHTML = (flavor.tags || []).map(tag => `<span class="flavor-tag ${tag.c}">${tag.t}</span>`).join('');
+            selectedEl.textContent = tr('selected_flavor', { name: flavorLabel(flavor) });
+            tagsEl.innerHTML = flavorTagsHtml(flavor);
             syncQuickAdd(card, product, flavor);
         }
-        renderCardFlavor(sortedFlavors[0]);
+        renderCardFlavor(previewFlavors[0]);
         card.querySelectorAll('.flavor-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 card.querySelectorAll('.flavor-btn').forEach(b => {
@@ -1412,18 +1666,10 @@ function createProductCard(product) {
                 });
                 btn.classList.add('active');
                 btn.setAttribute('aria-pressed', 'true');
-                const flavor = sortedFlavors[parseInt(btn.dataset.flavorIndex)];
-                renderCardFlavor(flavor);
-                // 首次从页面中部选口味时，让整张卡片进入视口，加购无需手动翻页。
-                if (window.matchMedia('(max-width: 768px), (max-width: 1024px) and (max-height: 500px)').matches) {
-                    const rect = card.getBoundingClientRect();
-                    const headerBottom = document.querySelector('.header')?.getBoundingClientRect().bottom || 0;
-                    if (rect.top < headerBottom + 12 || rect.bottom > window.innerHeight - 12) {
-                        card.scrollIntoView({ block: 'start', behavior: 'instant' });
-                    }
-                }
+                renderCardFlavor(previewFlavors[parseInt(btn.dataset.flavorIndex)]);
             });
         });
+        card.querySelector('.card-all-flavors').addEventListener('click', () => openCardDetail(card));
     }
 
     // 点击卡片（按钮以外区域）或在卡片上按 Enter / Space 打开详情页
@@ -1444,14 +1690,14 @@ function createProductCard(product) {
     addToCartBtn.addEventListener('click', () => {
         if (addToCartBtn.disabled) return;
         const activeFlavor = product.flavors
-            ? sortedFlavors[parseInt(card.querySelector('.flavor-btn.active').dataset.flavorIndex)]
+            ? previewFlavors[parseInt(card.querySelector('.flavor-btn.active').dataset.flavorIndex)]
             : null;
         const cartId = activeFlavor ? `${product.id}-${activeFlavor.name}` : String(product.id);
         const stock = activeFlavor ? getStock(product.id, activeFlavor.name) : getStock(product.id, 'default');
         const existing = cart.find(item => String(item.id) === cartId);
         const nextQty = (existing ? existing.quantity : 0) + 1;
         if (stock !== null && nextQty > stock) {
-            showStockWarning(stock === 0 ? `${product.name} 已售罄` : `库存不足，仅剩 ${stock} 个`);
+            showStockWarning(stock === 0 ? tr('sold_out_msg', { name: productLabel(product) }) : tr('low_stock_msg', { n: stock }));
             return;
         }
         const cartProduct = activeFlavor
@@ -1480,14 +1726,14 @@ function openProductDetail(product, activeFlavorIndex = 0, returnFocusEl = null)
 
     let currentFlavorIndex = activeFlavorIndex;
 
-    nameEl.textContent = product.name;
+    nameEl.textContent = productLabel(product);
     descEl.textContent = product.description[currentLanguage];
     priceEl.textContent = `${CONFIG.defaultCurrency}${product.price.toFixed(2)}`;
 
     const detailTagsEl = document.getElementById('detail-flavor-tags');
     function renderDetailTags(flavor) {
         if (!detailTagsEl) return;
-        detailTagsEl.innerHTML = (flavor.tags || []).map(tag => `<span class="flavor-tag ${tag.c}">${tag.t}</span>`).join('');
+        detailTagsEl.innerHTML = flavorTagsHtml(flavor);
     }
 
     function updateFlavor(index) {
@@ -1495,14 +1741,19 @@ function openProductDetail(product, activeFlavorIndex = 0, returnFocusEl = null)
         const flavor = product.flavors[index];
         mainImg.src = flavor.landscape || flavor.image;
         mainImg.classList.toggle('is-landscape', Boolean(flavor.landscape));
-        mainImg.alt = flavor.name;
-        flavorNameEl.textContent = currentLanguage === 'zh' ? flavor.nameCn : flavor.name;
+        mainImg.alt = `${productLabel(product)} · ${flavorLabel(flavor)}`;
+        flavorNameEl.textContent = flavorLabel(flavor);
         renderDetailTags(flavor);
         flavorsEl.querySelectorAll('.detail-flavor-btn').forEach((b, i) => {
             b.classList.toggle('active', i === index);
             b.setAttribute('aria-pressed', String(i === index));
         });
-        addCartBtn.disabled = isSoldOut(product.id, flavor.name);
+        setDetailCartState(isSoldOut(product.id, flavor.name));
+    }
+
+    function setDetailCartState(soldOut) {
+        addCartBtn.disabled = soldOut;
+        addCartBtn.querySelector('[data-lang-key]').textContent = soldOut ? tr('sold_out') : tr('add_to_cart');
     }
 
     const flavorsTitleEl = document.getElementById('detail-flavors-title');
@@ -1515,8 +1766,8 @@ function openProductDetail(product, activeFlavorIndex = 0, returnFocusEl = null)
             const soldOut = isSoldOut(product.id, f.name);
             return `<button type="button" class="detail-flavor-btn${i === activeFlavorIndex ? ' active' : ''}${soldOut ? ' sold-out-flavor' : ''}" data-index="${i}" aria-pressed="${i === activeFlavorIndex}"${soldOut ? ' aria-disabled="true"' : ''}>
                 <img src="${f.image}" alt="" loading="lazy" decoding="async">
-                <span class="detail-flavor-label">${currentLanguage === 'zh' ? f.nameCn : f.name}</span>
-                ${soldOut ? '<span class="soldout-label">售罄</span>' : ''}
+                <span class="detail-flavor-label">${flavorLabel(f)}</span>
+                ${soldOut ? `<span class="soldout-label">${tr('sold_out')}</span>` : ''}
             </button>`;
         }).join('');
         flavorsEl.querySelectorAll('.detail-flavor-btn').forEach(btn => {
@@ -1531,8 +1782,8 @@ function openProductDetail(product, activeFlavorIndex = 0, returnFocusEl = null)
         flavorsEl.innerHTML = '';
         mainImg.src = product.image || '';
         mainImg.classList.remove('is-landscape');
-        mainImg.alt = product.name;
-        addCartBtn.disabled = false;
+        mainImg.alt = productLabel(product);
+        setDetailCartState(false);
     }
 
     // 加入购物车
@@ -1606,7 +1857,7 @@ function initProductDetail() {
 }
 
 // ===== 点击卡片查看详情 =====
-const CARD_CONTROLS_SELECTOR = 'button, a, input, select, textarea, .flavor-selector';
+const CARD_CONTROLS_SELECTOR = 'button, a, input, select, textarea, .flavor-preview';
 
 // 卡片上的口味按钮按库存排过序，需按口味名映射回 product.flavors 的下标
 function openCardDetail(card) {
@@ -1683,7 +1934,7 @@ function applyInventoryToUI() {
         if (isSoldOut(pid, flavor)) {
             btn.classList.add('sold-out-flavor');
             if (!btn.querySelector('.soldout-label')) {
-                btn.insertAdjacentHTML('beforeend', '<span class="soldout-label">售罄</span>');
+                btn.insertAdjacentHTML('beforeend', `<span class="soldout-label">${tr('sold_out')}</span>`);
             }
         } else {
             btn.classList.remove('sold-out-flavor');
@@ -1705,6 +1956,9 @@ function initAgeGate() {
     if (denyBtn) {
         denyBtn.addEventListener('click', () => {
             if (denyMsg) denyMsg.hidden = false;
+            denyBtn.disabled = true;
+            confirmBtn?.setAttribute('disabled', '');
+            setTimeout(() => window.location.replace('https://www.google.com/'), 1200);
         });
     }
 }
@@ -1931,7 +2185,7 @@ function updateAccountUI() {
         label.textContent = name.length > 10 ? name.slice(0, 10) + '…' : name;
     } else {
         toggle.classList.remove('logged-in');
-        label.textContent = '登录';
+        label.textContent = tr('account_login');
     }
 }
 
@@ -2090,7 +2344,7 @@ const STATUS_ZH = { pending: '待确认', paid: '已确认', shipped: '已发货
 
 async function loadUserOrders() {
     const content = document.getElementById('orders-panel-content');
-    content.innerHTML = '<div class="orders-loading"><svg class="icon icon-spin" aria-hidden="true"><use href="#i-spinner" xlink:href="#i-spinner"></use></svg> 加载中...</div>';
+    content.innerHTML = `<div class="orders-loading"><svg class="icon icon-spin" aria-hidden="true"><use href="#i-spinner" xlink:href="#i-spinner"></use></svg> ${currentLanguage === 'zh' ? '加载中…' : 'Cargando…'}</div>`;
     if (!currentUser) { content.innerHTML = '<div class="orders-empty"><svg class="icon" aria-hidden="true"><use href="#i-user" xlink:href="#i-user"></use></svg><p>请先登录</p></div>'; return; }
 
     const { data, error } = await sbClient

@@ -55,7 +55,7 @@
 
     <!-- 导航栏 -->
     <header class="header">
-        <p class="age-strip" role="note"><span lang="zh-CN">仅限 18 岁及以上 · 本产品含尼古丁</span><span class="age-strip-sep" aria-hidden="true"> / </span><span lang="es">Solo mayores de 18 · Contiene nicotina</span></p>
+        <p class="age-strip" role="note"><span lang="zh-CN" class="only-zh">仅限 18 岁及以上 · 本产品含尼古丁</span><span class="age-strip-sep only-zh" aria-hidden="true"> / </span><span lang="es">Solo mayores de 18 · Contiene nicotina</span></p>
         <nav class="nav">
             <div class="logo">
                 <div class="logo-text">
@@ -78,18 +78,18 @@
             </a>
             <!-- 账户按钮 -->
             <div class="account-icon-container">
-                <button id="account-toggle" class="account-toggle" aria-label="账户">
+                <button id="account-toggle" class="account-toggle" aria-label="账户" data-lang-aria="account_aria">
                     <svg class="icon" aria-hidden="true"><use href="#i-user" xlink:href="#i-user"></use></svg>
                     <span id="account-label">登录</span>
                 </button>
                 <div id="account-dropdown" class="account-dropdown" style="display:none">
-                    <button id="my-orders-btn"><svg class="icon" aria-hidden="true"><use href="#i-receipt" xlink:href="#i-receipt"></use></svg> 我的订单</button>
-                    <button id="logout-btn"><svg class="icon" aria-hidden="true"><use href="#i-logout" xlink:href="#i-logout"></use></svg> 退出登录</button>
+                    <button id="my-orders-btn"><svg class="icon" aria-hidden="true"><use href="#i-receipt" xlink:href="#i-receipt"></use></svg> <span data-lang-key="my_orders">我的订单</span></button>
+                    <button id="logout-btn"><svg class="icon" aria-hidden="true"><use href="#i-logout" xlink:href="#i-logout"></use></svg> <span data-lang-key="logout">退出登录</span></button>
                 </div>
             </div>
             <!-- 购物车图标 -->
             <div class="cart-icon-container">
-                <button id="cart-toggle" class="cart-toggle" aria-label="购物车">
+                <button id="cart-toggle" class="cart-toggle" aria-label="购物车" data-lang-aria="cart_aria">
                     <svg class="icon" aria-hidden="true"><use href="#i-cart" xlink:href="#i-cart"></use></svg>
                     <span id="cart-count" class="cart-count">0</span>
                 </button>
@@ -107,7 +107,7 @@
                 <p class="hero-sub" data-lang-key="hero_subtitle">4000口量 · 查看口味、库存与产品规格</p>
                 <dl class="hero-specs">
                     <div><dt data-lang-key="hero_spec_puffs">口（整机）</dt><dd>4000</dd></div>
-                    <div><dt data-lang-key="hero_spec_flavors">种口味</dt><dd>31</dd></div>
+                    <div><dt data-lang-key="hero_spec_flavors">种口味</dt><dd id="hero-flavor-count">31</dd></div>
                     <div><dt data-lang-key="hero_spec_price">目录价</dt><dd>€17.90</dd></div>
                 </dl>
                 <div class="hero-actions">
@@ -118,31 +118,31 @@
             <div class="hero-visual">
                 <span class="wash wash-hero" aria-hidden="true"></span>
                 <span class="hatch-shadow" aria-hidden="true"></span>
-                <img src="images/dash/jasmine-longjing.webp" alt="鸭嘴兽 Dash · 龙井" width="400" height="600" fetchpriority="high" decoding="async" data-parallax>
+                <img id="hero-img" src="images/dash/jasmine-longjing.webp" alt="鸭嘴兽 Dash · 龙井" width="400" height="600" fetchpriority="high" decoding="async" data-parallax>
             </div>
         </section>
 
         <!-- 活动广告栏 -->
-        <section class="promo-section" aria-label="满减活动">
+        <section class="promo-section" aria-label="满减活动" data-lang-aria="promo_aria">
             <div class="promo-section-inner">
                 <div class="promo-numbers">
                     <div class="promo-tier">
                         <span class="promo-num">-8</span>
-                        <span class="promo-tier-cond">满 €90</span>
+                        <span class="promo-tier-cond" data-lang-key="promo_from_90">满 €90</span>
                     </div>
                     <span class="promo-plus">/</span>
                     <div class="promo-tier">
                         <span class="promo-num">-20</span>
-                        <span class="promo-tier-cond">满 €180</span>
+                        <span class="promo-tier-cond" data-lang-key="promo_from_180">满 €180</span>
                     </div>
                 </div>
                 <div class="promo-divider"></div>
                 <div class="promo-text">
-                    <span class="promo-deal-badge">囤货季 · OFERTA</span>
-                    <div class="promo-title">下单立减，越囤越省</div>
-                    <p class="promo-subtitle">全场满 <span>€90 减 €8</span>，满 <span>€180 减 €20</span>，结算自动扣减，无需优惠码。</p>
-                    <p class="promo-subtitle-es">Descuento automático: <span>€90 → -€8</span> · <span>€180 → -€20</span>. Sin código.</p>
-                    <a href="#products" class="promo-cta-btn">立即选购 / Comprar ahora <svg class="icon" aria-hidden="true"><use href="#i-arrow-right" xlink:href="#i-arrow-right"></use></svg></a>
+                    <span class="promo-deal-badge" data-lang-key="promo_badge">囤货季</span>
+                    <div class="promo-title" data-lang-key="promo_title">下单立减，越囤越省</div>
+                    <p class="promo-subtitle only-zh">全场满 <span>€90 减 €8</span>，满 <span>€180 减 €20</span>，结算自动扣减，无需优惠码。</p>
+                    <p class="promo-subtitle-es only-es">Descuento automático: <span>€90 → -€8</span> · <span>€180 → -€20</span>. Sin código.</p>
+                    <a href="#products" class="promo-cta-btn"><span data-lang-key="promo_cta">立即选购</span> <svg class="icon" aria-hidden="true"><use href="#i-arrow-right" xlink:href="#i-arrow-right"></use></svg></a>
                 </div>
             </div>
         </section>
@@ -150,12 +150,12 @@
         <!-- 产品展示 -->
         <section id="products" class="products">
             <h2 class="section-title" data-lang-key="products_title">精选产品</h2>
-            <p class="section-subtitle" data-lang-key="products_subtitle">多种类型，多种口味，总有一款适合您</p>
+            <p class="section-subtitle" id="products-subtitle">6 款产品</p>
             <p class="nicotine-warning" role="note">
                 <svg class="icon nicotine-warning-icon" aria-hidden="true"><use href="#i-warning" xlink:href="#i-warning"></use></svg>
-                <strong>尼古丁警告 / Advertencia</strong>
-                本产品含有尼古丁，尼古丁是一种极易上瘾的物质。仅向成年人销售。
-                Este producto contiene nicotina, una sustancia muy adictiva. Venta solo a mayores de 18 años.
+                <strong data-lang-key="nicotine_title">尼古丁警告</strong>
+                <span class="nicotine-warning-line only-zh" lang="zh-CN">本产品含有尼古丁，尼古丁是一种极易上瘾的物质。仅向成年人销售。</span>
+                <span class="nicotine-warning-line" lang="es">Este producto contiene nicotina, una sustancia muy adictiva. Venta solo a mayores de 18 años.</span>
             </p>
 
             <div class="products-grid" id="products-grid">
@@ -201,18 +201,18 @@
                 </a>
                 <p class="contact-number"><span data-whatsapp-display></span></p>
             </div>
-            <dl class="contact-ledger">
+            <dl class="contact-ledger" data-bi>
                 <div>
                     <dt><svg class="icon" aria-hidden="true"><use href="#i-store" xlink:href="#i-store"></use></svg> 自取 / Recogida</dt>
                     <dd>Metro El Capricho<br><span class="contact-ledger-sub">周一至周四全天 · 周末 11:00–18:00 / Lunes–jueves todo el día · Fines de semana 11:00–18:00</span></dd>
                 </div>
                 <div>
                     <dt><svg class="icon" aria-hidden="true"><use href="#i-truck" xlink:href="#i-truck"></use></svg> 外送 / Entrega</dt>
-                    <dd>≥5件 · 马德里当天送达<br><span class="contact-ledger-sub">Mínimo 5 uds · Madrid el mismo día</span></dd>
+                    <dd><span class="only-zh">≥5件 · 马德里当天送达</span><span class="only-es">Mínimo 5 uds · Madrid el mismo día</span></dd>
                 </div>
                 <div>
                     <dt><svg class="icon" aria-hidden="true"><use href="#i-mail" xlink:href="#i-mail"></use></svg> 邮寄 / Correo</dt>
-                    <dd>满€150 西班牙本地免运费<br><span class="contact-ledger-sub">Envío gratis a España desde €150 · Resto UE a confirmar</span></dd>
+                    <dd><span class="only-zh">满€150 西班牙本地免运费 · 欧盟其他国家运费另议</span><span class="only-es">Envío gratis a España desde €150 · Resto UE a confirmar</span></dd>
                 </div>
                 <div>
                     <dt><svg class="icon" aria-hidden="true"><use href="#i-comment" xlink:href="#i-comment"></use></svg> 邮箱 / Email</dt>
@@ -237,20 +237,20 @@
             </div>
         </div>
         <p class="nicotine-warning nicotine-warning-footer" role="note">
-            本产品含有尼古丁，尼古丁是一种极易上瘾的物质。仅限18岁及以上。
-            Este producto contiene nicotina, una sustancia muy adictiva. Solo mayores de 18 años.
+            <span class="nicotine-warning-line only-zh" lang="zh-CN">本产品含有尼古丁，尼古丁是一种极易上瘾的物质。仅限18岁及以上。</span>
+            <span class="nicotine-warning-line" lang="es">Este producto contiene nicotina, una sustancia muy adictiva. Solo mayores de 18 años.</span>
         </p>
         <div class="footer-bottom">
             <p data-lang-key="copyright">© 2026 口粮专卖店. 保留所有权利。</p>
-            <p class="footer-legal-links"><a href="privacy.html">隐私政策 / Política de privacidad</a></p>
+            <p class="footer-legal-links"><a href="privacy.html" data-lang-key="privacy">隐私政策</a></p>
         </div>
     </footer>
 
     <!-- 购物车侧边栏 -->
-    <div id="cart-sidebar" class="cart-sidebar">
+    <div id="cart-sidebar" class="cart-sidebar" data-bi>
         <div class="cart-header">
             <h3 data-lang-key="cart_title">购物车</h3>
-            <button id="cart-close" class="cart-close" aria-label="关闭购物车">
+            <button id="cart-close" class="cart-close" aria-label="关闭购物车" data-lang-aria="close_cart">
                 <svg class="icon" aria-hidden="true"><use href="#i-close" xlink:href="#i-close"></use></svg>
             </button>
         </div>
@@ -282,7 +282,7 @@
     <div id="cart-overlay" class="cart-overlay"></div>
 
     <!-- 结账模态框 -->
-    <div id="checkout-modal" class="modal">
+    <div id="checkout-modal" class="modal" data-bi>
         <div class="modal-content">
             <button type="button" class="close-modal" id="checkout-modal-close" aria-label="关闭 / Cerrar"><svg class="icon" aria-hidden="true"><use href="#i-close" xlink:href="#i-close"></use></svg></button>
 
@@ -334,20 +334,20 @@
                         <button class="delivery-option-btn" id="btn-delivery" type="button">
                             <svg class="icon" aria-hidden="true"><use href="#i-truck" xlink:href="#i-truck"></use></svg>
                             <span>外送 / Entrega</span>
-                            <small>≥5件 · 马德里当天送达</small>
+                            <small>≥5件 · 马德里当天送达 / Mín. 5 uds · Madrid el mismo día</small>
                         </button>
                         <button class="delivery-option-btn" id="btn-postal" type="button">
                             <svg class="icon" aria-hidden="true"><use href="#i-mail" xlink:href="#i-mail"></use></svg>
                             <span>邮寄 / Correo</span>
-                            <small>满€150 西班牙本地免运费<br>欧盟其他国家运费自理</small>
+                            <small>满€150 西班牙本地免运费 / Gratis en España desde €150</small>
                         </button>
                     </div>
                 </div>
                 <div class="checkout-form-group" id="pickup-info-group">
                     <div class="pickup-info-box">
                         <div class="pickup-info-row"><svg class="icon" aria-hidden="true"><use href="#i-pin" xlink:href="#i-pin"></use></svg> <strong>Metro El Capricho</strong></div>
-                        <div class="pickup-info-row"><svg class="icon" aria-hidden="true"><use href="#i-clock" xlink:href="#i-clock"></use></svg> 周一至周四 · Lunes–Jueves: <strong>全天 / Todo el día</strong></div>
-                        <div class="pickup-info-row"><svg class="icon" aria-hidden="true"><use href="#i-clock" xlink:href="#i-clock"></use></svg> 周末 · Fines de semana: <strong>11:00 – 18:00</strong></div>
+                        <div class="pickup-info-row"><svg class="icon" aria-hidden="true"><use href="#i-clock" xlink:href="#i-clock"></use></svg> <span class="only-zh">周一至周四：</span><span class="only-es">Lunes–jueves:</span> <strong>全天 / Todo el día</strong></div>
+                        <div class="pickup-info-row"><svg class="icon" aria-hidden="true"><use href="#i-clock" xlink:href="#i-clock"></use></svg> <span class="only-zh">周末：</span><span class="only-es">Fines de semana:</span> <strong>11:00 – 18:00</strong></div>
                     </div>
                 </div>
                 <div class="checkout-form-group" id="address-group" style="display:none">
@@ -417,7 +417,7 @@
                 <button type="button" id="checkout-submit" class="btn btn-primary checkout-submit">
                     <span data-lang-key="checkout_submit">提交订单</span>
                 </button>
-                <p class="checkout-legal">下单即表示您确认已满 18 岁，并已阅读<a href="privacy.html" target="_blank" rel="noopener">隐私政策 / Política de privacidad</a>。</p>
+                <p class="checkout-legal"><span class="only-zh">下单即表示您确认已满 18 岁，并已阅读<a href="privacy.html" target="_blank" rel="noopener">隐私政策</a>。</span><span class="only-es">Al enviar el pedido confirma que es mayor de 18 años y que ha leído la <a href="privacy.html" target="_blank" rel="noopener">política de privacidad</a>.</span></p>
                 <p id="checkout-error" class="checkout-error" role="alert" style="display:none"></p>
             </div>
 
@@ -439,7 +439,7 @@
 
     <!-- 产品详情页 -->
     <div id="product-detail" class="product-detail-overlay" role="dialog" aria-modal="true" aria-labelledby="detail-name">
-        <div class="detail-content">
+        <div class="detail-content" data-bi>
             <button type="button" class="detail-close" id="detail-close" aria-label="关闭 / Cerrar"><svg class="icon" aria-hidden="true"><use href="#i-close" xlink:href="#i-close"></use></svg></button>
             <div class="detail-media">
                 <div class="detail-image-wrap">
@@ -513,13 +513,13 @@
 
     <!-- 我的订单面板 -->
     <div id="orders-overlay" class="cart-overlay"></div>
-    <div id="orders-panel" class="orders-panel">
+    <div id="orders-panel" class="orders-panel" data-bi>
         <div class="orders-panel-header">
-            <h2><svg class="icon" aria-hidden="true"><use href="#i-receipt" xlink:href="#i-receipt"></use></svg> 我的订单</h2>
+            <h2><svg class="icon" aria-hidden="true"><use href="#i-receipt" xlink:href="#i-receipt"></use></svg> <span data-lang-key="my_orders">我的订单</span></h2>
             <button id="orders-panel-close"><svg class="icon" aria-hidden="true"><use href="#i-close" xlink:href="#i-close"></use></svg></button>
         </div>
         <div id="orders-panel-content">
-            <div class="orders-loading"><svg class="icon icon-spin" aria-hidden="true"><use href="#i-spinner" xlink:href="#i-spinner"></use></svg> 加载中...</div>
+            <div class="orders-loading"><svg class="icon icon-spin" aria-hidden="true"><use href="#i-spinner" xlink:href="#i-spinner"></use></svg> 加载中… / Cargando…</div>
         </div>
     </div>
 
