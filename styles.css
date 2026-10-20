@@ -2495,7 +2495,7 @@ body {
         transition: margin-right 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     }
     body:not(.cart-open) .main {
-        margin-right: 0;
+        margin-right: auto;
         transition: margin-right 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     }
     body.cart-open header.header {
@@ -4029,4 +4029,50 @@ html.detail-locked, html.detail-locked body { overflow: hidden; }
 @media (max-width: 480px) {
     #checkout-modal .close-modal { top: .75rem; right: .75rem; }
     #checkout-modal .checkout-submit { width: 100%; }
+}
+
+/* ===== 顶栏：导航参与排版，WhatsApp 不再压住店名或导航 ===== */
+@media (min-width: 769px) {
+    .nav { gap: 1rem; }
+    .nav .logo { flex: 0 1 auto; min-width: 0; }
+    .nav-items {
+        position: static;
+        transform: none;
+        flex: 1 1 auto;
+        justify-content: center;
+        align-items: center;
+        gap: 1.75rem;
+        min-width: 0;
+    }
+    .nav-whatsapp { flex: 0 0 auto; }
+}
+@media (min-width: 769px) and (max-width: 1100px) {
+    .nav { gap: .75rem; padding-left: 1rem; padding-right: 1rem; }
+    .nav-items { gap: 1rem; }
+    .logo { font-size: 1.2rem; }
+}
+@media (max-width: 768px) {
+    .nav {
+        flex-wrap: wrap;
+        align-items: center;
+        gap: .35rem .5rem;
+        padding: .4rem .75rem .35rem;
+    }
+    .nav .logo { flex: 1 1 auto; min-width: 0; order: 0; }
+    .logo-subtitle { display: none; }
+    .nav-whatsapp { order: 1; flex: 0 0 auto; width: 44px; min-width: 44px; padding: 0; }
+    .account-icon-container { order: 2; }
+    .cart-icon-container { order: 3; position: static; }
+    .nav-items {
+        order: 4;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        gap: .5rem;
+        padding: .15rem 0 0;
+    }
+}
+@media (max-width: 420px) {
+    #account-label { display: none; }
+    .account-toggle { min-width: 44px; min-height: 44px; justify-content: center; }
 }
