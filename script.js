@@ -1406,7 +1406,7 @@ function createProductCard(product) {
     // 点击图片打开详情页
     card.querySelector('.product-image-clickable').addEventListener('click', () => {
         const activeFlavorIndex = product.flavors
-            ? parseInt(card.querySelector('.flavor-btn.active').dataset.flavorIndex)
+            ? product.flavors.indexOf(sortedFlavors[parseInt(card.querySelector('.flavor-btn.active').dataset.flavorIndex)])
             : 0;
         openProductDetail(product, activeFlavorIndex);
     });
