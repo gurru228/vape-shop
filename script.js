@@ -1108,9 +1108,9 @@ let products = [
             { name: 'Pink Guava', nameCn: '粉红番石榴', image: 'images/dash/pink-guava.webp', tags: [{t:'甜',c:'sweet'},{t:'果香',c:'sweet'}] },
             { name: 'Black Dragon Ice', nameCn: '黑龙冰', image: 'images/dash/black-dragon-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'清爽',c:'fresh'}] },
             { name: 'Corn Gelato', nameCn: '玉米冰激凌', image: 'images/dash/corn-gelato.webp', tags: [{t:'甜',c:'sweet'},{t:'醇厚',c:'rich'}] },
-            { name: 'White Freeze', nameCn: '老冰棍', image: 'images/dash/white-freeze.webp', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'}] },
+            { name: 'White Freeze', nameCn: '老冰棍', image: 'images/dash/old-ice-pop.webp', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'}] },
             { name: 'Passion Grapefruit', nameCn: '百香西柚', image: 'images/dash/passion-grapefruit.webp', tags: [{t:'酸甜',c:'sour'},{t:'果香',c:'sweet'}] },
-            { name: 'Lush Ice', nameCn: '西瓜冰', image: 'images/dash/lush-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'}] },
+            { name: 'Lush Ice', nameCn: '西瓜冰', image: 'images/dash/watermelon-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'甜',c:'sweet'}] },
             { name: 'Lemon Pineapple', nameCn: '柠檬菠萝', image: 'images/dash/lemon-pineapple.webp', tags: [{t:'酸甜',c:'sour'},{t:'清爽',c:'fresh'}] },
             { name: 'Green Apple Ice', nameCn: '青苹果冰', image: 'images/dash/green-apple-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'酸甜',c:'sour'}] },
             { name: 'Tea Guan Yin King', nameCn: '铁观音', image: 'images/dash/tea-guan-yin-king.webp', tags: [{t:'茶香',c:'fresh'},{t:'醇厚',c:'rich'}] },
@@ -1119,10 +1119,8 @@ let products = [
             { name: 'Hibiscus Ice Tea', nameCn: '洛神花冰茶', image: 'images/dash/hibiscus-ice-tea.webp', tags: [{t:'冰凉',c:'ice'},{t:'酸甜',c:'sour'},{t:'花香',c:'fresh'}] },
             { name: 'Ludou Ice', nameCn: '绿豆冰', image: 'images/dash/ludou-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'清甜',c:'sweet'}] },
             { name: 'Lime Ice', nameCn: '青柠冰', image: 'images/dash/lime-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'酸',c:'sour'},{t:'清爽',c:'fresh'}] },
-            { name: 'Watermelon Ice', nameCn: '西瓜冰', image: 'images/dash/watermelon-ice.webp', tags: [{t:'冰凉',c:'ice'},{t:'清甜',c:'sweet'},{t:'果香',c:'sweet'}] },
             { name: 'Mint Mojito', nameCn: '薄荷莫吉托', image: 'images/dash/mint-mojito.webp', tags: [{t:'清凉',c:'fresh'},{t:'酸',c:'sour'},{t:'冰凉',c:'ice'}] },
-            { name: 'Da Hong Pao', nameCn: '大红袍', image: 'images/dash/da-hong-pao.webp', tags: [{t:'茶香',c:'fresh'},{t:'醇厚',c:'rich'}] },
-            { name: 'Classic Ice Pop', nameCn: '老冰棍', image: 'images/dash/old-ice-pop.webp', tags: [{t:'冰凉',c:'ice'},{t:'清甜',c:'sweet'}] }
+            { name: 'Da Hong Pao', nameCn: '大红袍', image: 'images/dash/da-hong-pao.webp', tags: [{t:'茶香',c:'fresh'},{t:'醇厚',c:'rich'}] }
         ]
     },
     {
