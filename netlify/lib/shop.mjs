@@ -331,7 +331,7 @@ export async function tg(method, payload) {
   });
   const data = await res.json().catch(() => ({}));
   if (!data.ok) console.error('[tg]', method, data.description);
-  return data.result ?? null;
+  return data.result ?? (data.ok ? true : null);
 }
 export const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 
