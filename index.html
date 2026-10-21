@@ -583,6 +583,7 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 .promo.owned .promo-cta{display:none}
 .promo-skip{height:40px;font-weight:800;font-size:14px;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
 .promo-join{display:grid;gap:10px;width:100%;text-align:left}
+.pj-h{margin:0;font-size:13.5px;font-weight:900;color:var(--stamp)}
 .pj-f{display:grid;gap:3px}
 .pj-f label{font-size:12.5px;font-weight:800}
 .pj-f input{width:100%;min-width:0;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;padding:0 14px}
@@ -629,7 +630,7 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
         <div class="card-pop" id="cardPop" role="dialog" aria-label="我的集章卡" hidden>
           <div class="cp-h"><b id="cardPopTitle">集章卡</b><small>同一款买满 10 支，第 11 支我们请</small></div>
           <div class="am-lines" id="cardPopLines"></div>
-          <p class="cp-guest" id="cardPopGuest" hidden>注册会员就能集章：店家确认订单后自动盖上。</p>
+          <p class="cp-guest" id="cardPopGuest" hidden>集章卡绑在会员账号上：用手机号或邮箱 + 密码注册一个账号，卡就开好了；店家确认订单后自动盖章。</p>
           <div class="cp-act" id="cardPopAct"></div>
         </div>
       </div>
@@ -698,26 +699,15 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 <div class="mobile-pan"><button type="button" id="panL" aria-label="向左">←</button><button type="button" id="panR" aria-label="向右">→</button></div>
 
 <div class="wrap">
-  <div class="warn" role="note">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v5M12 18v.5"/></svg>
-    <div><b>尼古丁警告</b><p>本产品含有尼古丁，尼古丁是一种极易上瘾的物质。仅向成年人销售。</p><p>Este producto contiene nicotina, una sustancia muy adictiva. Venta solo a mayores de 18 años.</p></div>
-  </div>
-
-  <section class="ship" id="ship" aria-label="配送方式">
-    <article><h3>自取<small>Recogida</small></h3><p>Metro El Capricho</p><p class="rule">周一至周四全天 · 周末 11:00–18:00</p></article>
-    <article><h3>外送<small>Entrega</small></h3><p>马德里当天送达，可现金付款</p><p class="rule">满 5 件可选</p></article>
-    <article><h3>邮寄<small>Correo</small></h3><p>西班牙境内运费 €9.99，其他欧盟国家 WhatsApp 确认</p><p class="rule">满 €150 包邮</p></article>
-  </section>
-
   <section class="stamps" id="stamps" aria-labelledby="stampsTitle">
     <div class="stamps-copy">
       <span class="eyebrow">集章卡 · 常驻活动，不限时 · TARJETA DE SELLOS</span>
       <h2 id="stampsTitle">同一款买满 10 支，<br>第 11 支我们请。</h2>
       <p>注册会员就能集：每单店家确认后自动盖章。每个款式一张卡，分开集；集满 10 个，下一单送 1 支同款，口味你挑。</p>
       <div class="stamps-join" id="stampsJoin">
-        <b>注册后开始集章</b>
-        <span>手机号或邮箱都能注册，30 秒搞定。游客也能下单，只是不盖章。</span>
-        <div><button type="button" class="btn btn-primary" data-a="register">注册领卡</button><button type="button" class="link" data-a="login">已有账户，登录</button></div>
+        <b>领卡 = 注册本店会员账号</b>
+        <span>用手机号或邮箱 + 密码注册，30 秒搞定；以后用这个账号登录看章。游客也能下单，只是不盖章。</span>
+        <div><button type="button" class="btn btn-primary" data-a="register">注册会员领卡</button><button type="button" class="link" data-a="login">已有账户，登录</button></div>
       </div>
       <div class="stamps-member" id="stampsMember" hidden>
         <span class="stamps-hello" id="stampsHello"></span>
@@ -735,6 +725,18 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
       <div class="stage-hint"><i></i>拖动翻面</div>
     </div>
   </section>
+
+  <div class="warn" role="note">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v5M12 18v.5"/></svg>
+    <div><b>尼古丁警告</b><p>本产品含有尼古丁，尼古丁是一种极易上瘾的物质。仅向成年人销售。</p><p>Este producto contiene nicotina, una sustancia muy adictiva. Venta solo a mayores de 18 años.</p></div>
+  </div>
+
+  <section class="ship" id="ship" aria-label="配送方式">
+    <article><h3>自取<small>Recogida</small></h3><p>Metro El Capricho</p><p class="rule">周一至周四全天 · 周末 11:00–18:00</p></article>
+    <article><h3>外送<small>Entrega</small></h3><p>马德里当天送达，可现金付款</p><p class="rule">满 5 件可选</p></article>
+    <article><h3>邮寄<small>Correo</small></h3><p>西班牙境内运费 €9.99，其他欧盟国家 WhatsApp 确认</p><p class="rule">满 €150 包邮</p></article>
+  </section>
+
 
   <footer>
     <span>© 2026 口粮专卖店 · 西班牙优质口粮专卖店</span>
@@ -1593,7 +1595,7 @@ function createTags({ rail, canvas, products, onPick }) {
     this.mesh = new THREE.Mesh(geo, front);
     const backMesh = new THREE.Mesh(geo, back);
     for (const mm of [this.mesh, backMesh]) { mm.castShadow = true; mm.receiveShadow = true; mm.frustumCulled = false; scene.add(mm); }
-    this.mesh.userData.tag = this;
+    this.mesh.userData.tag = this; backMesh.userData.tag = this; this.backMesh = backMesh;
 
     this.group = new THREE.Group();
     this.group.rotation.order = 'YXZ';
@@ -1660,7 +1662,7 @@ function createTags({ rail, canvas, products, onPick }) {
   function pick(sx, sy) {
     ndc.set(sx / viewW * 2 - 1, -(sy / viewH) * 2 + 1);
     raycaster.setFromCamera(ndc, camera);
-    const hit = raycaster.intersectObjects(tags.map(t => t.mesh))[0];
+    const hit = raycaster.intersectObjects(tags.flatMap(t => [t.mesh, t.backMesh]))[0];
     return hit ? { t: hit.object.userData.tag, point: hit.point } : null;
   }
   function setHover(t) {
@@ -1892,7 +1894,8 @@ function createTags({ rail, canvas, products, onPick }) {
       for (const tg of tags) stepSheet(tg, STEP);
       acc -= STEP;
     }
-    for (const tg of tags) { tg.geo.attributes.position.needsUpdate = true; tg.geo.computeVertexNormals(); }
+    // the cloth moves every frame; the bounding sphere must follow or the raycast skips the poster
+    for (const tg of tags) { tg.geo.attributes.position.needsUpdate = true; tg.geo.computeVertexNormals(); tg.geo.computeBoundingSphere(); }
     renderer.render(scene, camera);
     if (first) { first = false; rail.querySelector('.rail-loading')?.classList.add('done'); }
     requestAnimationFrame(frame);
@@ -2395,13 +2398,13 @@ function createAccount({ products, onStamps }) {
         <div class="acct-alt"><button type="button" data-a="register">还没有账户？注册一个</button>
           <a href="https://wa.me/${WA}?text=${encodeURIComponent('你好，我忘记了集章卡账户的密码，想重置一下')}" target="_blank" rel="noopener">忘记密码？WhatsApp 找店家重置</a></div>`;
     } else if (view === 'register') {
-      box.innerHTML = `${head('集章卡 · TARJETA DE SELLOS', '领一张集章卡', '每次下单，店家确认后自动盖章。同一款满 10 个章，送 1 支同款。')}
+      box.innerHTML = `${head('集章卡 · TARJETA DE SELLOS', '注册会员 · 领集章卡', '注册一个本店会员账号，集章卡就绑在账号上。每次下单，店家确认后自动盖章；同一款满 10 个章，送 1 支同款。')}
         <form class="acct-form" novalidate>${idField}
           ${field('name', '怎么称呼你', 'autocomplete="nickname" maxlength="40" placeholder="昵称就行" required')}
           ${pwField('new-password', '至少 6 位')}
           <label class="acct-check"><input type="checkbox" name="adult" required><span>我已年满 18 岁 · Soy mayor de 18 años</span></label>
           <p class="acct-err" role="alert"></p>
-          <button class="btn btn-primary" type="submit">注册并领卡</button>
+          <button class="btn btn-primary" type="submit">注册账号并领卡</button>
           <p class="acct-fine">手机号或邮箱只用来登录，不会公开，也不会发广告；随时可以在“我的”里删除账户。</p></form>
         <div class="acct-alt"><button type="button" data-a="login">已经有账户？登录</button></div>`;
     } else if (view === 'password') {
@@ -2607,7 +2610,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
     if (!account.user()) {
       const n = Object.values(t.earn).reduce((a, b) => a + b, 0);
       return `<div class="stampbar guest"><span class="sb-h">这单能盖 ${n} 个章</span><small>注册会员后，店家确认订单就自动盖到你的集章卡上。同一款满 10 个章送 1 支。</small>
-        <div class="sb-act"><button type="button" class="btn btn-primary" data-act="join">注册领卡</button><button type="button" class="link" data-act="signin">已有账户，登录</button></div></div>`;
+        <div class="sb-act"><button type="button" class="btn btn-primary" data-act="join">注册会员领卡</button><button type="button" class="link" data-act="signin">已有账户，登录</button></div></div>`;
     }
     const rows = cardLines(t).map(p => {
       const gift = t.gifts.some(g => g.p === p), unit = stampUnit(p), earn = t.earn[p.id] || 0;
@@ -2739,7 +2742,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
         <small>确认一般在几小时内，页面开着时会自己盖上。</small>
         <button type="button" class="link" data-act="stamps">去看集章卡 →</button></div>`
       : `<div class="stampbar guest"><span class="sb-h">这单本来能盖 ${Object.values(o.t.earn).reduce((a, b) => a + b, 0)} 个章</span><small>注册会员，下一单开始集章：同一款满 10 个送 1 支。</small>
-        <div class="sb-act"><button type="button" class="btn btn-primary" data-act="join">注册领卡</button></div></div>`;
+        <div class="sb-act"><button type="button" class="btn btn-primary" data-act="join">注册会员领卡</button></div></div>`;
     body.innerHTML = `
       <div class="okmark${o.sent ? '' : ' warn'}" aria-hidden="true">${o.sent ? '✓' : '!'}</div>
       <div class="done-h">${o.sent
@@ -2869,7 +2872,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
 // the visitor presses the tenth, and the free 11th unit drops into the reward circle.
 // For guests the poster is a sign-up: the card has a blank cardholder line, the form opens in place,
 // the name they type is written onto the card, and a successful sign-up stamps it "已开卡".
-function createPromo({ products, account, onShop, onStamps }) {
+function createPromo({ products, account, onShop, onStamps, onDone }) {
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const dash = products.find(p => p.id === 1) || products[0];
   const gift = dash.flavors[Math.floor(Math.random() * dash.flavors.length)];
@@ -2903,22 +2906,23 @@ function createPromo({ products, account, onShop, onStamps }) {
         <button type="button" class="btn promo-go">去挑下一支 →</button>
         <button type="button" class="promo-more">${esc(me.name)}，看看我的集章卡</button>
       </div>` : `<div class="promo-cta">
-        <button type="button" class="btn promo-join-go">免费领卡 · 30 秒 →</button>
-        <p class="promo-why">卡存在账户里，换手机也不丢 · 游客下单不盖章</p>
+        <button type="button" class="btn promo-join-go">注册会员 · 免费领卡 →</button>
+        <p class="promo-why">领卡就是注册本店会员账号（手机号或邮箱 + 密码）。章存在账号里，换手机也不丢 · 游客下单不盖章</p>
         <button type="button" class="promo-skip">先逛逛，下次再说</button>
       </div>
       <form class="promo-join" novalidate hidden>
+        <p class="pj-h">注册会员账号 · 卡就绑在这个账号上</p>
         <div class="pj-f"><label for="p-account">手机号或邮箱</label><input id="p-account" name="account" type="text" inputmode="email" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="612 345 678 / tu@email.com"></div>
         <div class="pj-f"><label for="p-name">怎么称呼你</label><input id="p-name" name="name" autocomplete="nickname" maxlength="40" placeholder="会写在卡上"></div>
         <div class="pj-f"><label for="p-password">密码</label><div class="a-in"><input id="p-password" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="至少 6 位"><button type="button" class="a-eye" data-eye>显示</button></div></div>
         <label class="acct-check"><input type="checkbox" name="adult"><span>我已年满 18 岁 · Soy mayor de 18 años</span></label>
         <p class="acct-err" role="alert"></p>
-        <button type="submit" class="btn promo-join-go">领卡</button>
+        <button type="submit" class="btn promo-join-go">注册账号并领卡</button>
         <div class="pj-alt"><button type="button" data-login>已经有账户？登录</button><button type="button" data-back>返回</button></div>
       </form>
       <div class="promo-done" hidden>
         <p class="pd-h" role="status"></p>
-        <p class="pd-s">从下一单开始：店家确认订单，章就自动盖到你的卡上。</p>
+        <p class="pd-s"></p>
         <button type="button" class="btn promo-go">去挑第一支 →</button>
         <button type="button" class="promo-more" data-stamps>看看我的集章卡</button>
       </div>`}
@@ -2963,12 +2967,15 @@ function createPromo({ products, account, onShop, onStamps }) {
     for (let i = 0; i < 9; i++) { timers.push(setTimeout(() => stamp(i), t)); t += Math.max(120, 260 - i * 18); }
     timers.push(setTimeout(() => { wrap.classList.add('ready'); press.focus({ preventScroll: true }); }, t + 150));
   }
-  function close(then) {
+  let closed = false;
+  function close(then, next = true) {
+    if (closed) return; closed = true;
     timers.forEach(clearTimeout);
     wrap.classList.remove('open');
     document.removeEventListener('keydown', onKey, true);
     setTimeout(() => wrap.remove(), REDUCED ? 0 : 400);
     if (then) then(); else lastFocus?.focus?.({ preventScroll: true });
+    if (next) setTimeout(() => onDone?.(), REDUCED ? 0 : 450);
   }
   const onKey = e => {
     if (e.key === 'Escape') { e.stopPropagation(); close(); }
@@ -3003,7 +3010,7 @@ function createPromo({ products, account, onShop, onStamps }) {
     };
     q('.promo-cta .promo-join-go').addEventListener('click', openForm);
     form.querySelector('[data-back]').addEventListener('click', () => { wrap.classList.remove('joining'); form.hidden = true; q('.promo-cta .promo-join-go').focus(); });
-    form.querySelector('[data-login]').addEventListener('click', () => close(() => account.open('login')));
+    form.querySelector('[data-login]').addEventListener('click', () => close(() => account.open('login'), false));
     form.querySelector('[data-eye]').addEventListener('click', e => {
       const inp = form.elements.password, show = inp.type === 'password';
       inp.type = show ? 'text' : 'password'; e.target.textContent = show ? '隐藏' : '显示';
@@ -3018,7 +3025,7 @@ function createPromo({ products, account, onShop, onStamps }) {
       const bad = account.check('register', v);
       if (bad) { err.textContent = bad[0]; form.elements[bad[1]]?.focus(); return; }
       const btn = form.querySelector('[type=submit]');
-      btn.disabled = true; btn.textContent = '开卡中…'; err.textContent = '';
+      btn.disabled = true; btn.textContent = '注册中…'; err.textContent = '';
       try {
         const u = await account.signIn('register', v);
         // the demo stamps come off; the real card starts empty, and gets its activation seal
@@ -3027,12 +3034,13 @@ function createPromo({ products, account, onShop, onStamps }) {
         wrap.classList.add('owned');
         name.textContent = u.name;
         form.hidden = true; done.hidden = false;
-        q('.pd-h').textContent = `${u.name}，你的卡开好了！`;
+        q('.pd-h').textContent = `${u.name}，会员账号注册好了，卡也开好了！`;
+        q('.pd-s').textContent = `以后用 ${v.account.trim()} + 密码登录就能看章。从下一单开始，店家确认订单，章就自动盖到你的卡上。`;
         thud();
         done.querySelector('.promo-go').focus({ preventScroll: true });
       } catch (ex) {
         err.textContent = ex.message;
-        btn.disabled = false; btn.textContent = '领卡';
+        btn.disabled = false; btn.textContent = '注册账号并领卡';
       }
     });
     done.querySelector('[data-stamps]').addEventListener('click', () => close(onStamps));
@@ -3041,11 +3049,10 @@ function createPromo({ products, account, onShop, onStamps }) {
   setTimeout(open, 700);
 }
 
-// Clearance poster, shown first on every visit: the last IceMax batch at €14.90.
+// Clearance poster, shown on every visit after the stamp-card poster: the last IceMax batch at €14.90.
 // Layout: the 3D IceMax stands in a lit "shop window", a hang-tag with the price swings off it,
 // flavor swatches run underneath. The poster only sells the price; the leak notice lives where the
-// choice is made (clearance block, flavor drawer, cart, checkout tick box). When it closes, the
-// stamp-card poster follows.
+// choice is made (clearance block, flavor drawer, cart, checkout tick box).
 function createClearance({ products, onShop, onDone }) {
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const ice = products.find(p => p.id === 2);
@@ -3152,16 +3159,16 @@ function createClearance({ products, onShop, onDone }) {
     onStamps: goStamps,
   });
 
-  // the clearance poster comes first; when it is closed, the 10-for-1 stamp poster follows
-  const showStampPromo = () => createPromo({
+  // the stamp-card (register) poster comes first; when it is closed, the IceMax clearance poster follows
+  const showClearance = () => createClearance({
+    products,
+    onShop: () => { $('clearance').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }); },
+  });
+  createPromo({
     products, account,
     onShop: () => $('products').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }),
     onStamps: goStamps,
-  });
-  createClearance({
-    products,
-    onShop: () => { $('clearance').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }); },
-    onDone: showStampPromo,
+    onDone: showClearance,
   });
 
   // ---------- account button ----------
@@ -3248,7 +3255,7 @@ function createClearance({ products, onShop, onDone }) {
     }).join('');
     $('cardPopAct').innerHTML = u
       ? '<button type="button" class="btn btn-primary" data-pop="stamps">看 3D 集章卡</button><button type="button" class="btn btn-ghost" data-pop="me">我的账户</button>'
-      : '<button type="button" class="btn btn-primary" data-pop="register">免费领卡</button><button type="button" class="btn btn-ghost" data-pop="login">登录</button>';
+      : '<button type="button" class="btn btn-primary" data-pop="register">注册会员领卡</button><button type="button" class="btn btn-ghost" data-pop="login">登录</button>';
   }
   const setPop = open => {
     cardPop.hidden = !open; cardBtn.setAttribute('aria-expanded', String(open));

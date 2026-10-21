@@ -582,6 +582,7 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 .promo.owned .promo-cta{display:none}
 .promo-skip{height:40px;font-weight:800;font-size:14px;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
 .promo-join{display:grid;gap:10px;width:100%;text-align:left}
+.pj-h{margin:0;font-size:13.5px;font-weight:900;color:var(--stamp)}
 .pj-f{display:grid;gap:3px}
 .pj-f label{font-size:12.5px;font-weight:800}
 .pj-f input{width:100%;min-width:0;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;padding:0 14px}
@@ -628,7 +629,7 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
         <div class="card-pop" id="cardPop" role="dialog" aria-label="我的集章卡" hidden>
           <div class="cp-h"><b id="cardPopTitle">集章卡</b><small>同一款买满 10 支，第 11 支我们请</small></div>
           <div class="am-lines" id="cardPopLines"></div>
-          <p class="cp-guest" id="cardPopGuest" hidden>注册会员就能集章：店家确认订单后自动盖上。</p>
+          <p class="cp-guest" id="cardPopGuest" hidden>集章卡绑在会员账号上：用手机号或邮箱 + 密码注册一个账号，卡就开好了；店家确认订单后自动盖章。</p>
           <div class="cp-act" id="cardPopAct"></div>
         </div>
       </div>
@@ -697,26 +698,15 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 <div class="mobile-pan"><button type="button" id="panL" aria-label="向左">←</button><button type="button" id="panR" aria-label="向右">→</button></div>
 
 <div class="wrap">
-  <div class="warn" role="note">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v5M12 18v.5"/></svg>
-    <div><b>尼古丁警告</b><p>本产品含有尼古丁，尼古丁是一种极易上瘾的物质。仅向成年人销售。</p><p>Este producto contiene nicotina, una sustancia muy adictiva. Venta solo a mayores de 18 años.</p></div>
-  </div>
-
-  <section class="ship" id="ship" aria-label="配送方式">
-    <article><h3>自取<small>Recogida</small></h3><p>Metro El Capricho</p><p class="rule">周一至周四全天 · 周末 11:00–18:00</p></article>
-    <article><h3>外送<small>Entrega</small></h3><p>马德里当天送达，可现金付款</p><p class="rule">满 5 件可选</p></article>
-    <article><h3>邮寄<small>Correo</small></h3><p>西班牙境内运费 €9.99，其他欧盟国家 WhatsApp 确认</p><p class="rule">满 €150 包邮</p></article>
-  </section>
-
   <section class="stamps" id="stamps" aria-labelledby="stampsTitle">
     <div class="stamps-copy">
       <span class="eyebrow">集章卡 · 常驻活动，不限时 · TARJETA DE SELLOS</span>
       <h2 id="stampsTitle">同一款买满 10 支，<br>第 11 支我们请。</h2>
       <p>注册会员就能集：每单店家确认后自动盖章。每个款式一张卡，分开集；集满 10 个，下一单送 1 支同款，口味你挑。</p>
       <div class="stamps-join" id="stampsJoin">
-        <b>注册后开始集章</b>
-        <span>手机号或邮箱都能注册，30 秒搞定。游客也能下单，只是不盖章。</span>
-        <div><button type="button" class="btn btn-primary" data-a="register">注册领卡</button><button type="button" class="link" data-a="login">已有账户，登录</button></div>
+        <b>领卡 = 注册本店会员账号</b>
+        <span>用手机号或邮箱 + 密码注册，30 秒搞定；以后用这个账号登录看章。游客也能下单，只是不盖章。</span>
+        <div><button type="button" class="btn btn-primary" data-a="register">注册会员领卡</button><button type="button" class="link" data-a="login">已有账户，登录</button></div>
       </div>
       <div class="stamps-member" id="stampsMember" hidden>
         <span class="stamps-hello" id="stampsHello"></span>
@@ -734,6 +724,18 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
       <div class="stage-hint"><i></i>拖动翻面</div>
     </div>
   </section>
+
+  <div class="warn" role="note">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v5M12 18v.5"/></svg>
+    <div><b>尼古丁警告</b><p>本产品含有尼古丁，尼古丁是一种极易上瘾的物质。仅向成年人销售。</p><p>Este producto contiene nicotina, una sustancia muy adictiva. Venta solo a mayores de 18 años.</p></div>
+  </div>
+
+  <section class="ship" id="ship" aria-label="配送方式">
+    <article><h3>自取<small>Recogida</small></h3><p>Metro El Capricho</p><p class="rule">周一至周四全天 · 周末 11:00–18:00</p></article>
+    <article><h3>外送<small>Entrega</small></h3><p>马德里当天送达，可现金付款</p><p class="rule">满 5 件可选</p></article>
+    <article><h3>邮寄<small>Correo</small></h3><p>西班牙境内运费 €9.99，其他欧盟国家 WhatsApp 确认</p><p class="rule">满 €150 包邮</p></article>
+  </section>
+
 
   <footer>
     <span>© 2026 口粮专卖店 · 西班牙优质口粮专卖店</span>

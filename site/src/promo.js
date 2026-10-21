@@ -2,7 +2,7 @@
 // the visitor presses the tenth, and the free 11th unit drops into the reward circle.
 // For guests the poster is a sign-up: the card has a blank cardholder line, the form opens in place,
 // the name they type is written onto the card, and a successful sign-up stamps it "已开卡".
-function createPromo({ products, account, onShop, onStamps }) {
+function createPromo({ products, account, onShop, onStamps, onDone }) {
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const dash = products.find(p => p.id === 1) || products[0];
   const gift = dash.flavors[Math.floor(Math.random() * dash.flavors.length)];
@@ -36,22 +36,23 @@ function createPromo({ products, account, onShop, onStamps }) {
         <button type="button" class="btn promo-go">去挑下一支 →</button>
         <button type="button" class="promo-more">${esc(me.name)}，看看我的集章卡</button>
       </div>` : `<div class="promo-cta">
-        <button type="button" class="btn promo-join-go">免费领卡 · 30 秒 →</button>
-        <p class="promo-why">卡存在账户里，换手机也不丢 · 游客下单不盖章</p>
+        <button type="button" class="btn promo-join-go">注册会员 · 免费领卡 →</button>
+        <p class="promo-why">领卡就是注册本店会员账号（手机号或邮箱 + 密码）。章存在账号里，换手机也不丢 · 游客下单不盖章</p>
         <button type="button" class="promo-skip">先逛逛，下次再说</button>
       </div>
       <form class="promo-join" novalidate hidden>
+        <p class="pj-h">注册会员账号 · 卡就绑在这个账号上</p>
         <div class="pj-f"><label for="p-account">手机号或邮箱</label><input id="p-account" name="account" type="text" inputmode="email" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="612 345 678 / tu@email.com"></div>
         <div class="pj-f"><label for="p-name">怎么称呼你</label><input id="p-name" name="name" autocomplete="nickname" maxlength="40" placeholder="会写在卡上"></div>
         <div class="pj-f"><label for="p-password">密码</label><div class="a-in"><input id="p-password" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="至少 6 位"><button type="button" class="a-eye" data-eye>显示</button></div></div>
         <label class="acct-check"><input type="checkbox" name="adult"><span>我已年满 18 岁 · Soy mayor de 18 años</span></label>
         <p class="acct-err" role="alert"></p>
-        <button type="submit" class="btn promo-join-go">领卡</button>
+        <button type="submit" class="btn promo-join-go">注册账号并领卡</button>
         <div class="pj-alt"><button type="button" data-login>已经有账户？登录</button><button type="button" data-back>返回</button></div>
       </form>
       <div class="promo-done" hidden>
         <p class="pd-h" role="status"></p>
-        <p class="pd-s">从下一单开始：店家确认订单，章就自动盖到你的卡上。</p>
+        <p class="pd-s"></p>
         <button type="button" class="btn promo-go">去挑第一支 →</button>
         <button type="button" class="promo-more" data-stamps>看看我的集章卡</button>
       </div>`}
@@ -96,12 +97,15 @@ function createPromo({ products, account, onShop, onStamps }) {
     for (let i = 0; i < 9; i++) { timers.push(setTimeout(() => stamp(i), t)); t += Math.max(120, 260 - i * 18); }
     timers.push(setTimeout(() => { wrap.classList.add('ready'); press.focus({ preventScroll: true }); }, t + 150));
   }
-  function close(then) {
+  let closed = false;
+  function close(then, next = true) {
+    if (closed) return; closed = true;
     timers.forEach(clearTimeout);
     wrap.classList.remove('open');
     document.removeEventListener('keydown', onKey, true);
     setTimeout(() => wrap.remove(), REDUCED ? 0 : 400);
     if (then) then(); else lastFocus?.focus?.({ preventScroll: true });
+    if (next) setTimeout(() => onDone?.(), REDUCED ? 0 : 450);
   }
   const onKey = e => {
     if (e.key === 'Escape') { e.stopPropagation(); close(); }
@@ -136,7 +140,7 @@ function createPromo({ products, account, onShop, onStamps }) {
     };
     q('.promo-cta .promo-join-go').addEventListener('click', openForm);
     form.querySelector('[data-back]').addEventListener('click', () => { wrap.classList.remove('joining'); form.hidden = true; q('.promo-cta .promo-join-go').focus(); });
-    form.querySelector('[data-login]').addEventListener('click', () => close(() => account.open('login')));
+    form.querySelector('[data-login]').addEventListener('click', () => close(() => account.open('login'), false));
     form.querySelector('[data-eye]').addEventListener('click', e => {
       const inp = form.elements.password, show = inp.type === 'password';
       inp.type = show ? 'text' : 'password'; e.target.textContent = show ? '隐藏' : '显示';
@@ -151,7 +155,7 @@ function createPromo({ products, account, onShop, onStamps }) {
       const bad = account.check('register', v);
       if (bad) { err.textContent = bad[0]; form.elements[bad[1]]?.focus(); return; }
       const btn = form.querySelector('[type=submit]');
-      btn.disabled = true; btn.textContent = '开卡中…'; err.textContent = '';
+      btn.disabled = true; btn.textContent = '注册中…'; err.textContent = '';
       try {
         const u = await account.signIn('register', v);
         // the demo stamps come off; the real card starts empty, and gets its activation seal
@@ -160,12 +164,13 @@ function createPromo({ products, account, onShop, onStamps }) {
         wrap.classList.add('owned');
         name.textContent = u.name;
         form.hidden = true; done.hidden = false;
-        q('.pd-h').textContent = `${u.name}，你的卡开好了！`;
+        q('.pd-h').textContent = `${u.name}，会员账号注册好了，卡也开好了！`;
+        q('.pd-s').textContent = `以后用 ${v.account.trim()} + 密码登录就能看章。从下一单开始，店家确认订单，章就自动盖到你的卡上。`;
         thud();
         done.querySelector('.promo-go').focus({ preventScroll: true });
       } catch (ex) {
         err.textContent = ex.message;
-        btn.disabled = false; btn.textContent = '领卡';
+        btn.disabled = false; btn.textContent = '注册账号并领卡';
       }
     });
     done.querySelector('[data-stamps]').addEventListener('click', () => close(onStamps));

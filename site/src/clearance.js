@@ -1,8 +1,7 @@
-// Clearance poster, shown first on every visit: the last IceMax batch at €14.90.
+// Clearance poster, shown on every visit after the stamp-card poster: the last IceMax batch at €14.90.
 // Layout: the 3D IceMax stands in a lit "shop window", a hang-tag with the price swings off it,
 // flavor swatches run underneath. The poster only sells the price; the leak notice lives where the
-// choice is made (clearance block, flavor drawer, cart, checkout tick box). When it closes, the
-// stamp-card poster follows.
+// choice is made (clearance block, flavor drawer, cart, checkout tick box).
 function createClearance({ products, onShop, onDone }) {
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const ice = products.find(p => p.id === 2);

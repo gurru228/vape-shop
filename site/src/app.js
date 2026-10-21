@@ -26,16 +26,16 @@
     onStamps: goStamps,
   });
 
-  // the clearance poster comes first; when it is closed, the 10-for-1 stamp poster follows
-  const showStampPromo = () => createPromo({
+  // the stamp-card (register) poster comes first; when it is closed, the IceMax clearance poster follows
+  const showClearance = () => createClearance({
+    products,
+    onShop: () => { $('clearance').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }); },
+  });
+  createPromo({
     products, account,
     onShop: () => $('products').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }),
     onStamps: goStamps,
-  });
-  createClearance({
-    products,
-    onShop: () => { $('clearance').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }); },
-    onDone: showStampPromo,
+    onDone: showClearance,
   });
 
   // ---------- account button ----------
@@ -122,7 +122,7 @@
     }).join('');
     $('cardPopAct').innerHTML = u
       ? '<button type="button" class="btn btn-primary" data-pop="stamps">看 3D 集章卡</button><button type="button" class="btn btn-ghost" data-pop="me">我的账户</button>'
-      : '<button type="button" class="btn btn-primary" data-pop="register">免费领卡</button><button type="button" class="btn btn-ghost" data-pop="login">登录</button>';
+      : '<button type="button" class="btn btn-primary" data-pop="register">注册会员领卡</button><button type="button" class="btn btn-ghost" data-pop="login">登录</button>';
   }
   const setPop = open => {
     cardPop.hidden = !open; cardBtn.setAttribute('aria-expanded', String(open));

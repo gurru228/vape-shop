@@ -173,7 +173,7 @@ function createTags({ rail, canvas, products, onPick }) {
     this.mesh = new THREE.Mesh(geo, front);
     const backMesh = new THREE.Mesh(geo, back);
     for (const mm of [this.mesh, backMesh]) { mm.castShadow = true; mm.receiveShadow = true; mm.frustumCulled = false; scene.add(mm); }
-    this.mesh.userData.tag = this;
+    this.mesh.userData.tag = this; backMesh.userData.tag = this; this.backMesh = backMesh;
 
     this.group = new THREE.Group();
     this.group.rotation.order = 'YXZ';
@@ -240,7 +240,7 @@ function createTags({ rail, canvas, products, onPick }) {
   function pick(sx, sy) {
     ndc.set(sx / viewW * 2 - 1, -(sy / viewH) * 2 + 1);
     raycaster.setFromCamera(ndc, camera);
-    const hit = raycaster.intersectObjects(tags.map(t => t.mesh))[0];
+    const hit = raycaster.intersectObjects(tags.flatMap(t => [t.mesh, t.backMesh]))[0];
     return hit ? { t: hit.object.userData.tag, point: hit.point } : null;
   }
   function setHover(t) {
@@ -472,7 +472,8 @@ function createTags({ rail, canvas, products, onPick }) {
       for (const tg of tags) stepSheet(tg, STEP);
       acc -= STEP;
     }
-    for (const tg of tags) { tg.geo.attributes.position.needsUpdate = true; tg.geo.computeVertexNormals(); }
+    // the cloth moves every frame; the bounding sphere must follow or the raycast skips the poster
+    for (const tg of tags) { tg.geo.attributes.position.needsUpdate = true; tg.geo.computeVertexNormals(); tg.geo.computeBoundingSphere(); }
     renderer.render(scene, camera);
     if (first) { first = false; rail.querySelector('.rail-loading')?.classList.add('done'); }
     requestAnimationFrame(frame);

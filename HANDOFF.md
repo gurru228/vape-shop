@@ -38,7 +38,8 @@
   清仓结束时：删掉 `was` 和 `clearance`，`price` 改回去，再跑 `sh build.sh`。
   页面上的清仓区块（`#clearance`）和开屏清仓弹窗（`createClearance` 那段，在 `site/src/app.js`）也要一起去掉。
 - 3D 模型：`site/src/ice-model.js`（`buildIcemax`），照店主拍的实物照片做的。`createDevice(canvas, { build: buildIcemax })` 就能用。
-- 弹窗：每次进站先弹清仓海报（`site/src/clearance.js`），关掉后再弹「买 10 送 1」。海报里不写漏油。
+- 弹窗：每次进站先弹「买 10 送 1」集章卡海报（注册会员），关掉后再弹清仓海报（`site/src/clearance.js`）。海报里不写漏油。
+  顺序在 `site/src/app.js`：`createPromo({ ..., onDone: showClearance })`。
 - 漏油提示：出现在首页清仓区块、选口味抽屉、购物车、结算页。文案在 `site/src/util.js` 的 `LEAK_TITLE` 和 `LEAK_BODY`，不写「当面检查 / 联系我们」（店主说：已告知，不退）。
 - 下单：购物车里有 IceMax（或者用集章换的赠品是 IceMax）时，必须勾选「我已看清」才能提交；服务器也会检查（`order.mjs`）。
   订单的 `form.ackLeak = true`，Telegram 消息里会多一行「⚠️ 含 IceMax 清仓款：顾客已勾选确认知晓少量漏油」。
@@ -48,8 +49,14 @@
 ## 集章卡入口
 
 - 顶部购物车左边有「集章卡」按钮（手机上只显示图标 + 数字）。点开是一个小面板，列出每款的章数；会员有满卡时，按钮上显示「N 满」。
-- 页面里的 3D 集章卡区块挪到了最下面（配送下面、页脚上面）。面板里点「看 3D 集章卡」会滚到那里。
-- 测试：`sh qa/run.sh node qa/clearance.mjs`。
+- 页面里的 3D 集章卡区块在海报墙（衣架）下面、尼古丁警告上面。面板里点「看 3D 集章卡」会滚到那里。
+- 领卡 = 注册会员账号：海报、集章区块、顶部面板、结算页、注册弹窗都写明了「注册会员账号（手机号或邮箱 + 密码）」，按钮叫「注册会员领卡」/「注册账号并领卡」。
+- 测试：`ONLY=d sh qa/run.sh node qa/clearance.mjs`。
+
+## 海报墙点不了（2026-10-22 修好）
+
+- 原因：海报是布料模拟，每帧都在动，但点击检测用的包围球还停在刚生成时的位置，鼠标在海报滑进来时扫过就会点不中。
+- 修法：`site/src/tags.js` 每帧 `computeBoundingSphere()`；海报背面也能点。
 
 ## 环境变量（Netlify：vapeshop2026 → Site configuration → Environment variables）
 
@@ -80,7 +87,8 @@ sh qa/run.sh node qa/checkout.mjs   # 游客下单三步
 sh qa/run.sh node qa/tgadmin.mjs    # Telegram 指令 查/盖/重置
 ONLY=d sh qa/run.sh node qa/promo.mjs   # 开屏海报（d / m / dk 分开跑，一次一个）
 ONLY=d sh qa/run.sh node qa/account.mjs # account 也要 d / m 分开跑
-sh qa/run.sh node qa/clearance.mjs      # IceMax 清仓：弹窗、区块、漏油提示、勾选确认
+ONLY=d sh qa/run.sh node qa/clearance.mjs  # IceMax 清仓：弹窗顺序、区块、漏油提示、勾选确认（d / m,srv 分开跑）
+M=1 sh qa/run.sh node qa/rail.mjs       # 海报墙每张都能点开
 sh qa/run.sh node qa/check.mjs      # 海报墙、抽屉、首屏轮播
 ```
 
