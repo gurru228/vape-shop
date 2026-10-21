@@ -137,7 +137,8 @@ export default async req => {
 
   if (url.pathname.endsWith('/tg-setup')) {
     if (url.searchParams.get('key') !== secret) return fail('forbidden', 403);
-    const hook = `${process.env.URL || url.origin}/api/telegram`;
+    // the address this was opened on (Netlify's URL variable always points at the production site, even on a preview)
+    const hook = `${url.origin}/api/telegram`;
     const r = await tg('setWebhook', { url: hook, secret_token: secret, allowed_updates: ['message', 'callback_query'] });
     // the "/" menu in Telegram (command names there can only be latin; the Chinese words work as plain messages)
     await tg('setMyCommands', { commands: [
