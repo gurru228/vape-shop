@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 python3 - <<'EOF'
 import json
 products = json.load(open('site/src/products.json'))
-js = '\n'.join(open(f'site/src/{f}').read() for f in ['util.js', 'dash-model.js', 'device.js', 'tags.js', 'stamps.js', 'account.js', 'checkout.js', 'promo.js', 'app.js'])
+js = '\n'.join(open(f'site/src/{f}').read() for f in ['util.js', 'dash-model.js', 'ice-model.js', 'device.js', 'tags.js', 'stamps.js', 'account.js', 'checkout.js', 'promo.js', 'clearance.js', 'app.js'])
 scripts = ('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>\n'
            '<script>\nconst PRODUCTS = ' + json.dumps(products, ensure_ascii=False) + ';\n' + js + '\n</script>')
 src = open('site/index.html').read().replace('<!--SCRIPTS-->', scripts)

@@ -25,6 +25,11 @@ export default async req => {
       }
     }
 
+    // IceMax clearance stock leaks a little: the buyer has to say they saw that (a free gift counts too)
+    const leak = priced.leak || gifts.some(g => byId.get(g.pid).clearance);
+    if (leak && b.form?.ackLeak !== true) return fail('IceMax 清仓款存在少量漏油，请先在结算页勾选「我已看清」再提交');
+    priced.leak = leak;
+
     const o = { no: orderNo(), created: Date.now(), status: 'pending', member: user ? user.id : null, ...priced, gifts };
     if (gifts.length) {
       // one statement takes the 10 stamps off every gifted card, or none if any card isn't full,

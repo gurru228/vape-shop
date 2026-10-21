@@ -178,6 +178,13 @@ header.top{display:flex;align-items:center;justify-content:space-between;gap:20p
 .line img{width:64px;height:64px;border-radius:10px;object-fit:cover;background:var(--surface-alt)}
 .line b{display:block;font-size:14.5px;line-height:1.3}
 .line small{display:block;color:var(--muted);font-size:12.5px}
+.line .leak-line{display:block;font-style:normal;font-size:12px;font-weight:900;color:var(--stamp)}
+.line .was{color:var(--muted);font-size:12.5px;font-weight:700}
+.cp .leak{margin-bottom:12px;font-size:13px}
+.leak.ack{grid-template-columns:auto 1fr;gap:10px;align-items:start;cursor:pointer}
+.leak.ack input{width:20px;height:20px;margin-top:2px;accent-color:var(--stamp)}
+.leak.ack span{display:grid;gap:3px}
+.leak.ack b{font-size:14px}
 .line .rm{font-size:12px;color:var(--muted);text-decoration:underline;margin-top:4px}
 .line .r{display:grid;justify-items:end;gap:6px}
 .line .r .num{font-weight:900}
@@ -311,12 +318,36 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 .qty button{width:40px;height:100%;font-size:18px;font-weight:800}
 .qty output{min-width:26px;text-align:center;font-weight:800}
 .d-foot .price{font-size:22px;font-weight:900;margin-right:auto}
+.d-foot .btn{white-space:nowrap;flex:none}
+.d-foot .pbox{display:grid;margin-right:auto;line-height:1.1}
+.d-foot .pbox .price{margin:0}
+.clear{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:center;gap:clamp(16px,4vw,56px);margin-top:clamp(40px,8vh,90px);padding:clamp(18px,3vw,36px);border-radius:28px;background:linear-gradient(135deg,color-mix(in srgb,var(--stamp) 10%,var(--surface)),var(--surface) 60%);border:1.5px solid color-mix(in srgb,var(--stamp) 40%,var(--line))}
+.clear h2{margin:6px 0 8px;font-size:clamp(36px,4.6vw,64px);line-height:1;font-weight:800}
+.clear h2 span{font-family:"Nunito",sans-serif;font-weight:900}
+.clear h2 .tagnow{font-size:.3em;padding:4px 14px;transform:rotate(-4deg);display:inline-block}
+.clear .lede{margin:0;color:var(--muted);font-size:16px}
+.clear-price{display:flex;align-items:baseline;gap:12px;margin:18px 0 14px}
+.clear-price b{font-size:clamp(40px,5vw,60px);font-weight:900;color:var(--stamp);line-height:1}
+.clear-price s{font-size:20px;color:var(--muted)}
+.clear-price span{font-size:13px;color:var(--muted)}
+.clear .leak{margin-bottom:18px;font-size:14.5px}
+.clear-stage{aspect-ratio:1/1.02;max-height:640px}
+#iceDevice{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y;cursor:grab}
+#iceDevice:active{cursor:grabbing}
+.leak{display:grid;gap:3px;padding:12px 14px;border-radius:12px;border:2px solid var(--stamp);background:color-mix(in srgb,var(--stamp) 12%,var(--surface));color:var(--ink);font-size:13.5px;line-height:1.5}
+.leak b{font-size:15.5px;color:var(--stamp)}
+.leak[hidden]{display:none}
+.d-foot .was{color:var(--muted);font-size:13px;margin:0}
+.d-foot .was[hidden]{display:none}
+.tagnow{display:inline-block;margin-left:8px;padding:1px 9px;border-radius:999px;background:var(--stamp);color:#fff;font-size:11.5px;font-weight:900;letter-spacing:.04em;vertical-align:middle}
 .d-note{margin:0;min-height:1.3em;font-size:13px;color:var(--accent);font-weight:700}
 
 .toast{position:fixed;z-index:40;left:50%;bottom:24px;transform:translate(-50%,16px);background:var(--primary);color:var(--on-primary);padding:12px 20px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;transition:.3s;pointer-events:none}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
 @media (max-width:860px){
+  .clear{grid-template-columns:1fr}
+  .clear-stage{max-height:420px}
   .top nav{display:none}
   .hero{grid-template-columns:1fr;min-height:0}
   .stage-wrap{order:-1;max-height:480px;aspect-ratio:1/1.1}
@@ -407,6 +438,39 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
   .acct-btn.in i{width:34px;height:34px}
   .cart-btn{padding:0 12px}
 }
+/* ---- clearance poster (shown before the stamp poster) ---- */
+.promo .promo-poster.clr-poster{width:min(400px,100%);padding:0 0 18px;gap:0;grid-template-columns:minmax(0,1fr);justify-items:stretch;background-color:var(--surface);overflow-x:hidden}
+.clr-poster>*{min-width:0}
+.promo .clr-poster .promo-x{z-index:3;top:4px;right:6px;color:#fff}
+.promo .clr-poster .promo-x:hover{background:rgba(255,255,255,.12);color:#fff}
+.clr-band{display:flex;justify-content:center;align-items:center;gap:10px;padding:11px 44px;background:var(--stamp);color:#fff;font-size:11.5px;font-weight:900;letter-spacing:.14em;white-space:nowrap;overflow:hidden}
+.clr-band i{font-style:normal;opacity:.7}
+.clr-h{margin:20px 0 0;padding:0 24px;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:2px 10px;font-size:26px;font-weight:800;line-height:1.05}
+.clr-h b{font-family:"Nunito",sans-serif;font-weight:900;font-size:clamp(34px,10vw,40px);letter-spacing:-.02em}
+.clr-h small{flex-basis:100%;font-size:15px;font-weight:900;letter-spacing:.3em;color:var(--stamp);text-indent:.3em}
+.clr-window{position:relative;margin:12px 20px 0;aspect-ratio:1/.9;max-height:44dvh;border-radius:22px;overflow:hidden;
+  background:radial-gradient(circle at 42% 48%,color-mix(in srgb,var(--flavor) 50%,var(--surface)) 0,var(--surface-alt) 68%);transition:background .8s}
+.clr-dev{position:absolute;inset:0 22% 0 -4%;width:82%;height:100%;cursor:grab;touch-action:pan-y}
+.clr-fallback{position:absolute;inset:8% 30% 8% 4%;width:66%;height:84%;object-fit:contain}
+.clr-tag{position:absolute;right:14px;top:50%;width:46%;max-width:168px;padding:26px 14px 16px;display:grid;justify-items:center;gap:2px;
+  background:var(--stamp);color:#fff;border-radius:14px 14px 18px 18px;box-shadow:0 12px 26px rgba(70,25,10,.28);
+  transform:translateY(-50%) rotate(6deg);transform-origin:50% 0}
+.promo.open .clr-tag{animation:clrswing 2.4s ease-in-out .5s 1}
+@keyframes clrswing{0%{transform:translateY(-50%) rotate(6deg)}25%{transform:translateY(-50%) rotate(-3deg)}55%{transform:translateY(-50%) rotate(9deg)}80%{transform:translateY(-50%) rotate(4deg)}100%{transform:translateY(-50%) rotate(6deg)}}
+.clr-hole{position:absolute;top:9px;left:50%;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--surface-alt);box-shadow:inset 0 1px 2px rgba(0,0,0,.35)}
+.clr-tag s{font-size:15px;font-weight:800;opacity:.75}
+.clr-tag b{font-family:"Nunito",sans-serif;font-size:52px;font-weight:900;line-height:.95;letter-spacing:-.03em}
+.clr-tag b small{font-size:.48em;letter-spacing:0}
+.clr-tag span{font-size:10.5px;font-weight:800;letter-spacing:.12em;opacity:.85}
+.clr-sub{text-align:center;margin:12px 20px 0;color:var(--muted);font-weight:700;font-size:14px}
+.clr-sub b{color:var(--ink)}
+.clr-sub em{font-style:normal;color:var(--ink);font-weight:900}
+.clr-dots{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:10px 20px 2px}
+.clr-dots img{width:22px;height:22px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px var(--surface),0 0 0 3px var(--line)}
+.clr-poster .promo-cta{padding:0 20px;margin-top:12px;justify-items:center}
+.clr-go{background:var(--stamp);color:#fff;width:100%;justify-content:center}
+.clr-go:hover{background:color-mix(in srgb,var(--stamp) 85%,#000)}
+@media (prefers-reduced-motion:reduce){.promo.open .clr-tag{animation:none}}
 /* ---- stamp card poster (every visit) ---- */
 .promo{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px;background:rgba(20,22,16,.55);opacity:0;pointer-events:none;transition:opacity .35s}
 .promo.open{opacity:1;pointer-events:auto}
@@ -532,7 +596,7 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 <div class="wrap">
   <header class="top">
     <a class="logo" href="#"><b>口粮专卖店</b></a>
-    <nav aria-label="主导航"><a href="#products">产品</a><a href="#stamps">集章卡</a><a href="#ship">配送</a><a class="wa-link" href="https://wa.me/34697332407?text=%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%92%A8%E8%AF%A2%E4%B8%80%E4%B8%8B%E4%BA%A7%E5%93%81" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6a8.5 8.5 0 0 1-12.6 7.5L3.5 20.5l1.4-4.2a8.5 8.5 0 1 1 15.6-4.7z"/><path d="M9 8.5c0 3.3 2.2 6 5.5 6.5l1-1.4-1.8-1-.8.7c-1-.4-2-1.4-2.4-2.4l.7-.8-1-1.8z" fill="currentColor" stroke="none"/></svg>WhatsApp 联系</a></nav>
+    <nav aria-label="主导航"><a href="#products">产品</a><a href="#clearance">清仓</a><a href="#stamps">集章卡</a><a href="#ship">配送</a><a class="wa-link" href="https://wa.me/34697332407?text=%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%92%A8%E8%AF%A2%E4%B8%80%E4%B8%8B%E4%BA%A7%E5%93%81" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6a8.5 8.5 0 0 1-12.6 7.5L3.5 20.5l1.4-4.2a8.5 8.5 0 1 1 15.6-4.7z"/><path d="M9 8.5c0 3.3 2.2 6 5.5 6.5l1-1.4-1.8-1-.8.7c-1-.4-2-1.4-2.4-2.4l.7-.8-1-1.8z" fill="currentColor" stroke="none"/></svg>WhatsApp 联系</a></nav>
     <div class="top-act">
       <button class="acct-btn" type="button" id="acctBtn"><span>登录 / 注册</span></button>
       <button class="cart-btn" type="button" id="cartBtn">购物车 <span class="cnt num" id="cartCnt">0</span></button>
@@ -559,6 +623,26 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
     <div class="stage-wrap">
       <canvas id="device" aria-label="鸭嘴兽 Dash 3D 模型，可拖动旋转"></canvas>
       <div class="stage-hint"><i></i>拖动旋转</div>
+    </div>
+  </section>
+
+  <section class="clear" id="clearance" aria-labelledby="clearTitle">
+    <div class="stage-wrap clear-stage">
+      <canvas id="iceDevice" aria-label="IceMax 3D 模型，可拖动旋转"></canvas>
+      <div class="stage-hint"><i></i>拖动旋转</div>
+    </div>
+    <div>
+      <span class="eyebrow">最后一批 · 低价清仓 · LIQUIDACIÓN</span>
+      <h2 id="clearTitle">冰爆 <span>IceMax</span> <b class="tagnow">清仓</b></h2>
+      <p class="lede">12000 口，13 种口味，卖完就没了。</p>
+      <div class="clear-price"><b class="num">€14.90</b><s class="num">€22.90</s><span>一支</span></div>
+      <div class="leak" role="note"><b>⚠ <span id="clLeakT"></span></b><span id="clLeakB"></span></div>
+      <div class="picked"><b id="iceFlavor"></b><span id="iceFlavorEs"></span></div>
+      <div class="chips" id="iceChips" role="group" aria-label="选择 IceMax 口味"></div>
+      <div class="cta">
+        <button class="btn btn-primary" type="button" id="iceAdd">加入购物车 · €14.90</button>
+        <button class="btn btn-ghost" type="button" id="iceAll">看全部口味</button>
+      </div>
     </div>
   </section>
 
@@ -629,12 +713,13 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
   <div class="d-body">
     <div class="d-hero"><img id="dImg" alt=""><div><h3 id="dName"></h3><p id="dDesc"></p></div></div>
     <div><div class="picked" style="margin:0 0 6px"><b id="dFlavor"></b><span id="dFlavorEs"></span></div><div class="d-tags" id="dTags"></div></div>
+    <div class="leak" id="dLeak" role="note" hidden><b>⚠ <span class="leak-t"></span></b><span class="leak-b"></span></div>
     <div class="flavors" id="dFlavors" role="group" aria-label="口味"></div>
     <p class="d-note" id="dNote" role="status"></p>
     <a class="d-wa" id="dWa" href="https://wa.me/34697332407?text=%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%92%A8%E8%AF%A2%E4%B8%80%E4%B8%8B%E4%BA%A7%E5%93%81" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6a8.5 8.5 0 0 1-12.6 7.5L3.5 20.5l1.4-4.2a8.5 8.5 0 1 1 15.6-4.7z"/><path d="M9 8.5c0 3.3 2.2 6 5.5 6.5l1-1.4-1.8-1-.8.7c-1-.4-2-1.4-2.4-2.4l.7-.8-1-1.8z" fill="currentColor" stroke="none"/></svg>用 WhatsApp 问这款</a>
   </div>
   <div class="d-foot">
-    <span class="price num" id="dPrice"></span>
+    <div class="pbox"><span class="price num" id="dPrice"></span><s class="was num" id="dWas" hidden></s></div>
     <div class="qty"><button type="button" id="qMinus" aria-label="减少">−</button><output id="qVal" class="num">1</output><button type="button" id="qPlus" aria-label="增加">+</button></div>
     <button class="btn btn-primary" type="button" id="dAdd">加入购物车</button>
   </div>

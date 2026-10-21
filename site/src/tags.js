@@ -83,8 +83,18 @@ function createTags({ rail, canvas, products, onPick }) {
       g.textBaseline = 'alphabetic';
       g.font = '900 46px Nunito, sans-serif';
       g.textAlign = 'right';
+      if (p.clearance) g.fillStyle = '#9A4329';
       g.fillText(euro(p.price), cw - 28, ch - strip + 68);
       const room = cw - 28 * 2 - g.measureText(euro(p.price)).width - 20;
+      if (p.was) {
+        // the old price, struck through, under the clearance price
+        g.font = '800 26px Nunito, sans-serif'; g.fillStyle = '#625F53';
+        const ow = g.measureText(euro(p.was)).width;
+        g.fillText(euro(p.was), cw - 28, ch - strip + 106);
+        g.fillRect(cw - 28 - ow, ch - strip + 97, ow, 3);
+        g.font = '900 46px Nunito, sans-serif';
+      }
+      g.fillStyle = '#24271F';
       g.textAlign = 'left';
       // long names (RELX) shrink rather than run into the price
       const fitFont = (weight, size, text, max) => {
@@ -94,7 +104,7 @@ function createTags({ rail, canvas, products, onPick }) {
       fitFont(800, 44, shortName(p), room);
       g.fillText(shortName(p), 28, ch - strip + 66);
       g.fillStyle = '#625F53';
-      const sub = `${p.flavors.length} 种口味 · ${p.nameEs}`;
+      const sub = p.clearance ? `清仓 · ${p.flavors.length} 种口味` : `${p.flavors.length} 种口味 · ${p.nameEs}`;
       fitFont(700, 26, sub, cw - 56);
       g.fillText(sub, 28, ch - strip + 108);
       // punch holes so the clips read as gripping paper

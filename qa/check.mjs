@@ -4,7 +4,7 @@ const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=sw
 const errs = [];
 async function run(name, opts, fn) {
   const page = await browser.newPage(opts);
-  await page.addInitScript(() => { const t = setInterval(() => { const x = document.querySelector('.promo.open .promo-x'); if (x) { x.click(); clearInterval(t); } }, 50); });
+  await page.addInitScript(() => { const t = setInterval(() => { const x = document.querySelector('.promo.open .promo-x'); if (x) x.click(); }, 50); setTimeout(() => clearInterval(t), 30000); });
   page.on('console', m => m.type() === 'error' && errs.push(`[${name}] ${m.text()}`));
   page.on('pageerror', e => errs.push(`[${name}] ${e.message}`));
   await page.goto(url);

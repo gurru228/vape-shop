@@ -20,9 +20,10 @@ const order = async page => {
   await page.locator('[data-act=submit]').click(); await page.waitForSelector('.done-h', { timeout: 8000 });
   return (await page.locator('.done-h b.num').count()) ? (await page.locator('.done-h b.num').textContent()).trim() : null;
 };
-const closePromo = page => page.addInitScript(() => { const t = setInterval(() => { const x = document.querySelector('.promo.open .promo-x'); if (x) { x.click(); clearInterval(t); } }, 50); });
+const closePromo = page => page.addInitScript(() => { const t = setInterval(() => { const x = document.querySelector('.promo.open .promo-x'); if (x) x.click(); }, 50); setTimeout(() => clearInterval(t), 30000); });
 
-for (const [name, opts] of [['d', { viewport: { width: 1440, height: 900 } }], ['m', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 }]]) {
+// ONLY=d / m runs one variant (each takes about a minute with software WebGL); the offline check runs with d
+for (const [name, opts] of [['d', { viewport: { width: 1440, height: 900 } }], ['m', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 }]].filter(([t]) => !process.env.ONLY || process.env.ONLY === t)) {
   const phone = `6${Date.now().toString().slice(-8)}`;
   const page = await browser.newPage(opts);
   await closePromo(page);
@@ -107,7 +108,7 @@ for (const [name, opts] of [['d', { viewport: { width: 1440, height: 900 } }], [
 }
 
 // server down → guest order falls back to WhatsApp
-{
+if (process.env.ONLY !== 'm') {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   await closePromo(page);
   await page.route('**/api/**', r => r.abort());

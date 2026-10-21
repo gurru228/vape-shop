@@ -21,7 +21,7 @@ const watch = (page, tag) => {
 {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   watch(page, 'shop');
-  await page.addInitScript(() => { const t = setInterval(() => { const x = document.querySelector('.promo.open .promo-x'); if (x) { x.click(); clearInterval(t); } }, 50); });
+  await page.addInitScript(() => { const t = setInterval(() => { const x = document.querySelector('.promo.open .promo-x'); if (x) x.click(); }, 50); setTimeout(() => clearInterval(t), 30000); });
   await page.goto(url); await page.waitForTimeout(2500);
   await page.locator('#heroChips .chip.more').click(); await page.waitForTimeout(800);
   const out = page.locator('#dFlavors .flv.out');

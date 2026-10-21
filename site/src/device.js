@@ -1,5 +1,5 @@
-// Hero: a modelled Dash device that can be spun by dragging and re-tinted per flavor.
-function createDevice(canvas) {
+// A modelled device (Dash by default, or opts.build = buildIcemax) that can be spun by dragging and re-tinted per flavor.
+function createDevice(canvas, opts = {}) {
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -39,7 +39,7 @@ function createDevice(canvas) {
   key.position.set(-3, 4, 5);
   scene.add(key, new THREE.AmbientLight(0xffffff, 0.25));
 
-  const dash = buildDash(renderer.capabilities.getMaxAnisotropy());
+  const dash = (opts.build || buildDash)(renderer.capabilities.getMaxAnisotropy());
   const { bodyMat } = dash;
   const device = dash.group;
   const H = dash.height;
@@ -71,7 +71,8 @@ function createDevice(canvas) {
     // the shell takes the flavor's colour outright; the liquid keeps its amber body with a hint of the flavor
     to.setHSL(hsl.h, Math.min(0.78, Math.max(0.5, hsl.s * 1.1)), 0.66).convertSRGBToLinear();
     liqFrom.copy(dash.liquidMat.color);
-    liqTo.copy(AMBER).lerp(new THREE.Color().setHSL(hsl.h, 0.95, 0.45).convertSRGBToLinear(), 0.28);
+    if (dash.liquidFor) liqTo.copy(dash.liquidFor(hsl));
+    else liqTo.copy(AMBER).lerp(new THREE.Color().setHSL(hsl.h, 0.95, 0.45).convertSRGBToLinear(), 0.28);
     if (label) dash.setLabel(label);
     mix = 0;
     if (!REDUCED) spin.v += 7;
@@ -150,5 +151,8 @@ function createDevice(canvas) {
   }
   requestAnimationFrame(frame);
 
-  return { setFlavor };
+  // for tests and stills: hold the model at a given angle
+  const pose = a => { spin.a = a; spin.v = 0; spin.dragging = true; };
+  const dispose = () => { visible = false; renderer.dispose(); renderer.forceContextLoss?.(); };
+  return { setFlavor, pose, dispose };
 }

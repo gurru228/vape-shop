@@ -209,7 +209,9 @@ export function priceOrder(items, rawForm, out = new Set()) {
   const ship = form.mode === 'postal' && !(form.country === 'ES' && sub >= 150) ? 9.99 : 0;
   const earn = {};
   lines.forEach(l => { earn[l.pid] = (earn[l.pid] || 0) + l.qty; });
-  return { lines, form, count, sub, ship, total: Math.round((sub + ship) * 100) / 100, earn };
+  // a clearance line (IceMax, sold cheap because of small leaks) needs the buyer's tick at checkout
+  const leak = lines.some(l => byId.get(l.pid).clearance);
+  return { lines, form, count, sub, ship, total: Math.round((sub + ship) * 100) / 100, earn, leak };
 }
 
 export function orderNo() {
@@ -236,7 +238,7 @@ const toRow = o => ({
   order_number: o.no, created_at: iso(o.created), customer_name: o.form.name, customer_phone: showPhone(normPhone(o.form.phone)),
   items: itemRows(o), total: o.total, shipping_fee: o.ship, payment_method: 'whatsapp', payment_status: o.status,
   delivery_type: o.form.mode, address: addressText(o.form), delivery_time: o.form.mode === 'delivery' ? o.form.slot : '',
-  member_id: o.member, earn: o.earn, gifts: o.gifts, gift_held: !!(o.member && o.gifts.length), form: o.form, coupon: o.form.coupon || null,
+  member_id: o.member, earn: o.earn, gifts: o.gifts, gift_held: !!(o.member && o.gifts.length), form: { ...o.form, ...(o.leak ? { ackLeak: true } : {}) }, coupon: o.form.coupon || null,
   tg_text: o.tgText,
 });
 // a row back to the order object; works for old-site rows too (no form / earn → rebuilt from items)
@@ -356,6 +358,7 @@ export function orderText(o) {
     o.ship ? `运费 ${euro(o.ship)}` : '',
     `<b>应付 ${euro(o.total)}</b>`,
     f.coupon ? `优惠码：${esc(f.coupon)}` : '',
+    o.leak ? '⚠️ 含 IceMax 清仓款：顾客已勾选确认知晓「少量漏油」' : '',
     '',
     stampLine,
   ].filter((l, i, a) => l !== '' || a[i - 1] !== '').join('\n');

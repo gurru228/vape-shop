@@ -5,6 +5,7 @@
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const dash = products.find(p => p.id === 1);
 
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const toastEl = $('toast');
   let toastTimer;
   const toast = (msg, action) => {
@@ -25,10 +26,16 @@
     onStamps: goStamps,
   });
 
-  createPromo({
+  // the clearance poster comes first; when it is closed, the 10-for-1 stamp poster follows
+  const showStampPromo = () => createPromo({
     products, account,
     onShop: () => $('products').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }),
     onStamps: goStamps,
+  });
+  createClearance({
+    products,
+    onShop: () => { $('clearance').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }); },
+    onDone: showStampPromo,
   });
 
   // ---------- account button ----------
@@ -152,6 +159,41 @@
   $('device').addEventListener('pointerdown', () => { heroAuto = false; });
   $('heroAdd').addEventListener('click', () => { if (!stock.out(dash.id, heroFlavor.name)) addToCart(dash, heroFlavor, 1); });
 
+  // ---------- IceMax clearance block ----------
+  const icemax = products.find(p => p.id === 2);
+  let iceDev = null;
+  try { iceDev = window.THREE && createDevice($('iceDevice'), { build: buildIcemax }); } catch (e) { console.error(e); }
+  if (!iceDev) $('iceDevice').closest('.stage-wrap').innerHTML = `<img src="${imgSrc(icemax.image)}" alt="IceMax" style="width:100%;height:100%;object-fit:contain">`;
+  $('clLeakT').textContent = LEAK_TITLE; $('clLeakB').textContent = LEAK_BODY;
+  let iceFlavor = icemax.flavors[0], iceTouched = false;
+  const iceChips = $('iceChips');
+  icemax.flavors.forEach(f => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.dataset.name = f.name;
+    b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-label', f.nameCn); b.title = f.nameCn;
+    b.innerHTML = `<img src="${imgSrc(f.image)}" alt="" loading="lazy">`;
+    b.addEventListener('click', () => setIceFlavor(f));
+    iceChips.appendChild(b);
+  });
+  async function setIceFlavor(f) {
+    iceFlavor = f;
+    iceChips.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.name === f.name)));
+    $('iceFlavor').textContent = f.nameCn; $('iceFlavorEs').textContent = f.name;
+    iceDev?.setFlavor(await flavorColor(f.image), f.name);
+    paintIceStock();
+  }
+  function paintIceStock() {
+    iceChips.querySelectorAll('.chip').forEach(c => c.classList.toggle('out', stock.out(icemax.id, c.dataset.name)));
+    const out = stock.out(icemax.id, iceFlavor.name);
+    $('iceAdd').disabled = out;
+    $('iceAdd').textContent = out ? `${iceFlavor.nameCn} 缺货 · 换个口味` : `加入购物车 · ${euro(icemax.price)}`;
+  }
+  stock.on(() => { paintIceStock(); const f = icemax.flavors.find(x => !stock.out(icemax.id, x.name)); if (f && stock.out(icemax.id, iceFlavor.name) && !iceTouched) setIceFlavor(f); });
+  iceChips.addEventListener('click', () => { iceTouched = true; });
+  $('iceAdd').addEventListener('click', () => { if (!stock.out(icemax.id, iceFlavor.name)) addToCart(icemax, iceFlavor, 1); });
+  $('iceAll').addEventListener('click', () => openDrawer(icemax.id));
+  setIceFlavor(iceFlavor);
+
   // ---------- product wall ----------
   let wall = null;
   try { wall = window.THREE && createTags({ rail: $('rail'), canvas: $('tags'), products, onPick: openDrawer }); } catch (e) { console.error(e); }
@@ -213,6 +255,8 @@
     qty = Math.max(1, Math.min(20, n));
     $('qVal').textContent = qty;
     $('dPrice').textContent = euro(cur.price * qty);
+    $('dWas').hidden = !cur.was;
+    if (cur.was) $('dWas').textContent = euro(cur.was * qty);
   }
 
   function openDrawer(id) {
@@ -221,7 +265,9 @@
     if (!cur) return;
     lastFocus = document.activeElement;
     $('dCount').textContent = `${products.indexOf(cur) + 1} / ${products.length} · ${cur.flavors.length} 种口味`;
-    $('dName').textContent = cur.name;
+    $('dName').innerHTML = esc(cur.name) + (cur.clearance ? '<span class="tagnow">清仓</span>' : '');
+    $('dLeak').hidden = !cur.clearance;
+    if (cur.clearance) { $('dLeak').querySelector('.leak-t').textContent = LEAK_TITLE; $('dLeak').querySelector('.leak-b').textContent = LEAK_BODY; }
     $('dDesc').textContent = cur.desc.zh;
     $('dNote').textContent = '';
     const grid = $('dFlavors');

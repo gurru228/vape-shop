@@ -15,6 +15,8 @@ function createCheckout({ products, account, onCount, onStamps }) {
 
   let items = [];
   try { items = JSON.parse(localStorage.getItem('vs3d-cart') || '[]'); } catch (e) { items = []; }
+  let ackLeak = false;
+  const hasLeak = () => items.some(it => product(it.pid).clearance) || totals().gifts.some(g => g.p.clearance);
   const form = { name: '', phone: '', mode: 'pickup', slot: SLOTS[0], recipient: '', street: '', floor: '', cp: '', city: '', province: '', country: 'ES', coupon: '' };
   let step = 0, lastFocus = null, order = null, sending = false;
 
@@ -84,12 +86,12 @@ function createCheckout({ products, account, onCount, onStamps }) {
       return;
     }
     const t = totals();
-    body.innerHTML = stampBar(t) + items.map((it, i) => {
+    body.innerHTML = (hasLeak() ? `<div class="leak"><b>⚠ ${LEAK_TITLE}</b><span>${LEAK_BODY}</span></div>` : '') + stampBar(t) + items.map((it, i) => {
       const p = product(it.pid), f = flavorOf(it);
       return `<div class="line">
         <img src="${imgSrc(f.image)}" alt="">
-        <div><b>${esc(shortName(p))}</b><small>${esc(f.nameCn)} · ${esc(f.name)}</small>${stock.out(p.id, f.name) ? '<em class="so-line">刚卖完了，请删掉这一行</em>' : ''}<button type="button" class="rm" data-rm="${i}">删除</button></div>
-        <div class="r"><span class="num">${euro(p.price * it.qty)}</span>
+        <div><b>${esc(shortName(p))}</b><small>${esc(f.nameCn)} · ${esc(f.name)}</small>${p.clearance ? '<em class="leak-line">清仓 · 存在少量漏油</em>' : ''}${stock.out(p.id, f.name) ? '<em class="so-line">刚卖完了，请删掉这一行</em>' : ''}<button type="button" class="rm" data-rm="${i}">删除</button></div>
+        <div class="r">${p.was ? `<s class="was num">${euro(p.was * it.qty)}</s>` : ''}<span class="num">${euro(p.price * it.qty)}</span>
           <div class="mini"><button type="button" data-q="${i}" data-d="-1" aria-label="减少">−</button><output class="num">${it.qty}</output><button type="button" data-q="${i}" data-d="1" aria-label="增加">+</button></div></div>
       </div>`;
     }).join('') + giftLines(t);
@@ -135,6 +137,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
       <fieldset class="fs"><legend>优惠码</legend>
         <div class="coupon"><div class="field" style="flex:1"><input id="f-coupon" value="${esc(form.coupon)}" placeholder="没有可不填" aria-label="优惠码"></div><button type="button" data-act="coupon">使用</button></div>
       </fieldset>
+      ${hasLeak() ? `<label class="leak ack"><input type="checkbox" id="ackLeak"${ackLeak ? ' checked' : ''}><span><b>⚠ ${LEAK_TITLE}</b>我已看清：这是低价清仓的 IceMax，个别机身可能有渗油。</span></label>` : ''}
       <p class="acct-err" id="cpErr" role="alert"></p>
       <p class="fine">下单即表示你确认已满 18 岁，并已阅读<a href="#">隐私政策</a>。Al enviar el pedido confirma que es mayor de 18 años.</p>`;
     foot.innerHTML = `
@@ -147,6 +150,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
       <button type="button" class="btn btn-primary" data-act="submit">提交订单</button>`;
   }
   function validate() {
+    if (hasLeak() && !ackLeak) { $('cpErr').textContent = '请先勾选「我已看清」IceMax 清仓款存在少量漏油'; body.querySelector('#ackLeak')?.focus(); return false; }
     const gone = items.find(it => stock.out(it.pid, it.flavor));
     if (gone) { $('cpErr').textContent = `${shortName(product(gone.pid))} · ${flavorOf(gone).nameCn} 刚卖完了，请回购物车删掉再提交`; return false; }
     const need = ['name', 'phone'];
@@ -215,7 +219,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
     try {
       res = await account.api('order', { method: 'POST', body: {
         items: items.map(({ pid, flavor, qty }) => ({ pid, flavor, qty })),
-        form,
+        form: { ...form, ackLeak: hasLeak() && ackLeak },
         gifts: Object.fromEntries(t.gifts.map(g => [g.p.id, g.f.name])),
       } });
     } catch (e) {
@@ -266,6 +270,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
 
   // ---------- events ----------
   panel.addEventListener('change', e => {
+    if (e.target.id === 'ackLeak') { ackLeak = e.target.checked; $('cpErr').textContent = ''; return; }
     if (e.target.dataset.gift) { giftPick[e.target.dataset.gift] = e.target.value; render(); }
   });
   panel.addEventListener('input', e => {

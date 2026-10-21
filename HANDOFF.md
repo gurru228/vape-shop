@@ -32,6 +32,19 @@
 - **已删除**：Stripe 刷卡、Bizum 下单（店主说付款都走 WhatsApp）、老的 `script.js` / `styles.css` / `order-status.html` / `checkout-success.html`。
 - **sw.js**：换成一个「清缓存」版本。老访客的浏览器会删掉旧缓存，自动刷新一次到新页面，以后不再缓存任何东西。
 
+## IceMax 清仓（2026-10-21 加的）
+
+- 价格：`site/src/products.json` 里 IceMax 现在是 `price 14.9`，`was 22.9`（原价，划线显示），`clearance: true`。
+  清仓结束时：删掉 `was` 和 `clearance`，`price` 改回去，再跑 `sh build.sh`。
+  页面上的清仓区块（`#clearance`）和开屏清仓弹窗（`createClearance` 那段，在 `site/src/app.js`）也要一起去掉。
+- 3D 模型：`site/src/ice-model.js`（`buildIcemax`），照店主拍的实物照片做的。`createDevice(canvas, { build: buildIcemax })` 就能用。
+- 弹窗：每次进站先弹清仓海报（`site/src/clearance.js`），关掉后再弹「买 10 送 1」。海报里不写漏油。
+- 漏油提示：出现在首页清仓区块、选口味抽屉、购物车、结算页。文案在 `site/src/util.js` 的 `LEAK_TITLE` 和 `LEAK_BODY`，不写「当面检查 / 联系我们」（店主说：已告知，不退）。
+- 下单：购物车里有 IceMax（或者用集章换的赠品是 IceMax）时，必须勾选「我已看清」才能提交；服务器也会检查（`order.mjs`）。
+  订单的 `form.ackLeak = true`，Telegram 消息里会多一行「⚠️ 含 IceMax 清仓款：顾客已勾选确认知晓少量漏油」。
+- 集章照常：清仓价的 IceMax 一样每支盖 1 个章。
+- 测试：`sh qa/run.sh node qa/clearance.mjs`。
+
 ## 环境变量（Netlify：vapeshop2026 → Site configuration → Environment variables）
 
 | 变量 | 状态 |
@@ -60,6 +73,8 @@ sh qa/run.sh node qa/account.mjs    # 会员全流程（注册→下单→Telegr
 sh qa/run.sh node qa/checkout.mjs   # 游客下单三步
 sh qa/run.sh node qa/tgadmin.mjs    # Telegram 指令 查/盖/重置
 ONLY=d sh qa/run.sh node qa/promo.mjs   # 开屏海报（d / m / dk 分开跑，一次一个）
+ONLY=d sh qa/run.sh node qa/account.mjs # account 也要 d / m 分开跑
+sh qa/run.sh node qa/clearance.mjs      # IceMax 清仓：弹窗、区块、漏油提示、勾选确认
 sh qa/run.sh node qa/check.mjs      # 海报墙、抽屉、首屏轮播
 ```
 

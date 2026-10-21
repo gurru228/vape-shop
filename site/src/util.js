@@ -59,3 +59,7 @@ const stock = (() => {
     on: f => subs.push(f),
   };
 })();
+
+// IceMax clearance: the line the shop wants every buyer to see before ordering.
+const LEAK_TITLE = '这款 IceMax 存在少量漏油';
+const LEAK_BODY = '最后一批低价清仓，个别机身可能有渗油。请看清再拍，介意慎拍。';

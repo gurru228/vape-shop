@@ -179,6 +179,13 @@ header.top{display:flex;align-items:center;justify-content:space-between;gap:20p
 .line img{width:64px;height:64px;border-radius:10px;object-fit:cover;background:var(--surface-alt)}
 .line b{display:block;font-size:14.5px;line-height:1.3}
 .line small{display:block;color:var(--muted);font-size:12.5px}
+.line .leak-line{display:block;font-style:normal;font-size:12px;font-weight:900;color:var(--stamp)}
+.line .was{color:var(--muted);font-size:12.5px;font-weight:700}
+.cp .leak{margin-bottom:12px;font-size:13px}
+.leak.ack{grid-template-columns:auto 1fr;gap:10px;align-items:start;cursor:pointer}
+.leak.ack input{width:20px;height:20px;margin-top:2px;accent-color:var(--stamp)}
+.leak.ack span{display:grid;gap:3px}
+.leak.ack b{font-size:14px}
 .line .rm{font-size:12px;color:var(--muted);text-decoration:underline;margin-top:4px}
 .line .r{display:grid;justify-items:end;gap:6px}
 .line .r .num{font-weight:900}
@@ -312,12 +319,36 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 .qty button{width:40px;height:100%;font-size:18px;font-weight:800}
 .qty output{min-width:26px;text-align:center;font-weight:800}
 .d-foot .price{font-size:22px;font-weight:900;margin-right:auto}
+.d-foot .btn{white-space:nowrap;flex:none}
+.d-foot .pbox{display:grid;margin-right:auto;line-height:1.1}
+.d-foot .pbox .price{margin:0}
+.clear{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:center;gap:clamp(16px,4vw,56px);margin-top:clamp(40px,8vh,90px);padding:clamp(18px,3vw,36px);border-radius:28px;background:linear-gradient(135deg,color-mix(in srgb,var(--stamp) 10%,var(--surface)),var(--surface) 60%);border:1.5px solid color-mix(in srgb,var(--stamp) 40%,var(--line))}
+.clear h2{margin:6px 0 8px;font-size:clamp(36px,4.6vw,64px);line-height:1;font-weight:800}
+.clear h2 span{font-family:"Nunito",sans-serif;font-weight:900}
+.clear h2 .tagnow{font-size:.3em;padding:4px 14px;transform:rotate(-4deg);display:inline-block}
+.clear .lede{margin:0;color:var(--muted);font-size:16px}
+.clear-price{display:flex;align-items:baseline;gap:12px;margin:18px 0 14px}
+.clear-price b{font-size:clamp(40px,5vw,60px);font-weight:900;color:var(--stamp);line-height:1}
+.clear-price s{font-size:20px;color:var(--muted)}
+.clear-price span{font-size:13px;color:var(--muted)}
+.clear .leak{margin-bottom:18px;font-size:14.5px}
+.clear-stage{aspect-ratio:1/1.02;max-height:640px}
+#iceDevice{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y;cursor:grab}
+#iceDevice:active{cursor:grabbing}
+.leak{display:grid;gap:3px;padding:12px 14px;border-radius:12px;border:2px solid var(--stamp);background:color-mix(in srgb,var(--stamp) 12%,var(--surface));color:var(--ink);font-size:13.5px;line-height:1.5}
+.leak b{font-size:15.5px;color:var(--stamp)}
+.leak[hidden]{display:none}
+.d-foot .was{color:var(--muted);font-size:13px;margin:0}
+.d-foot .was[hidden]{display:none}
+.tagnow{display:inline-block;margin-left:8px;padding:1px 9px;border-radius:999px;background:var(--stamp);color:#fff;font-size:11.5px;font-weight:900;letter-spacing:.04em;vertical-align:middle}
 .d-note{margin:0;min-height:1.3em;font-size:13px;color:var(--accent);font-weight:700}
 
 .toast{position:fixed;z-index:40;left:50%;bottom:24px;transform:translate(-50%,16px);background:var(--primary);color:var(--on-primary);padding:12px 20px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;transition:.3s;pointer-events:none}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
 @media (max-width:860px){
+  .clear{grid-template-columns:1fr}
+  .clear-stage{max-height:420px}
   .top nav{display:none}
   .hero{grid-template-columns:1fr;min-height:0}
   .stage-wrap{order:-1;max-height:480px;aspect-ratio:1/1.1}
@@ -408,6 +439,39 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
   .acct-btn.in i{width:34px;height:34px}
   .cart-btn{padding:0 12px}
 }
+/* ---- clearance poster (shown before the stamp poster) ---- */
+.promo .promo-poster.clr-poster{width:min(400px,100%);padding:0 0 18px;gap:0;grid-template-columns:minmax(0,1fr);justify-items:stretch;background-color:var(--surface);overflow-x:hidden}
+.clr-poster>*{min-width:0}
+.promo .clr-poster .promo-x{z-index:3;top:4px;right:6px;color:#fff}
+.promo .clr-poster .promo-x:hover{background:rgba(255,255,255,.12);color:#fff}
+.clr-band{display:flex;justify-content:center;align-items:center;gap:10px;padding:11px 44px;background:var(--stamp);color:#fff;font-size:11.5px;font-weight:900;letter-spacing:.14em;white-space:nowrap;overflow:hidden}
+.clr-band i{font-style:normal;opacity:.7}
+.clr-h{margin:20px 0 0;padding:0 24px;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:2px 10px;font-size:26px;font-weight:800;line-height:1.05}
+.clr-h b{font-family:"Nunito",sans-serif;font-weight:900;font-size:clamp(34px,10vw,40px);letter-spacing:-.02em}
+.clr-h small{flex-basis:100%;font-size:15px;font-weight:900;letter-spacing:.3em;color:var(--stamp);text-indent:.3em}
+.clr-window{position:relative;margin:12px 20px 0;aspect-ratio:1/.9;max-height:44dvh;border-radius:22px;overflow:hidden;
+  background:radial-gradient(circle at 42% 48%,color-mix(in srgb,var(--flavor) 50%,var(--surface)) 0,var(--surface-alt) 68%);transition:background .8s}
+.clr-dev{position:absolute;inset:0 22% 0 -4%;width:82%;height:100%;cursor:grab;touch-action:pan-y}
+.clr-fallback{position:absolute;inset:8% 30% 8% 4%;width:66%;height:84%;object-fit:contain}
+.clr-tag{position:absolute;right:14px;top:50%;width:46%;max-width:168px;padding:26px 14px 16px;display:grid;justify-items:center;gap:2px;
+  background:var(--stamp);color:#fff;border-radius:14px 14px 18px 18px;box-shadow:0 12px 26px rgba(70,25,10,.28);
+  transform:translateY(-50%) rotate(6deg);transform-origin:50% 0}
+.promo.open .clr-tag{animation:clrswing 2.4s ease-in-out .5s 1}
+@keyframes clrswing{0%{transform:translateY(-50%) rotate(6deg)}25%{transform:translateY(-50%) rotate(-3deg)}55%{transform:translateY(-50%) rotate(9deg)}80%{transform:translateY(-50%) rotate(4deg)}100%{transform:translateY(-50%) rotate(6deg)}}
+.clr-hole{position:absolute;top:9px;left:50%;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--surface-alt);box-shadow:inset 0 1px 2px rgba(0,0,0,.35)}
+.clr-tag s{font-size:15px;font-weight:800;opacity:.75}
+.clr-tag b{font-family:"Nunito",sans-serif;font-size:52px;font-weight:900;line-height:.95;letter-spacing:-.03em}
+.clr-tag b small{font-size:.48em;letter-spacing:0}
+.clr-tag span{font-size:10.5px;font-weight:800;letter-spacing:.12em;opacity:.85}
+.clr-sub{text-align:center;margin:12px 20px 0;color:var(--muted);font-weight:700;font-size:14px}
+.clr-sub b{color:var(--ink)}
+.clr-sub em{font-style:normal;color:var(--ink);font-weight:900}
+.clr-dots{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:10px 20px 2px}
+.clr-dots img{width:22px;height:22px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px var(--surface),0 0 0 3px var(--line)}
+.clr-poster .promo-cta{padding:0 20px;margin-top:12px;justify-items:center}
+.clr-go{background:var(--stamp);color:#fff;width:100%;justify-content:center}
+.clr-go:hover{background:color-mix(in srgb,var(--stamp) 85%,#000)}
+@media (prefers-reduced-motion:reduce){.promo.open .clr-tag{animation:none}}
 /* ---- stamp card poster (every visit) ---- */
 .promo{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px;background:rgba(20,22,16,.55);opacity:0;pointer-events:none;transition:opacity .35s}
 .promo.open{opacity:1;pointer-events:auto}
@@ -533,7 +597,7 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 <div class="wrap">
   <header class="top">
     <a class="logo" href="#"><b>口粮专卖店</b></a>
-    <nav aria-label="主导航"><a href="#products">产品</a><a href="#stamps">集章卡</a><a href="#ship">配送</a><a class="wa-link" href="https://wa.me/34697332407?text=%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%92%A8%E8%AF%A2%E4%B8%80%E4%B8%8B%E4%BA%A7%E5%93%81" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6a8.5 8.5 0 0 1-12.6 7.5L3.5 20.5l1.4-4.2a8.5 8.5 0 1 1 15.6-4.7z"/><path d="M9 8.5c0 3.3 2.2 6 5.5 6.5l1-1.4-1.8-1-.8.7c-1-.4-2-1.4-2.4-2.4l.7-.8-1-1.8z" fill="currentColor" stroke="none"/></svg>WhatsApp 联系</a></nav>
+    <nav aria-label="主导航"><a href="#products">产品</a><a href="#clearance">清仓</a><a href="#stamps">集章卡</a><a href="#ship">配送</a><a class="wa-link" href="https://wa.me/34697332407?text=%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%92%A8%E8%AF%A2%E4%B8%80%E4%B8%8B%E4%BA%A7%E5%93%81" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6a8.5 8.5 0 0 1-12.6 7.5L3.5 20.5l1.4-4.2a8.5 8.5 0 1 1 15.6-4.7z"/><path d="M9 8.5c0 3.3 2.2 6 5.5 6.5l1-1.4-1.8-1-.8.7c-1-.4-2-1.4-2.4-2.4l.7-.8-1-1.8z" fill="currentColor" stroke="none"/></svg>WhatsApp 联系</a></nav>
     <div class="top-act">
       <button class="acct-btn" type="button" id="acctBtn"><span>登录 / 注册</span></button>
       <button class="cart-btn" type="button" id="cartBtn">购物车 <span class="cnt num" id="cartCnt">0</span></button>
@@ -560,6 +624,26 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
     <div class="stage-wrap">
       <canvas id="device" aria-label="鸭嘴兽 Dash 3D 模型，可拖动旋转"></canvas>
       <div class="stage-hint"><i></i>拖动旋转</div>
+    </div>
+  </section>
+
+  <section class="clear" id="clearance" aria-labelledby="clearTitle">
+    <div class="stage-wrap clear-stage">
+      <canvas id="iceDevice" aria-label="IceMax 3D 模型，可拖动旋转"></canvas>
+      <div class="stage-hint"><i></i>拖动旋转</div>
+    </div>
+    <div>
+      <span class="eyebrow">最后一批 · 低价清仓 · LIQUIDACIÓN</span>
+      <h2 id="clearTitle">冰爆 <span>IceMax</span> <b class="tagnow">清仓</b></h2>
+      <p class="lede">12000 口，13 种口味，卖完就没了。</p>
+      <div class="clear-price"><b class="num">€14.90</b><s class="num">€22.90</s><span>一支</span></div>
+      <div class="leak" role="note"><b>⚠ <span id="clLeakT"></span></b><span id="clLeakB"></span></div>
+      <div class="picked"><b id="iceFlavor"></b><span id="iceFlavorEs"></span></div>
+      <div class="chips" id="iceChips" role="group" aria-label="选择 IceMax 口味"></div>
+      <div class="cta">
+        <button class="btn btn-primary" type="button" id="iceAdd">加入购物车 · €14.90</button>
+        <button class="btn btn-ghost" type="button" id="iceAll">看全部口味</button>
+      </div>
     </div>
   </section>
 
@@ -630,12 +714,13 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
   <div class="d-body">
     <div class="d-hero"><img id="dImg" alt=""><div><h3 id="dName"></h3><p id="dDesc"></p></div></div>
     <div><div class="picked" style="margin:0 0 6px"><b id="dFlavor"></b><span id="dFlavorEs"></span></div><div class="d-tags" id="dTags"></div></div>
+    <div class="leak" id="dLeak" role="note" hidden><b>⚠ <span class="leak-t"></span></b><span class="leak-b"></span></div>
     <div class="flavors" id="dFlavors" role="group" aria-label="口味"></div>
     <p class="d-note" id="dNote" role="status"></p>
     <a class="d-wa" id="dWa" href="https://wa.me/34697332407?text=%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%92%A8%E8%AF%A2%E4%B8%80%E4%B8%8B%E4%BA%A7%E5%93%81" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6a8.5 8.5 0 0 1-12.6 7.5L3.5 20.5l1.4-4.2a8.5 8.5 0 1 1 15.6-4.7z"/><path d="M9 8.5c0 3.3 2.2 6 5.5 6.5l1-1.4-1.8-1-.8.7c-1-.4-2-1.4-2.4-2.4l.7-.8-1-1.8z" fill="currentColor" stroke="none"/></svg>用 WhatsApp 问这款</a>
   </div>
   <div class="d-foot">
-    <span class="price num" id="dPrice"></span>
+    <div class="pbox"><span class="price num" id="dPrice"></span><s class="was num" id="dWas" hidden></s></div>
     <div class="qty"><button type="button" id="qMinus" aria-label="减少">−</button><output id="qVal" class="num">1</output><button type="button" id="qPlus" aria-label="增加">+</button></div>
     <button class="btn btn-primary" type="button" id="dAdd">加入购物车</button>
   </div>
@@ -654,7 +739,7 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-const PRODUCTS = [{"id": 1, "name": "鸭嘴兽 (Dash)", "nameEs": "Dash", "price": 17.9, "desc": {"es": "4000 caladas · Consulte sabores, disponibilidad y especificaciones", "zh": "4000口量 · 查看口味、库存与产品规格"}, "image": "images/dash/coconut-water.webp", "flavors": [{"name": "Jasmine LongJing Tea", "nameCn": "龙井", "image": "images/dash/jasmine-longjing.webp", "tags": ["清新", "茶香"]}, {"name": "Lemon Tea", "nameCn": "柠檬茶", "image": "images/dash/sparkling-iced-lemon-tea.webp", "tags": ["酸甜", "清爽"]}, {"name": "Green Grape", "nameCn": "青提", "image": "images/dash/green-grape.webp", "tags": ["甜润", "果香"]}, {"name": "Sweet Honeydew", "nameCn": "甜蜜瓜", "image": "images/dash/sweet-honeydew.webp", "tags": ["甜", "清甜"]}, {"name": "Crystal Grape", "nameCn": "紫晶葡萄", "image": "images/dash/tangy-grape.webp", "tags": ["甜", "果香"]}, {"name": "Mineral Water", "nameCn": "矿泉水", "image": "images/dash/mineral-water.webp", "tags": ["清淡", "清爽"]}, {"name": "Coconut Water", "nameCn": "椰子水", "image": "images/dash/coconut-water.webp", "tags": ["清甜", "椰香"]}, {"name": "Alpine White Peach", "nameCn": "高山白桃", "image": "images/dash/alpine-white-peach.webp", "tags": ["清甜", "果香", "清爽"]}, {"name": "Floral Oolong", "nameCn": "花香乌龙", "image": "images/dash/floral-oolong.webp", "tags": ["花香", "茶香", "醇厚"]}, {"name": "Honey Yuzu Tea", "nameCn": "蜂蜜柚子茶", "image": "images/dash/honey-yuzu-tea.webp", "tags": ["酸甜", "蜜香", "茶香"]}, {"name": "Salted Fizz", "nameCn": "海盐气泡", "image": "images/dash/salted-fizz.webp", "tags": ["酸甜", "咸甜", "清爽"]}, {"name": "Kiwi Ice", "nameCn": "猕猴桃冰", "image": "images/dash/kiwi-ice.webp", "tags": ["冰凉", "酸甜", "果香"]}, {"name": "Red Wine Ice", "nameCn": "红酒冰", "image": "images/dash/red-wine-ice.webp", "tags": ["冰凉", "醇厚", "果香"]}, {"name": "Matcha Smoothie", "nameCn": "抹茶思慕雪", "image": "images/dash/matcha-smoothie.webp", "tags": ["醇厚", "茶香"]}, {"name": "Peach Ice", "nameCn": "水蜜桃冰", "image": "images/dash/peach-ice.webp", "tags": ["冰凉", "甜"]}, {"name": "Pink Guava", "nameCn": "粉红番石榴", "image": "images/dash/pink-guava.webp", "tags": ["甜", "果香"]}, {"name": "Black Dragon Ice", "nameCn": "黑龙冰", "image": "images/dash/black-dragon-ice.webp", "tags": ["冰凉", "清爽"]}, {"name": "Corn Gelato", "nameCn": "玉米冰激凌", "image": "images/dash/corn-gelato.webp", "tags": ["甜", "醇厚"]}, {"name": "White Freeze", "nameCn": "老冰棍", "image": "images/dash/old-ice-pop.webp", "tags": ["冰凉", "甜"]}, {"name": "Passion Grapefruit", "nameCn": "百香西柚", "image": "images/dash/passion-grapefruit.webp", "tags": ["酸甜", "果香"]}, {"name": "Lush Ice", "nameCn": "西瓜冰", "image": "images/dash/watermelon-ice.webp", "tags": ["冰凉", "甜"]}, {"name": "Lemon Pineapple", "nameCn": "柠檬菠萝", "image": "images/dash/lemon-pineapple.webp", "tags": ["酸甜", "清爽"]}, {"name": "Green Apple Ice", "nameCn": "青苹果冰", "image": "images/dash/green-apple-ice.webp", "tags": ["冰凉", "酸甜"]}, {"name": "Tea Guan Yin King", "nameCn": "铁观音", "image": "images/dash/tea-guan-yin-king.webp", "tags": ["茶香", "醇厚"]}, {"name": "Taro Ice", "nameCn": "香芋冰", "image": "images/dash/taro-ice.webp", "tags": ["甜", "醇厚"]}, {"name": "Lychee Ice", "nameCn": "荔枝冰", "image": "images/dash/lychee-ice.webp", "tags": ["冰凉", "甜"]}, {"name": "Hibiscus Ice Tea", "nameCn": "洛神花冰茶", "image": "images/dash/hibiscus-ice-tea.webp", "tags": ["冰凉", "酸甜", "花香"]}, {"name": "Ludou Ice", "nameCn": "绿豆冰", "image": "images/dash/ludou-ice.webp", "tags": ["冰凉", "清甜"]}, {"name": "Lime Ice", "nameCn": "青柠冰", "image": "images/dash/lime-ice.webp", "tags": ["冰凉", "酸", "清爽"]}, {"name": "Mint Mojito", "nameCn": "薄荷莫吉托", "image": "images/dash/mint-mojito.webp", "tags": ["清凉", "酸", "冰凉"]}, {"name": "Da Hong Pao", "nameCn": "大红袍", "image": "images/dash/da-hong-pao.webp", "tags": ["茶香", "醇厚"]}]}, {"id": 2, "name": "冰爆 (IceMax)", "nameEs": "IceMax", "price": 22.9, "desc": {"es": "Sabor ultrafrío · 12000 caladas · 3 % de nicotina", "zh": "极致冰爽口感 · 12000口 · 3%尼古丁"}, "image": "images/icemax/passion-grapefruit.webp", "flavors": [{"name": "Passion Grapefruit", "nameCn": "百香西柚", "image": "images/icemax/passion-grapefruit.webp", "tags": ["酸甜", "果香", "冰凉"]}, {"name": "Jasmine Milk Tea", "nameCn": "茉莉奶茶", "image": "images/icemax/jasmine-milk-tea.webp", "tags": ["醇厚", "花香", "冰凉"]}, {"name": "Iced Pocari", "nameCn": "冰镇宝矿力", "image": "images/icemax/iced-pocari.webp", "tags": ["冰凉", "清爽"]}, {"name": "Coconut Water", "nameCn": "椰子水", "image": "images/icemax/coconut-water.webp", "tags": ["清甜", "椰香", "冰凉"]}, {"name": "Miami Mint", "nameCn": "迈阿密薄荷", "image": "images/icemax/miami-mint.webp", "tags": ["强冰", "清凉"]}, {"name": "Longjing Ice Tea", "nameCn": "龙井冰茶", "image": "images/icemax/longjing-ice-tea.webp", "tags": ["冰凉", "茶香"]}, {"name": "Green Grape Ice", "nameCn": "青葡萄冰", "image": "images/icemax/green-grape-ice.webp", "tags": ["冰凉", "甜", "果香"]}, {"name": "Fresh Lemon", "nameCn": "新鲜柠檬", "image": "images/icemax/fresh-lemon.webp", "tags": ["酸", "清爽", "冰凉"]}, {"name": "Lychee Ice", "nameCn": "荔枝冰", "image": "images/icemax/lychee-ice.webp", "tags": ["冰凉", "甜", "果香"]}, {"name": "Peach Oolong", "nameCn": "水蜜桃乌龙", "image": "images/icemax/peach-oolong.webp", "tags": ["甜", "茶香", "冰凉"]}, {"name": "Lemon Pineapple", "nameCn": "柠檬菠萝", "image": "images/icemax/lemon-pineapple.webp", "tags": ["酸甜", "果香", "冰凉"]}, {"name": "Sour Guava Ice", "nameCn": "巨峰葡萄", "image": "images/icemax/sour-guava-ice.webp", "tags": ["酸", "清爽", "冰凉"]}, {"name": "Tangy Grape", "nameCn": "番石榴", "image": "images/icemax/tangy-grape.webp", "tags": ["甜", "果香", "冰凉"]}]}, {"id": 3, "name": "小黑条 (Quik)", "nameEs": "Quik", "price": 17.9, "desc": {"es": "Quik · 5000 caladas · Compacto y discreto, ideal para llevar", "zh": "Quik 5000口 · 小巧便携，随时随地"}, "image": "images/lilblack/peach.webp", "flavors": [{"name": "Longan", "nameCn": "龙眼", "image": "images/lilblack/longan.webp", "tags": ["甜", "果香"]}, {"name": "Banana", "nameCn": "香蕉", "image": "images/lilblack/banana.webp", "tags": ["甜", "醇厚"]}, {"name": "Durian", "nameCn": "榴莲", "image": "images/lilblack/durian.webp", "tags": ["浓郁", "醇厚"]}, {"name": "Honeydew", "nameCn": "蜜露", "image": "images/lilblack/honeydew.webp", "tags": ["清甜", "果香"]}, {"name": "Mango", "nameCn": "芒果", "image": "images/lilblack/mango.webp", "tags": ["甜", "果香"]}, {"name": "Coconut Ice", "nameCn": "椰子冰", "image": "images/lilblack/coconut-ice.webp", "tags": ["冰凉", "椰香"]}, {"name": "Peach", "nameCn": "水蜜桃", "image": "images/lilblack/peach.webp", "tags": ["甜", "果香"]}, {"name": "Guava", "nameCn": "番石榴", "image": "images/lilblack/guava.webp", "tags": ["酸甜", "果香"]}, {"name": "Lychee", "nameCn": "荔枝", "image": "images/lilblack/lychee.webp", "tags": ["甜", "果香"]}]}, {"id": 4, "name": "冰王 (Elfbar IceKing)", "nameEs": "Elfbar IceKing", "price": 45, "desc": {"es": "Elfbar IceKing · 40000 caladas · Sabor frío potente, experiencia refrescante extrema", "zh": "Elfbar IceKing · 40000口 · 极强冰感，极致清凉体验"}, "image": "images/iceking/grape-ice.webp", "flavors": [{"name": "Jasmine Longjing", "nameCn": "茉莉龙井", "image": "images/iceking/jasmine-longjing.webp", "tags": ["花香", "茶香", "冰凉"]}, {"name": "Salted Lemon", "nameCn": "海盐柠檬", "image": "images/iceking/salted-lemon.webp", "tags": ["酸", "咸甜", "冰凉"]}, {"name": "Tieguanyin", "nameCn": "铁观音", "image": "images/iceking/tieguanyin.webp", "tags": ["茶香", "醇厚", "冰凉"]}, {"name": "Grape Ice", "nameCn": "黑葡萄冰", "image": "images/iceking/grape-ice.webp", "tags": ["冰凉", "甜", "果香"]}, {"name": "Green Grape Ice", "nameCn": "青葡萄冰", "image": "images/iceking/green-grape-ice.webp", "tags": ["冰凉", "清甜", "果香"]}, {"name": "Green Tea", "nameCn": "绿茶", "image": "images/iceking/green-tea.webp", "tags": ["清新", "茶香", "冰凉"]}]}, {"id": 5, "name": "高维 (GOwif)", "nameEs": "GOwif", "price": 25.9, "desc": {"es": "GOwif · 18000 caladas · Sabores únicos y refrescantes", "zh": "GOwif · 18000口 · 独特清爽口味"}, "image": "images/gowif/passion-fruit.webp", "flavors": [{"name": "Peach Tea", "nameCn": "桃茶", "image": "images/gowif/peach-tea.webp", "tags": ["甜", "茶香"]}, {"name": "Passion Fruit", "nameCn": "百香果", "image": "images/gowif/passion-fruit.webp", "tags": ["酸甜", "果香"]}, {"name": "Green Bean Ice", "nameCn": "绿豆", "image": "images/gowif/green-bean-ice.webp", "tags": ["冰凉", "清甜"]}, {"name": "Crispy Apple", "nameCn": "脆苹果", "image": "images/gowif/crispy-apple.webp", "tags": ["酸甜", "清爽"]}, {"name": "Lychee Ice", "nameCn": "荔枝冰", "image": "images/gowif/lychee-ice.webp", "tags": ["冰凉", "甜", "果香"]}, {"name": "Plum Pineapple", "nameCn": "话梅菠萝", "image": "images/gowif/plum-pineapple.webp", "tags": ["酸甜", "果香"]}, {"name": "Fresh Mint", "nameCn": "清凉薄荷", "image": "images/gowif/fresh-mint.webp", "tags": ["强冰", "清凉"]}, {"name": "Watermelon Ice", "nameCn": "西瓜冰", "image": "images/gowif/watermelon-ice.webp", "tags": ["冰凉", "甜"]}, {"name": "Green Grape", "nameCn": "青葡萄", "image": "images/gowif/green-grape.webp", "tags": ["清甜", "果香"]}, {"name": "Lime Ice", "nameCn": "青柠冰", "image": "images/gowif/lime-ice.webp", "tags": ["冰凉", "酸", "清爽"]}, {"name": "Jasmine Longjing", "nameCn": "茉莉龙井", "image": "images/gowif/jasmine-longjing.webp", "tags": ["花香", "茶香"]}, {"name": "Blueberry Raspberry", "nameCn": "蓝莓覆盆子", "image": "images/gowif/blueberry-raspberry.webp", "tags": ["酸甜", "果香"]}, {"name": "Bayberry Green Salt", "nameCn": "杨梅绿盐", "image": "images/gowif/bayberry-green-salt.webp", "tags": ["酸甜", "咸甜"]}, {"name": "Taro Ice Cream", "nameCn": "香芋冰淇淋", "image": "images/gowif/taro-ice-cream.webp", "tags": ["甜", "醇厚"]}, {"name": "100 Plus", "nameCn": "100 Plus", "image": "images/gowif/100-plus.webp", "tags": ["清爽", "果香"]}]}, {"id": 6, "name": "RELX 悦刻幻五代烟弹 (3支装)", "nameEs": "Cápsulas RELX Phantom 5 (pack de 3)", "price": 14.9, "desc": {"es": "Cápsulas RELX Phantom 5 · 3 unidades · Compatibles con RELX Phantom · Sabores selectos", "zh": "RELX 幻五代烟弹 · 3支装 · 适配幻五代主机 · 精选口味"}, "image": "images/relx/mixed-berries.webp", "flavors": [{"name": "Mixed Berries", "nameCn": "混合浆果", "image": "images/relx/mixed-berries.webp", "tags": ["酸甜", "果香"]}, {"name": "Taro Ice Cream", "nameCn": "香芋冰淇淋", "image": "images/relx/taro-ice-cream.webp", "tags": ["甜", "醇厚"]}, {"name": "Tieguanyin", "nameCn": "铁观音", "image": "images/relx/tieguanyin.webp", "tags": ["茶香", "醇厚"]}, {"name": "Mineral Water", "nameCn": "矿泉水", "image": "images/relx/mineral-water.webp", "tags": ["清淡", "清爽"]}, {"name": "Coconut Ice", "nameCn": "椰子冰", "image": "images/relx/coconut-ice.webp", "tags": ["冰凉", "椰香"]}, {"name": "Sprite Lime", "nameCn": "雪碧", "image": "images/relx/sprite-lime.webp", "tags": ["冰凉", "酸甜", "清爽"]}, {"name": "Yogurt", "nameCn": "酸奶", "image": "images/relx/yogurt.webp", "tags": ["甜", "醇厚"]}, {"name": "Plum", "nameCn": "西梅", "image": "images/relx/plum.webp", "tags": ["酸甜", "果香"]}, {"name": "Lemon Cherry", "nameCn": "爆柠樱桃", "image": "images/relx/lemon-cherry.webp", "tags": ["酸甜", "果香", "冰凉"]}, {"name": "Peach Oolong", "nameCn": "桃气乌龙", "image": "images/relx/peach-oolong.webp", "tags": ["甜", "茶香"]}, {"name": "Guava", "nameCn": "番石榴", "image": "images/relx/guava.webp", "tags": ["酸甜", "果香"]}, {"name": "Coffee", "nameCn": "咖啡", "image": "images/relx/coffee.webp", "tags": ["醇厚", "苦香"]}, {"name": "Mojito", "nameCn": "莫吉托", "image": "images/relx/mojito.webp", "tags": ["清爽", "酸甜"]}, {"name": "Iced Black Tea", "nameCn": "冰红茶", "image": "images/relx/iced-black-tea.webp", "tags": ["冰凉", "茶香"]}, {"name": "Passion Fruit", "nameCn": "百香果", "image": "images/relx/passion-fruit.webp", "tags": ["酸甜", "果香"]}, {"name": "Ice Pop", "nameCn": "冰棍", "image": "images/relx/ice-pop.webp", "tags": ["冰凉", "甜"]}, {"name": "Mung Bean", "nameCn": "绿豆", "image": "images/relx/mung-bean.webp", "tags": ["冰凉", "清甜"]}, {"name": "Longjing", "nameCn": "龙井", "image": "images/relx/longjing.webp", "tags": ["茶香", "清新"]}, {"name": "Iced Lemon Mint", "nameCn": "冰柠薄荷", "image": "images/relx/iced-lemon-mint.webp", "tags": ["冰凉", "酸", "清凉"]}, {"name": "Jasmine Tea", "nameCn": "茉莉花茶", "image": "images/relx/jasmine-tea.webp", "tags": ["花香", "茶香"]}, {"name": "Vitamin C Orange", "nameCn": "C味鲜橙", "image": "images/relx/vitamin-c-orange.webp", "tags": ["酸甜", "果香"]}]}];
+const PRODUCTS = [{"id": 1, "name": "鸭嘴兽 (Dash)", "nameEs": "Dash", "price": 17.9, "desc": {"es": "4000 caladas · Consulte sabores, disponibilidad y especificaciones", "zh": "4000口量 · 查看口味、库存与产品规格"}, "image": "images/dash/coconut-water.webp", "flavors": [{"name": "Jasmine LongJing Tea", "nameCn": "龙井", "image": "images/dash/jasmine-longjing.webp", "tags": ["清新", "茶香"]}, {"name": "Lemon Tea", "nameCn": "柠檬茶", "image": "images/dash/sparkling-iced-lemon-tea.webp", "tags": ["酸甜", "清爽"]}, {"name": "Green Grape", "nameCn": "青提", "image": "images/dash/green-grape.webp", "tags": ["甜润", "果香"]}, {"name": "Sweet Honeydew", "nameCn": "甜蜜瓜", "image": "images/dash/sweet-honeydew.webp", "tags": ["甜", "清甜"]}, {"name": "Crystal Grape", "nameCn": "紫晶葡萄", "image": "images/dash/tangy-grape.webp", "tags": ["甜", "果香"]}, {"name": "Mineral Water", "nameCn": "矿泉水", "image": "images/dash/mineral-water.webp", "tags": ["清淡", "清爽"]}, {"name": "Coconut Water", "nameCn": "椰子水", "image": "images/dash/coconut-water.webp", "tags": ["清甜", "椰香"]}, {"name": "Alpine White Peach", "nameCn": "高山白桃", "image": "images/dash/alpine-white-peach.webp", "tags": ["清甜", "果香", "清爽"]}, {"name": "Floral Oolong", "nameCn": "花香乌龙", "image": "images/dash/floral-oolong.webp", "tags": ["花香", "茶香", "醇厚"]}, {"name": "Honey Yuzu Tea", "nameCn": "蜂蜜柚子茶", "image": "images/dash/honey-yuzu-tea.webp", "tags": ["酸甜", "蜜香", "茶香"]}, {"name": "Salted Fizz", "nameCn": "海盐气泡", "image": "images/dash/salted-fizz.webp", "tags": ["酸甜", "咸甜", "清爽"]}, {"name": "Kiwi Ice", "nameCn": "猕猴桃冰", "image": "images/dash/kiwi-ice.webp", "tags": ["冰凉", "酸甜", "果香"]}, {"name": "Red Wine Ice", "nameCn": "红酒冰", "image": "images/dash/red-wine-ice.webp", "tags": ["冰凉", "醇厚", "果香"]}, {"name": "Matcha Smoothie", "nameCn": "抹茶思慕雪", "image": "images/dash/matcha-smoothie.webp", "tags": ["醇厚", "茶香"]}, {"name": "Peach Ice", "nameCn": "水蜜桃冰", "image": "images/dash/peach-ice.webp", "tags": ["冰凉", "甜"]}, {"name": "Pink Guava", "nameCn": "粉红番石榴", "image": "images/dash/pink-guava.webp", "tags": ["甜", "果香"]}, {"name": "Black Dragon Ice", "nameCn": "黑龙冰", "image": "images/dash/black-dragon-ice.webp", "tags": ["冰凉", "清爽"]}, {"name": "Corn Gelato", "nameCn": "玉米冰激凌", "image": "images/dash/corn-gelato.webp", "tags": ["甜", "醇厚"]}, {"name": "White Freeze", "nameCn": "老冰棍", "image": "images/dash/old-ice-pop.webp", "tags": ["冰凉", "甜"]}, {"name": "Passion Grapefruit", "nameCn": "百香西柚", "image": "images/dash/passion-grapefruit.webp", "tags": ["酸甜", "果香"]}, {"name": "Lush Ice", "nameCn": "西瓜冰", "image": "images/dash/watermelon-ice.webp", "tags": ["冰凉", "甜"]}, {"name": "Lemon Pineapple", "nameCn": "柠檬菠萝", "image": "images/dash/lemon-pineapple.webp", "tags": ["酸甜", "清爽"]}, {"name": "Green Apple Ice", "nameCn": "青苹果冰", "image": "images/dash/green-apple-ice.webp", "tags": ["冰凉", "酸甜"]}, {"name": "Tea Guan Yin King", "nameCn": "铁观音", "image": "images/dash/tea-guan-yin-king.webp", "tags": ["茶香", "醇厚"]}, {"name": "Taro Ice", "nameCn": "香芋冰", "image": "images/dash/taro-ice.webp", "tags": ["甜", "醇厚"]}, {"name": "Lychee Ice", "nameCn": "荔枝冰", "image": "images/dash/lychee-ice.webp", "tags": ["冰凉", "甜"]}, {"name": "Hibiscus Ice Tea", "nameCn": "洛神花冰茶", "image": "images/dash/hibiscus-ice-tea.webp", "tags": ["冰凉", "酸甜", "花香"]}, {"name": "Ludou Ice", "nameCn": "绿豆冰", "image": "images/dash/ludou-ice.webp", "tags": ["冰凉", "清甜"]}, {"name": "Lime Ice", "nameCn": "青柠冰", "image": "images/dash/lime-ice.webp", "tags": ["冰凉", "酸", "清爽"]}, {"name": "Mint Mojito", "nameCn": "薄荷莫吉托", "image": "images/dash/mint-mojito.webp", "tags": ["清凉", "酸", "冰凉"]}, {"name": "Da Hong Pao", "nameCn": "大红袍", "image": "images/dash/da-hong-pao.webp", "tags": ["茶香", "醇厚"]}]}, {"id": 2, "name": "冰爆 (IceMax)", "nameEs": "IceMax", "price": 14.9, "desc": {"es": "Sabor ultrafrío · 12000 caladas · 3 % de nicotina", "zh": "极致冰爽口感 · 12000口 · 3%尼古丁"}, "image": "images/icemax/passion-grapefruit.webp", "flavors": [{"name": "Passion Grapefruit", "nameCn": "百香西柚", "image": "images/icemax/passion-grapefruit.webp", "tags": ["酸甜", "果香", "冰凉"]}, {"name": "Jasmine Milk Tea", "nameCn": "茉莉奶茶", "image": "images/icemax/jasmine-milk-tea.webp", "tags": ["醇厚", "花香", "冰凉"]}, {"name": "Iced Pocari", "nameCn": "冰镇宝矿力", "image": "images/icemax/iced-pocari.webp", "tags": ["冰凉", "清爽"]}, {"name": "Coconut Water", "nameCn": "椰子水", "image": "images/icemax/coconut-water.webp", "tags": ["清甜", "椰香", "冰凉"]}, {"name": "Miami Mint", "nameCn": "迈阿密薄荷", "image": "images/icemax/miami-mint.webp", "tags": ["强冰", "清凉"]}, {"name": "Longjing Ice Tea", "nameCn": "龙井冰茶", "image": "images/icemax/longjing-ice-tea.webp", "tags": ["冰凉", "茶香"]}, {"name": "Green Grape Ice", "nameCn": "青葡萄冰", "image": "images/icemax/green-grape-ice.webp", "tags": ["冰凉", "甜", "果香"]}, {"name": "Fresh Lemon", "nameCn": "新鲜柠檬", "image": "images/icemax/fresh-lemon.webp", "tags": ["酸", "清爽", "冰凉"]}, {"name": "Lychee Ice", "nameCn": "荔枝冰", "image": "images/icemax/lychee-ice.webp", "tags": ["冰凉", "甜", "果香"]}, {"name": "Peach Oolong", "nameCn": "水蜜桃乌龙", "image": "images/icemax/peach-oolong.webp", "tags": ["甜", "茶香", "冰凉"]}, {"name": "Lemon Pineapple", "nameCn": "柠檬菠萝", "image": "images/icemax/lemon-pineapple.webp", "tags": ["酸甜", "果香", "冰凉"]}, {"name": "Sour Guava Ice", "nameCn": "巨峰葡萄", "image": "images/icemax/sour-guava-ice.webp", "tags": ["酸", "清爽", "冰凉"]}, {"name": "Tangy Grape", "nameCn": "番石榴", "image": "images/icemax/tangy-grape.webp", "tags": ["甜", "果香", "冰凉"]}], "was": 22.9, "clearance": true}, {"id": 3, "name": "小黑条 (Quik)", "nameEs": "Quik", "price": 17.9, "desc": {"es": "Quik · 5000 caladas · Compacto y discreto, ideal para llevar", "zh": "Quik 5000口 · 小巧便携，随时随地"}, "image": "images/lilblack/peach.webp", "flavors": [{"name": "Longan", "nameCn": "龙眼", "image": "images/lilblack/longan.webp", "tags": ["甜", "果香"]}, {"name": "Banana", "nameCn": "香蕉", "image": "images/lilblack/banana.webp", "tags": ["甜", "醇厚"]}, {"name": "Durian", "nameCn": "榴莲", "image": "images/lilblack/durian.webp", "tags": ["浓郁", "醇厚"]}, {"name": "Honeydew", "nameCn": "蜜露", "image": "images/lilblack/honeydew.webp", "tags": ["清甜", "果香"]}, {"name": "Mango", "nameCn": "芒果", "image": "images/lilblack/mango.webp", "tags": ["甜", "果香"]}, {"name": "Coconut Ice", "nameCn": "椰子冰", "image": "images/lilblack/coconut-ice.webp", "tags": ["冰凉", "椰香"]}, {"name": "Peach", "nameCn": "水蜜桃", "image": "images/lilblack/peach.webp", "tags": ["甜", "果香"]}, {"name": "Guava", "nameCn": "番石榴", "image": "images/lilblack/guava.webp", "tags": ["酸甜", "果香"]}, {"name": "Lychee", "nameCn": "荔枝", "image": "images/lilblack/lychee.webp", "tags": ["甜", "果香"]}]}, {"id": 4, "name": "冰王 (Elfbar IceKing)", "nameEs": "Elfbar IceKing", "price": 45, "desc": {"es": "Elfbar IceKing · 40000 caladas · Sabor frío potente, experiencia refrescante extrema", "zh": "Elfbar IceKing · 40000口 · 极强冰感，极致清凉体验"}, "image": "images/iceking/grape-ice.webp", "flavors": [{"name": "Jasmine Longjing", "nameCn": "茉莉龙井", "image": "images/iceking/jasmine-longjing.webp", "tags": ["花香", "茶香", "冰凉"]}, {"name": "Salted Lemon", "nameCn": "海盐柠檬", "image": "images/iceking/salted-lemon.webp", "tags": ["酸", "咸甜", "冰凉"]}, {"name": "Tieguanyin", "nameCn": "铁观音", "image": "images/iceking/tieguanyin.webp", "tags": ["茶香", "醇厚", "冰凉"]}, {"name": "Grape Ice", "nameCn": "黑葡萄冰", "image": "images/iceking/grape-ice.webp", "tags": ["冰凉", "甜", "果香"]}, {"name": "Green Grape Ice", "nameCn": "青葡萄冰", "image": "images/iceking/green-grape-ice.webp", "tags": ["冰凉", "清甜", "果香"]}, {"name": "Green Tea", "nameCn": "绿茶", "image": "images/iceking/green-tea.webp", "tags": ["清新", "茶香", "冰凉"]}]}, {"id": 5, "name": "高维 (GOwif)", "nameEs": "GOwif", "price": 25.9, "desc": {"es": "GOwif · 18000 caladas · Sabores únicos y refrescantes", "zh": "GOwif · 18000口 · 独特清爽口味"}, "image": "images/gowif/passion-fruit.webp", "flavors": [{"name": "Peach Tea", "nameCn": "桃茶", "image": "images/gowif/peach-tea.webp", "tags": ["甜", "茶香"]}, {"name": "Passion Fruit", "nameCn": "百香果", "image": "images/gowif/passion-fruit.webp", "tags": ["酸甜", "果香"]}, {"name": "Green Bean Ice", "nameCn": "绿豆", "image": "images/gowif/green-bean-ice.webp", "tags": ["冰凉", "清甜"]}, {"name": "Crispy Apple", "nameCn": "脆苹果", "image": "images/gowif/crispy-apple.webp", "tags": ["酸甜", "清爽"]}, {"name": "Lychee Ice", "nameCn": "荔枝冰", "image": "images/gowif/lychee-ice.webp", "tags": ["冰凉", "甜", "果香"]}, {"name": "Plum Pineapple", "nameCn": "话梅菠萝", "image": "images/gowif/plum-pineapple.webp", "tags": ["酸甜", "果香"]}, {"name": "Fresh Mint", "nameCn": "清凉薄荷", "image": "images/gowif/fresh-mint.webp", "tags": ["强冰", "清凉"]}, {"name": "Watermelon Ice", "nameCn": "西瓜冰", "image": "images/gowif/watermelon-ice.webp", "tags": ["冰凉", "甜"]}, {"name": "Green Grape", "nameCn": "青葡萄", "image": "images/gowif/green-grape.webp", "tags": ["清甜", "果香"]}, {"name": "Lime Ice", "nameCn": "青柠冰", "image": "images/gowif/lime-ice.webp", "tags": ["冰凉", "酸", "清爽"]}, {"name": "Jasmine Longjing", "nameCn": "茉莉龙井", "image": "images/gowif/jasmine-longjing.webp", "tags": ["花香", "茶香"]}, {"name": "Blueberry Raspberry", "nameCn": "蓝莓覆盆子", "image": "images/gowif/blueberry-raspberry.webp", "tags": ["酸甜", "果香"]}, {"name": "Bayberry Green Salt", "nameCn": "杨梅绿盐", "image": "images/gowif/bayberry-green-salt.webp", "tags": ["酸甜", "咸甜"]}, {"name": "Taro Ice Cream", "nameCn": "香芋冰淇淋", "image": "images/gowif/taro-ice-cream.webp", "tags": ["甜", "醇厚"]}, {"name": "100 Plus", "nameCn": "100 Plus", "image": "images/gowif/100-plus.webp", "tags": ["清爽", "果香"]}]}, {"id": 6, "name": "RELX 悦刻幻五代烟弹 (3支装)", "nameEs": "Cápsulas RELX Phantom 5 (pack de 3)", "price": 14.9, "desc": {"es": "Cápsulas RELX Phantom 5 · 3 unidades · Compatibles con RELX Phantom · Sabores selectos", "zh": "RELX 幻五代烟弹 · 3支装 · 适配幻五代主机 · 精选口味"}, "image": "images/relx/mixed-berries.webp", "flavors": [{"name": "Mixed Berries", "nameCn": "混合浆果", "image": "images/relx/mixed-berries.webp", "tags": ["酸甜", "果香"]}, {"name": "Taro Ice Cream", "nameCn": "香芋冰淇淋", "image": "images/relx/taro-ice-cream.webp", "tags": ["甜", "醇厚"]}, {"name": "Tieguanyin", "nameCn": "铁观音", "image": "images/relx/tieguanyin.webp", "tags": ["茶香", "醇厚"]}, {"name": "Mineral Water", "nameCn": "矿泉水", "image": "images/relx/mineral-water.webp", "tags": ["清淡", "清爽"]}, {"name": "Coconut Ice", "nameCn": "椰子冰", "image": "images/relx/coconut-ice.webp", "tags": ["冰凉", "椰香"]}, {"name": "Sprite Lime", "nameCn": "雪碧", "image": "images/relx/sprite-lime.webp", "tags": ["冰凉", "酸甜", "清爽"]}, {"name": "Yogurt", "nameCn": "酸奶", "image": "images/relx/yogurt.webp", "tags": ["甜", "醇厚"]}, {"name": "Plum", "nameCn": "西梅", "image": "images/relx/plum.webp", "tags": ["酸甜", "果香"]}, {"name": "Lemon Cherry", "nameCn": "爆柠樱桃", "image": "images/relx/lemon-cherry.webp", "tags": ["酸甜", "果香", "冰凉"]}, {"name": "Peach Oolong", "nameCn": "桃气乌龙", "image": "images/relx/peach-oolong.webp", "tags": ["甜", "茶香"]}, {"name": "Guava", "nameCn": "番石榴", "image": "images/relx/guava.webp", "tags": ["酸甜", "果香"]}, {"name": "Coffee", "nameCn": "咖啡", "image": "images/relx/coffee.webp", "tags": ["醇厚", "苦香"]}, {"name": "Mojito", "nameCn": "莫吉托", "image": "images/relx/mojito.webp", "tags": ["清爽", "酸甜"]}, {"name": "Iced Black Tea", "nameCn": "冰红茶", "image": "images/relx/iced-black-tea.webp", "tags": ["冰凉", "茶香"]}, {"name": "Passion Fruit", "nameCn": "百香果", "image": "images/relx/passion-fruit.webp", "tags": ["酸甜", "果香"]}, {"name": "Ice Pop", "nameCn": "冰棍", "image": "images/relx/ice-pop.webp", "tags": ["冰凉", "甜"]}, {"name": "Mung Bean", "nameCn": "绿豆", "image": "images/relx/mung-bean.webp", "tags": ["冰凉", "清甜"]}, {"name": "Longjing", "nameCn": "龙井", "image": "images/relx/longjing.webp", "tags": ["茶香", "清新"]}, {"name": "Iced Lemon Mint", "nameCn": "冰柠薄荷", "image": "images/relx/iced-lemon-mint.webp", "tags": ["冰凉", "酸", "清凉"]}, {"name": "Jasmine Tea", "nameCn": "茉莉花茶", "image": "images/relx/jasmine-tea.webp", "tags": ["花香", "茶香"]}, {"name": "Vitamin C Orange", "nameCn": "C味鲜橙", "image": "images/relx/vitamin-c-orange.webp", "tags": ["酸甜", "果香"]}]}];
 // Shared helpers: image lookup (inlined data URIs at build time) and flavor colour sampling.
 const IMG = window.__IMG || {};
 const imgSrc = path => IMG[path] || path;
@@ -716,6 +801,10 @@ const stock = (() => {
     on: f => subs.push(f),
   };
 })();
+
+// IceMax clearance: the line the shop wants every buyer to see before ordering.
+const LEAK_TITLE = '这款 IceMax 存在少量漏油';
+const LEAK_BODY = '最后一批低价清仓，个别机身可能有渗油。请看清再拍，介意慎拍。';
 
 // Dash X geometry, measured off product photos: squircle body with a slanted, scooped front cut,
 // a clear duckbill mouthpiece, and the liquid tank showing through the window.
@@ -931,8 +1020,213 @@ function buildDash(maxAniso) {
   };
 }
 
-// Hero: a modelled Dash device that can be spun by dragging and re-tinted per flavor.
-function createDevice(canvas) {
+// IceMax geometry, measured off the shop's own photos: a frosted pearl body that shades into the flavour
+// colour toward the top, a clear tinted tank cap with a short oval mouthpiece, "ICEMAX" down the front,
+// FEELM MAX embossed on the back, LED + black display on one narrow side, Type-C on the bottom.
+// Same interface as buildDash so createDevice can drive either.
+function buildIcemax(maxAniso) {
+  const S = 1.62;                       // scale so it stands as tall as the Dash on the hero stage
+  const W = 0.62, D = 0.46, BH = 1.36, CAPH = 0.3, NOZ = 0.17, SEG = 72;
+  const lin = hex => new THREE.Color(hex).convertSRGBToLinear();
+
+  // squircle ring; yAt may be a number or a function of (x, z); col = value for the gradient mask
+  function ring(w, d, n, y, mask) {
+    const pts = [], m = [];
+    for (let i = 0; i < SEG; i++) {
+      const a = i / SEG * Math.PI * 2, c = Math.cos(a), s = Math.sin(a);
+      pts.push(w / 2 * Math.sign(c) * Math.abs(c) ** (2 / n), y, d / 2 * Math.sign(s) * Math.abs(s) ** (2 / n));
+      m.push(mask);
+    }
+    return { pts, m };
+  }
+  function loft(rings, { capBottom = false, capTop = false } = {}) {
+    const pos = [], col = [], idx = [];
+    rings.forEach(r => { pos.push(...r.pts); r.m.forEach(v => col.push(v, v, v)); });
+    for (let j = 0; j < rings.length - 1; j++) for (let i = 0; i < SEG; i++) {
+      const a = j * SEG + i, b = j * SEG + (i + 1) % SEG;
+      idx.push(a, a + SEG, b, b, a + SEG, b + SEG);
+    }
+    const fan = (r, top) => {
+      const base = r * SEG;
+      let cy = 0;
+      for (let i = 0; i < SEG; i++) cy += pos[(base + i) * 3 + 1];
+      const ci = pos.length / 3;
+      pos.push(0, cy / SEG, 0); col.push(col[base * 3], col[base * 3], col[base * 3]);
+      for (let i = 0; i < SEG; i++) {
+        const a = base + i, b = base + (i + 1) % SEG;
+        top ? idx.push(ci, b, a) : idx.push(ci, a, b);
+      }
+    };
+    if (capBottom) fan(0, false);
+    if (capTop) fan(rings.length - 1, true);
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    geo.setIndex(idx);
+    geo.computeVertexNormals();
+    return geo;
+  }
+  const smooth = t => t * t * (3 - 2 * t);
+  // a filleted block profile: flat sides, edge radius r at both ends; fn(y) -> inset on every side
+  const fillet = (y, h, r) => r * (1 - Math.sqrt(Math.max(0, 1 - (Math.max(0, r - Math.min(y, h - y)) / r) ** 2)));
+
+  const group = new THREE.Group();
+
+  // ---- body: white at the base, taking the flavour colour in the top third (the mask drives the gradient) ----
+  const R = 0.1, bodyRings = [];
+  const Y = [0, 0.012, 0.03, 0.055, 0.08, 0.1];
+  for (let k = 0; k < 40; k++) Y.push(0.1 + (BH - 0.1) * (k + 1) / 40);
+  for (const y of Y) {
+    const inset = y < R ? R * (1 - Math.sqrt(Math.max(0, 1 - ((R - y) / R) ** 2))) : 0;
+    // a faint shoulder: the body is a touch fuller at mid-height than at the ends
+    const mask = smooth(Math.min(1, Math.max(0, (y / BH - 0.38) / 0.62)));
+    bodyRings.push(ring(W - 2 * inset, D - 2 * inset, 4.4, y, mask));
+  }
+  const bodyMat = new THREE.MeshPhysicalMaterial({ color: lin(0xb8b27a), roughness: 0.5, metalness: 0.22, clearcoat: 0.35, clearcoatRoughness: 0.45, envMapIntensity: 0.9, vertexColors: true, side: THREE.DoubleSide });
+  // the shader mixes the pearl white with bodyMat.color (the flavour tint, animated by createDevice) by the vertex mask
+  bodyMat.onBeforeCompile = shader => {
+    shader.uniforms.uTint = { value: bodyMat.color };
+    shader.fragmentShader = 'uniform vec3 uTint;\n' + shader.fragmentShader.replace('#include <color_fragment>', 'diffuseColor.rgb = mix(vec3(0.80, 0.80, 0.84), uTint, vColor.r);');
+  };
+  group.add(new THREE.Mesh(loft(bodyRings, { capBottom: true }), bodyMat));
+
+  // ---- tank cap: tinted, translucent; a smaller amber core inside gives it depth ----
+  const capRings = [], coreRings = [];
+  const capTop = BH + CAPH;
+  const capYs = [BH - 0.05, BH - 0.02, BH];
+  for (let k = 1; k <= 9; k++) capYs.push(BH + CAPH * 0.62 * k / 9);
+  [0.7, 0.8, 0.88, 0.94, 0.98, 1].forEach(f => capYs.push(BH + CAPH * f));
+  const CR = 0.12;
+  for (const y of capYs) {
+    const t = Math.max(0, (y - (capTop - CR)) / CR);
+    const inset = CR * (1 - Math.sqrt(Math.max(0, 1 - t * t)));
+    const sink = y < BH ? 0.004 : 0;
+    capRings.push(ring(W - 2 * inset - sink, D - 2 * inset - sink, 4.4, y, 1));
+  }
+  for (const y of [BH, BH + 0.08, BH + 0.16, BH + 0.24, capTop - 0.05]) coreRings.push(ring(W * 0.8, D * 0.72, 4, y, 1));
+  const capMat = new THREE.MeshPhysicalMaterial({ color: lin(0x8a9a3a), roughness: 0.06, transparent: true, opacity: 0.58, clearcoat: 1, clearcoatRoughness: 0.04, depthWrite: false, side: THREE.DoubleSide, vertexColors: false });
+  const liquidMat = new THREE.MeshPhysicalMaterial({ color: lin(0x9c8a1c), emissive: lin(0x3a3000), roughness: 0.1, transparent: true, opacity: 0.6, depthWrite: false });
+  const cap = new THREE.Mesh(loft(capRings, { capTop: true }), capMat);
+  const core = new THREE.Mesh(loft(coreRings, { capBottom: true, capTop: true }), liquidMat);
+  cap.renderOrder = 3; core.renderOrder = 1;
+
+  // ---- mouthpiece: about half the front width, a third of the side depth, rounded tip with a slot ----
+  const nozRings = [];
+  const nzb = capTop - 0.08, nzt = capTop + NOZ;
+  for (let k = 0; k <= 12; k++) {
+    const y = nzb + (nzt - nzb) * k / 12, tt = k / 12;
+    const t = Math.max(0, (y - (nzt - 0.07)) / 0.07);
+    const inset = 0.07 * (1 - Math.sqrt(Math.max(0, 1 - t * t)));
+    nozRings.push(ring(W * 0.46 * (1 - 0.1 * tt) - 2 * inset, D * 0.36 * (1 - 0.14 * tt) - 2 * inset, 3.2, y, 1));
+  }
+  const noz = new THREE.Mesh(loft(nozRings, { capTop: true }), capMat);
+  noz.renderOrder = 3;
+  const hole = new THREE.Mesh(new THREE.CircleGeometry(1, 28), new THREE.MeshBasicMaterial({ color: 0x2c3326, transparent: true, opacity: 0.8 }));
+  hole.scale.set(W * 0.13, D * 0.07, 1);
+  hole.rotation.x = -Math.PI / 2;
+  hole.position.y = nzt + 0.002;
+  hole.renderOrder = 4;
+  group.add(core, cap, noz, hole);
+  const TOP = nzt;
+
+  // ---- decals ----
+  const decal = (cw, ch, w, h) => {
+    const c = document.createElement('canvas');
+    c.width = cw; c.height = ch;
+    const tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    tex.anisotropy = maxAniso;
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tex, transparent: true, roughness: 0.35, metalness: 0.3, depthWrite: false }));
+    group.add(mesh);
+    return { g: c.getContext('2d'), tex, mesh, cw, ch };
+  };
+  const SANS = '"Helvetica Neue", Helvetica, Arial, sans-serif';
+
+  // front: ICEMAX down the face (reads top to bottom, foil white) and the flavour line near the foot
+  const front = decal(512, 1024, W * 0.84, W * 0.84 * 2);
+  front.mesh.position.set(0, BH * 0.46, D / 2 + 0.004);
+  // side with the display: LED window and the black screen
+  const side = decal(256, 1024, D * 0.84, D * 0.84 * 4);
+  side.mesh.rotation.y = Math.PI / 2;
+  side.mesh.position.set(W / 2 + 0.004, BH * 0.46, 0);
+  // back: FEELM / MAX embossed near the foot
+  const back = decal(256, 256, 0.34, 0.34);
+  back.mesh.rotation.y = Math.PI;
+  back.mesh.position.set(0, 0.34, -D / 2 - 0.004);
+  const bottom = decal(256, 192, W * 0.62, D * 0.62);
+  bottom.mesh.rotation.x = Math.PI / 2;
+  bottom.mesh.position.y = -0.003;
+
+  let label = '';
+  function paint() {
+    let { g, cw, ch } = front;
+    g.clearRect(0, 0, cw, ch);
+    // wordmark: rotated a quarter turn so it reads down the body
+    g.save();
+    g.translate(cw * 0.5 + 62, ch * 0.215); g.rotate(Math.PI / 2);
+    g.font = `600 150px ${SANS}`; g.textBaseline = 'alphabetic';
+    g.lineJoin = 'round'; g.lineWidth = 5; g.strokeStyle = 'rgba(96,100,104,.55)'; g.strokeText('ICEMAX', 0, 0);
+    const fg = g.createLinearGradient(0, -120, 0, 20);
+    fg.addColorStop(0, '#f4f6f7'); fg.addColorStop(.5, '#c4c9cc'); fg.addColorStop(1, '#eef0f1');
+    g.fillStyle = fg; g.fillText('ICEMAX', 0, 0);
+    g.restore();
+    // flavour name, small and dark, across the bottom
+    g.fillStyle = 'rgba(40,42,38,.78)'; g.textAlign = 'center';
+    let size = 30;
+    g.font = `700 ${size}px ${SANS}`;
+    const text = (label || '').toUpperCase();
+    while (g.measureText(text).width > cw * 0.9 && size > 14) { size--; g.font = `700 ${size}px ${SANS}`; }
+    g.fillText(text, cw / 2, ch * 0.9);
+    g.textAlign = 'left';
+    front.tex.needsUpdate = true;
+
+    ({ g, cw, ch } = side);
+    g.clearRect(0, 0, cw, ch);
+    // LED window: a small rounded slot with two dots
+    const rr = (x, y, w, h, r) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
+    g.strokeStyle = 'rgba(70,74,66,.55)'; g.lineWidth = 3; rr(cw * 0.37, ch * 0.25, 46, 92, 20); g.stroke();
+    for (const dy of [0.285, 0.335]) { g.fillStyle = 'rgba(230,236,210,.95)'; g.beginPath(); g.arc(cw * 0.37 + 23, ch * dy + 2, 9, 0, Math.PI * 2); g.fill(); }
+    // display
+    const sg = g.createLinearGradient(0, ch * 0.62, 0, ch * 0.9);
+    sg.addColorStop(0, '#15171a'); sg.addColorStop(1, '#050607');
+    g.fillStyle = sg; rr(cw * 0.22, ch * 0.62, cw * 0.56, ch * 0.26, 14); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.07)'; rr(cw * 0.25, ch * 0.635, cw * 0.18, ch * 0.23, 8); g.fill();
+    side.tex.needsUpdate = true;
+
+    ({ g, cw, ch } = back);
+    g.clearRect(0, 0, cw, ch);
+    g.fillStyle = 'rgba(80,84,76,.5)'; g.textAlign = 'center';
+    g.font = `800 44px ${SANS}`; g.fillText('FEELM', cw / 2, ch * 0.6);
+    g.strokeStyle = 'rgba(80,84,76,.5)'; g.lineWidth = 4; rr(cw * 0.37, ch * 0.66, cw * 0.26, 34, 5); g.stroke();
+    g.font = `900 24px ${SANS}`; g.fillText('MAX', cw / 2, ch * 0.66 + 26);
+    back.tex.needsUpdate = true;
+  }
+  // bottom: Type-C port, indicator dot, CE mark
+  (() => {
+    const { g } = bottom;
+    g.fillStyle = 'rgba(60,62,58,.55)'; g.font = `700 26px ${SANS}`; g.textAlign = 'center'; g.fillText('CE', 62, 70);
+    g.fillStyle = '#6b2a2a'; g.beginPath(); g.arc(128, 78, 5, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#1b1c1a';
+    g.beginPath(); g.roundRect ? g.roundRect(92, 108, 72, 26, 13) : g.rect(92, 108, 72, 26); g.fill();
+    bottom.tex.needsUpdate = true;
+  })();
+
+  group.scale.setScalar(S);
+  // the cap and core use their own colours; the device re-tints them through setCapTint
+  const capTintFrom = new THREE.Color();
+  return {
+    group, bodyMat, liquidMat, height: (TOP + 0.04) * S,
+    setSurface() { /* sealed tank: nothing sloshes */ },
+    setLabel(text) { label = text; paint(); },
+    setInk() {},
+    // the tank and core follow the flavour; called by createDevice with the transition colours
+    liquidFor(hsl) { return new THREE.Color().setHSL(hsl.h, 0.7, 0.42).convertSRGBToLinear(); },
+    capMat,
+  };
+}
+
+// A modelled device (Dash by default, or opts.build = buildIcemax) that can be spun by dragging and re-tinted per flavor.
+function createDevice(canvas, opts = {}) {
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -972,7 +1266,7 @@ function createDevice(canvas) {
   key.position.set(-3, 4, 5);
   scene.add(key, new THREE.AmbientLight(0xffffff, 0.25));
 
-  const dash = buildDash(renderer.capabilities.getMaxAnisotropy());
+  const dash = (opts.build || buildDash)(renderer.capabilities.getMaxAnisotropy());
   const { bodyMat } = dash;
   const device = dash.group;
   const H = dash.height;
@@ -1004,7 +1298,8 @@ function createDevice(canvas) {
     // the shell takes the flavor's colour outright; the liquid keeps its amber body with a hint of the flavor
     to.setHSL(hsl.h, Math.min(0.78, Math.max(0.5, hsl.s * 1.1)), 0.66).convertSRGBToLinear();
     liqFrom.copy(dash.liquidMat.color);
-    liqTo.copy(AMBER).lerp(new THREE.Color().setHSL(hsl.h, 0.95, 0.45).convertSRGBToLinear(), 0.28);
+    if (dash.liquidFor) liqTo.copy(dash.liquidFor(hsl));
+    else liqTo.copy(AMBER).lerp(new THREE.Color().setHSL(hsl.h, 0.95, 0.45).convertSRGBToLinear(), 0.28);
     if (label) dash.setLabel(label);
     mix = 0;
     if (!REDUCED) spin.v += 7;
@@ -1083,7 +1378,10 @@ function createDevice(canvas) {
   }
   requestAnimationFrame(frame);
 
-  return { setFlavor };
+  // for tests and stills: hold the model at a given angle
+  const pose = a => { spin.a = a; spin.v = 0; spin.dragging = true; };
+  const dispose = () => { visible = false; renderer.dispose(); renderer.forceContextLoss?.(); };
+  return { setFlavor, pose, dispose };
 }
 
 // Product wall: each product poster is a stiff verlet sheet clipped to a hanger bar that swings from a rail.
@@ -1171,8 +1469,18 @@ function createTags({ rail, canvas, products, onPick }) {
       g.textBaseline = 'alphabetic';
       g.font = '900 46px Nunito, sans-serif';
       g.textAlign = 'right';
+      if (p.clearance) g.fillStyle = '#9A4329';
       g.fillText(euro(p.price), cw - 28, ch - strip + 68);
       const room = cw - 28 * 2 - g.measureText(euro(p.price)).width - 20;
+      if (p.was) {
+        // the old price, struck through, under the clearance price
+        g.font = '800 26px Nunito, sans-serif'; g.fillStyle = '#625F53';
+        const ow = g.measureText(euro(p.was)).width;
+        g.fillText(euro(p.was), cw - 28, ch - strip + 106);
+        g.fillRect(cw - 28 - ow, ch - strip + 97, ow, 3);
+        g.font = '900 46px Nunito, sans-serif';
+      }
+      g.fillStyle = '#24271F';
       g.textAlign = 'left';
       // long names (RELX) shrink rather than run into the price
       const fitFont = (weight, size, text, max) => {
@@ -1182,7 +1490,7 @@ function createTags({ rail, canvas, products, onPick }) {
       fitFont(800, 44, shortName(p), room);
       g.fillText(shortName(p), 28, ch - strip + 66);
       g.fillStyle = '#625F53';
-      const sub = `${p.flavors.length} 种口味 · ${p.nameEs}`;
+      const sub = p.clearance ? `清仓 · ${p.flavors.length} 种口味` : `${p.flavors.length} 种口味 · ${p.nameEs}`;
       fitFont(700, 26, sub, cw - 56);
       g.fillText(sub, 28, ch - strip + 108);
       // punch holes so the clips read as gripping paper
@@ -2222,6 +2530,8 @@ function createCheckout({ products, account, onCount, onStamps }) {
 
   let items = [];
   try { items = JSON.parse(localStorage.getItem('vs3d-cart') || '[]'); } catch (e) { items = []; }
+  let ackLeak = false;
+  const hasLeak = () => items.some(it => product(it.pid).clearance) || totals().gifts.some(g => g.p.clearance);
   const form = { name: '', phone: '', mode: 'pickup', slot: SLOTS[0], recipient: '', street: '', floor: '', cp: '', city: '', province: '', country: 'ES', coupon: '' };
   let step = 0, lastFocus = null, order = null, sending = false;
 
@@ -2291,12 +2601,12 @@ function createCheckout({ products, account, onCount, onStamps }) {
       return;
     }
     const t = totals();
-    body.innerHTML = stampBar(t) + items.map((it, i) => {
+    body.innerHTML = (hasLeak() ? `<div class="leak"><b>⚠ ${LEAK_TITLE}</b><span>${LEAK_BODY}</span></div>` : '') + stampBar(t) + items.map((it, i) => {
       const p = product(it.pid), f = flavorOf(it);
       return `<div class="line">
         <img src="${imgSrc(f.image)}" alt="">
-        <div><b>${esc(shortName(p))}</b><small>${esc(f.nameCn)} · ${esc(f.name)}</small>${stock.out(p.id, f.name) ? '<em class="so-line">刚卖完了，请删掉这一行</em>' : ''}<button type="button" class="rm" data-rm="${i}">删除</button></div>
-        <div class="r"><span class="num">${euro(p.price * it.qty)}</span>
+        <div><b>${esc(shortName(p))}</b><small>${esc(f.nameCn)} · ${esc(f.name)}</small>${p.clearance ? '<em class="leak-line">清仓 · 存在少量漏油</em>' : ''}${stock.out(p.id, f.name) ? '<em class="so-line">刚卖完了，请删掉这一行</em>' : ''}<button type="button" class="rm" data-rm="${i}">删除</button></div>
+        <div class="r">${p.was ? `<s class="was num">${euro(p.was * it.qty)}</s>` : ''}<span class="num">${euro(p.price * it.qty)}</span>
           <div class="mini"><button type="button" data-q="${i}" data-d="-1" aria-label="减少">−</button><output class="num">${it.qty}</output><button type="button" data-q="${i}" data-d="1" aria-label="增加">+</button></div></div>
       </div>`;
     }).join('') + giftLines(t);
@@ -2342,6 +2652,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
       <fieldset class="fs"><legend>优惠码</legend>
         <div class="coupon"><div class="field" style="flex:1"><input id="f-coupon" value="${esc(form.coupon)}" placeholder="没有可不填" aria-label="优惠码"></div><button type="button" data-act="coupon">使用</button></div>
       </fieldset>
+      ${hasLeak() ? `<label class="leak ack"><input type="checkbox" id="ackLeak"${ackLeak ? ' checked' : ''}><span><b>⚠ ${LEAK_TITLE}</b>我已看清：这是低价清仓的 IceMax，个别机身可能有渗油。</span></label>` : ''}
       <p class="acct-err" id="cpErr" role="alert"></p>
       <p class="fine">下单即表示你确认已满 18 岁，并已阅读<a href="#">隐私政策</a>。Al enviar el pedido confirma que es mayor de 18 años.</p>`;
     foot.innerHTML = `
@@ -2354,6 +2665,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
       <button type="button" class="btn btn-primary" data-act="submit">提交订单</button>`;
   }
   function validate() {
+    if (hasLeak() && !ackLeak) { $('cpErr').textContent = '请先勾选「我已看清」IceMax 清仓款存在少量漏油'; body.querySelector('#ackLeak')?.focus(); return false; }
     const gone = items.find(it => stock.out(it.pid, it.flavor));
     if (gone) { $('cpErr').textContent = `${shortName(product(gone.pid))} · ${flavorOf(gone).nameCn} 刚卖完了，请回购物车删掉再提交`; return false; }
     const need = ['name', 'phone'];
@@ -2422,7 +2734,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
     try {
       res = await account.api('order', { method: 'POST', body: {
         items: items.map(({ pid, flavor, qty }) => ({ pid, flavor, qty })),
-        form,
+        form: { ...form, ackLeak: hasLeak() && ackLeak },
         gifts: Object.fromEntries(t.gifts.map(g => [g.p.id, g.f.name])),
       } });
     } catch (e) {
@@ -2473,6 +2785,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
 
   // ---------- events ----------
   panel.addEventListener('change', e => {
+    if (e.target.id === 'ackLeak') { ackLeak = e.target.checked; $('cpErr').textContent = ''; return; }
     if (e.target.dataset.gift) { giftPick[e.target.dataset.gift] = e.target.value; render(); }
   });
   panel.addEventListener('input', e => {
@@ -2694,6 +3007,89 @@ function createPromo({ products, account, onShop, onStamps }) {
   setTimeout(open, 700);
 }
 
+// Clearance poster, shown first on every visit: the last IceMax batch at €14.90.
+// Layout: the 3D IceMax stands in a lit "shop window", a hang-tag with the price swings off it,
+// flavor swatches run underneath. The poster only sells the price; the leak notice lives where the
+// choice is made (clearance block, flavor drawer, cart, checkout tick box). When it closes, the
+// stamp-card poster follows.
+function createClearance({ products, onShop, onDone }) {
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ice = products.find(p => p.id === 2);
+  const pick = ice.flavors[Math.floor(Math.random() * ice.flavors.length)];
+  const wrap = document.createElement('div');
+  wrap.className = 'promo clr';
+  wrap.innerHTML = `
+    <div class="promo-poster clr-poster" role="dialog" aria-modal="true" aria-labelledby="clrTitle" tabindex="-1">
+      <button type="button" class="promo-x" aria-label="关闭">×</button>
+      <div class="clr-band"><span>最后一批</span><i>✱</i><span>LIQUIDACIÓN</span><i>✱</i><span>卖完即止</span></div>
+      <h2 id="clrTitle" class="clr-h">冰爆 <b>IceMax</b><small>低价清仓</small></h2>
+      <div class="clr-window">
+        <canvas class="clr-dev" aria-label="IceMax 3D 模型"></canvas>
+        <img class="clr-fallback" src="${imgSrc(ice.image)}" alt="" hidden>
+        <div class="clr-tag" aria-label="原价 22.90 欧，清仓价 14.90 欧">
+          <i class="clr-hole" aria-hidden="true"></i>
+          <s class="num">€22.90</s>
+          <b class="num">€14<small>.90</small></b>
+          <span>一支 · UNIDAD</span>
+        </div>
+      </div>
+      <p class="clr-sub"><b class="num">12000</b> 口 · <b class="num">${ice.flavors.length}</b> 种口味 · 现在是 <em class="clr-fl">${pick.nameCn}</em></p>
+      <div class="clr-dots" aria-hidden="true">${ice.flavors.map(f => `<img src="${imgSrc(f.image)}" alt="" title="${f.nameCn}">`).join('')}</div>
+      <div class="promo-cta">
+        <button type="button" class="btn clr-go">去挑口味 →</button>
+        <button type="button" class="promo-skip">先看看别的</button>
+      </div>
+    </div>`;
+  document.body.appendChild(wrap);
+  const poster = wrap.querySelector('.clr-poster');
+  let finished = false, dev = null, cycle = 0;
+
+  // the model turns slowly and steps through the flavours, like the hero
+  async function startModel() {
+    try { dev = window.THREE && createDevice(wrap.querySelector('.clr-dev'), { build: buildIcemax }); } catch (e) { dev = null; }
+    if (!dev) {
+      wrap.querySelector('.clr-dev').hidden = true;
+      wrap.querySelector('.clr-fallback').hidden = false;
+      return;
+    }
+    let i = ice.flavors.indexOf(pick);
+    const show = async f => { dev.setFlavor(await flavorColor(f.image), f.name); wrap.querySelector('.clr-fl').textContent = f.nameCn; };
+    await show(pick);
+    if (!REDUCED) cycle = setInterval(() => { i = (i + 1) % ice.flavors.length; show(ice.flavors[i]); }, 2600);
+  }
+
+  const done = then => {
+    if (finished) return; finished = true;
+    clearInterval(cycle);
+    wrap.classList.remove('open');
+    document.removeEventListener('keydown', onKey, true);
+    setTimeout(() => { dev?.dispose?.(); wrap.remove(); }, REDUCED ? 0 : 400);
+    if (then) then();
+    setTimeout(() => onDone?.(), REDUCED ? 0 : 450);
+  };
+  const onKey = e => {
+    if (e.key === 'Escape') { e.stopPropagation(); done(); }
+    if (e.key === 'Tab') {
+      const f = [...poster.querySelectorAll('button')].filter(el => el.offsetParent);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && (document.activeElement === first || document.activeElement === poster)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  };
+  document.addEventListener('keydown', onKey, true);
+  wrap.querySelector('.promo-x').addEventListener('click', () => done());
+  wrap.querySelector('.promo-skip').addEventListener('click', () => done());
+  wrap.querySelector('.clr-go').addEventListener('click', () => done(onShop));
+  wrap.addEventListener('click', e => { if (e.target === wrap) done(); });
+  setTimeout(() => {
+    wrap.classList.add('open');
+    poster.focus({ preventScroll: true });
+    // the canvas needs its size before the renderer starts
+    requestAnimationFrame(startModel);
+  }, 600);
+}
+
 // Page wiring: hero flavor chips, product wall, flavor drawer, cart count.
 (() => {
   const $ = id => document.getElementById(id);
@@ -2701,6 +3097,7 @@ function createPromo({ products, account, onShop, onStamps }) {
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const dash = products.find(p => p.id === 1);
 
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const toastEl = $('toast');
   let toastTimer;
   const toast = (msg, action) => {
@@ -2721,10 +3118,16 @@ function createPromo({ products, account, onShop, onStamps }) {
     onStamps: goStamps,
   });
 
-  createPromo({
+  // the clearance poster comes first; when it is closed, the 10-for-1 stamp poster follows
+  const showStampPromo = () => createPromo({
     products, account,
     onShop: () => $('products').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }),
     onStamps: goStamps,
+  });
+  createClearance({
+    products,
+    onShop: () => { $('clearance').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }); },
+    onDone: showStampPromo,
   });
 
   // ---------- account button ----------
@@ -2848,6 +3251,41 @@ function createPromo({ products, account, onShop, onStamps }) {
   $('device').addEventListener('pointerdown', () => { heroAuto = false; });
   $('heroAdd').addEventListener('click', () => { if (!stock.out(dash.id, heroFlavor.name)) addToCart(dash, heroFlavor, 1); });
 
+  // ---------- IceMax clearance block ----------
+  const icemax = products.find(p => p.id === 2);
+  let iceDev = null;
+  try { iceDev = window.THREE && createDevice($('iceDevice'), { build: buildIcemax }); } catch (e) { console.error(e); }
+  if (!iceDev) $('iceDevice').closest('.stage-wrap').innerHTML = `<img src="${imgSrc(icemax.image)}" alt="IceMax" style="width:100%;height:100%;object-fit:contain">`;
+  $('clLeakT').textContent = LEAK_TITLE; $('clLeakB').textContent = LEAK_BODY;
+  let iceFlavor = icemax.flavors[0], iceTouched = false;
+  const iceChips = $('iceChips');
+  icemax.flavors.forEach(f => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.dataset.name = f.name;
+    b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-label', f.nameCn); b.title = f.nameCn;
+    b.innerHTML = `<img src="${imgSrc(f.image)}" alt="" loading="lazy">`;
+    b.addEventListener('click', () => setIceFlavor(f));
+    iceChips.appendChild(b);
+  });
+  async function setIceFlavor(f) {
+    iceFlavor = f;
+    iceChips.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.name === f.name)));
+    $('iceFlavor').textContent = f.nameCn; $('iceFlavorEs').textContent = f.name;
+    iceDev?.setFlavor(await flavorColor(f.image), f.name);
+    paintIceStock();
+  }
+  function paintIceStock() {
+    iceChips.querySelectorAll('.chip').forEach(c => c.classList.toggle('out', stock.out(icemax.id, c.dataset.name)));
+    const out = stock.out(icemax.id, iceFlavor.name);
+    $('iceAdd').disabled = out;
+    $('iceAdd').textContent = out ? `${iceFlavor.nameCn} 缺货 · 换个口味` : `加入购物车 · ${euro(icemax.price)}`;
+  }
+  stock.on(() => { paintIceStock(); const f = icemax.flavors.find(x => !stock.out(icemax.id, x.name)); if (f && stock.out(icemax.id, iceFlavor.name) && !iceTouched) setIceFlavor(f); });
+  iceChips.addEventListener('click', () => { iceTouched = true; });
+  $('iceAdd').addEventListener('click', () => { if (!stock.out(icemax.id, iceFlavor.name)) addToCart(icemax, iceFlavor, 1); });
+  $('iceAll').addEventListener('click', () => openDrawer(icemax.id));
+  setIceFlavor(iceFlavor);
+
   // ---------- product wall ----------
   let wall = null;
   try { wall = window.THREE && createTags({ rail: $('rail'), canvas: $('tags'), products, onPick: openDrawer }); } catch (e) { console.error(e); }
@@ -2909,6 +3347,8 @@ function createPromo({ products, account, onShop, onStamps }) {
     qty = Math.max(1, Math.min(20, n));
     $('qVal').textContent = qty;
     $('dPrice').textContent = euro(cur.price * qty);
+    $('dWas').hidden = !cur.was;
+    if (cur.was) $('dWas').textContent = euro(cur.was * qty);
   }
 
   function openDrawer(id) {
@@ -2917,7 +3357,9 @@ function createPromo({ products, account, onShop, onStamps }) {
     if (!cur) return;
     lastFocus = document.activeElement;
     $('dCount').textContent = `${products.indexOf(cur) + 1} / ${products.length} · ${cur.flavors.length} 种口味`;
-    $('dName').textContent = cur.name;
+    $('dName').innerHTML = esc(cur.name) + (cur.clearance ? '<span class="tagnow">清仓</span>' : '');
+    $('dLeak').hidden = !cur.clearance;
+    if (cur.clearance) { $('dLeak').querySelector('.leak-t').textContent = LEAK_TITLE; $('dLeak').querySelector('.leak-b').textContent = LEAK_BODY; }
     $('dDesc').textContent = cur.desc.zh;
     $('dNote').textContent = '';
     const grid = $('dFlavors');
