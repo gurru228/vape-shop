@@ -49,7 +49,7 @@ for (const [tag, opts] of VARIANTS.filter(([t]) => !process.env.ONLY || process.
   await page.locator('.promo-join [type=submit]').click(); await page.waitForSelector('.promo.owned', { timeout: 8000 }); await page.waitForTimeout(600);
   console.log(tag, 'owned:', await txt(page, '.pd-h'), '| stamps on card:', await page.locator('.ps.on').count(), '| header:', await page.locator('#acctBtn').getAttribute('aria-label'));
   await page.screenshot({ path: `qa/promo-${tag}-4.png` });
-  await page.locator('.promo-done [data-stamps]').click(); await page.waitForTimeout(1200);
+  await page.locator('.promo-done [data-stamps]').click(); await page.waitForFunction(() => !document.querySelector('.promo'), null, { timeout: 8000 }).catch(() => {}); await page.waitForTimeout(1500);
   console.log(tag, 'to stamps:', await page.locator('.promo').count() === 0, '| hello:', await txt(page, '#stampsHello'));
 
   // next visit: member version

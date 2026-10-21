@@ -13,7 +13,7 @@ function createClearance({ products, onShop, onDone }) {
     <div class="promo-poster clr-poster" role="dialog" aria-modal="true" aria-labelledby="clrTitle" tabindex="-1">
       <button type="button" class="promo-x" aria-label="关闭">×</button>
       <div class="clr-band"><span>最后一批</span><i>✱</i><span>LIQUIDACIÓN</span><i>✱</i><span>卖完即止</span></div>
-      <h2 id="clrTitle" class="clr-h">冰爆 <b>IceMax</b><small>低价清仓</small></h2>
+      <h2 id="clrTitle" class="clr-h"><b>IceMax</b><small>低价清仓</small></h2>
       <div class="clr-window">
         <canvas class="clr-dev" aria-label="IceMax 3D 模型"></canvas>
         <img class="clr-fallback" src="${imgSrc(ice.image)}" alt="" hidden>

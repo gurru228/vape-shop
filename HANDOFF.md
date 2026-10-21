@@ -43,6 +43,12 @@
 - 下单：购物车里有 IceMax（或者用集章换的赠品是 IceMax）时，必须勾选「我已看清」才能提交；服务器也会检查（`order.mjs`）。
   订单的 `form.ackLeak = true`，Telegram 消息里会多一行「⚠️ 含 IceMax 清仓款：顾客已勾选确认知晓少量漏油」。
 - 集章照常：清仓价的 IceMax 一样每支盖 1 个章。
+- 清仓海报只写 IceMax（不写「冰爆」），价签放在模型右边，不挡模型。
+
+## 集章卡入口
+
+- 顶部购物车左边有「集章卡」按钮（手机上只显示图标 + 数字）。点开是一个小面板，列出每款的章数；会员有满卡时，按钮上显示「N 满」。
+- 页面里的 3D 集章卡区块挪到了最下面（配送下面、页脚上面）。面板里点「看 3D 集章卡」会滚到那里。
 - 测试：`sh qa/run.sh node qa/clearance.mjs`。
 
 ## 环境变量（Netlify：vapeshop2026 → Site configuration → Environment variables）

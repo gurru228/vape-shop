@@ -105,6 +105,44 @@
     $('stamps').classList.remove('pulse'); void $('stamps').offsetWidth; $('stamps').classList.add('pulse');
   });
   $('stampFlip').addEventListener('click', () => card?.flip());
+
+  // ---------- header 集章卡 button: every card's progress at a glance ----------
+  const cardBtn = $('cardBtn'), cardPop = $('cardPop');
+  function paintCardPop() {
+    const u = account.user();
+    const full = products.filter(p => stampStore.get(p.id) >= STAMPS_PER_REWARD).length;
+    const total = products.reduce((n, p) => n + Math.min(stampStore.get(p.id), STAMPS_PER_REWARD), 0);
+    $('cardBadge').hidden = !u || !(full || total);
+    $('cardBadge').textContent = full ? `${full} 满` : total;
+    $('cardPopTitle').textContent = u ? `${u.name} 的集章卡` : '集章卡';
+    $('cardPopGuest').hidden = !!u;
+    $('cardPopLines').innerHTML = products.map(p => {
+      const n = u ? stampStore.get(p.id) : 0, isFull = n >= STAMPS_PER_REWARD;
+      return `<div class="am-line${isFull ? ' full' : ''}"><b>${esc(shortName(p))}</b><span class="dots" aria-hidden="true">${Array.from({ length: STAMPS_PER_REWARD }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span><small class="num">${isFull ? '满了，下单送 1' + stampUnit(p) : `${n}/${STAMPS_PER_REWARD}`}</small></div>`;
+    }).join('');
+    $('cardPopAct').innerHTML = u
+      ? '<button type="button" class="btn btn-primary" data-pop="stamps">看 3D 集章卡</button><button type="button" class="btn btn-ghost" data-pop="me">我的账户</button>'
+      : '<button type="button" class="btn btn-primary" data-pop="register">免费领卡</button><button type="button" class="btn btn-ghost" data-pop="login">登录</button>';
+  }
+  const setPop = open => {
+    cardPop.hidden = !open; cardBtn.setAttribute('aria-expanded', String(open));
+    if (open) paintCardPop();
+  };
+  cardBtn.addEventListener('click', e => { e.stopPropagation(); setPop(cardPop.hidden); });
+  cardPop.addEventListener('click', e => {
+    e.stopPropagation();
+    const b = e.target.closest('[data-pop]');
+    if (!b) return;
+    setPop(false);
+    if (b.dataset.pop === 'stamps') goStamps();
+    else if (b.dataset.pop === 'me') account.open('me');
+    else account.open(b.dataset.pop);
+  });
+  document.addEventListener('click', () => { if (!cardPop.hidden) setPop(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !cardPop.hidden) { setPop(false); cardBtn.focus(); } });
+  account.on(paintCardPop);
+  stampStore.on(() => paintCardPop());
+  paintCardPop();
   const addToCart = (p, flavor, qty) => {
     checkout.add(p, flavor, qty);
     $('cartBtn').classList.add('bump'); setTimeout(() => $('cartBtn').classList.remove('bump'), 300);

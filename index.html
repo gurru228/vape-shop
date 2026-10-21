@@ -87,7 +87,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;gap:20p
 .top nav{display:flex;gap:26px;font-size:14px;font-weight:700}
 .top nav a{color:var(--ink);text-decoration:none}
 .top nav a:hover{color:var(--accent)}
-.cart-btn{display:flex;align-items:center;gap:10px;height:42px;padding:0 16px 0 14px;border:1.5px solid var(--ink);border-radius:999px;font-weight:800;font-size:14px}
+.cart-btn{white-space:nowrap;display:flex;align-items:center;gap:10px;height:42px;padding:0 16px 0 14px;border:1.5px solid var(--ink);border-radius:999px;font-weight:800;font-size:14px}
 .cart-btn .cnt{min-width:22px;height:22px;border-radius:11px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font-size:12px;padding:0 6px;transition:transform .3s}
 .cart-btn.bump .cnt{transform:scale(1.3)}
 
@@ -363,6 +363,23 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 
 /* account: header button, stamp-section guest state, sign-in dialog */
 .top-act{display:flex;align-items:center;gap:10px}
+.card-pop-wrap{position:relative}
+.card-btn{white-space:nowrap;display:flex;align-items:center;gap:8px;height:42px;padding:0 14px;border-radius:999px;font-weight:800;font-size:14px;border:1.5px solid var(--stamp);color:var(--stamp);transition:background .2s}
+.card-btn:hover,.card-btn[aria-expanded="true"]{background:color-mix(in srgb,var(--stamp) 10%,transparent)}
+.card-ico{width:18px;height:18px;border-radius:50%;border:2px double currentColor;position:relative}
+.card-ico::after{content:"";position:absolute;inset:3px;border-radius:50%;background:currentColor;opacity:.85}
+.card-btn b{white-space:nowrap;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--stamp);color:#fff;font-size:11px;display:grid;place-items:center}
+.card-btn b[hidden]{display:none}
+.card-pop{position:absolute;right:0;top:calc(100% + 10px);z-index:40;width:min(360px,calc(100vw - 24px));padding:16px;border-radius:18px;background:var(--surface);border:1.5px solid var(--line);box-shadow:0 18px 50px rgba(20,22,16,.22);display:grid;gap:12px}
+.card-pop[hidden]{display:none}
+.card-pop::before{content:"";position:absolute;top:-8px;right:34px;width:14px;height:14px;background:var(--surface);border-left:1.5px solid var(--line);border-top:1.5px solid var(--line);transform:rotate(45deg)}
+.cp-h{display:grid;gap:2px}
+.cp-h b{font-size:16px}
+.cp-h small{font-size:12px;color:var(--muted)}
+.cp-guest{margin:0;font-size:13px;color:var(--muted)}
+.cp-guest[hidden]{display:none}
+.cp-act{display:flex;gap:8px;flex-wrap:wrap}
+.cp-act .btn{height:40px;padding:0 16px;font-size:13.5px}
 .acct-btn{display:flex;align-items:center;gap:8px;height:42px;padding:0 16px;border-radius:999px;font-weight:800;font-size:14px;background:var(--surface-alt);transition:background .2s}
 .acct-btn:hover{background:var(--accent-soft)}
 .acct-btn.in{padding-left:5px}
@@ -432,12 +449,19 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 .acct-cta .btn{justify-content:center;height:46px}
 .acct.still .acct-box,.acct.still{transition:none}
 @media (max-width:520px){
+  .card-btn{padding:0 11px}
+  .card-btn span{display:none}
+  .card-pop{position:fixed;left:12px;right:12px;top:auto;width:auto}
+  .card-pop::before{display:none}
   .acct-btn span{display:none}
   .acct-btn:not(.in){width:42px;padding:0;justify-content:center}
   .acct-btn:not(.in)::before{content:"";width:18px;height:18px;border-radius:50%;border:2px solid currentColor;box-shadow:0 0 0 0 currentColor;background:radial-gradient(circle at 50% 38%,currentColor 0 3.5px,transparent 4px),radial-gradient(ellipse 7px 5px at 50% 100%,currentColor 0 99%,transparent)}
   .acct-btn.in{width:42px;padding:0;justify-content:center}
   .acct-btn.in i{width:34px;height:34px}
-  .cart-btn{padding:0 12px}
+  .cart-btn{padding:0 10px 0 12px;gap:6px}
+  .logo b{font-size:17px;white-space:nowrap}
+  .top-act{gap:6px}
+  .card-btn{gap:5px;padding:0 9px}
 }
 /* ---- clearance poster (shown before the stamp poster) ---- */
 .promo .promo-poster.clr-poster{width:min(400px,100%);padding:0 0 18px;gap:0;grid-template-columns:minmax(0,1fr);justify-items:stretch;background-color:var(--surface);overflow-x:hidden}
@@ -447,20 +471,20 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 .clr-band{display:flex;justify-content:center;align-items:center;gap:10px;padding:11px 44px;background:var(--stamp);color:#fff;font-size:11.5px;font-weight:900;letter-spacing:.14em;white-space:nowrap;overflow:hidden}
 .clr-band i{font-style:normal;opacity:.7}
 .clr-h{margin:20px 0 0;padding:0 24px;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:2px 10px;font-size:26px;font-weight:800;line-height:1.05}
-.clr-h b{font-family:"Nunito",sans-serif;font-weight:900;font-size:clamp(34px,10vw,40px);letter-spacing:-.02em}
+.clr-h b{font-family:"Nunito",sans-serif;font-weight:900;font-size:clamp(44px,13vw,56px);letter-spacing:-.02em}
 .clr-h small{flex-basis:100%;font-size:15px;font-weight:900;letter-spacing:.3em;color:var(--stamp);text-indent:.3em}
 .clr-window{position:relative;margin:12px 20px 0;aspect-ratio:1/.9;max-height:44dvh;border-radius:22px;overflow:hidden;
   background:radial-gradient(circle at 42% 48%,color-mix(in srgb,var(--flavor) 50%,var(--surface)) 0,var(--surface-alt) 68%);transition:background .8s}
-.clr-dev{position:absolute;inset:0 22% 0 -4%;width:82%;height:100%;cursor:grab;touch-action:pan-y}
-.clr-fallback{position:absolute;inset:8% 30% 8% 4%;width:66%;height:84%;object-fit:contain}
-.clr-tag{position:absolute;right:14px;top:50%;width:46%;max-width:168px;padding:26px 14px 16px;display:grid;justify-items:center;gap:2px;
+.clr-dev{position:absolute;left:-6%;top:0;width:66%;height:100%;cursor:grab;touch-action:pan-y}
+.clr-fallback{position:absolute;left:4%;top:8%;width:50%;height:84%;object-fit:contain}
+.clr-tag{position:absolute;right:12px;top:52%;width:42%;max-width:156px;padding:26px 14px 16px;display:grid;justify-items:center;gap:2px;
   background:var(--stamp);color:#fff;border-radius:14px 14px 18px 18px;box-shadow:0 12px 26px rgba(70,25,10,.28);
   transform:translateY(-50%) rotate(6deg);transform-origin:50% 0}
 .promo.open .clr-tag{animation:clrswing 2.4s ease-in-out .5s 1}
 @keyframes clrswing{0%{transform:translateY(-50%) rotate(6deg)}25%{transform:translateY(-50%) rotate(-3deg)}55%{transform:translateY(-50%) rotate(9deg)}80%{transform:translateY(-50%) rotate(4deg)}100%{transform:translateY(-50%) rotate(6deg)}}
 .clr-hole{position:absolute;top:9px;left:50%;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--surface-alt);box-shadow:inset 0 1px 2px rgba(0,0,0,.35)}
 .clr-tag s{font-size:15px;font-weight:800;opacity:.75}
-.clr-tag b{font-family:"Nunito",sans-serif;font-size:52px;font-weight:900;line-height:.95;letter-spacing:-.03em}
+.clr-tag b{font-family:"Nunito",sans-serif;font-size:clamp(38px,11vw,48px);font-weight:900;line-height:.95;letter-spacing:-.03em}
 .clr-tag b small{font-size:.48em;letter-spacing:0}
 .clr-tag span{font-size:10.5px;font-weight:800;letter-spacing:.12em;opacity:.85}
 .clr-sub{text-align:center;margin:12px 20px 0;color:var(--muted);font-weight:700;font-size:14px}
@@ -597,9 +621,18 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 <div class="wrap">
   <header class="top">
     <a class="logo" href="#"><b>口粮专卖店</b></a>
-    <nav aria-label="主导航"><a href="#products">产品</a><a href="#clearance">清仓</a><a href="#stamps">集章卡</a><a href="#ship">配送</a><a class="wa-link" href="https://wa.me/34697332407?text=%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%92%A8%E8%AF%A2%E4%B8%80%E4%B8%8B%E4%BA%A7%E5%93%81" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6a8.5 8.5 0 0 1-12.6 7.5L3.5 20.5l1.4-4.2a8.5 8.5 0 1 1 15.6-4.7z"/><path d="M9 8.5c0 3.3 2.2 6 5.5 6.5l1-1.4-1.8-1-.8.7c-1-.4-2-1.4-2.4-2.4l.7-.8-1-1.8z" fill="currentColor" stroke="none"/></svg>WhatsApp 联系</a></nav>
+    <nav aria-label="主导航"><a href="#products">产品</a><a href="#clearance">清仓</a><a href="#ship">配送</a><a class="wa-link" href="https://wa.me/34697332407?text=%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%92%A8%E8%AF%A2%E4%B8%80%E4%B8%8B%E4%BA%A7%E5%93%81" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6a8.5 8.5 0 0 1-12.6 7.5L3.5 20.5l1.4-4.2a8.5 8.5 0 1 1 15.6-4.7z"/><path d="M9 8.5c0 3.3 2.2 6 5.5 6.5l1-1.4-1.8-1-.8.7c-1-.4-2-1.4-2.4-2.4l.7-.8-1-1.8z" fill="currentColor" stroke="none"/></svg>WhatsApp 联系</a></nav>
     <div class="top-act">
       <button class="acct-btn" type="button" id="acctBtn"><span>登录 / 注册</span></button>
+      <div class="card-pop-wrap">
+        <button class="card-btn" type="button" id="cardBtn" aria-expanded="false" aria-controls="cardPop"><i class="card-ico" aria-hidden="true"></i><span>集章卡</span><b class="num" id="cardBadge" hidden></b></button>
+        <div class="card-pop" id="cardPop" role="dialog" aria-label="我的集章卡" hidden>
+          <div class="cp-h"><b id="cardPopTitle">集章卡</b><small>同一款买满 10 支，第 11 支我们请</small></div>
+          <div class="am-lines" id="cardPopLines"></div>
+          <p class="cp-guest" id="cardPopGuest" hidden>注册会员就能集章：店家确认订单后自动盖上。</p>
+          <div class="cp-act" id="cardPopAct"></div>
+        </div>
+      </div>
       <button class="cart-btn" type="button" id="cartBtn">购物车 <span class="cnt num" id="cartCnt">0</span></button>
     </div>
   </header>
@@ -647,32 +680,6 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
     </div>
   </section>
 
-  <section class="stamps" id="stamps" aria-labelledby="stampsTitle">
-    <div class="stamps-copy">
-      <span class="eyebrow">集章卡 · 常驻活动，不限时 · TARJETA DE SELLOS</span>
-      <h2 id="stampsTitle">同一款买满 10 支，<br>第 11 支我们请。</h2>
-      <p>注册会员就能集：每单店家确认后自动盖章。每个款式一张卡，分开集；集满 10 个，下一单送 1 支同款，口味你挑。</p>
-      <div class="stamps-join" id="stampsJoin">
-        <b>注册后开始集章</b>
-        <span>手机号或邮箱都能注册，30 秒搞定。游客也能下单，只是不盖章。</span>
-        <div><button type="button" class="btn btn-primary" data-a="register">注册领卡</button><button type="button" class="link" data-a="login">已有账户，登录</button></div>
-      </div>
-      <div class="stamps-member" id="stampsMember" hidden>
-        <span class="stamps-hello" id="stampsHello"></span>
-        <div class="stamp-tabs" id="stampTabs" role="group" aria-label="选择集章卡"></div>
-        <div class="stamps-meter">
-          <b class="num" id="stampNum">0</b><span id="stampOf">/ 10 个章</span>
-          <small id="stampLeft">再集 10 个送 1 支</small>
-        </div>
-      </div>
-      <button type="button" class="btn btn-ghost" id="stampFlip">翻过来看规则 ↻</button>
-    </div>
-    <div class="stamps-stage">
-      <span class="stamps-sample" aria-hidden="true">样卡 · 注册后是你的</span>
-      <canvas id="stampCard" aria-label="3D 集章卡，可拖动翻面"></canvas>
-      <div class="stage-hint"><i></i>拖动翻面</div>
-    </div>
-  </section>
 
   <div class="rail-head" id="products">
     <div>
@@ -700,6 +707,33 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
     <article><h3>自取<small>Recogida</small></h3><p>Metro El Capricho</p><p class="rule">周一至周四全天 · 周末 11:00–18:00</p></article>
     <article><h3>外送<small>Entrega</small></h3><p>马德里当天送达，可现金付款</p><p class="rule">满 5 件可选</p></article>
     <article><h3>邮寄<small>Correo</small></h3><p>西班牙境内运费 €9.99，其他欧盟国家 WhatsApp 确认</p><p class="rule">满 €150 包邮</p></article>
+  </section>
+
+  <section class="stamps" id="stamps" aria-labelledby="stampsTitle">
+    <div class="stamps-copy">
+      <span class="eyebrow">集章卡 · 常驻活动，不限时 · TARJETA DE SELLOS</span>
+      <h2 id="stampsTitle">同一款买满 10 支，<br>第 11 支我们请。</h2>
+      <p>注册会员就能集：每单店家确认后自动盖章。每个款式一张卡，分开集；集满 10 个，下一单送 1 支同款，口味你挑。</p>
+      <div class="stamps-join" id="stampsJoin">
+        <b>注册后开始集章</b>
+        <span>手机号或邮箱都能注册，30 秒搞定。游客也能下单，只是不盖章。</span>
+        <div><button type="button" class="btn btn-primary" data-a="register">注册领卡</button><button type="button" class="link" data-a="login">已有账户，登录</button></div>
+      </div>
+      <div class="stamps-member" id="stampsMember" hidden>
+        <span class="stamps-hello" id="stampsHello"></span>
+        <div class="stamp-tabs" id="stampTabs" role="group" aria-label="选择集章卡"></div>
+        <div class="stamps-meter">
+          <b class="num" id="stampNum">0</b><span id="stampOf">/ 10 个章</span>
+          <small id="stampLeft">再集 10 个送 1 支</small>
+        </div>
+      </div>
+      <button type="button" class="btn btn-ghost" id="stampFlip">翻过来看规则 ↻</button>
+    </div>
+    <div class="stamps-stage">
+      <span class="stamps-sample" aria-hidden="true">样卡 · 注册后是你的</span>
+      <canvas id="stampCard" aria-label="3D 集章卡，可拖动翻面"></canvas>
+      <div class="stage-hint"><i></i>拖动翻面</div>
+    </div>
   </section>
 
   <footer>
@@ -3022,7 +3056,7 @@ function createClearance({ products, onShop, onDone }) {
     <div class="promo-poster clr-poster" role="dialog" aria-modal="true" aria-labelledby="clrTitle" tabindex="-1">
       <button type="button" class="promo-x" aria-label="关闭">×</button>
       <div class="clr-band"><span>最后一批</span><i>✱</i><span>LIQUIDACIÓN</span><i>✱</i><span>卖完即止</span></div>
-      <h2 id="clrTitle" class="clr-h">冰爆 <b>IceMax</b><small>低价清仓</small></h2>
+      <h2 id="clrTitle" class="clr-h"><b>IceMax</b><small>低价清仓</small></h2>
       <div class="clr-window">
         <canvas class="clr-dev" aria-label="IceMax 3D 模型"></canvas>
         <img class="clr-fallback" src="${imgSrc(ice.image)}" alt="" hidden>
@@ -3197,6 +3231,44 @@ function createClearance({ products, onShop, onDone }) {
     $('stamps').classList.remove('pulse'); void $('stamps').offsetWidth; $('stamps').classList.add('pulse');
   });
   $('stampFlip').addEventListener('click', () => card?.flip());
+
+  // ---------- header 集章卡 button: every card's progress at a glance ----------
+  const cardBtn = $('cardBtn'), cardPop = $('cardPop');
+  function paintCardPop() {
+    const u = account.user();
+    const full = products.filter(p => stampStore.get(p.id) >= STAMPS_PER_REWARD).length;
+    const total = products.reduce((n, p) => n + Math.min(stampStore.get(p.id), STAMPS_PER_REWARD), 0);
+    $('cardBadge').hidden = !u || !(full || total);
+    $('cardBadge').textContent = full ? `${full} 满` : total;
+    $('cardPopTitle').textContent = u ? `${u.name} 的集章卡` : '集章卡';
+    $('cardPopGuest').hidden = !!u;
+    $('cardPopLines').innerHTML = products.map(p => {
+      const n = u ? stampStore.get(p.id) : 0, isFull = n >= STAMPS_PER_REWARD;
+      return `<div class="am-line${isFull ? ' full' : ''}"><b>${esc(shortName(p))}</b><span class="dots" aria-hidden="true">${Array.from({ length: STAMPS_PER_REWARD }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span><small class="num">${isFull ? '满了，下单送 1' + stampUnit(p) : `${n}/${STAMPS_PER_REWARD}`}</small></div>`;
+    }).join('');
+    $('cardPopAct').innerHTML = u
+      ? '<button type="button" class="btn btn-primary" data-pop="stamps">看 3D 集章卡</button><button type="button" class="btn btn-ghost" data-pop="me">我的账户</button>'
+      : '<button type="button" class="btn btn-primary" data-pop="register">免费领卡</button><button type="button" class="btn btn-ghost" data-pop="login">登录</button>';
+  }
+  const setPop = open => {
+    cardPop.hidden = !open; cardBtn.setAttribute('aria-expanded', String(open));
+    if (open) paintCardPop();
+  };
+  cardBtn.addEventListener('click', e => { e.stopPropagation(); setPop(cardPop.hidden); });
+  cardPop.addEventListener('click', e => {
+    e.stopPropagation();
+    const b = e.target.closest('[data-pop]');
+    if (!b) return;
+    setPop(false);
+    if (b.dataset.pop === 'stamps') goStamps();
+    else if (b.dataset.pop === 'me') account.open('me');
+    else account.open(b.dataset.pop);
+  });
+  document.addEventListener('click', () => { if (!cardPop.hidden) setPop(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !cardPop.hidden) { setPop(false); cardBtn.focus(); } });
+  account.on(paintCardPop);
+  stampStore.on(() => paintCardPop());
+  paintCardPop();
   const addToCart = (p, flavor, qty) => {
     checkout.add(p, flavor, qty);
     $('cartBtn').classList.add('bump'); setTimeout(() => $('cartBtn').classList.remove('bump'), 300);
