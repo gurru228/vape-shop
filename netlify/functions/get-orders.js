@@ -35,7 +35,6 @@ exports.handler = async (event) => {
     });
 
     const text = await res.text();
-    console.log('Supabase status:', res.status, 'body:', text.substring(0, 300));
 
     if (!res.ok) {
         return {

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
     <title>订单管理 | Vape Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -145,7 +146,12 @@
         .badge-alipay { background: #cffafe; color: #155e75; }
         .badge-pickup { background: #f5f5f5; color: #525252; }
         .badge-delivery { background: #eff6ff; color: #1d4ed8; }
+        .badge-member { background: #f3ecdd; color: #7a3a22; }
+        .badge-gift { background: #dcfce7; color: #166534; }
 
+        .stamp-btn { width:1.6rem;height:1.6rem;border:1px solid #e5e5e5;border-radius:6px;background:#fff;cursor:pointer;font-family:inherit;font-size:0.85rem;line-height:1 }
+        .stamp-btn:hover:not(:disabled) { border-color:#000 }
+        .stamp-btn:disabled { opacity:0.3;cursor:default }
         .status-select { padding: 0.375rem 0.625rem; border: 1px solid #e5e5e5; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-family: inherit; }
         .status-select:focus { outline: none; border-color: #000; }
 
@@ -228,7 +234,7 @@
             <i class="fas fa-users"></i> 代理统计
         </button>
         <button id="tab-users" onclick="switchTab('users')" style="padding:0.75rem 1.25rem;border:none;background:none;font-size:0.875rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:#737373;font-family:inherit">
-            <i class="fas fa-user-friends"></i> 注册用户
+            <i class="fas fa-stamp"></i> 会员 · 集章
         </button>
     </div>
 
@@ -262,25 +268,18 @@
             <div class="filter-group">
                 <span class="filter-group-label">状态</span>
                 <button class="chip active" data-group="status" data-value="all" onclick="setFilter(this)">全部</button>
-                <button class="chip" data-group="status" data-value="pending" onclick="setFilter(this)">待付款</button>
-                <button class="chip" data-group="status" data-value="paid" onclick="setFilter(this)">已付款</button>
+                <button class="chip" data-group="status" data-value="pending" onclick="setFilter(this)">待确认</button>
+                <button class="chip" data-group="status" data-value="paid" onclick="setFilter(this)">已确认</button>
                 <button class="chip" data-group="status" data-value="shipped" onclick="setFilter(this)">已发货</button>
                 <button class="chip" data-group="status" data-value="delivered" onclick="setFilter(this)">已完成</button>
-            </div>
-            <div class="filter-group">
-                <span class="filter-group-label">支付</span>
-                <button class="chip active" data-group="payment" data-value="all" onclick="setFilter(this)">全部</button>
-                <button class="chip" data-group="payment" data-value="bizum" onclick="setFilter(this)">Bizum</button>
-                <button class="chip" data-group="payment" data-value="wechat" onclick="setFilter(this)">微信</button>
-                <button class="chip" data-group="payment" data-value="alipay" onclick="setFilter(this)">支付宝</button>
-                <button class="chip" data-group="payment" data-value="card" onclick="setFilter(this)">银行卡</button>
-                <button class="chip" data-group="payment" data-value="cash" onclick="setFilter(this)">现金</button>
+                <button class="chip" data-group="status" data-value="cancelled" onclick="setFilter(this)">已取消</button>
             </div>
             <div class="filter-group">
                 <span class="filter-group-label">配送</span>
                 <button class="chip active" data-group="delivery" data-value="all" onclick="setFilter(this)">全部</button>
                 <button class="chip" data-group="delivery" data-value="pickup" onclick="setFilter(this)">自取</button>
                 <button class="chip" data-group="delivery" data-value="delivery" onclick="setFilter(this)">外送</button>
+                <button class="chip" data-group="delivery" data-value="postal" onclick="setFilter(this)">邮寄</button>
             </div>
         </div>
     </div>
@@ -316,21 +315,31 @@
     <!-- Inventory -->
     <!-- 注册用户 Tab -->
     <div id="section-users" style="display:none;padding:1.25rem 2rem 2rem">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
             <div>
-                <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:0.25rem">注册用户</h2>
+                <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:0.25rem">会员 · 集章卡</h2>
                 <p id="users-count-label" style="font-size:0.85rem;color:#737373">加载中...</p>
             </div>
-            <button onclick="loadUsers()" style="padding:0.5rem 1rem;border:1px solid #e5e5e5;border-radius:8px;background:#fff;cursor:pointer;font-size:0.8rem;font-family:inherit"><i class="fas fa-sync-alt"></i> 刷新</button>
+            <div style="display:flex;gap:0.5rem;align-items:center">
+                <input id="member-search" class="search-input" style="width:220px;padding-left:0.875rem" placeholder="搜手机号、邮箱、名字" oninput="renderMembers()">
+                <button onclick="loadUsers()" style="padding:0.5rem 1rem;border:1px solid #e5e5e5;border-radius:8px;background:#fff;cursor:pointer;font-size:0.8rem;font-family:inherit"><i class="fas fa-sync-alt"></i> 刷新</button>
+            </div>
         </div>
+        <p style="font-size:0.8rem;color:#737373;margin-bottom:1rem;line-height:1.6">每款每买 1 支 = 1 个章，订单改成「已确认」时自动盖上；同一款满 10 个，顾客下一单自动送 1 支同款。
+            店里现场买的，可以在这里用 <b>＋</b> 补章，<b>－</b> 扣章。也可以在 Telegram 发 <code>盖 手机号 鸭嘴兽 3</code>。</p>
         <div id="users-container">
             <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
         </div>
+        <details id="legacy-users" style="margin-top:2rem">
+            <summary style="cursor:pointer;font-size:0.9rem;font-weight:600">老网站的邮箱账号 <span id="legacy-count" style="color:#737373;font-weight:400"></span></summary>
+            <p style="font-size:0.8rem;color:#737373;margin:0.5rem 0 1rem">这些顾客用原来的邮箱和密码登录新网站，会自动变成会员（集章从 0 开始）。登录过的会出现在上面的列表里。</p>
+            <div id="legacy-container"></div>
+        </details>
     </div>
 
     <div id="section-inventory" style="display:none;padding:1.25rem 2rem 2rem">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-            <h3 style="font-size:1rem;font-weight:600">库存管理</h3>
+            <div><h3 style="font-size:1rem;font-weight:600">库存管理</h3><p style="font-size:0.8rem;color:#737373;margin-top:0.25rem">填 0 = 网站上这个口味显示「缺货」，顾客不能下单（约 1 分钟内生效）。空着 = 不记库存，照常卖。订单改成「已确认」时自动扣库存，取消时退回。</p></div>
             <div style="display:flex;gap:0.5rem">
                 <button onclick="loadInventory()" style="padding:0.5rem 1rem;border:1px solid #e5e5e5;border-radius:8px;background:#fff;cursor:pointer;font-size:0.8rem;font-family:inherit"><i class="fas fa-sync-alt"></i> 刷新</button>
                 <button onclick="saveInventory()" style="padding:0.5rem 1rem;border:none;border-radius:8px;background:#000;color:#fff;cursor:pointer;font-size:0.8rem;font-weight:600;font-family:inherit"><i class="fas fa-save"></i> 保存库存</button>
@@ -343,7 +352,8 @@
 </div>
 
 <script>
-    const STATUS_LABELS = { pending: '待付款', paid: '已付款', shipped: '已发货', delivered: '已完成', cancelled: '已取消' };
+    const escHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const STATUS_LABELS = { pending: '待确认', paid: '已确认', shipped: '已发货', delivered: '已完成', cancelled: '已取消' };
     const STATUS_BADGE  = { pending: 'badge-pending', paid: 'badge-paid', shipped: 'badge-shipped', delivered: 'badge-delivered', cancelled: 'badge-cancelled' };
 
     let adminPass = '';
@@ -362,7 +372,7 @@
     const AUTO_REFRESH_INTERVAL = 60000; // 60秒
     let lastRefreshTime = null;
 
-    // 已付款判定（与后端 update-order.js 第 6 行保持一致）
+    // 已确认 = 计入营业额、已扣库存（与 netlify/lib/shop.mjs 的 CONSUMING 一致）
     const PAID_STATUSES = new Set(['paid', 'shipped', 'delivered']);
     const isPaid = (o) => PAID_STATUSES.has(o.payment_status);
 
@@ -427,7 +437,7 @@
             return;
         }
 
-        const headers = ['订单号','下单时间','客户','电话','商品明细','总额(€)','支付方式','支付状态','配送方式','地址'];
+        const headers = ['订单号','下单时间','客户','电话','商品明细','总额(€)','会员','状态','配送方式','地址','优惠码'];
         const rows = finalFiltered.map(o => [
             o.order_number || '',
             new Date(o.created_at).toLocaleString('zh-CN'),
@@ -435,10 +445,11 @@
             o.customer_phone || '',
             (o.items || []).map(i => `${i.name} x${i.quantity}`).join(' | '),
             parseFloat(o.total || 0).toFixed(2),
-            o.payment_method || '',
+            o.member_id || '',
             STATUS_LABELS[o.payment_status] || o.payment_status || '',
             o.delivery_type || 'pickup',
-            (o.address || '').replace(/\n/g, ' ')
+            (o.address || '').replace(/\n/g, ' '),
+            o.coupon || ''
         ]);
 
         const escape = cell => `"${String(cell).replace(/"/g, '""')}"`;
@@ -590,8 +601,7 @@
         return orders.filter(o => {
             if (activeFilters.dateRange === 'today' && !isToday(o)) return false;
             if (activeFilters.dateRange === 'history' && isToday(o)) return false;
-            if (activeFilters.payment !== 'all' && o.payment_method !== activeFilters.payment) return false;
-            if (activeFilters.delivery !== 'all' && (o.delivery_type || 'pickup') !== activeFilters.delivery) return false;
+                        if (activeFilters.delivery !== 'all' && (o.delivery_type || 'pickup') !== activeFilters.delivery) return false;
             if (q) {
                 const haystack = `${o.order_number} ${o.customer_name} ${o.customer_phone}`.toLowerCase();
                 if (!haystack.includes(q)) return false;
@@ -674,27 +684,31 @@
             return;
         }
 
-        container.innerHTML = orders.map(order => {
+        container.innerHTML = orders.map(raw => {
+            // everything a customer typed is escaped before it goes into the page
+            const order = { ...raw, customer_name: escHtml(raw.customer_name), customer_phone: escHtml(raw.customer_phone), address: escHtml(raw.address), delivery_time: escHtml(raw.delivery_time), coupon: escHtml(raw.coupon), order_number: escHtml(raw.order_number), items: (raw.items || []).map(i => ({ ...i, name: escHtml(i.name) })) };
             const date       = new Date(order.created_at).toLocaleString('zh-CN');
-            const itemsList  = (order.items || []).map(i => `${i.name} ×${i.quantity}`).join(' · ');
-            const payBadge   = order.payment_method === 'bizum' ? 'badge-bizum' : order.payment_method === 'cash' ? 'badge-cash' : order.payment_method === 'wechat' ? 'badge-bizum' : order.payment_method === 'alipay' ? 'badge-alipay' : 'badge-card';
-            const payLabel   = order.payment_method === 'bizum' ? '<i class="fas fa-mobile-alt"></i> Bizum' : order.payment_method === 'cash' ? '<i class="fas fa-money-bill-wave"></i> 现金' : order.payment_method === 'wechat' ? '<i class="fab fa-weixin"></i> 微信' : order.payment_method === 'alipay' ? '<i class="fab fa-alipay"></i> 支付宝' : '<i class="fas fa-credit-card"></i> 银行卡';
+            const itemsList  = (order.items || []).map(i => `${i.name} ×${i.quantity}${i.isFree ? ' <b style="color:#16a34a">免费</b>' : ''}`).join(' · ');
+            const stampTag   = order.member_id
+                ? `<span class="badge badge-member" title="会员 ${order.member_id}"><i class="fas fa-stamp"></i> 会员${order.stamped ? ' · 已盖章' : order.payment_status === 'cancelled' ? '' : ' · 确认后盖章'}</span>`
+                : order.payment_method && order.payment_method !== 'whatsapp' ? `<span class="badge badge-card">老网站 · ${({ bizum: 'Bizum', cash: '现金', wechat: '微信', alipay: '支付宝', card: '银行卡' })[order.payment_method] || order.payment_method}</span>` : '';
+            const giftTag    = (order.items || []).some(i => i.isFree) ? '<span class="badge badge-gift">🎁 集章赠品</span>' : '';
             const statusBadge = STATUS_BADGE[order.payment_status] || 'badge-pending';
             const statusLabel = STATUS_LABELS[order.payment_status] || order.payment_status;
             const isDelivery  = order.delivery_type === 'delivery';
             const isPostal    = order.delivery_type === 'postal';
-            const phone = (order.customer_phone || '').replace(/\s+/g, '').replace(/^\+/, '');
+            const phone = (raw.customer_phone || '').replace(/[^\d+]/g, '').replace(/\s+/g, '').replace(/^\+/, '');
             const itemsSummary = (order.items || []).map(i => `${i.name} x${i.quantity}`).join(', ');
-            const addrLines   = (order.address||'').split('\n').filter(Boolean).map(l=>`  ${l}`).join('\n');
-            const msgConfirm  = encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 已确认，总金额 €${parseFloat(order.total||0).toFixed(2)}，感谢您的购买！🙏\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} ha sido confirmado. Total: €${parseFloat(order.total||0).toFixed(2)}. ¡Gracias! 🙏`);
+            const addrLines   = (raw.address||'').split('\n').filter(Boolean).map(l=>`  ${l}`).join('\n');
+            const msgConfirm  = encodeURIComponent(`你好 ${raw.customer_name}！您的订单 ${raw.order_number} 已确认，总金额 €${parseFloat(order.total||0).toFixed(2)}，感谢您的购买！🙏\n\nHola ${raw.customer_name}! Tu pedido ${raw.order_number} ha sido confirmado. Total: €${parseFloat(order.total||0).toFixed(2)}. ¡Gracias! 🙏`);
             const msgShipped  = isDelivery
-                ? encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 正在派送中，预计送达时间：${order.delivery_time || '待确认'}。🛵\n\n配送地址：\n${addrLines}\n\n如有问题请联系我们！\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} está en camino. Hora estimada: ${order.delivery_time || 'por confirmar'}. 🛵\n\nDirección de entrega:\n${addrLines}\n\n¡Contáctanos si necesitas algo!`)
-                : encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 已发货，请注意查收。📦\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} ha sido enviado. Pronto lo recibirás. 📦`);
-            const msgPostal   = encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 已安排邮寄发货。📦\n\n寄送地址：\n${addrLines}\n\n如有问题请随时联系我们！\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} ha sido enviado por correo postal. 📦\n\nDirección de envío:\n${addrLines}\n\n¡Contáctanos si tienes cualquier duda!`);
-            const msgFeedback = encodeURIComponent(`你好 ${order.customer_name}！您对订单 ${order.order_number} 满意吗？期待您的反馈！😊\n\nHola ${order.customer_name}! ¿Qué tal tu experiencia con el pedido ${order.order_number}? ¡Nos encantaría saberlo! 😊`);
-            const msgCancel   = encodeURIComponent(`你好 ${order.customer_name}！很遗憾，您的订单 ${order.order_number} 已被取消。如有疑问请联系我们。🙏\n\nHola ${order.customer_name}! Lamentamos informarte que tu pedido ${order.order_number} ha sido cancelado. Contáctanos si tienes dudas. 🙏`);
+                ? encodeURIComponent(`你好 ${raw.customer_name}！您的订单 ${raw.order_number} 正在派送中，预计送达时间：${raw.delivery_time || '待确认'}。🛵\n\n配送地址：\n${addrLines}\n\n如有问题请联系我们！\n\nHola ${raw.customer_name}! Tu pedido ${raw.order_number} está en camino. Hora estimada: ${raw.delivery_time || 'por confirmar'}. 🛵\n\nDirección de entrega:\n${addrLines}\n\n¡Contáctanos si necesitas algo!`)
+                : encodeURIComponent(`你好 ${raw.customer_name}！您的订单 ${raw.order_number} 已发货，请注意查收。📦\n\nHola ${raw.customer_name}! Tu pedido ${raw.order_number} ha sido enviado. Pronto lo recibirás. 📦`);
+            const msgPostal   = encodeURIComponent(`你好 ${raw.customer_name}！您的订单 ${raw.order_number} 已安排邮寄发货。📦\n\n寄送地址：\n${addrLines}\n\n如有问题请随时联系我们！\n\nHola ${raw.customer_name}! Tu pedido ${raw.order_number} ha sido enviado por correo postal. 📦\n\nDirección de envío:\n${addrLines}\n\n¡Contáctanos si tienes cualquier duda!`);
+            const msgFeedback = encodeURIComponent(`你好 ${raw.customer_name}！您对订单 ${raw.order_number} 满意吗？期待您的反馈！😊\n\nHola ${raw.customer_name}! ¿Qué tal tu experiencia con el pedido ${raw.order_number}? ¡Nos encantaría saberlo! 😊`);
+            const msgCancel   = encodeURIComponent(`你好 ${raw.customer_name}！很遗憾，您的订单 ${raw.order_number} 已被取消。如有疑问请联系我们。🙏\n\nHola ${raw.customer_name}! Lamentamos informarte que tu pedido ${raw.order_number} ha sido cancelado. Contáctanos si tienes dudas. 🙏`);
             const waId = `wa-${order.id}`;
-            const phoneKey = (order.customer_phone || '').trim();
+            const phoneKey = (raw.customer_phone || '').trim();
             const customerTotal = phoneKey ? (customerOrderCount[phoneKey] || 0) : 0;
             const vipBadge = customerTotal >= 2 ? `<span class="vip-badge">👑 老客 ${customerTotal} 单</span>` : '';
 
@@ -734,11 +748,12 @@
                 <div class="pickup-tag"><i class="fas fa-store"></i> 自取</div>`}
 
                 <div class="order-items-wrap">${itemsList}</div>
+                ${order.coupon ? `<div class="order-info-row" style="margin-top:0.4rem"><i class="fas fa-ticket-alt"></i><span>优惠码：<b>${order.coupon}</b>（核对后在 WhatsApp 里给客户减）</span></div>` : ''}
 
                 <div class="order-bottom">
                     <div class="order-total">€${parseFloat(order.total || 0).toFixed(2)}</div>
                     <div class="order-meta">
-                        <span class="badge ${payBadge}">${payLabel}</span>
+                        ${stampTag}${giftTag}
                         <div class="wa-wrap" id="${waId}">
                             <button class="wa-btn" onclick="toggleWaDropdown('${waId}')">
                                 <i class="fab fa-whatsapp"></i> 联系客户
@@ -753,8 +768,8 @@
                             </div>
                         </div>
                         <select class="status-select" onchange="updateOrderStatus('${order.id}', this.value)">
-                            <option value="pending"   ${order.payment_status==='pending'   ?'selected':''}>待付款</option>
-                            <option value="paid"      ${order.payment_status==='paid'      ?'selected':''}>已付款</option>
+                            <option value="pending"   ${order.payment_status==='pending'   ?'selected':''}>待确认</option>
+                            <option value="paid"      ${order.payment_status==='paid'      ?'selected':''}>已确认${order.member_id ? '（盖章）' : ''}</option>
                             <option value="shipped"   ${order.payment_status==='shipped'   ?'selected':''}>已发货</option>
                             <option value="delivered" ${order.payment_status==='delivered' ?'selected':''}>已完成</option>
                             <option value="cancelled" ${order.payment_status==='cancelled' ?'selected':''}>已取消</option>
@@ -776,48 +791,103 @@
             document.getElementById(`tab-${t}`).style.color = tab === t ? '#000' : '#737373';
             document.getElementById(`tab-${t}`).style.fontWeight = tab === t ? '600' : '500';
         });
+        document.querySelector('.filter-bar').style.display = tab === 'orders' ? '' : 'none';
         if (tab === 'inventory') loadInventory();
         if (tab === 'agents') renderAgentStats();
         if (tab === 'users') loadUsers();
     }
 
-    // ── 注册用户 ──
+    // ── 会员 · 集章 ──
+    let members = [];
+    const STAMPS_PER_REWARD = 10;
+    const shortName = p => p.name.replace(/\s*\(.*\)\s*/, '');
+    const fmtPhone = d => (/^34\d{9}$/.test(d) ? `+34 ${d.slice(2, 5)} ${d.slice(5, 8)} ${d.slice(8)}` : '+' + d);
+    function stampSummary(stamps) {
+        const parts = PRODUCTS_DEF.filter(p => stamps[p.id]).map(p => `${shortName(p)} ${Math.min(stamps[p.id], STAMPS_PER_REWARD)}/10${stamps[p.id] >= STAMPS_PER_REWARD ? '🎁' : ''}`);
+        return parts.join(' · ') || '还没有章';
+    }
+
     async function loadUsers() {
         document.getElementById('users-container').innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
-        document.getElementById('users-count-label').textContent = '加载中...';
         try {
-            const res = await fetch(`/.netlify/functions/get-users?password=${encodeURIComponent(adminPass)}`);
+            const res = await fetch(`/api/admin/members?password=${encodeURIComponent(adminPass)}`);
             if (res.status === 401) { document.getElementById('users-container').innerHTML = '<div class="empty-state">无权限</div>'; return; }
             const data = await res.json();
-            const users = data.users || [];
-            document.getElementById('users-count-label').textContent = `共 ${users.length} 位注册用户`;
-            if (!users.length) {
-                document.getElementById('users-container').innerHTML = '<div class="empty-state">暂无注册用户</div>';
-                return;
-            }
-            document.getElementById('users-container').innerHTML = `
-                <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
-                    <thead>
-                        <tr style="border-bottom:2px solid #e5e5e5;text-align:left">
-                            <th style="padding:0.6rem 1rem">邮箱</th>
-                            <th style="padding:0.6rem 1rem">注册时间</th>
-                            <th style="padding:0.6rem 1rem">最后登录</th>
-                            <th style="padding:0.6rem 1rem">邮箱已验证</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${users.map(u => `
-                        <tr style="border-bottom:1px solid #f5f5f5">
-                            <td style="padding:0.7rem 1rem;font-weight:500">${u.email || '—'}</td>
-                            <td style="padding:0.7rem 1rem;color:#737373">${u.created_at ? new Date(u.created_at).toLocaleString('zh-CN') : '—'}</td>
-                            <td style="padding:0.7rem 1rem;color:#737373">${u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString('zh-CN') : '从未登录'}</td>
-                            <td style="padding:0.7rem 1rem">${u.email_confirmed_at ? '<span style="color:#16a34a;font-weight:600">✓ 已验证</span>' : '<span style="color:#d97706">未验证</span>'}</td>
-                        </tr>`).join('')}
-                    </tbody>
-                </table>`;
-        } catch(e) {
-            document.getElementById('users-container').innerHTML = `<div class="empty-state" style="color:#dc2626">加载失败: ${e.message}</div>`;
+            if (!res.ok) throw new Error(data.error || res.status);
+            members = data.members || [];
+            renderMembers();
+        } catch (e) {
+            document.getElementById('users-container').innerHTML = `<div class="empty-state" style="color:#dc2626">加载失败: ${escHtml(e.message)}<br><small>如果是第一次用新网站：请先在 Supabase 运行 supabase/migrations/20261021000000_members_stamps.sql</small></div>`;
         }
+        loadLegacyUsers();
+    }
+
+    function renderMembers() {
+        const q = (document.getElementById('member-search')?.value || '').trim().toLowerCase();
+        const list = members.filter(m => !q || `${m.name} ${m.email || ''} ${m.phone || ''}`.toLowerCase().includes(q.replace(/^\+/, '')));
+        const full = members.filter(m => Object.values(m.stamps || {}).some(n => n >= STAMPS_PER_REWARD)).length;
+        document.getElementById('users-count-label').textContent = `共 ${members.length} 位会员 · ${full} 位有集满的卡`;
+        if (!list.length) {
+            document.getElementById('users-container').innerHTML = `<div class="empty-state">${members.length ? '没有找到' : '还没有会员'}</div>`;
+            return;
+        }
+        const th = 'padding:0.6rem 0.75rem;text-align:left;font-weight:600;white-space:nowrap';
+        document.getElementById('users-container').innerHTML = `
+            <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;overflow:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+                <thead><tr style="background:#fafafa;border-bottom:1px solid #e5e5e5">
+                    <th style="${th}">会员</th>
+                    ${PRODUCTS_DEF.map(p => `<th style="${th};text-align:center">${escHtml(shortName(p))}</th>`).join('')}
+                    <th style="${th}">注册</th>
+                </tr></thead>
+                <tbody>
+                ${list.map(m => `
+                    <tr style="border-bottom:1px solid #f5f5f5">
+                        <td style="padding:0.6rem 0.75rem;min-width:180px">
+                            <div style="font-weight:600">${escHtml(m.name)}${m.tempPw ? ' <span style="color:#d97706;font-size:0.7rem">临时密码</span>' : ''}</div>
+                            <div style="color:#737373;font-size:0.78rem">${escHtml(m.email || fmtPhone(m.phone || m.id))}
+                            ${m.phone ? ` · <a href="https://wa.me/${m.phone}" target="_blank" style="color:#16a34a"><i class="fab fa-whatsapp"></i></a>` : ''}</div>
+                        </td>
+                        ${PRODUCTS_DEF.map(p => {
+                            const n = (m.stamps || {})[p.id] || 0, isFull = n >= STAMPS_PER_REWARD;
+                            return `<td style="padding:0.4rem;text-align:center;white-space:nowrap">
+                                <button class="stamp-btn" onclick="editStamp('${escHtml(m.id)}', ${p.id}, -1)" ${n ? '' : 'disabled'} title="扣 1 个章">−</button>
+                                <span style="display:inline-block;min-width:2.6rem;font-weight:700;${isFull ? 'color:#16a34a' : n ? '' : 'color:#d4d4d4'}">${isFull ? '🎁 ' : ''}${Math.min(n, STAMPS_PER_REWARD)}/10</span>
+                                <button class="stamp-btn" onclick="editStamp('${escHtml(m.id)}', ${p.id}, 1)" title="补 1 个章">＋</button>
+                            </td>`;
+                        }).join('')}
+                        <td style="padding:0.6rem 0.75rem;color:#737373;white-space:nowrap">${new Date(m.created).toLocaleDateString('zh-CN')}</td>
+                    </tr>`).join('')}
+                </tbody>
+            </table></div>`;
+    }
+
+    async function editStamp(id, pid, n) {
+        const m = members.find(x => x.id === id);
+        try {
+            const res = await fetch('/api/admin/stamp', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: adminPass, id, pid, n })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || res.status);
+            if (m) m.stamps = data.stamps || {};
+            renderMembers();
+        } catch (e) { alert('没改成：' + e.message); }
+    }
+
+    // 老网站（Supabase Auth）的邮箱账号里，还没在新站登录过的
+    async function loadLegacyUsers() {
+        const box = document.getElementById('legacy-container');
+        try {
+            const res = await fetch(`/.netlify/functions/get-users?password=${encodeURIComponent(adminPass)}`);
+            const data = await res.json();
+            if (!Array.isArray(data.users)) throw new Error('no list');
+            const moved = new Set(members.map(m => m.email).filter(Boolean));
+            const rest = (data.users || []).filter(u => u.email && !moved.has(u.email.toLowerCase()));
+            document.getElementById('legacy-count').textContent = `· 还有 ${rest.length} 位没登录过新网站`;
+            box.innerHTML = rest.length ? `<div style="font-size:0.82rem;color:#525252;line-height:1.9">${rest.map(u => escHtml(u.email)).join(' · ')}</div>` : '<div style="font-size:0.82rem;color:#737373">都已经搬过来了</div>';
+        } catch (e) { document.getElementById('legacy-count').textContent = ''; box.innerHTML = '<div style="font-size:0.82rem;color:#737373">暂时读不到老网站的账号列表</div>'; }
     }
 
     // ── Product Sales Stats ──
@@ -828,15 +898,15 @@
             return;
         }
 
-        // 只统计已付款/已发货/已完成的订单
-        const paidOrders = allOrders.filter(o => ['paid','shipped','delivered'].includes(o.payment_status));
+        // 只统计已确认/已发货/已完成的订单
+        const paidOrders = allOrders.filter(isPaid);
 
         // 按产品名称汇总销量
         const productSales = {};
         paidOrders.forEach(o => {
             const items = Array.isArray(o.items) ? o.items : [];
             items.forEach(item => {
-                const name = item.productName || item.name || '未知产品';
+                const name = (item.isFree ? '🎁 ' : '') + (item.productName || item.name || '未知产品');
                 if (!productSales[name]) productSales[name] = { qty: 0, revenue: 0 };
                 productSales[name].qty += (item.quantity || item.qty || 1);
                 productSales[name].revenue += (item.price || 0) * (item.quantity || item.qty || 1);
@@ -864,7 +934,7 @@
             </div>
             <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1rem;text-align:center">
                 <div style="font-size:1.5rem;font-weight:700;color:#16a34a">€${totalRevenue.toFixed(2)}</div>
-                <div style="font-size:0.8rem;color:#737373;margin-top:0.25rem">已付产品总额</div>
+                <div style="font-size:0.8rem;color:#737373;margin-top:0.25rem">已确认产品总额</div>
             </div>
         </div>
         <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;overflow:hidden">
@@ -908,7 +978,7 @@
 
         const rows = keys.map(ref => {
             const orders = groups[ref];
-            const paid = orders.filter(o => o.payment_status !== 'pending');
+            const paid = orders.filter(isPaid);
             const pending = orders.filter(o => o.payment_status === 'pending');
             const revenue = paid.reduce((s, o) => s + parseFloat(o.total || 0), 0);
             const label = ref === '__direct__' ? '直接订单（无代理）' : ref;
@@ -931,7 +1001,7 @@
         // 汇总
         const agentCount = keys.filter(k => k !== '__direct__').length;
         const agentOrders = allOrders.filter(o => o.agent_ref);
-        const agentRevenue = agentOrders.filter(o => o.payment_status !== 'pending').reduce((s, o) => s + parseFloat(o.total || 0), 0);
+        const agentRevenue = agentOrders.filter(isPaid).reduce((s, o) => s + parseFloat(o.total || 0), 0);
 
         container.innerHTML = `
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1.25rem">
@@ -945,7 +1015,7 @@
             </div>
             <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1rem;text-align:center">
                 <div style="font-size:1.5rem;font-weight:700;color:#16a34a">€${agentRevenue.toFixed(2)}</div>
-                <div style="font-size:0.8rem;color:#737373;margin-top:0.25rem">代理已付总额</div>
+                <div style="font-size:0.8rem;color:#737373;margin-top:0.25rem">代理已确认总额</div>
             </div>
         </div>
         <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;overflow:hidden">
@@ -954,9 +1024,9 @@
                     <tr style="background:#fafafa;border-bottom:1px solid #e5e5e5">
                         <th style="padding:0.75rem 1rem;text-align:left;font-weight:600">代理</th>
                         <th style="padding:0.75rem 1rem;text-align:center;font-weight:600">总订单</th>
-                        <th style="padding:0.75rem 1rem;text-align:center;font-weight:600">已付款</th>
-                        <th style="padding:0.75rem 1rem;text-align:center;font-weight:600">待付款</th>
-                        <th style="padding:0.75rem 1rem;text-align:right;font-weight:600">已付总额</th>
+                        <th style="padding:0.75rem 1rem;text-align:center;font-weight:600">已确认</th>
+                        <th style="padding:0.75rem 1rem;text-align:center;font-weight:600">待确认</th>
+                        <th style="padding:0.75rem 1rem;text-align:right;font-weight:600">已确认总额</th>
                         <th style="padding:0.75rem 1rem;text-align:center;font-weight:600">操作</th>
                     </tr>
                 </thead>
@@ -966,7 +1036,7 @@
     }
 
     async function deleteOrder(orderId, orderNumber) {
-        if (!confirm(`确定要删除订单 ${orderNumber} 吗？此操作不可撤销。`)) return;
+        if (!confirm(`确定要删除订单 ${orderNumber} 吗？此操作不可撤销。\n\n只想作废的话，请把状态改成「已取消」：那样会员的章和赠品会自动退回。删除不会动会员的章。`)) return;
         const res = await fetch('/.netlify/functions/delete-order', {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
@@ -994,113 +1064,10 @@
 
     // ── Inventory ──
     // 产品定义（与前台同步）
-    const PRODUCTS_DEF = [
-        { id: 1, name: '鸭嘴兽 (Dash)', flavors: [
-            { key: 'Jasmine LongJing Tea', label: '龙井' },
-            { key: 'Lemon Tea', label: '柠檬茶' },
-            { key: 'Green Grape', label: '青提' },
-            { key: 'Sweet Honeydew', label: '甜蜜瓜' },
-            { key: 'Crystal Grape', label: '紫晶葡萄' },
-            { key: 'Mineral Water', label: '矿泉水' },
-            { key: 'Coconut Water', label: '椰子水' },
-            { key: 'Alpine White Peach', label: '高山白桃' },
-            { key: 'Floral Oolong', label: '花香乌龙' },
-            { key: 'Honey Yuzu Tea', label: '蜂蜜柚子茶' },
-            { key: 'Salted Fizz', label: '海盐气泡' },
-            { key: 'Kiwi Ice', label: '猕猴桃冰' },
-            { key: 'Red Wine Ice', label: '红酒冰' },
-            { key: 'Matcha Smoothie', label: '抹茶思慕雪' },
-            { key: 'Peach Ice', label: '水蜜桃冰' },
-            { key: 'Pink Guava', label: '粉红番石榴' },
-            { key: 'Black Dragon Ice', label: '黑龙冰' },
-            { key: 'Corn Gelato', label: '玉米冰激凌' },
-            { key: 'White Freeze', label: '老冰棍' },
-            { key: 'Passion Grapefruit', label: '百香西柚' },
-            { key: 'Lush Ice', label: '西瓜冰' },
-            { key: 'Lemon Pineapple', label: '柠檬菠萝' },
-            { key: 'Green Apple Ice', label: '青苹果冰' },
-            { key: 'Tea Guan Yin King', label: '铁观音' },
-            { key: 'Taro Ice', label: '香芋冰' },
-            { key: 'Lychee Ice', label: '荔枝冰' },
-            { key: 'Hibiscus Ice Tea', label: '洛神花冰茶' },
-            { key: 'Ludou Ice', label: '绿豆冰' },
-            { key: 'Lime Ice', label: '青柠冰' }
-        ]},
-        { id: 2, name: '冰爆 (IceMax)', flavors: [
-            { key: 'Passion Grapefruit', label: '百香西柚' },
-            { key: 'Jasmine Milk Tea', label: '茉莉奶茶' },
-            { key: 'Iced Pocari', label: '冰镇宝矿力' },
-            { key: 'Coconut Water', label: '椰子水' },
-            { key: 'Miami Mint', label: '迈阿密薄荷' },
-            { key: 'Longjing Ice Tea', label: '龙井冰茶' },
-            { key: 'Green Grape Ice', label: '青葡萄冰' },
-            { key: 'Fresh Lemon', label: '新鲜柠檬' },
-            { key: 'Lychee Ice', label: '荔枝冰' },
-            { key: 'Peach Oolong', label: '水蜜桃乌龙' },
-            { key: 'Lemon Pineapple', label: '柠檬菠萝' },
-            { key: 'Sour Guava Ice', label: '巨峰葡萄' },
-            { key: 'Tangy Grape', label: '番石榴' }
-        ]},
-        { id: 3, name: '小黑条 (Quik)', flavors: [
-            { key: 'Longan', label: '龙眼' },
-            { key: 'Banana', label: '香蕉' },
-            { key: 'Durian', label: '榴莲' },
-            { key: 'Honeydew', label: '蜜露' },
-            { key: 'Mango', label: '芒果' },
-            { key: 'Coconut Ice', label: '椰子冰' },
-            { key: 'Peach', label: '水蜜桃' },
-            { key: 'Guava', label: '番石榴' },
-            { key: 'Lychee', label: '荔枝' }
-        ]},
-        { id: 4, name: '冰王 (Elfbar IceKing)', flavors: [
-            { key: 'Jasmine Longjing', label: '茉莉龙井' },
-            { key: 'Salted Lemon', label: '海盐柠檬' },
-            { key: 'Tieguanyin', label: '铁观音' },
-            { key: 'Grape Ice', label: '黑葡萄冰' },
-            { key: 'Green Grape Ice', label: '青葡萄冰' },
-            { key: 'Green Tea', label: '绿茶' }
-        ]},
-        { id: 5, name: '高维 (GOwif)', flavors: [
-            { key: 'Peach Tea', label: '桃茶' },
-            { key: 'Passion Fruit', label: '百香果' },
-            { key: 'Green Bean Ice', label: '绿豆' },
-            { key: 'Crispy Apple', label: '脆苹果' },
-            { key: 'Lychee Ice', label: '荔枝冰' },
-            { key: 'Plum Pineapple', label: '话梅菠萝' },
-            { key: 'Fresh Mint', label: '清凉薄荷' },
-            { key: 'Watermelon Ice', label: '西瓜冰' },
-            { key: 'Green Grape', label: '青葡萄' },
-            { key: 'Lime Ice', label: '青柠冰' },
-            { key: 'Jasmine Longjing', label: '茉莉龙井' },
-            { key: 'Blueberry Raspberry', label: '蓝莓覆盆子' },
-            { key: 'Bayberry Green Salt', label: '杨梅绿盐' },
-            { key: 'Taro Ice Cream', label: '香芋冰淇淋' },
-            { key: '100 Plus', label: '100 Plus' }
-        ]},
-        { id: 6, name: 'RELX 悦刻幻五代烟弹 (3支装)', flavors: [
-            { key: 'Mixed Berries', label: '混合浆果' },
-            { key: 'Taro Ice Cream', label: '香芋冰淇淋' },
-            { key: 'Tieguanyin', label: '铁观音' },
-            { key: 'Mineral Water', label: '矿泉水' },
-            { key: 'Coconut Ice', label: '椰子冰' },
-            { key: 'Sprite Lime', label: '雪碧' },
-            { key: 'Yogurt', label: '酸奶' },
-            { key: 'Plum', label: '西梅' },
-            { key: 'Lemon Cherry', label: '爆柠樱桃' },
-            { key: 'Peach Oolong', label: '桃气乌龙' },
-            { key: 'Guava', label: '番石榴' },
-            { key: 'Coffee', label: '咖啡' },
-            { key: 'Mojito', label: '莫吉托' },
-            { key: 'Iced Black Tea', label: '冰红茶' },
-            { key: 'Passion Fruit', label: '百香果' },
-            { key: 'Ice Pop', label: '冰棍' },
-            { key: 'Mung Bean', label: '绿豆' },
-            { key: 'Longjing', label: '龙井' },
-            { key: 'Iced Lemon Mint', label: '冰柠薄荷' },
-            { key: 'Jasmine Tea', label: '茉莉花茶' },
-            { key: 'Vitamin C Orange', label: 'C味鲜橙' }
-        ]}
-    ];
+    // 产品和口味：build.sh 从 site/src/products.json 生成，和前台一致。不要手改这一行。
+    const PRODUCTS_DEF = /*PRODUCTS*/[{"id": 1, "name": "鸭嘴兽 (Dash)", "price": 17.9, "flavors": [{"name": "Jasmine LongJing Tea", "nameCn": "龙井"}, {"name": "Lemon Tea", "nameCn": "柠檬茶"}, {"name": "Green Grape", "nameCn": "青提"}, {"name": "Sweet Honeydew", "nameCn": "甜蜜瓜"}, {"name": "Crystal Grape", "nameCn": "紫晶葡萄"}, {"name": "Mineral Water", "nameCn": "矿泉水"}, {"name": "Coconut Water", "nameCn": "椰子水"}, {"name": "Alpine White Peach", "nameCn": "高山白桃"}, {"name": "Floral Oolong", "nameCn": "花香乌龙"}, {"name": "Honey Yuzu Tea", "nameCn": "蜂蜜柚子茶"}, {"name": "Salted Fizz", "nameCn": "海盐气泡"}, {"name": "Kiwi Ice", "nameCn": "猕猴桃冰"}, {"name": "Red Wine Ice", "nameCn": "红酒冰"}, {"name": "Matcha Smoothie", "nameCn": "抹茶思慕雪"}, {"name": "Peach Ice", "nameCn": "水蜜桃冰"}, {"name": "Pink Guava", "nameCn": "粉红番石榴"}, {"name": "Black Dragon Ice", "nameCn": "黑龙冰"}, {"name": "Corn Gelato", "nameCn": "玉米冰激凌"}, {"name": "White Freeze", "nameCn": "老冰棍"}, {"name": "Passion Grapefruit", "nameCn": "百香西柚"}, {"name": "Lush Ice", "nameCn": "西瓜冰"}, {"name": "Lemon Pineapple", "nameCn": "柠檬菠萝"}, {"name": "Green Apple Ice", "nameCn": "青苹果冰"}, {"name": "Tea Guan Yin King", "nameCn": "铁观音"}, {"name": "Taro Ice", "nameCn": "香芋冰"}, {"name": "Lychee Ice", "nameCn": "荔枝冰"}, {"name": "Hibiscus Ice Tea", "nameCn": "洛神花冰茶"}, {"name": "Ludou Ice", "nameCn": "绿豆冰"}, {"name": "Lime Ice", "nameCn": "青柠冰"}, {"name": "Mint Mojito", "nameCn": "薄荷莫吉托"}, {"name": "Da Hong Pao", "nameCn": "大红袍"}]}, {"id": 2, "name": "冰爆 (IceMax)", "price": 22.9, "flavors": [{"name": "Passion Grapefruit", "nameCn": "百香西柚"}, {"name": "Jasmine Milk Tea", "nameCn": "茉莉奶茶"}, {"name": "Iced Pocari", "nameCn": "冰镇宝矿力"}, {"name": "Coconut Water", "nameCn": "椰子水"}, {"name": "Miami Mint", "nameCn": "迈阿密薄荷"}, {"name": "Longjing Ice Tea", "nameCn": "龙井冰茶"}, {"name": "Green Grape Ice", "nameCn": "青葡萄冰"}, {"name": "Fresh Lemon", "nameCn": "新鲜柠檬"}, {"name": "Lychee Ice", "nameCn": "荔枝冰"}, {"name": "Peach Oolong", "nameCn": "水蜜桃乌龙"}, {"name": "Lemon Pineapple", "nameCn": "柠檬菠萝"}, {"name": "Sour Guava Ice", "nameCn": "巨峰葡萄"}, {"name": "Tangy Grape", "nameCn": "番石榴"}]}, {"id": 3, "name": "小黑条 (Quik)", "price": 17.9, "flavors": [{"name": "Longan", "nameCn": "龙眼"}, {"name": "Banana", "nameCn": "香蕉"}, {"name": "Durian", "nameCn": "榴莲"}, {"name": "Honeydew", "nameCn": "蜜露"}, {"name": "Mango", "nameCn": "芒果"}, {"name": "Coconut Ice", "nameCn": "椰子冰"}, {"name": "Peach", "nameCn": "水蜜桃"}, {"name": "Guava", "nameCn": "番石榴"}, {"name": "Lychee", "nameCn": "荔枝"}]}, {"id": 4, "name": "冰王 (Elfbar IceKing)", "price": 45, "flavors": [{"name": "Jasmine Longjing", "nameCn": "茉莉龙井"}, {"name": "Salted Lemon", "nameCn": "海盐柠檬"}, {"name": "Tieguanyin", "nameCn": "铁观音"}, {"name": "Grape Ice", "nameCn": "黑葡萄冰"}, {"name": "Green Grape Ice", "nameCn": "青葡萄冰"}, {"name": "Green Tea", "nameCn": "绿茶"}]}, {"id": 5, "name": "高维 (GOwif)", "price": 25.9, "flavors": [{"name": "Peach Tea", "nameCn": "桃茶"}, {"name": "Passion Fruit", "nameCn": "百香果"}, {"name": "Green Bean Ice", "nameCn": "绿豆"}, {"name": "Crispy Apple", "nameCn": "脆苹果"}, {"name": "Lychee Ice", "nameCn": "荔枝冰"}, {"name": "Plum Pineapple", "nameCn": "话梅菠萝"}, {"name": "Fresh Mint", "nameCn": "清凉薄荷"}, {"name": "Watermelon Ice", "nameCn": "西瓜冰"}, {"name": "Green Grape", "nameCn": "青葡萄"}, {"name": "Lime Ice", "nameCn": "青柠冰"}, {"name": "Jasmine Longjing", "nameCn": "茉莉龙井"}, {"name": "Blueberry Raspberry", "nameCn": "蓝莓覆盆子"}, {"name": "Bayberry Green Salt", "nameCn": "杨梅绿盐"}, {"name": "Taro Ice Cream", "nameCn": "香芋冰淇淋"}, {"name": "100 Plus", "nameCn": "100 Plus"}]}, {"id": 6, "name": "RELX 悦刻幻五代烟弹 (3支装)", "price": 14.9, "flavors": [{"name": "Mixed Berries", "nameCn": "混合浆果"}, {"name": "Taro Ice Cream", "nameCn": "香芋冰淇淋"}, {"name": "Tieguanyin", "nameCn": "铁观音"}, {"name": "Mineral Water", "nameCn": "矿泉水"}, {"name": "Coconut Ice", "nameCn": "椰子冰"}, {"name": "Sprite Lime", "nameCn": "雪碧"}, {"name": "Yogurt", "nameCn": "酸奶"}, {"name": "Plum", "nameCn": "西梅"}, {"name": "Lemon Cherry", "nameCn": "爆柠樱桃"}, {"name": "Peach Oolong", "nameCn": "桃气乌龙"}, {"name": "Guava", "nameCn": "番石榴"}, {"name": "Coffee", "nameCn": "咖啡"}, {"name": "Mojito", "nameCn": "莫吉托"}, {"name": "Iced Black Tea", "nameCn": "冰红茶"}, {"name": "Passion Fruit", "nameCn": "百香果"}, {"name": "Ice Pop", "nameCn": "冰棍"}, {"name": "Mung Bean", "nameCn": "绿豆"}, {"name": "Longjing", "nameCn": "龙井"}, {"name": "Iced Lemon Mint", "nameCn": "冰柠薄荷"}, {"name": "Jasmine Tea", "nameCn": "茉莉花茶"}, {"name": "Vitamin C Orange", "nameCn": "C味鲜橙"}]}]/*END*/;
+    // 库存表里口味的 key 用英文名
+    PRODUCTS_DEF.forEach(p => p.flavors.forEach(f => { f.key = f.name; f.label = f.nameCn; }));
 
     let inventoryData = {};
 
@@ -1195,40 +1162,49 @@
         }
     });
 
+    // 改状态走 /api/admin/status：和 Telegram 按钮同一套逻辑。确认 → 会员盖章 + 扣库存；取消 → 撤章、退赠品的章、回库存；
+    // 订单在 Telegram 里的那条消息也会跟着更新。
     async function updateOrderStatus(orderId, status) {
-        const r = await fetch('/.netlify/functions/update-order', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password: adminPass, orderId, status })
-        });
-        try {
-            const data = await r.clone().json();
-            console.log('[updateOrderStatus]', data);
-            if (data.inventoryAction && data.inventoryAction !== 'none' && Array.isArray(data.inventoryLog)) {
-                const failed = data.inventoryLog.filter(x => !x.ok);
-                if (failed.length) {
-                    alert('库存更新失败 — 请打开浏览器控制台查看详情\n' + failed.map(f => `${f.item}: ${f.error || f.body}`).join('\n'));
-                }
-            }
-        } catch (e) { /* response 不是 JSON，忽略 */ }
         const order = allOrders.find(o => o.id === orderId);
-        if (order) {
-            order.payment_status = status;
-            // 状态变更时推 Telegram 提醒 + WhatsApp 链接
-            fetch('/.netlify/functions/notify-status', {
+        if (order && status === 'cancelled' && order.member_id && !confirm(`把 ${order.order_number} 改成「已取消」？\n会员这单的章会撤回${(order.items || []).some(i => i.isFree) ? '，赠品用掉的 10 个章会退回卡上' : ''}。`)) { applyFilters(); return; }
+        let data = {};
+        try {
+            const r = await fetch('/api/admin/status', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    customerName: order.customer_name,
-                    customerPhone: order.customer_phone,
-                    orderNumber: order.order_number,
-                    status,
-                    total: order.total
-                })
+                body: JSON.stringify({ password: adminPass, orderId, status })
+            });
+            data = await r.json().catch(() => ({}));
+            if (!r.ok) throw new Error(data.error || r.status);
+        } catch (e) {
+            alert('状态没改成：' + e.message);
+            loadOrders();
+            return;
+        }
+        if (order) {
+            order.payment_status = data.unchanged ? (data.status || order.payment_status) : status;
+            if (data.stamped !== undefined) order.stamped = data.stamped;
+            // 老网站的订单没有 Telegram 消息可更新：照旧推一条状态提醒（带 WhatsApp 链接）
+            if (!order.tg_message && !data.unchanged) fetch('/.netlify/functions/notify-status', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ customerName: order.customer_name, customerPhone: order.customer_phone, orderNumber: order.order_number, status, total: order.total })
             }).catch(() => {});
+            if (data.member && data.stamps) showToast(`已更新 · 会员 ${data.member} 现在的章：${stampSummary(data.stamps)}`);
         }
         renderStats(allOrders);
         applyFilters();
+    }
+
+    function showToast(text) {
+        let el = document.getElementById('admin-toast');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'admin-toast';
+            el.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111;color:#fff;padding:0.7rem 1.1rem;border-radius:10px;font-size:0.85rem;z-index:500;max-width:90vw;box-shadow:0 8px 24px rgba(0,0,0,.2)';
+            document.body.appendChild(el);
+        }
+        el.textContent = text; el.style.display = 'block';
+        clearTimeout(el._t); el._t = setTimeout(() => { el.style.display = 'none'; }, 4000);
     }
 </script>
 </body>

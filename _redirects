@@ -1,0 +1,6 @@
+# source and test folders are in the repo but not part of the site
+/site/*      /404  404!
+/qa/*        /404  404!
+/supabase/*  /404  404!
+/netlify/*   /404  404!
+/build.sh    /404  404!

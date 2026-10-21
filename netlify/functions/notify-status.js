@@ -2,8 +2,8 @@ const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 const STATUS_LABELS = {
-    pending:   '⏳ 待付款',
-    paid:      '✅ 已付款',
+    pending:   '⏳ 待确认',
+    paid:      '✅ 已确认',
     shipped:   '🚚 已发货',
     delivered: '🎉 已完成'
 };

@@ -1,8 +1,12 @@
 {
   "name": "vape-shop",
-  "version": "1.0.0",
+  "version": "3.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh build.sh",
+    "qa": "sh qa/run.sh node qa/account.mjs"
+  },
   "dependencies": {
-    "stripe": "^14.21.0",
     "@supabase/supabase-js": "^2.49.4",
     "@netlify/blobs": "^8.2.0"
   }

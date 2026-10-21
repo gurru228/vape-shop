@@ -1,0 +1,8 @@
+# reachable by link only: search engines may not list or cache any page (don't add a robots.txt, or they never see this)
+/*
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
+  Referrer-Policy: no-referrer
+/sw.js
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache

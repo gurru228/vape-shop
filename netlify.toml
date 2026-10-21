@@ -1,5 +1,8 @@
 [build]
+  # the storefront is built from site/ by build.sh (index.html is committed, so no build step is needed on Netlify)
+  publish = "."
   functions = "netlify/functions"
 
 [functions]
   node_bundler = "esbuild"
+  included_files = ["site/src/products.json"]

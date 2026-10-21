@@ -32,3 +32,6 @@ build/
 
 # Local Netlify folder
 .netlify
+
+# QA screenshots
+qa/*.png

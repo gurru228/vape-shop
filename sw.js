@@ -1,44 +1,16 @@
-const CACHE_NAME = 'vapeshop-v2';
-const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/script.js',
-  '/manifest.json'
-];
-
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
-  );
-  self.skipWaiting();
-});
+// The old site's service worker served index.html / script.js cache-first, which would keep returning
+// visitors on the old page. This version replaces it: it drops every cache, takes over open tabs, reloads
+// them once onto the new site, and from then on never answers requests itself (everything goes to the network).
+self.addEventListener('install', () => self.skipWaiting());
 
 self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', event => {
-  // 只缓存 GET 请求，跳过 API 请求
-  if (event.request.method !== 'GET') return;
-  const url = new URL(event.request.url);
-  if (url.pathname.startsWith('/.netlify/')) return;
-
-  event.respondWith(
-    caches.match(event.request).then(cached => {
-      const network = fetch(event.request).then(res => {
-        if (res.ok && res.type === 'basic') {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        }
-        return res;
-      });
-      return cached || network;
-    })
-  );
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    const hadOld = keys.length > 0;
+    await Promise.all(keys.map(k => caches.delete(k)));
+    await self.clients.claim();
+    if (!hadOld) return;
+    const tabs = await self.clients.matchAll({ type: 'window' });
+    tabs.forEach(t => t.navigate(t.url).catch(() => {}));
+  })());
 });
