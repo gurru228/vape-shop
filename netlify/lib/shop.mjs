@@ -323,14 +323,16 @@ export async function setStatus(o, next) {
 // ---------- Telegram (the old site's TELEGRAM_* variables work too) ----------
 export const tgToken = () => process.env.TG_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN;
 export const tgChat = () => process.env.TG_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
+export let tgLastError = null;
 export async function tg(method, payload) {
   const token = tgToken();
-  if (!token) { console.log('[tg skipped]', method, JSON.stringify(payload).slice(0, 300)); return null; }
+  if (!token) { console.log('[tg skipped]', method, JSON.stringify(payload).slice(0, 300)); tgLastError = 'no bot token in this deploy'; return null; }
+  tgLastError = null;
   const res = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
     method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload),
   });
   const data = await res.json().catch(() => ({}));
-  if (!data.ok) console.error('[tg]', method, data.description);
+  if (!data.ok) { console.error('[tg]', method, data.description); tgLastError = `${method}: ${data.description || res.status}`; }
   return data.result ?? (data.ok ? true : null);
 }
 export const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));

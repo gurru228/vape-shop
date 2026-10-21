@@ -3,7 +3,7 @@
 // In the shop's chat the bot also takes admin commands: 查 (look up a member), 盖 (add / remove stamps by hand),
 // 重置 (temporary password). /api/tg-setup?key=<TG_SECRET> registers this webhook with Telegram once after deploying.
 import {
-  json, fail, tg, tgChat, byId, shortName, STAMPS_PER_REWARD, pendingKeyboard, waButton,
+  json, fail, tg, tgChat, tgLastError, byId, shortName, STAMPS_PER_REWARD, pendingKeyboard, waButton,
   normAccount, showPhone, esc, euro, hashPassword, tempPassword,
   getMember, patchMember, searchMembers, addStamps, memberOrders, getOrder, setStatus, statusLine, STATUS_CN,
 } from '../lib/shop.mjs';
@@ -140,6 +140,7 @@ export default async req => {
     // the address this was opened on (Netlify's URL variable always points at the production site, even on a preview)
     const hook = `${url.origin}/api/telegram`;
     const r = await tg('setWebhook', { url: hook, secret_token: secret, allowed_updates: ['message', 'callback_query'] });
+    const said = tgLastError;
     // the "/" menu in Telegram (command names there can only be latin; the Chinese words work as plain messages)
     await tg('setMyCommands', { commands: [
       { command: 'find', description: '查会员：/find 手机号或邮箱' },
@@ -147,7 +148,7 @@ export default async req => {
       { command: 'reset', description: '临时密码：/reset 手机号' },
       { command: 'help', description: '所有指令' },
     ] });
-    return json({ webhook: hook, ok: r === true, chatIdSet: !!tgChat() });
+    return json({ webhook: hook, ok: r === true, chatIdSet: !!tgChat(), ...(r === true ? {} : { telegramSaid: said }) });
   }
 
   if (req.method !== 'POST' || req.headers.get('x-telegram-bot-api-secret-token') !== secret) return fail('forbidden', 403);
