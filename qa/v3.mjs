@@ -92,20 +92,20 @@ console.log('after 已取消: stamps', JSON.stringify(me.user.stamps), '| my ord
 await admin.locator('#tab-users').click(); await admin.waitForTimeout(1500);
 console.log('members label:', await txt(admin, '#users-count-label'));
 await admin.locator('#member-search').fill('655000222'); await admin.waitForTimeout(200);
-const row = admin.locator('#users-container tbody tr').first();
-for (let i = 0; i < 3; i++) { await row.locator('td').nth(1).locator('.stamp-btn').nth(1).click(); await admin.waitForTimeout(500); }
-await row.locator('td').nth(1).locator('.stamp-btn').nth(0).click(); await admin.waitForTimeout(600);
+const row = () => admin.locator('#users-container .mem').first().locator('.mem-line').first();
+for (let i = 0; i < 3; i++) { await row().locator('.stamp-btn').nth(1).click(); await admin.waitForTimeout(500); }
+await row().locator('.stamp-btn').nth(0).click(); await admin.waitForTimeout(600);
 me = await api('api/me', null, reg.token);
-console.log('admin +3 −1 on 鸭嘴兽:', JSON.stringify(me.user.stamps), '| row:', await txt(admin, '#users-container tbody tr td:nth-child(2)'));
+console.log('admin +3 −1 on 鸭嘴兽:', JSON.stringify(me.user.stamps), '| row:', await txt(admin, '#users-container .mem .mem-line output'));
 await admin.locator('#member-search').fill('');
 await admin.locator('#legacy-users summary').click(); await admin.waitForTimeout(800);
 await admin.screenshot({ path: 'qa/v3-admin-members.png', fullPage: true });
 
 // ---------- inventory tab: product list from products.json, 0 shows on the site ----------
 await admin.locator('#tab-inventory').click(); await admin.waitForTimeout(1500);
-console.log('inventory products:', await admin.locator('.inv-product').count(), '| dash flavors:', await admin.locator('.inv-product').first().locator('tbody tr').count());
+console.log('inventory products:', await admin.locator('.inv-product').count(), '| dash flavors:', await admin.locator('.inv-product').first().locator('.inv-row').count());
 await admin.locator('.inv-stock-input[data-pid="3"][data-fname="Mango"]').fill('0');
-await admin.locator('[onclick="saveInventory()"]').click(); await admin.waitForTimeout(1200);
+await admin.locator('#invSave').click(); await admin.waitForTimeout(1200);
 console.log('stock api now:', JSON.stringify((await (await fetch(url + 'api/stock')).json()).out));
 await admin.screenshot({ path: 'qa/v3-admin-inventory.png' });
 await admin.close();
