@@ -1,1235 +1,946 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>订单管理 | Vape Store</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #f5f5f5; color: #171717; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>后台 · 口粮专卖店</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@400..800&family=Nunito:wght@400..900&display=swap">
+<style>
+/* same colours and type as the storefront (site/index.html), so the shop and its back office read as one place */
+:root{
+  --bg:#F2ECDD; --surface:#F8F3E8; --alt:#EAE4D5; --ink:#24271F; --muted:#625F53; --line:#CFC7B3; --line2:#AAA38F;
+  --olive:#343B2C; --olive2:#23291F; --cream:#FAF5E9; --accent:#52675B; --accent-soft:#DFE4D6; --lime:#C9D96A;
+  --stamp:#9A4329; --stamp-soft:#F1DDD3; --ok:#3F6B4A; --warn:#B4532F;
+  --sans:"Nunito","Chiron GoRound TC","PingFang SC","Microsoft YaHei",sans-serif;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
 
-        /* ── Login ── */
-        .login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-        .login-box { background: #fff; border: 1px solid #e5e5e5; border-radius: 14px; padding: 2.5rem; width: 340px; text-align: center; box-shadow: 0 4px 24px rgba(0,0,0,0.07); }
-        .login-logo { font-size: 2.5rem; margin-bottom: 0.5rem; }
-        .login-box h2 { margin-bottom: 0.25rem; font-size: 1.4rem; }
-        .login-box p { color: #737373; font-size: 0.875rem; margin-bottom: 1.5rem; }
-        .login-box input { width: 100%; padding: 0.875rem; border: 1px solid #e5e5e5; border-radius: 8px; font-size: 1rem; margin-bottom: 1rem; font-family: inherit; transition: border-color 0.2s; }
-        .login-box input:focus { outline: none; border-color: #000; }
-        .login-btn { width: 100%; padding: 0.875rem; background: #000; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
-        .login-btn:hover { background: #262626; }
-        .login-error { color: #dc2626; font-size: 0.875rem; margin-top: 0.75rem; display: none; }
+/* ---------- login ---------- */
+.login{min-height:100dvh;display:grid;place-items:center;padding:24px;background:var(--olive)}
+.login form{width:min(360px,100%);background:var(--surface);border-radius:20px;padding:34px 28px 28px;display:grid;gap:14px;box-shadow:0 30px 70px rgba(0,0,0,.3)}
+.login h1{font-size:26px;font-weight:900;line-height:1.15}
+.login h1 small{display:block;font-size:14px;font-weight:700;color:var(--muted);margin-top:4px}
+.login input{height:50px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);padding:0 16px;font-size:16px}
+.login input:focus{outline:none;border-color:var(--ink)}
+.login .err{color:var(--warn);font-weight:800;font-size:13.5px;min-height:1.2em}
 
-        /* ── Header ── */
-        .admin-header { background: #000; color: #fff; padding: 0.875rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .header-brand { display: flex; align-items: center; gap: 0.625rem; }
-        .header-brand h1 { font-size: 1.1rem; font-weight: 600; }
-        .header-brand span { font-size: 1.25rem; }
-        .logout-btn { display: flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; background: #262626; color: #fff; border: 1px solid #404040; border-radius: 7px; font-size: 0.875rem; cursor: pointer; font-family: inherit; transition: background 0.2s; }
-        .logout-btn:hover { background: #404040; }
+/* ---------- frame: side menu on wide screens, bottom bar on phones ---------- */
+.app{min-height:100dvh;display:grid;grid-template-columns:220px minmax(0,1fr)}
+.nav{position:sticky;top:0;height:100dvh;background:var(--olive);color:var(--cream);display:flex;flex-direction:column;padding:22px 14px}
+.brand{font-weight:900;font-size:19px;padding:0 10px 22px;line-height:1.2}
+.brand small{display:block;font-size:12px;font-weight:700;opacity:.6}
+.nav .tab{display:flex;align-items:center;gap:10px;height:46px;padding:0 12px;border-radius:12px;font-weight:800;font-size:15px;color:rgba(250,245,233,.72);text-align:left}
+.nav .tab svg{width:20px;height:20px;flex:none}
+.nav .tab:hover{color:var(--cream);background:rgba(255,255,255,.06)}
+.nav .tab[aria-current="page"]{background:var(--cream);color:var(--olive)}
+.nav .tab .pill{margin-left:auto;min-width:22px;height:22px;padding:0 7px;border-radius:11px;background:var(--stamp);color:#fff;font-size:12px;display:grid;place-items:center}
+.nav .foot{margin-top:auto;display:grid;gap:8px;padding:0 10px;font-size:12.5px;color:rgba(250,245,233,.6)}
+.nav .foot button{justify-self:start;color:rgba(250,245,233,.85);font-weight:800;text-decoration:underline;text-underline-offset:3px}
+main{padding:26px clamp(16px,3vw,40px) 60px;min-width:0;overflow-x:clip}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.top h2{font-size:28px;font-weight:900;line-height:1.1}
+.top .sub{color:var(--muted);font-size:13.5px;margin-top:4px}
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 
-        /* ── Stats ── */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.875rem; padding: 1.25rem 2rem; }
-        .stat-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 1.125rem 1.25rem; }
-        .stat-icon { font-size: 1.1rem; margin-bottom: 0.5rem; }
-        .stat-value { font-size: 1.75rem; font-weight: 700; line-height: 1; }
-        .stat-label { color: #737373; font-size: 0.8rem; margin-top: 0.3rem; }
-        .stat-card.green .stat-value { color: #16a34a; }
-        .stat-card.orange .stat-value { color: #d97706; }
-        .stat-card.blue .stat-value { color: #2563eb; }
-        .stat-card.pink .stat-value { color: #db2777; }
-        .stat-card.purple .stat-value { color: #7c3aed; }
+/* ---------- buttons, chips, inputs ---------- */
+.btn{height:40px;padding:0 16px;border-radius:999px;font-weight:800;font-size:14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;border:1.5px solid var(--ink);transition:background .15s,transform .1s}
+.btn:active{transform:scale(.97)}
+.btn:hover{background:var(--alt)}
+.btn.primary{background:var(--olive);border-color:var(--olive);color:var(--cream)}
+.btn.primary:hover{background:var(--olive2)}
+.btn.red{background:var(--stamp);border-color:var(--stamp);color:#fff}
+.btn.red:hover{background:#82361f}
+.btn.quiet{border-color:var(--line);height:36px;font-size:13px}
+.btn[disabled]{opacity:.5;cursor:progress}
+.field{height:42px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);padding:0 16px;min-width:0}
+.field:focus{outline:none;border-color:var(--ink)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;min-width:0}
+.chip{height:34px;padding:0 13px;border-radius:999px;border:1.5px solid var(--line);font-size:13.5px;font-weight:800;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;background:var(--surface)}
+.chip:hover{border-color:var(--ink)}
+.chip.active{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chip .chip-count{font-size:12px;opacity:.6;font-weight:700}
+.chip.active .chip-count{opacity:.75}
+.toggle{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
+.toggle input{accent-color:var(--olive);width:16px;height:16px}
 
-        /* ── Filter Bar ── */
-        .filter-bar { background: #fff; border-bottom: 1px solid #e5e5e5; padding: 0.875rem 2rem; display: flex; flex-direction: column; gap: 0.75rem; }
-        .search-row { display: flex; gap: 0.75rem; align-items: center; }
-        .search-wrap { position: relative; flex: 1; max-width: 380px; }
-        .search-wrap i { position: absolute; left: 0.875rem; top: 50%; transform: translateY(-50%); color: #a3a3a3; font-size: 0.875rem; }
-        .search-input { width: 100%; padding: 0.625rem 0.875rem 0.625rem 2.25rem; border: 1px solid #e5e5e5; border-radius: 8px; font-size: 0.875rem; font-family: inherit; transition: border-color 0.2s; }
-        .search-input:focus { outline: none; border-color: #000; }
-        .result-count { font-size: 0.8rem; color: #737373; white-space: nowrap; }
-        .refresh-btn { display: flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1rem; background: #000; color: #fff; border: none; border-radius: 7px; font-size: 0.8rem; cursor: pointer; font-family: inherit; margin-left: auto; }
-        .refresh-btn:hover { background: #262626; }
+/* ---------- today strip ---------- */
+.today{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:20px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:2px;text-align:left}
+.tile b{font-size:26px;font-weight:900;line-height:1.1}
+.tile span{font-size:12.5px;color:var(--muted);font-weight:700}
+.tile.hot{background:var(--stamp);border-color:var(--stamp);color:#fff}
+.tile.hot span{color:rgba(255,255,255,.8)}
+button.tile:hover{border-color:var(--ink)}
+button.tile.hot:hover{background:#82361f}
 
-        /* 自动刷新控件 */
-        .auto-refresh-control { display: flex; align-items: center; gap: 0.75rem; margin-left: auto; }
-        .auto-refresh-toggle { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: #525252; cursor: pointer; }
-        .auto-refresh-toggle input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
-        .last-refresh-time { font-size: 0.75rem; color: #737373; white-space: nowrap; }
+/* ---------- orders ---------- */
+.filters{display:grid;gap:10px;margin-bottom:16px}
+.filters .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;min-width:0}
+.filters{min-width:0}
+.filters .row .field{flex:1 1 200px;min-width:0}
+.date-tabs{display:inline-flex;background:var(--alt);border-radius:999px;padding:3px}
+.date-tab{height:34px;padding:0 14px;border-radius:999px;font-weight:800;font-size:13.5px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.date-tab.active{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.date-tab .n{font-size:12px;opacity:.7}
+.meta-line{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);font-weight:700}
+.group-h{font-size:13px;font-weight:900;color:var(--stamp);margin:6px 0 8px}
+.orders{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;align-items:start}
+.order-card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 16px 14px;display:grid;gap:10px}
+.order-card.st-pending{border:2px solid var(--stamp);padding:15px 15px 13px}
+.order-card.st-cancelled{opacity:.62}
+.oc-h{display:flex;align-items:flex-start;gap:10px}
+.oc-h .ono{font-weight:900;font-size:15px;letter-spacing:.02em}
+.oc-h .when{display:block;font-size:12.5px;color:var(--muted);font-weight:700}
+/* the status reads like the stamp on a loyalty card */
+.badge.seal{margin-left:auto;flex:none;padding:3px 11px;border:2.5px double currentColor;border-radius:8px;font-size:13px;font-weight:900;transform:rotate(-5deg);letter-spacing:.06em}
+.seal.pending{color:var(--stamp)}
+.seal.paid{color:var(--ok)}
+.seal.shipped{color:var(--accent)}
+.seal.delivered{color:var(--muted)}
+.seal.cancelled{color:var(--line2);text-decoration:line-through}
+.order-customer-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.order-customer-row strong{font-size:17px;font-weight:900}
+.order-customer-row a{font-size:14px;font-weight:700;color:var(--muted);text-decoration:none}
+.vip{font-size:11.5px;font-weight:900;color:var(--accent);background:var(--accent-soft);padding:1px 8px;border-radius:999px}
+.where{font-size:13.5px;padding:8px 12px;border-radius:10px;background:var(--alt);display:grid;gap:1px}
+.where b{font-size:13px}
+.where.delivery{background:#E9EFD3}
+.where.postal{background:#E3E8EE}
+.order-items-wrap{list-style:none;display:grid;gap:3px;font-size:14px}
+.order-items-wrap li{display:flex;justify-content:space-between;gap:10px}
+.order-items-wrap li span:last-child{font-weight:800;white-space:nowrap}
+.order-items-wrap li.free{color:var(--accent);font-weight:800}
+.order-info-row{font-size:13px;color:var(--muted)}
+.order-info-row b{color:var(--ink)}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.badge{font-size:12px;font-weight:800;padding:2px 9px;border-radius:999px;background:var(--alt);color:var(--muted)}
+.badge-member{background:var(--accent-soft);color:var(--accent)}
+.badge-gift{background:#EEF3D2;color:#5E6A1E}
+.badge-leak{background:var(--stamp-soft);color:var(--stamp)}
+.oc-f{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:10px;border-top:1px dashed var(--line)}
+.oc-f .total{font-size:22px;font-weight:900;margin-right:auto}
+.status-select{height:36px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);padding:0 10px;font-size:13px;font-weight:800}
+.wa{position:relative}
+.wa summary{list-style:none;height:36px;padding:0 13px;border-radius:999px;background:#25D366;color:#fff;font-weight:900;font-size:13px;display:inline-flex;align-items:center;cursor:pointer}
+.wa summary::-webkit-details-marker{display:none}
+.wa[open] summary{background:#1fb457}
+.wa-menu{position:absolute;right:0;bottom:calc(100% + 6px);z-index:20;min-width:210px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 34px rgba(20,22,16,.2);padding:6px;display:grid}
+.wa-menu a{padding:9px 12px;border-radius:8px;font-size:13.5px;font-weight:700;text-decoration:none}
+.wa-menu a:hover{background:var(--alt)}
+.del{width:36px;height:36px;border-radius:50%;color:var(--muted);display:grid;place-items:center}
+.del:hover{background:var(--stamp-soft);color:var(--stamp)}
+.del svg{width:17px;height:17px}
+.empty{padding:50px 20px;text-align:center;color:var(--muted);font-weight:700;background:var(--surface);border:1.5px dashed var(--line);border-radius:var(--r)}
+.empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:4px}
+.empty.bad{color:var(--warn);border-color:var(--warn);text-align:left;white-space:pre-wrap;font-size:13px}
 
-        .filter-groups { display: flex; flex-wrap: wrap; gap: 1.25rem; }
-        .filter-group { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
-        .filter-group-label { font-size: 0.75rem; font-weight: 600; color: #737373; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
-        .chip { padding: 0.3rem 0.75rem; border: 1px solid #e5e5e5; border-radius: 20px; font-size: 0.78rem; cursor: pointer; background: #fff; font-family: inherit; transition: all 0.15s; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.35rem; }
-        .chip:hover { border-color: #a3a3a3; background: #f5f5f5; }
-        .chip.active { background: #000; color: #fff; border-color: #000; }
-        .chip-count { display: inline-block; min-width: 1.1rem; padding: 0 0.35rem; background: #f0f0f0; color: #525252; font-size: 0.65rem; font-weight: 700; border-radius: 10px; text-align: center; line-height: 1.3rem; }
-        .chip.active .chip-count { background: #fff; color: #000; }
+/* ---------- inventory ---------- */
+.inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;align-items:start}
+.inv-product{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.inv-head{display:flex;align-items:baseline;gap:8px;padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.inv-head b{font-size:16px;font-weight:900}
+.inv-head small{margin-left:auto;font-size:12px;font-weight:800;color:var(--muted);white-space:nowrap}
+.inv-head small em{font-style:normal;color:var(--stamp)}
+.inv-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:7px 12px 7px 16px;border-bottom:1px solid var(--alt)}
+.inv-row:last-child{border-bottom:0}
+.inv-row .nm{font-weight:800;font-size:14px;line-height:1.25}
+.inv-row .nm small{display:block;font-size:11.5px;color:var(--muted);font-weight:600}
+.inv-row.zero .nm{color:var(--stamp)}
+.inv-row.low .nm::after{content:"少";margin-left:6px;font-size:11px;font-weight:900;color:#8A6A12;background:#F4E7B8;padding:0 6px;border-radius:999px}
+.inv-row.changed{background:#F3F0D8}
+.inv-stock-input{width:70px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);text-align:center;font-weight:900;font-size:15px}
+.inv-stock-input:focus{outline:none;border-color:var(--ink)}
+.inv-row.zero .inv-stock-input{border-color:var(--stamp);color:var(--stamp)}
+.so-btn{height:36px;padding:0 10px;border-radius:10px;font-size:12.5px;font-weight:900;color:var(--muted);border:1.5px solid var(--line)}
+.so-btn:hover{border-color:var(--stamp);color:var(--stamp)}
+.inv-row.zero .so-btn{background:var(--stamp);border-color:var(--stamp);color:#fff}
+.savebar{position:sticky;bottom:16px;z-index:30;margin-top:16px;display:flex;align-items:center;gap:12px;justify-content:space-between;background:var(--olive);color:var(--cream);border-radius:999px;padding:8px 8px 8px 20px;box-shadow:0 14px 34px rgba(20,22,16,.3);font-weight:800}
+.savebar .btn{border-color:var(--cream);background:var(--cream);color:var(--olive)}
+.note{font-size:13px;color:var(--muted);margin-bottom:14px;max-width:70ch}
 
-        /* ── Date Tab Bar ── */
-        .date-tab-bar { background: #fff; border-bottom: 1px solid #e5e5e5; padding: 0 2rem; display: flex; gap: 0; }
-        .date-tab { padding: 0.875rem 1.5rem; border: none; background: none; font-size: 0.9rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; color: #737373; font-family: inherit; transition: all 0.15s; display: inline-flex; align-items: center; gap: 0.5rem; }
-        .date-tab:hover { color: #404040; }
-        .date-tab.active { color: #000; border-bottom-color: #000; }
-        .date-tab-count { display: inline-block; min-width: 1.4rem; padding: 0.1rem 0.5rem; background: #f5f5f5; color: #525252; font-size: 0.7rem; font-weight: 700; border-radius: 10px; text-align: center; }
-        .date-tab.active .date-tab-count { background: #000; color: #fff; }
+/* ---------- members ---------- */
+.mem-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;align-items:start}
+.mem{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:10px}
+.mem.has-full{border:2px solid var(--stamp);padding:13px 15px}
+.mem-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.mem-h b{font-size:16.5px;font-weight:900}
+.mem-h .id{font-size:13px;color:var(--muted);font-weight:700}
+.mem-h .wa-link{font-size:12.5px;font-weight:900;color:#128C4A;text-decoration:none}
+.mem-h .since{margin-left:auto;font-size:12px;color:var(--muted)}
+.tmp{font-size:11.5px;font-weight:900;color:#8A6A12;background:#F4E7B8;padding:0 7px;border-radius:999px}
+.mem-lines{display:grid;gap:5px}
+.mem-line{display:grid;grid-template-columns:4.6em minmax(0,1fr) auto;gap:8px;align-items:center;font-size:13px}
+.mem-line > b{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dots{display:grid;grid-template-columns:repeat(10,1fr);gap:3px}
+.dots i{aspect-ratio:1;border-radius:50%;border:1.3px dashed var(--line2)}
+.dots i.on{border:0;background:var(--stamp)}
+.mem-line.full .dots i{background:var(--stamp);border:0}
+.stamp-ctl{display:flex;align-items:center;gap:2px}
+.stamp-ctl output{min-width:3.2em;text-align:center;font-weight:900;font-size:13px}
+.mem-line.full output{color:var(--stamp)}
+.mem-line.zero output{color:var(--line2)}
+.stamp-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);font-weight:900;font-size:15px;line-height:1}
+.stamp-btn:hover:not([disabled]){border-color:var(--ink)}
+.stamp-btn[disabled]{opacity:.3;cursor:default}
+details.legacy{margin-top:22px}
+details.legacy summary{cursor:pointer;font-weight:800;font-size:14px}
+details.legacy p{font-size:13px;color:var(--muted);margin:8px 0}
+.legacy-list{font-size:13px;color:var(--muted);line-height:1.9;word-break:break-all}
 
-        /* ── VIP Badge ── */
-        .vip-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.55rem; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #fff; font-size: 0.7rem; font-weight: 700; border-radius: 10px; margin-left: 0.5rem; box-shadow: 0 1px 3px rgba(245,158,11,0.3); }
+/* ---------- stats ---------- */
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px}
+.card h3{font-size:15px;font-weight:900;margin-bottom:12px;display:flex;justify-content:space-between;gap:8px}
+.card h3 small{font-size:12.5px;color:var(--muted);font-weight:700}
+.card.wide{grid-column:1/-1}
+.bars{display:flex;gap:6px;align-items:flex-end;height:170px}
+.bar{flex:1 1 0;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;text-align:center;gap:4px;height:100%}
+.bar span{font-size:11px;font-weight:800;color:var(--muted);white-space:nowrap;min-height:14px}
+.bar i{display:block;border-radius:6px 6px 2px 2px;background:var(--accent);min-height:3px}
+.bar.today i{background:var(--stamp)}
+.bar em{font-style:normal;font-size:11px;color:var(--muted);white-space:nowrap}
+.rank{list-style:none;display:grid;gap:8px}
+.rank li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;font-size:14px;align-items:baseline}
+.rank li b{font-weight:800}
+.rank li span{font-weight:900;white-space:nowrap}
+.rank li i{grid-column:1/-1;height:6px;border-radius:3px;background:var(--alt);overflow:hidden}
+.rank li i::before{content:"";display:block;height:100%;width:var(--w);background:var(--lime)}
+.rank li small{color:var(--muted);font-weight:700}
+table.plain{width:100%;border-collapse:collapse;font-size:13.5px}
+table.plain th{text-align:left;font-size:12px;color:var(--muted);font-weight:800;padding:6px 8px;border-bottom:1px solid var(--line)}
+table.plain td{padding:8px;border-bottom:1px solid var(--alt)}
+table.plain td.r,table.plain th.r{text-align:right}
 
-        /* ── Orders ── */
-        .orders-section { padding: 1.25rem 2rem 2rem; }
-        .order-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 1.25rem; margin-bottom: 0.75rem; transition: box-shadow 0.2s; }
-        .order-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+#admin-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:100;background:var(--olive);color:var(--cream);padding:11px 18px;border-radius:999px;font-size:14px;font-weight:800;max-width:calc(100vw - 32px);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.loading{padding:40px;text-align:center;color:var(--muted);font-weight:700}
 
-        /* ── WhatsApp ── */
-        .wa-wrap { position: relative; display: inline-block; }
-        .wa-btn { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.45rem 0.875rem; background: #25d366; color: #fff; border: none; border-radius: 7px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
-        .wa-btn:hover { background: #1ebe5c; }
-        .wa-dropdown { display: none; position: absolute; bottom: calc(100% + 6px); right: 0; background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); min-width: 200px; z-index: 50; overflow: hidden; }
-        .wa-dropdown.open { display: block; }
-        .wa-dropdown-title { padding: 0.5rem 0.875rem; font-size: 0.75rem; color: #737373; border-bottom: 1px solid #f0f0f0; }
-        .wa-dropdown a { display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 0.875rem; font-size: 0.8rem; color: #171717; text-decoration: none; transition: background 0.15s; }
-        .wa-dropdown a:hover { background: #f5f5f5; }
-        .wa-dropdown a i { color: #25d366; width: 14px; }
-
-        .order-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.875rem; gap: 0.5rem; }
-        .order-top-left { display: flex; align-items: flex-start; gap: 0.875rem; }
-        .order-number { font-weight: 700; font-size: 0.95rem; font-family: monospace; }
-        .order-date { color: #737373; font-size: 0.78rem; margin-top: 0.2rem; }
-
-        .order-customer-row { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
-        .order-info-row { display: flex; align-items: center; gap: 0.4rem; font-size: 0.875rem; color: #525252; }
-        .order-info-row i { width: 15px; color: #a3a3a3; font-size: 0.8rem; flex-shrink: 0; }
-
-        /* ── Inventory ── */
-        .inv-product { background:#fff;border:1px solid #e5e5e5;border-radius:12px;margin-bottom:0.75rem;overflow:hidden }
-        .inv-product-header { padding:0.875rem 1.25rem;background:#fafafa;border-bottom:1px solid #e5e5e5;font-weight:600;font-size:0.9rem;display:flex;align-items:center;gap:0.5rem }
-        .inv-table { width:100%;border-collapse:collapse }
-        .inv-table th { padding:0.5rem 1.25rem;text-align:left;font-size:0.75rem;color:#737373;font-weight:500;border-bottom:1px solid #f0f0f0 }
-        .inv-table td { padding:0.625rem 1.25rem;border-bottom:1px solid #f5f5f5;font-size:0.875rem }
-        .inv-table tr:last-child td { border-bottom:none }
-        .inv-stock-input { width:80px;padding:0.375rem 0.625rem;border:1px solid #e5e5e5;border-radius:6px;font-size:0.875rem;font-family:inherit;text-align:center;transition:border-color 0.2s }
-        .inv-stock-input:focus { outline:none;border-color:#000 }
-        .stock-ok { color:#16a34a;font-weight:600 }
-        .stock-low { color:#d97706;font-weight:600 }
-        .stock-zero { color:#dc2626;font-weight:700 }
-        .sold-out-tag { display:inline-block;background:#fee2e2;color:#dc2626;font-size:0.7rem;font-weight:700;padding:2px 7px;border-radius:99px;margin-left:6px }
-        .low-tag { display:inline-block;background:#fef3c7;color:#d97706;font-size:0.7rem;font-weight:700;padding:2px 7px;border-radius:99px;margin-left:6px }
-
-        .delivery-block { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }
-        .delivery-block-title { font-size: 0.75rem; font-weight: 700; color: #1d4ed8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.15rem; }
-        .delivery-block .order-info-row { color: #1e3a8a; }
-        .delivery-block .order-info-row i { color: #3b82f6; }
-
-        .pickup-tag { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; color: #525252; background: #f5f5f5; border-radius: 6px; padding: 0.3rem 0.625rem; margin-bottom: 0.75rem; }
-
-        .order-items-wrap { background: #f9f9f9; border-radius: 8px; padding: 0.625rem 0.875rem; margin-bottom: 0.875rem; font-size: 0.84rem; color: #525252; line-height: 1.7; }
-
-        .order-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; }
-        .order-total { font-size: 1.3rem; font-weight: 700; }
-        .order-meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-
-        /* Badges */
-        .badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.625rem; border-radius: 20px; font-size: 0.73rem; font-weight: 600; }
-        .badge-pending { background: #fef3c7; color: #92400e; }
-        .badge-paid { background: #dcfce7; color: #166534; }
-        .badge-shipped { background: #dbeafe; color: #1e40af; }
-        .badge-delivered { background: #f3e8ff; color: #6b21a8; }
-        .badge-cancelled { background: #fee2e2; color: #991b1b; }
-        .badge-bizum { background: #fce7f3; color: #9d174d; }
-        .badge-card { background: #e0f2fe; color: #075985; }
-        .badge-cash { background: #dcfce7; color: #166534; }
-        .badge-alipay { background: #cffafe; color: #155e75; }
-        .badge-pickup { background: #f5f5f5; color: #525252; }
-        .badge-delivery { background: #eff6ff; color: #1d4ed8; }
-
-        .status-select { padding: 0.375rem 0.625rem; border: 1px solid #e5e5e5; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-family: inherit; }
-        .status-select:focus { outline: none; border-color: #000; }
-
-        .empty-state { text-align: center; padding: 3.5rem; color: #737373; }
-        .empty-state i { font-size: 2.5rem; margin-bottom: 1rem; display: block; opacity: 0.4; }
-        .loading-state { text-align: center; padding: 3rem; color: #737373; }
-
-        @media (max-width: 640px) {
-            .stats-grid { padding: 1rem; grid-template-columns: repeat(2, 1fr); }
-            .filter-bar { padding: 0.875rem 1rem; }
-            .orders-section { padding: 1rem 1rem 2rem; }
-            .admin-header { padding: 0.875rem 1rem; }
-            .order-info-grid { grid-template-columns: 1fr; }
-            .filter-groups { gap: 0.875rem; }
-            .date-tab-bar { padding: 0 1rem; }
-            .date-tab { padding: 0.75rem 1rem; font-size: 0.85rem; }
-        }
-    </style>
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .nav{position:fixed;z-index:50;left:0;right:0;bottom:0;top:auto;height:auto;flex-direction:row;padding:6px 6px calc(6px + env(safe-area-inset-bottom));gap:2px;box-shadow:0 -6px 20px rgba(0,0,0,.15)}
+  .brand,.nav .foot{display:none}
+  .nav .tab{flex:1 1 0;min-width:0;flex-direction:column;justify-content:center;gap:2px;height:56px;padding:0;font-size:11.5px;position:relative}
+  .nav .tab .pill{position:absolute;top:3px;left:calc(50% + 6px);margin:0;min-width:18px;height:18px;font-size:11px;padding:0 5px}
+  main{padding:18px 14px calc(96px + env(safe-area-inset-bottom))}
+  .top h2{font-size:24px}
+  .today{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tile b{font-size:22px}
+  .orders,.mem-list,.inv-grid{grid-template-columns:minmax(0,1fr)}
+  .stats{grid-template-columns:minmax(0,1fr)}
+  .bars{gap:3px}
+  .bar span{font-size:9.5px}
+  .savebar{bottom:calc(76px + env(safe-area-inset-bottom));padding-left:16px;font-size:13.5px}
+  #admin-toast{bottom:calc(84px + env(safe-area-inset-bottom))}
+  .mobile-only{display:inline-flex}
+  #section-orders .tools{width:100%;gap:6px 10px;flex-wrap:nowrap}
+  #section-orders .tools .toggle{font-size:12px;white-space:nowrap}
+  #section-orders .tools .btn{height:32px;padding:0 11px;font-size:12.5px}
+  #refreshBtn{margin-left:auto}
+  .top{margin-bottom:12px}
+  .today{gap:8px;margin-bottom:14px}
+  .tile{padding:10px 12px}
+  .tile b{font-size:19px}
+  .tile span{font-size:11.5px}
+  .filters .row{display:grid;grid-template-columns:minmax(0,1fr)}
+  .filters .row > *{min-width:0;max-width:100%}
+  .date-tabs{justify-self:start}
+  .chips{flex:1 1 100%;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-14px;padding-inline:14px}
+  .chips::-webkit-scrollbar{display:none}
+}
+@media (min-width:901px){.mobile-only{display:none!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
 </head>
 <body>
 
-<!-- Login -->
-<div class="login-screen" id="login-screen">
-    <div class="login-box">
-        <div class="login-logo">🛒</div>
-        <h2>Vape Store</h2>
-        <p>管理员后台</p>
-        <input type="password" id="admin-password-input" placeholder="输入管理密码" onkeydown="if(event.key==='Enter') adminLogin()">
-        <button class="login-btn" onclick="adminLogin()">登录</button>
-        <p class="login-error" id="login-error">密码错误，请重试</p>
-    </div>
+<!-- ============ login ============ -->
+<div class="login" id="login-screen">
+  <form id="loginForm" autocomplete="on">
+    <h1>口粮专卖店<small>后台 · 订单、库存、会员</small></h1>
+    <input type="text" name="username" value="admin" autocomplete="username" hidden>
+    <input type="password" id="admin-password-input" placeholder="后台密码" autocomplete="current-password" aria-label="后台密码">
+    <button class="btn primary login-btn" type="submit" style="height:50px;font-size:16px">登录</button>
+    <p class="err" id="login-error" role="alert"></p>
+  </form>
 </div>
 
-<!-- Dashboard -->
-<div id="dashboard" style="display:none">
+<!-- ============ app ============ -->
+<div class="app" id="dashboard" hidden>
+  <nav class="nav" aria-label="后台菜单">
+    <div class="brand">口粮专卖店<small>后台</small></div>
+    <button class="tab" id="tab-orders" data-tab="orders" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>订单<span class="pill" id="navPending" hidden></span></button>
+    <button class="tab" id="tab-inventory" data-tab="inventory">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg>库存<span class="pill" id="navOut" hidden></span></button>
+    <button class="tab" id="tab-users" data-tab="users">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/></svg>会员集章</button>
+    <button class="tab" id="tab-stats" data-tab="stats">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 20V12M10 20V6M15 20v-9M20 20V9"/></svg>统计</button>
+    <div class="foot">
+      <span id="last-refresh-time">还没刷新</span>
+      <button type="button" id="logoutBtn">退出登录</button>
+    </div>
+    <button class="tab mobile-only" type="button" id="logoutTab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10"/></svg>退出</button>
+  </nav>
 
-    <header class="admin-header">
-        <div class="header-brand">
-            <span>📦</span>
-            <h1>Vape Store 订单管理</h1>
+  <main>
+    <!-- ---------- orders ---------- -->
+    <section id="section-orders" data-section="orders">
+      <div class="top">
+        <div><h2>订单</h2><p class="sub" id="ordersSub"></p></div>
+        <div class="tools">
+          <label class="toggle"><input type="checkbox" id="auto-refresh-toggle" checked>自动刷新</label>
+          <label class="toggle"><input type="checkbox" id="sound-toggle" checked>新单提示音</label>
+          <button class="btn quiet" type="button" id="refreshBtn">刷新</button>
+          <button class="btn quiet" type="button" id="csvBtn">导出</button>
         </div>
-        <button class="logout-btn" onclick="adminLogout()">
-            <i class="fas fa-sign-out-alt"></i> 退出
-        </button>
-    </header>
+      </div>
 
-    <!-- Stats -->
-    <div class="stats-grid">
-        <div class="stat-card blue">
-            <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
-            <div class="stat-value" id="stat-today">—</div>
-            <div class="stat-label">今日营业额 · <span id="stat-today-count">0</span> 单</div>
-        </div>
-        <div class="stat-card green">
-            <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
-            <div class="stat-value" id="stat-month">—</div>
-            <div class="stat-label">本月营业额</div>
-        </div>
-        <div class="stat-card purple">
-            <div class="stat-icon"><i class="fas fa-euro-sign"></i></div>
-            <div class="stat-value" id="stat-revenue">—</div>
-            <div class="stat-label">累计营业额</div>
-        </div>
-        <div class="stat-card orange">
-            <div class="stat-icon"><i class="fas fa-clock"></i></div>
-            <div class="stat-value" id="stat-pending">—</div>
-            <div class="stat-label">待处理</div>
-        </div>
-    </div>
+      <div class="today" id="todayStrip">
+        <button class="tile" type="button" data-jump="pending" id="tilePending"><b class="num" id="stat-pending">—</b><span>待确认，点开处理</span></button>
+        <div class="tile"><b class="num" id="stat-today">—</b><span>今天营业额 · <span id="stat-today-count">0</span> 单</span></div>
+        <div class="tile"><b class="num" id="stat-month">—</b><span>本月营业额</span></div>
+        <div class="tile"><b class="num" id="stat-revenue">—</b><span>累计营业额</span></div>
+      </div>
 
-    <!-- Tab Bar -->
-    <div style="background:#fff;border-bottom:1px solid #e5e5e5;padding:0 2rem;display:flex;gap:0">
-        <button id="tab-orders" onclick="switchTab('orders')" style="padding:0.75rem 1.25rem;border:none;background:none;font-size:0.875rem;font-weight:600;cursor:pointer;border-bottom:2px solid #000;color:#000;font-family:inherit">
-            <i class="fas fa-list"></i> 订单管理
-        </button>
-        <button id="tab-inventory" onclick="switchTab('inventory')" style="padding:0.75rem 1.25rem;border:none;background:none;font-size:0.875rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:#737373;font-family:inherit">
-            <i class="fas fa-boxes"></i> 库存管理
-        </button>
-        <button id="tab-agents" onclick="switchTab('agents')" style="padding:0.75rem 1.25rem;border:none;background:none;font-size:0.875rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:#737373;font-family:inherit">
-            <i class="fas fa-users"></i> 代理统计
-        </button>
-        <button id="tab-users" onclick="switchTab('users')" style="padding:0.75rem 1.25rem;border:none;background:none;font-size:0.875rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:#737373;font-family:inherit">
-            <i class="fas fa-user-friends"></i> 注册用户
-        </button>
-    </div>
+      <div class="filters">
+        <div class="row">
+          <div class="date-tabs" role="group" aria-label="日期">
+            <button class="date-tab active" type="button" data-range="today">今天 <span class="n num" id="date-count-today">0</span></button>
+            <button class="date-tab" type="button" data-range="history">以前 <span class="n num" id="date-count-history">0</span></button>
+            <button class="date-tab" type="button" data-range="all">全部 <span class="n num" id="date-count-all">0</span></button>
+          </div>
+          <input class="field" id="search-input" type="search" placeholder="搜订单号、名字、电话" aria-label="搜索订单">
+        </div>
+        <div class="row">
+          <div class="chips" role="group" aria-label="状态">
+            <button class="chip active" type="button" data-group="status" data-value="all">全部</button>
+            <button class="chip" type="button" data-group="status" data-value="pending">待确认</button>
+            <button class="chip" type="button" data-group="status" data-value="paid">已确认</button>
+            <button class="chip" type="button" data-group="status" data-value="shipped">已发货</button>
+            <button class="chip" type="button" data-group="status" data-value="delivered">已完成</button>
+            <button class="chip" type="button" data-group="status" data-value="cancelled">已取消</button>
+          </div>
+          <div class="chips" role="group" aria-label="取货方式">
+            <button class="chip active" type="button" data-group="delivery" data-value="all">全部方式</button>
+            <button class="chip" type="button" data-group="delivery" data-value="pickup">自取</button>
+            <button class="chip" type="button" data-group="delivery" data-value="delivery">外送</button>
+            <button class="chip" type="button" data-group="delivery" data-value="postal">邮寄</button>
+          </div>
+        </div>
+        <div class="meta-line"><span id="result-count"></span></div>
+      </div>
+      <div id="orders-container"><div class="loading">加载中…</div></div>
+    </section>
 
-    <!-- Filter Bar -->
-    <div class="filter-bar">
-        <div class="search-row">
-            <div class="search-wrap">
-                <i class="fas fa-search"></i>
-                <input class="search-input" id="search-input" type="text" placeholder="搜索订单号、姓名、电话..." oninput="applyFilters()">
-            </div>
-            <span class="result-count" id="result-count"></span>
-            <button class="refresh-btn" onclick="loadOrders()">
-                <i class="fas fa-sync-alt"></i> 刷新
-            </button>
-            <button class="refresh-btn" onclick="exportCSV()" title="导出当前可见订单">
-                <i class="fas fa-file-csv"></i> 导出 CSV
-            </button>
-            <div class="auto-refresh-control">
-                <label class="auto-refresh-toggle">
-                    <input type="checkbox" id="auto-refresh-toggle" checked>
-                    自动刷新（60秒）
-                </label>
-                <label class="auto-refresh-toggle">
-                    <input type="checkbox" id="sound-toggle" checked>
-                    🔔 新单提醒
-                </label>
-                <span class="last-refresh-time" id="last-refresh-time">最后刷新：--:--:--</span>
-            </div>
+    <!-- ---------- inventory ---------- -->
+    <section id="section-inventory" data-section="inventory" hidden>
+      <div class="top">
+        <div><h2>库存</h2><p class="sub" id="invSub"></p></div>
+        <div class="tools"><button class="btn quiet" type="button" id="invReload">重新读取</button></div>
+      </div>
+      <p class="note">填 0 或点「缺货」，网站上这个口味就变灰、不能买（1 分钟内生效）。空着 = 不记库存，照常卖。订单改成「已确认」自动扣库存，取消会退回。</p>
+      <div class="filters">
+        <div class="row">
+          <div class="chips" role="group" aria-label="筛选库存" id="invChips">
+            <button class="chip active" type="button" data-inv="all">全部</button>
+            <button class="chip" type="button" data-inv="zero">缺货 <span class="chip-count" id="invZeroN">0</span></button>
+            <button class="chip" type="button" data-inv="low">库存少 <span class="chip-count" id="invLowN">0</span></button>
+            <button class="chip" type="button" data-inv="none">没记库存</button>
+          </div>
+          <input class="field" id="invSearch" type="search" placeholder="搜口味" aria-label="搜口味">
         </div>
-        <div class="filter-groups">
-            <div class="filter-group">
-                <span class="filter-group-label">状态</span>
-                <button class="chip active" data-group="status" data-value="all" onclick="setFilter(this)">全部</button>
-                <button class="chip" data-group="status" data-value="pending" onclick="setFilter(this)">待付款</button>
-                <button class="chip" data-group="status" data-value="paid" onclick="setFilter(this)">已付款</button>
-                <button class="chip" data-group="status" data-value="shipped" onclick="setFilter(this)">已发货</button>
-                <button class="chip" data-group="status" data-value="delivered" onclick="setFilter(this)">已完成</button>
-            </div>
-            <div class="filter-group">
-                <span class="filter-group-label">支付</span>
-                <button class="chip active" data-group="payment" data-value="all" onclick="setFilter(this)">全部</button>
-                <button class="chip" data-group="payment" data-value="bizum" onclick="setFilter(this)">Bizum</button>
-                <button class="chip" data-group="payment" data-value="wechat" onclick="setFilter(this)">微信</button>
-                <button class="chip" data-group="payment" data-value="alipay" onclick="setFilter(this)">支付宝</button>
-                <button class="chip" data-group="payment" data-value="card" onclick="setFilter(this)">银行卡</button>
-                <button class="chip" data-group="payment" data-value="cash" onclick="setFilter(this)">现金</button>
-            </div>
-            <div class="filter-group">
-                <span class="filter-group-label">配送</span>
-                <button class="chip active" data-group="delivery" data-value="all" onclick="setFilter(this)">全部</button>
-                <button class="chip" data-group="delivery" data-value="pickup" onclick="setFilter(this)">自取</button>
-                <button class="chip" data-group="delivery" data-value="delivery" onclick="setFilter(this)">外送</button>
-            </div>
-        </div>
-    </div>
+      </div>
+      <div class="inv-grid" id="inventory-container"><div class="loading">加载中…</div></div>
+      <div class="savebar" id="savebar" hidden><span id="saveText"></span><span style="display:flex;gap:6px"><button class="btn quiet" type="button" id="invUndo" style="border-color:rgba(250,245,233,.4);background:none;color:var(--cream)">撤销</button><button class="btn" type="button" id="invSave">保存库存</button></span></div>
+    </section>
 
-    <!-- Orders -->
-    <div id="section-orders">
-    <!-- 日期主 Tab：今日 / 历史 -->
-    <div class="date-tab-bar">
-        <button class="date-tab active" data-range="today" onclick="setDateRange(this)">
-            <i class="fas fa-calendar-day"></i> 今日
-            <span class="date-tab-count" id="date-count-today">0</span>
-        </button>
-        <button class="date-tab" data-range="history" onclick="setDateRange(this)">
-            <i class="fas fa-history"></i> 历史
-            <span class="date-tab-count" id="date-count-history">0</span>
-        </button>
-    </div>
-    <div class="orders-section">
-        <div id="orders-container">
-            <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
+    <!-- ---------- members ---------- -->
+    <section id="section-users" data-section="users" hidden>
+      <div class="top">
+        <div><h2>会员集章</h2><p class="sub" id="users-count-label">加载中…</p></div>
+        <div class="tools">
+          <input class="field" id="member-search" type="search" placeholder="搜手机号、邮箱、名字" aria-label="搜会员">
+          <button class="btn quiet" type="button" id="memReload">刷新</button>
         </div>
-    </div>
-    </div>
+      </div>
+      <p class="note">每买 1 支盖 1 个章，订单改成「已确认」自动盖。店里现场买的，在这里点 ＋ 补章、－ 扣章；Telegram 里发 <b>盖 手机号 鸭嘴兽 3</b> 也行。满 10 个的会员排在最前面。</p>
+      <div class="mem-list" id="users-container"><div class="loading">加载中…</div></div>
+      <details class="legacy" id="legacy-users">
+        <summary>老网站的邮箱账号 <span id="legacy-count" style="color:var(--muted);font-weight:700"></span></summary>
+        <p>这些顾客用原来的邮箱和密码登录新网站，会自动变成会员（集章从 0 开始），然后出现在上面。</p>
+        <div class="legacy-list" id="legacy-container"></div>
+      </details>
+    </section>
 
-    <!-- Agents -->
-    <div id="section-agents" style="display:none;padding:1.25rem 2rem 2rem">
-        <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem">产品销量统计</h3>
-        <div id="product-stats-container" style="margin-bottom:2rem"><div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div></div>
-        <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem">代理统计</h3>
-        <div id="agents-container"><div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div></div>
-    </div>
-
-    <!-- Inventory -->
-    <!-- 注册用户 Tab -->
-    <div id="section-users" style="display:none;padding:1.25rem 2rem 2rem">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
-            <div>
-                <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:0.25rem">注册用户</h2>
-                <p id="users-count-label" style="font-size:0.85rem;color:#737373">加载中...</p>
-            </div>
-            <button onclick="loadUsers()" style="padding:0.5rem 1rem;border:1px solid #e5e5e5;border-radius:8px;background:#fff;cursor:pointer;font-size:0.8rem;font-family:inherit"><i class="fas fa-sync-alt"></i> 刷新</button>
+    <!-- ---------- stats ---------- -->
+    <section id="section-stats" data-section="stats" hidden>
+      <div class="top">
+        <div><h2>统计</h2><p class="sub">只算已确认、已发货、已完成的订单</p></div>
+        <div class="chips" role="group" aria-label="时间范围" id="statRange">
+          <button class="chip active" type="button" data-range="30">近 30 天</button>
+          <button class="chip" type="button" data-range="month">本月</button>
+          <button class="chip" type="button" data-range="all">全部</button>
         </div>
-        <div id="users-container">
-            <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
-        </div>
-    </div>
-
-    <div id="section-inventory" style="display:none;padding:1.25rem 2rem 2rem">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-            <h3 style="font-size:1rem;font-weight:600">库存管理</h3>
-            <div style="display:flex;gap:0.5rem">
-                <button onclick="loadInventory()" style="padding:0.5rem 1rem;border:1px solid #e5e5e5;border-radius:8px;background:#fff;cursor:pointer;font-size:0.8rem;font-family:inherit"><i class="fas fa-sync-alt"></i> 刷新</button>
-                <button onclick="saveInventory()" style="padding:0.5rem 1rem;border:none;border-radius:8px;background:#000;color:#fff;cursor:pointer;font-size:0.8rem;font-weight:600;font-family:inherit"><i class="fas fa-save"></i> 保存库存</button>
-            </div>
-        </div>
-        <div id="inventory-container">
-            <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
-        </div>
-    </div>
+      </div>
+      <div class="stats" id="statsBox"></div>
+    </section>
+  </main>
 </div>
 
 <script>
-    const STATUS_LABELS = { pending: '待付款', paid: '已付款', shipped: '已发货', delivered: '已完成', cancelled: '已取消' };
-    const STATUS_BADGE  = { pending: 'badge-pending', paid: 'badge-paid', shipped: 'badge-shipped', delivered: 'badge-delivered', cancelled: 'badge-cancelled' };
+'use strict';
+// Back office for 口粮专卖店. Talks to the same endpoints as before:
+//   /.netlify/functions/get-orders · delete-order · get-inventory · set-inventory · get-users · notify-status
+//   /api/admin/status (status change: stamps, gift refunds, stock and the Telegram message all follow)
+//   /api/admin/members · /api/admin/stamp
+// Everything a customer typed is escaped before it goes into the page; buttons carry data-* attributes
+// and are handled by delegation (no inline onclick with order data in it).
 
-    let adminPass = '';
-    let allOrders = [];
-    let activeFilters = { dateRange: 'today', status: 'all', payment: 'all', delivery: 'all' };
+// products and flavors: build.sh writes them from site/src/products.json — don't edit this line by hand
+const PRODUCTS_DEF = /*PRODUCTS*/[{"id": 1, "name": "鸭嘴兽 (Dash)", "price": 17.9, "flavors": [{"name": "Jasmine LongJing Tea", "nameCn": "龙井"}, {"name": "Lemon Tea", "nameCn": "柠檬茶"}, {"name": "Green Grape", "nameCn": "青提"}, {"name": "Sweet Honeydew", "nameCn": "甜蜜瓜"}, {"name": "Crystal Grape", "nameCn": "紫晶葡萄"}, {"name": "Mineral Water", "nameCn": "矿泉水"}, {"name": "Coconut Water", "nameCn": "椰子水"}, {"name": "Alpine White Peach", "nameCn": "高山白桃"}, {"name": "Floral Oolong", "nameCn": "花香乌龙"}, {"name": "Honey Yuzu Tea", "nameCn": "蜂蜜柚子茶"}, {"name": "Salted Fizz", "nameCn": "海盐气泡"}, {"name": "Kiwi Ice", "nameCn": "猕猴桃冰"}, {"name": "Red Wine Ice", "nameCn": "红酒冰"}, {"name": "Matcha Smoothie", "nameCn": "抹茶思慕雪"}, {"name": "Peach Ice", "nameCn": "水蜜桃冰"}, {"name": "Pink Guava", "nameCn": "粉红番石榴"}, {"name": "Black Dragon Ice", "nameCn": "黑龙冰"}, {"name": "Corn Gelato", "nameCn": "玉米冰激凌"}, {"name": "White Freeze", "nameCn": "老冰棍"}, {"name": "Passion Grapefruit", "nameCn": "百香西柚"}, {"name": "Lush Ice", "nameCn": "西瓜冰"}, {"name": "Lemon Pineapple", "nameCn": "柠檬菠萝"}, {"name": "Green Apple Ice", "nameCn": "青苹果冰"}, {"name": "Tea Guan Yin King", "nameCn": "铁观音"}, {"name": "Taro Ice", "nameCn": "香芋冰"}, {"name": "Lychee Ice", "nameCn": "荔枝冰"}, {"name": "Hibiscus Ice Tea", "nameCn": "洛神花冰茶"}, {"name": "Ludou Ice", "nameCn": "绿豆冰"}, {"name": "Lime Ice", "nameCn": "青柠冰"}, {"name": "Mint Mojito", "nameCn": "薄荷莫吉托"}, {"name": "Da Hong Pao", "nameCn": "大红袍"}]}, {"id": 2, "name": "冰爆 (IceMax)", "price": 15.9, "flavors": [{"name": "Passion Grapefruit", "nameCn": "百香西柚"}, {"name": "Jasmine Milk Tea", "nameCn": "茉莉奶茶"}, {"name": "Iced Pocari", "nameCn": "冰镇宝矿力"}, {"name": "Coconut Water", "nameCn": "椰子水"}, {"name": "Miami Mint", "nameCn": "迈阿密薄荷"}, {"name": "Longjing Ice Tea", "nameCn": "龙井冰茶"}, {"name": "Green Grape Ice", "nameCn": "青葡萄冰"}, {"name": "Fresh Lemon", "nameCn": "新鲜柠檬"}, {"name": "Lychee Ice", "nameCn": "荔枝冰"}, {"name": "Peach Oolong", "nameCn": "水蜜桃乌龙"}, {"name": "Lemon Pineapple", "nameCn": "柠檬菠萝"}, {"name": "Sour Guava Ice", "nameCn": "巨峰葡萄"}, {"name": "Tangy Grape", "nameCn": "番石榴"}]}, {"id": 3, "name": "小黑条 (Quik)", "price": 17.9, "flavors": [{"name": "Longan", "nameCn": "龙眼"}, {"name": "Banana", "nameCn": "香蕉"}, {"name": "Durian", "nameCn": "榴莲"}, {"name": "Honeydew", "nameCn": "蜜露"}, {"name": "Mango", "nameCn": "芒果"}, {"name": "Coconut Ice", "nameCn": "椰子冰"}, {"name": "Peach", "nameCn": "水蜜桃"}, {"name": "Guava", "nameCn": "番石榴"}, {"name": "Lychee", "nameCn": "荔枝"}]}, {"id": 4, "name": "冰王 (Elfbar IceKing)", "price": 30, "flavors": [{"name": "Jasmine Longjing", "nameCn": "茉莉龙井"}, {"name": "Salted Lemon", "nameCn": "海盐柠檬"}, {"name": "Tieguanyin", "nameCn": "铁观音"}, {"name": "Grape Ice", "nameCn": "黑葡萄冰"}, {"name": "Green Grape Ice", "nameCn": "青葡萄冰"}, {"name": "Green Tea", "nameCn": "绿茶"}]}, {"id": 5, "name": "高维 (GOwif)", "price": 25.9, "flavors": [{"name": "Peach Tea", "nameCn": "桃茶"}, {"name": "Passion Fruit", "nameCn": "百香果"}, {"name": "Green Bean Ice", "nameCn": "绿豆"}, {"name": "Crispy Apple", "nameCn": "脆苹果"}, {"name": "Lychee Ice", "nameCn": "荔枝冰"}, {"name": "Plum Pineapple", "nameCn": "话梅菠萝"}, {"name": "Fresh Mint", "nameCn": "清凉薄荷"}, {"name": "Watermelon Ice", "nameCn": "西瓜冰"}, {"name": "Green Grape", "nameCn": "青葡萄"}, {"name": "Lime Ice", "nameCn": "青柠冰"}, {"name": "Jasmine Longjing", "nameCn": "茉莉龙井"}, {"name": "Blueberry Raspberry", "nameCn": "蓝莓覆盆子"}, {"name": "Bayberry Green Salt", "nameCn": "杨梅绿盐"}, {"name": "Taro Ice Cream", "nameCn": "香芋冰淇淋"}, {"name": "100 Plus", "nameCn": "100 Plus"}]}, {"id": 6, "name": "RELX 悦刻幻五代烟弹 (3支装)", "price": 14.9, "flavors": [{"name": "Mixed Berries", "nameCn": "混合浆果"}, {"name": "Taro Ice Cream", "nameCn": "香芋冰淇淋"}, {"name": "Tieguanyin", "nameCn": "铁观音"}, {"name": "Mineral Water", "nameCn": "矿泉水"}, {"name": "Coconut Ice", "nameCn": "椰子冰"}, {"name": "Sprite Lime", "nameCn": "雪碧"}, {"name": "Yogurt", "nameCn": "酸奶"}, {"name": "Plum", "nameCn": "西梅"}, {"name": "Lemon Cherry", "nameCn": "爆柠樱桃"}, {"name": "Peach Oolong", "nameCn": "桃气乌龙"}, {"name": "Guava", "nameCn": "番石榴"}, {"name": "Coffee", "nameCn": "咖啡"}, {"name": "Mojito", "nameCn": "莫吉托"}, {"name": "Iced Black Tea", "nameCn": "冰红茶"}, {"name": "Passion Fruit", "nameCn": "百香果"}, {"name": "Ice Pop", "nameCn": "冰棍"}, {"name": "Mung Bean", "nameCn": "绿豆"}, {"name": "Longjing", "nameCn": "龙井"}, {"name": "Iced Lemon Mint", "nameCn": "冰柠薄荷"}, {"name": "Jasmine Tea", "nameCn": "茉莉花茶"}, {"name": "Vitamin C Orange", "nameCn": "C味鲜橙"}]}]/*END*/;
 
-    // 老客聚合：phone → 累计订单数
-    let customerOrderCount = {};
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const euro = n => '€' + (+n || 0).toFixed(2);
+const shortName = p => p.name.replace(/\s*\(.*\)\s*/, '');
+const STATUS = { pending: '待确认', paid: '已确认', shipped: '已发货', delivered: '已完成', cancelled: '已取消' };
+const NEXT = { pending: ['paid', '确认订单'], paid: ['shipped', '标记已发货'], shipped: ['delivered', '标记已完成'] };
+const PAID = new Set(['paid', 'shipped', 'delivered']);
+const MODE = { pickup: '自取', delivery: '外送', postal: '邮寄' };
+const STAMPS = 10;
+const isPaid = o => PAID.has(o.payment_status);
+const day0 = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x.getTime(); };
+const isToday = o => day0(o.created_at) === day0(Date.now());
+const fmtPhone = d => (/^34\d{9}$/.test(d) ? `+34 ${d.slice(2, 5)} ${d.slice(5, 8)} ${d.slice(8)}` : '+' + d);
+function when(t) {
+  const d = new Date(t), hm = d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
+  const diff = Math.round((day0(Date.now()) - day0(d)) / 864e5);
+  return diff === 0 ? `今天 ${hm}` : diff === 1 ? `昨天 ${hm}` : `${d.getMonth() + 1}月${d.getDate()}日 ${hm}`;
+}
 
-    // 新订单声音提醒
-    let lastOrderIds = new Set();
-    let isFirstLoad = true;
+let pass = sessionStorage.getItem('vs-admin') || '';
+let orders = [], members = null, inv = {}, invEdits = new Map();
+const F = { range: 'today', status: 'all', delivery: 'all', q: '' };
+let invFilter = 'all', statRange = '30', tab = 'orders', seen = null, timer = null;
 
-    // 自动刷新相关变量
-    let autoRefreshTimer = null;
-    const AUTO_REFRESH_INTERVAL = 60000; // 60秒
-    let lastRefreshTime = null;
+// ---------- server ----------
+async function call(url, opts = {}) {
+  const res = await fetch(url, opts);
+  if (res.status === 401) { logout('密码不对或已更改，请重新登录'); throw Object.assign(new Error('未登录'), { auth: true }); }
+  return res;
+}
+const postJSON = (url, body) => call(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pass, ...body }) });
 
-    // 已付款判定（与后端 update-order.js 第 6 行保持一致）
-    const PAID_STATUSES = new Set(['paid', 'shipped', 'delivered']);
-    const isPaid = (o) => PAID_STATUSES.has(o.payment_status);
+// ---------- login ----------
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const pw = $('admin-password-input').value;
+  if (!pw) return;
+  const btn = e.target.querySelector('.login-btn');
+  btn.disabled = true; btn.textContent = '登录中…'; $('login-error').textContent = '';
+  pass = pw;
+  const ok = await loadOrders(true);
+  btn.disabled = false; btn.textContent = '登录';
+  if (ok) enter();
+});
+function enter() {
+  sessionStorage.setItem('vs-admin', pass);
+  $('login-screen').hidden = true; $('dashboard').hidden = false;
+  setAuto();
+}
+function logout(msg = '') {
+  pass = ''; orders = []; members = null; seen = null;
+  sessionStorage.removeItem('vs-admin');
+  clearInterval(timer);
+  $('dashboard').hidden = true; $('login-screen').hidden = false;
+  $('login-error').textContent = msg;
+  $('admin-password-input').value = '';
+  document.title = '后台 · 口粮专卖店';
+}
+$('logoutBtn').addEventListener('click', () => logout());
+$('logoutTab').addEventListener('click', () => { if (confirm('退出后台？')) logout(); });
 
-    // 判断订单是否是今天创建
-    function isToday(order) {
-        const today = new Date(); today.setHours(0,0,0,0);
-        const d = new Date(order.created_at); d.setHours(0,0,0,0);
-        return d.getTime() === today.getTime();
+// ---------- tabs ----------
+document.querySelector('.nav').addEventListener('click', e => {
+  const b = e.target.closest('[data-tab]');
+  if (b) show(b.dataset.tab);
+});
+function show(t) {
+  tab = t;
+  if ($('admin-toast')) $('admin-toast').hidden = true;
+  document.querySelectorAll('.nav .tab').forEach(b => b.setAttribute('aria-current', b.dataset.tab === t ? 'page' : 'false'));
+  document.querySelectorAll('main > section').forEach(s => { s.hidden = s.dataset.section !== t; });
+  window.scrollTo(0, 0);
+  if (t === 'inventory') loadInventory();
+  if (t === 'users') loadMembers();
+  if (t === 'stats') { renderStats(); if (!members) loadMembers(true); }
+}
+
+// ---------- orders ----------
+async function loadOrders(fromLogin = false) {
+  try {
+    const res = await call(`/.netlify/functions/get-orders?password=${encodeURIComponent(pass)}&status=all`);
+    const data = await res.json();
+    if (data && data.debug_error !== undefined) {
+      if (fromLogin) { $('login-error').textContent = '读不到订单：' + String(data.debug_error).slice(0, 120); return false; }
+      $('orders-container').innerHTML = `<div class="empty bad">数据库报错（HTTP ${esc(data.status)}）：\n${esc(data.debug_error)}</div>`;
+      return false;
     }
-
-    // 老客聚合：基于 customer_phone 统计订单数（用于在卡片上标注 "老客 N 单"）
-    function buildCustomerCounts(orders) {
-        customerOrderCount = {};
-        for (const o of orders) {
-            const phone = (o.customer_phone || '').trim();
-            if (!phone) continue;
-            customerOrderCount[phone] = (customerOrderCount[phone] || 0) + 1;
-        }
-    }
-
-    // 新订单检测：每次拉到数据后，与上次的 id 集合对比，有新增则播放提示音
-    function checkNewOrders(orders) {
-        const currentIds = new Set(orders.map(o => o.id));
-        const newOrders = [...currentIds].filter(id => !lastOrderIds.has(id));
-        const soundOn = document.getElementById('sound-toggle')?.checked;
-        if (!isFirstLoad && newOrders.length > 0 && soundOn) {
-            playDing();
-        }
-        lastOrderIds = currentIds;
-        isFirstLoad = false;
-    }
-
-    // 用 Web Audio 合成"叮"两声短音（无需外部音频文件）
-    function playDing() {
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(880, ctx.currentTime);
-            osc.frequency.setValueAtTime(660, ctx.currentTime + 0.12);
-            gain.gain.setValueAtTime(0.25, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
-            osc.start(ctx.currentTime);
-            osc.stop(ctx.currentTime + 0.35);
-        } catch (err) {
-            console.warn('提示音播放失败：', err);
-        }
-    }
-
-    // 导出当前可见订单为 CSV（带 BOM 防 Excel 中文乱码）
-    function exportCSV() {
-        const baseFiltered = applyBaseFilters(allOrders);
-        const finalFiltered = activeFilters.status === 'all'
-            ? baseFiltered
-            : baseFiltered.filter(o => o.payment_status === activeFilters.status);
-
-        if (!finalFiltered.length) {
-            alert('当前视图没有订单可导出');
-            return;
-        }
-
-        const headers = ['订单号','下单时间','客户','电话','商品明细','总额(€)','支付方式','支付状态','配送方式','地址'];
-        const rows = finalFiltered.map(o => [
-            o.order_number || '',
-            new Date(o.created_at).toLocaleString('zh-CN'),
-            o.customer_name || '',
-            o.customer_phone || '',
-            (o.items || []).map(i => `${i.name} x${i.quantity}`).join(' | '),
-            parseFloat(o.total || 0).toFixed(2),
-            o.payment_method || '',
-            STATUS_LABELS[o.payment_status] || o.payment_status || '',
-            o.delivery_type || 'pickup',
-            (o.address || '').replace(/\n/g, ' ')
-        ]);
-
-        const escape = cell => `"${String(cell).replace(/"/g, '""')}"`;
-        const csv = '﻿' + [headers, ...rows].map(r => r.map(escape).join(',')).join('\n');
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        const today = new Date().toISOString().slice(0, 10);
-        const scope = activeFilters.dateRange === 'today' ? 'today' : 'history';
-        a.href = url;
-        a.download = `vapeshop-orders-${scope}-${today}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
-    function adminLogin() {
-        const input = document.getElementById('admin-password-input').value;
-        if (!input) return;
-        adminPass = input;
-        showDashboard();
-        loadOrders();
-    }
-
-    function adminLogout() {
-        adminPass = '';
-        allOrders = [];
-        stopAutoRefresh(); // 停止自动刷新
-        document.getElementById('dashboard').style.display = 'none';
-        document.getElementById('login-screen').style.display = 'flex';
-        document.getElementById('admin-password-input').value = '';
-    }
-
-    async function loadOrders() {
-        const container = document.getElementById('orders-container');
-        container.innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
-
-        try {
-            const res = await fetch(`/.netlify/functions/get-orders?password=${encodeURIComponent(adminPass)}&status=all`);
-
-            if (res.status === 401) {
-                // 密码错误，退回登录
-                adminLogout();
-                document.getElementById('login-error').style.display = 'block';
-                return;
-            }
-
-            const data = await res.json();
-
-            if (data && data.debug_error !== undefined) {
-                let errMsg = data.debug_error;
-                try { errMsg = JSON.stringify(JSON.parse(errMsg), null, 2); } catch(e) {}
-                container.innerHTML = `<div class="empty-state" style="color:#dc2626"><b>Supabase 错误 (HTTP ${data.status}):</b><pre style="text-align:left;font-size:0.75rem;margin-top:0.75rem;background:#fee2e2;padding:1rem;border-radius:8px;overflow:auto">${errMsg}</pre></div>`;
-                return;
-            }
-
-            if (!Array.isArray(data)) {
-                container.innerHTML = `<div class="empty-state" style="color:#dc2626">数据格式错误: <pre style="font-size:0.75rem">${JSON.stringify(data)}</pre></div>`;
-                return;
-            }
-
-            allOrders = data;
-            buildCustomerCounts(allOrders);
-            checkNewOrders(allOrders);
-            renderStats(allOrders);
-            applyFilters();
-            updateLastRefreshTime();
-        } catch (err) {
-            container.innerHTML = `<div class="empty-state" style="color:#dc2626">请求失败（本地预览无法访问服务器）: ${err.message}</div>`;
-        }
-    }
-
-    function showDashboard() {
-        document.getElementById('login-error').style.display = 'none';
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
-        // 设置自动刷新
-        setupAutoRefresh();
-    }
-
-    // 自动刷新功能
-    function updateLastRefreshTime() {
-        lastRefreshTime = new Date();
-        const timeStr = lastRefreshTime.toLocaleTimeString('zh-CN', { hour12: false });
-        const element = document.getElementById('last-refresh-time');
-        if (element) {
-            element.textContent = `最后刷新：${timeStr}`;
-        }
-    }
-
-    function startAutoRefresh() {
-        stopAutoRefresh(); // 先停止现有的定时器
-        autoRefreshTimer = setInterval(() => {
-            console.log('自动刷新订单数据...');
-            loadOrders();
-        }, AUTO_REFRESH_INTERVAL);
-    }
-
-    function stopAutoRefresh() {
-        if (autoRefreshTimer) {
-            clearInterval(autoRefreshTimer);
-            autoRefreshTimer = null;
-        }
-    }
-
-    function setupAutoRefresh() {
-        const toggle = document.getElementById('auto-refresh-toggle');
-        if (!toggle) return;
-
-        toggle.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                startAutoRefresh();
-            } else {
-                stopAutoRefresh();
-            }
-        });
-
-        // 初始启动（默认已勾选）
-        if (toggle.checked) {
-            startAutoRefresh();
-        }
-    }
-
-    // 页面卸载时停止定时器
-    window.addEventListener('beforeunload', () => {
-        stopAutoRefresh();
-    });
-
-    function setFilter(btn) {
-        const group = btn.dataset.group;
-        activeFilters[group] = btn.dataset.value;
-        // Update chip UI
-        document.querySelectorAll(`.chip[data-group="${group}"]`).forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        applyFilters();
-    }
-
-    function setDateRange(btn) {
-        activeFilters.dateRange = btn.dataset.range;
-        document.querySelectorAll('.date-tab').forEach(t => t.classList.remove('active'));
-        btn.classList.add('active');
-        applyFilters();
-    }
-
-    // 基础筛选（日期 Tab + payment + delivery + 搜索框），不含状态筛选
-    function applyBaseFilters(orders) {
-        const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
-        return orders.filter(o => {
-            if (activeFilters.dateRange === 'today' && !isToday(o)) return false;
-            if (activeFilters.dateRange === 'history' && isToday(o)) return false;
-            if (activeFilters.payment !== 'all' && o.payment_method !== activeFilters.payment) return false;
-            if (activeFilters.delivery !== 'all' && (o.delivery_type || 'pickup') !== activeFilters.delivery) return false;
-            if (q) {
-                const haystack = `${o.order_number} ${o.customer_name} ${o.customer_phone}`.toLowerCase();
-                if (!haystack.includes(q)) return false;
-            }
-            return true;
-        });
-    }
-
-    function applyFilters() {
-        // Step 1: 日期 Tab 计数（不受其他 filter 影响）
-        renderDateCounts();
-
-        // Step 2: 基础筛选（日期 + 支付 + 配送 + 搜索）
-        const baseFiltered = applyBaseFilters(allOrders);
-
-        // Step 3: 在基础结果上算各状态计数，更新状态 chip badge
-        renderStatusCounts(baseFiltered);
-
-        // Step 4: 再叠加状态筛选 → 最终展示集合
-        const finalFiltered = activeFilters.status === 'all'
-            ? baseFiltered
-            : baseFiltered.filter(o => o.payment_status === activeFilters.status);
-
-        const countEl = document.getElementById('result-count');
-        if (countEl) countEl.textContent = finalFiltered.length < allOrders.length
-            ? `找到 ${finalFiltered.length} / ${allOrders.length} 条`
-            : `共 ${allOrders.length} 条`;
-
-        renderOrders(finalFiltered);
-    }
-
-    function renderDateCounts() {
-        const todayCount = allOrders.filter(isToday).length;
-        const historyCount = allOrders.length - todayCount;
-        const t = document.getElementById('date-count-today');
-        const h = document.getElementById('date-count-history');
-        if (t) t.textContent = todayCount;
-        if (h) h.textContent = historyCount;
-    }
-
-    function renderStatusCounts(baseFiltered) {
-        const counts = { all: baseFiltered.length, pending: 0, paid: 0, shipped: 0, delivered: 0, cancelled: 0 };
-        baseFiltered.forEach(o => {
-            if (counts[o.payment_status] !== undefined) counts[o.payment_status]++;
-        });
-        document.querySelectorAll('.chip[data-group="status"]').forEach(chip => {
-            const v = chip.dataset.value;
-            const label = chip.dataset.label || chip.textContent.replace(/\s*\d+\s*$/, '').trim();
-            chip.dataset.label = label;
-            chip.innerHTML = `${label} <span class="chip-count">${counts[v] ?? 0}</span>`;
-        });
-    }
-
-    function renderStats(orders) {
-        const now = new Date();
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        monthStart.setHours(0, 0, 0, 0);
-
-        const todayOrders = orders.filter(isToday);
-        const todayPaidRevenue = todayOrders.filter(isPaid).reduce((s, o) => s + parseFloat(o.total || 0), 0);
-        const monthPaidRevenue = orders
-            .filter(o => isPaid(o) && new Date(o.created_at) >= monthStart)
-            .reduce((s, o) => s + parseFloat(o.total || 0), 0);
-        const totalPaidRevenue = orders.filter(isPaid).reduce((s, o) => s + parseFloat(o.total || 0), 0);
-        const pendingCount = orders.filter(o => o.payment_status === 'pending').length;
-
-        const fmt = n => '€' + n.toFixed(2);
-
-        document.getElementById('stat-today').textContent       = fmt(todayPaidRevenue);
-        document.getElementById('stat-today-count').textContent = todayOrders.length;
-        document.getElementById('stat-month').textContent       = fmt(monthPaidRevenue);
-        document.getElementById('stat-revenue').textContent = fmt(totalPaidRevenue);
-        document.getElementById('stat-pending').textContent = pendingCount + ' 单';
-    }
-
-    function renderOrders(orders) {
-        const container = document.getElementById('orders-container');
-        if (!orders.length) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i>暂无符合条件的订单</div>';
-            return;
-        }
-
-        container.innerHTML = orders.map(order => {
-            const date       = new Date(order.created_at).toLocaleString('zh-CN');
-            const itemsList  = (order.items || []).map(i => `${i.name} ×${i.quantity}`).join(' · ');
-            const payBadge   = order.payment_method === 'bizum' ? 'badge-bizum' : order.payment_method === 'cash' ? 'badge-cash' : order.payment_method === 'wechat' ? 'badge-bizum' : order.payment_method === 'alipay' ? 'badge-alipay' : 'badge-card';
-            const payLabel   = order.payment_method === 'bizum' ? '<i class="fas fa-mobile-alt"></i> Bizum' : order.payment_method === 'cash' ? '<i class="fas fa-money-bill-wave"></i> 现金' : order.payment_method === 'wechat' ? '<i class="fab fa-weixin"></i> 微信' : order.payment_method === 'alipay' ? '<i class="fab fa-alipay"></i> 支付宝' : '<i class="fas fa-credit-card"></i> 银行卡';
-            const statusBadge = STATUS_BADGE[order.payment_status] || 'badge-pending';
-            const statusLabel = STATUS_LABELS[order.payment_status] || order.payment_status;
-            const isDelivery  = order.delivery_type === 'delivery';
-            const isPostal    = order.delivery_type === 'postal';
-            const phone = (order.customer_phone || '').replace(/\s+/g, '').replace(/^\+/, '');
-            const itemsSummary = (order.items || []).map(i => `${i.name} x${i.quantity}`).join(', ');
-            const addrLines   = (order.address||'').split('\n').filter(Boolean).map(l=>`  ${l}`).join('\n');
-            const msgConfirm  = encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 已确认，总金额 €${parseFloat(order.total||0).toFixed(2)}，感谢您的购买！🙏\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} ha sido confirmado. Total: €${parseFloat(order.total||0).toFixed(2)}. ¡Gracias! 🙏`);
-            const msgShipped  = isDelivery
-                ? encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 正在派送中，预计送达时间：${order.delivery_time || '待确认'}。🛵\n\n配送地址：\n${addrLines}\n\n如有问题请联系我们！\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} está en camino. Hora estimada: ${order.delivery_time || 'por confirmar'}. 🛵\n\nDirección de entrega:\n${addrLines}\n\n¡Contáctanos si necesitas algo!`)
-                : encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 已发货，请注意查收。📦\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} ha sido enviado. Pronto lo recibirás. 📦`);
-            const msgPostal   = encodeURIComponent(`你好 ${order.customer_name}！您的订单 ${order.order_number} 已安排邮寄发货。📦\n\n寄送地址：\n${addrLines}\n\n如有问题请随时联系我们！\n\nHola ${order.customer_name}! Tu pedido ${order.order_number} ha sido enviado por correo postal. 📦\n\nDirección de envío:\n${addrLines}\n\n¡Contáctanos si tienes cualquier duda!`);
-            const msgFeedback = encodeURIComponent(`你好 ${order.customer_name}！您对订单 ${order.order_number} 满意吗？期待您的反馈！😊\n\nHola ${order.customer_name}! ¿Qué tal tu experiencia con el pedido ${order.order_number}? ¡Nos encantaría saberlo! 😊`);
-            const msgCancel   = encodeURIComponent(`你好 ${order.customer_name}！很遗憾，您的订单 ${order.order_number} 已被取消。如有疑问请联系我们。🙏\n\nHola ${order.customer_name}! Lamentamos informarte que tu pedido ${order.order_number} ha sido cancelado. Contáctanos si tienes dudas. 🙏`);
-            const waId = `wa-${order.id}`;
-            const phoneKey = (order.customer_phone || '').trim();
-            const customerTotal = phoneKey ? (customerOrderCount[phoneKey] || 0) : 0;
-            const vipBadge = customerTotal >= 2 ? `<span class="vip-badge">👑 老客 ${customerTotal} 单</span>` : '';
-
-            return `
-            <div class="order-card">
-                <div class="order-top">
-                    <div class="order-top-left">
-                        <div>
-                            <div class="order-number">${order.order_number}</div>
-                            <div class="order-date"><i class="far fa-clock" style="margin-right:0.3rem"></i>${date}</div>
-                        </div>
-                    </div>
-                    <span class="badge ${statusBadge}">${statusLabel}</span>
-                </div>
-
-                <div class="order-customer-row">
-                    <div class="order-info-row">
-                        <i class="fas fa-user"></i>
-                        <span><strong>${order.customer_name}</strong>${vipBadge}</span>
-                    </div>
-                    <div class="order-info-row">
-                        <i class="fas fa-phone"></i>
-                        <span>${order.customer_phone}</span>
-                    </div>
-                </div>
-
-                ${isDelivery ? `
-                <div class="delivery-block">
-                    <div class="delivery-block-title"><i class="fas fa-motorcycle"></i> 外送信息</div>
-                    ${(order.address || '').split('\n').filter(Boolean).map((line, i) => `<div class="order-info-row"><i class="fas fa-map-marker-alt" style="opacity:${i===0?1:0.4}"></i><span>${line}</span></div>`).join('') || '<div class="order-info-row"><i class="fas fa-map-marker-alt"></i><span>—</span></div>'}
-                    <div class="order-info-row"><i class="far fa-clock"></i><span>期望送达：${order.delivery_time || '未填写'}</span></div>
-                </div>` : isPostal ? `
-                <div class="delivery-block" style="background:#eff6ff;border-color:#bfdbfe">
-                    <div class="delivery-block-title"><i class="fas fa-envelope"></i> 邮寄信息</div>
-                    ${(order.address || '').split('\n').filter(Boolean).map(line => `<div class="order-info-row"><i class="fas fa-map-marker-alt" style="opacity:0.4"></i><span>${line}</span></div>`).join('')}
-                </div>` : `
-                <div class="pickup-tag"><i class="fas fa-store"></i> 自取</div>`}
-
-                <div class="order-items-wrap">${itemsList}</div>
-
-                <div class="order-bottom">
-                    <div class="order-total">€${parseFloat(order.total || 0).toFixed(2)}</div>
-                    <div class="order-meta">
-                        <span class="badge ${payBadge}">${payLabel}</span>
-                        <div class="wa-wrap" id="${waId}">
-                            <button class="wa-btn" onclick="toggleWaDropdown('${waId}')">
-                                <i class="fab fa-whatsapp"></i> 联系客户
-                            </button>
-                            <div class="wa-dropdown" id="drop-${waId}">
-                                <div class="wa-dropdown-title">选择消息模板</div>
-                                <a href="https://wa.me/${phone}?text=${msgConfirm}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-check-circle"></i> 订单已确认</a>
-                                ${isPostal ? `<a href="https://wa.me/${phone}?text=${msgPostal}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-envelope"></i> 邮寄已发货（含地址）</a>` : isDelivery ? `<a href="https://wa.me/${phone}?text=${msgShipped}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-motorcycle"></i> 外送派送中（含地址）</a>` : `<a href="https://wa.me/${phone}?text=${msgShipped}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-truck"></i> 已发货通知</a>`}
-                                <a href="https://wa.me/${phone}?text=${msgFeedback}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-star"></i> 询问反馈</a>
-                                <a href="https://wa.me/${phone}?text=${msgCancel}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-times-circle"></i> 订单已取消</a>
-                                <a href="https://wa.me/${phone}" target="_blank" onclick="closeWaDropdown('${waId}')"><i class="fas fa-comment"></i> 空白消息</a>
-                            </div>
-                        </div>
-                        <select class="status-select" onchange="updateOrderStatus('${order.id}', this.value)">
-                            <option value="pending"   ${order.payment_status==='pending'   ?'selected':''}>待付款</option>
-                            <option value="paid"      ${order.payment_status==='paid'      ?'selected':''}>已付款</option>
-                            <option value="shipped"   ${order.payment_status==='shipped'   ?'selected':''}>已发货</option>
-                            <option value="delivered" ${order.payment_status==='delivered' ?'selected':''}>已完成</option>
-                            <option value="cancelled" ${order.payment_status==='cancelled' ?'selected':''}>已取消</option>
-                        </select>
-                        <button onclick="deleteOrder('${order.id}', '${order.order_number}')" style="padding:0.375rem 0.75rem;background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;border-radius:6px;cursor:pointer;font-size:0.8rem;font-family:inherit">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>`;
-        }).join('');
-    }
-
-    // ── Tab switching ──
-    function switchTab(tab) {
-        ['orders','inventory','agents','users'].forEach(t => {
-            document.getElementById(`section-${t}`).style.display = tab === t ? 'block' : 'none';
-            document.getElementById(`tab-${t}`).style.borderBottomColor = tab === t ? '#000' : 'transparent';
-            document.getElementById(`tab-${t}`).style.color = tab === t ? '#000' : '#737373';
-            document.getElementById(`tab-${t}`).style.fontWeight = tab === t ? '600' : '500';
-        });
-        if (tab === 'inventory') loadInventory();
-        if (tab === 'agents') renderAgentStats();
-        if (tab === 'users') loadUsers();
-    }
-
-    // ── 注册用户 ──
-    async function loadUsers() {
-        document.getElementById('users-container').innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
-        document.getElementById('users-count-label').textContent = '加载中...';
-        try {
-            const res = await fetch(`/.netlify/functions/get-users?password=${encodeURIComponent(adminPass)}`);
-            if (res.status === 401) { document.getElementById('users-container').innerHTML = '<div class="empty-state">无权限</div>'; return; }
-            const data = await res.json();
-            const users = data.users || [];
-            document.getElementById('users-count-label').textContent = `共 ${users.length} 位注册用户`;
-            if (!users.length) {
-                document.getElementById('users-container').innerHTML = '<div class="empty-state">暂无注册用户</div>';
-                return;
-            }
-            document.getElementById('users-container').innerHTML = `
-                <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
-                    <thead>
-                        <tr style="border-bottom:2px solid #e5e5e5;text-align:left">
-                            <th style="padding:0.6rem 1rem">邮箱</th>
-                            <th style="padding:0.6rem 1rem">注册时间</th>
-                            <th style="padding:0.6rem 1rem">最后登录</th>
-                            <th style="padding:0.6rem 1rem">邮箱已验证</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${users.map(u => `
-                        <tr style="border-bottom:1px solid #f5f5f5">
-                            <td style="padding:0.7rem 1rem;font-weight:500">${u.email || '—'}</td>
-                            <td style="padding:0.7rem 1rem;color:#737373">${u.created_at ? new Date(u.created_at).toLocaleString('zh-CN') : '—'}</td>
-                            <td style="padding:0.7rem 1rem;color:#737373">${u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString('zh-CN') : '从未登录'}</td>
-                            <td style="padding:0.7rem 1rem">${u.email_confirmed_at ? '<span style="color:#16a34a;font-weight:600">✓ 已验证</span>' : '<span style="color:#d97706">未验证</span>'}</td>
-                        </tr>`).join('')}
-                    </tbody>
-                </table>`;
-        } catch(e) {
-            document.getElementById('users-container').innerHTML = `<div class="empty-state" style="color:#dc2626">加载失败: ${e.message}</div>`;
-        }
-    }
-
-    // ── Product Sales Stats ──
-    function renderProductStats() {
-        const container = document.getElementById('product-stats-container');
-        if (!allOrders.length) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> 暂无订单数据</div>';
-            return;
-        }
-
-        // 只统计已付款/已发货/已完成的订单
-        const paidOrders = allOrders.filter(o => ['paid','shipped','delivered'].includes(o.payment_status));
-
-        // 按产品名称汇总销量
-        const productSales = {};
-        paidOrders.forEach(o => {
-            const items = Array.isArray(o.items) ? o.items : [];
-            items.forEach(item => {
-                const name = item.productName || item.name || '未知产品';
-                if (!productSales[name]) productSales[name] = { qty: 0, revenue: 0 };
-                productSales[name].qty += (item.quantity || item.qty || 1);
-                productSales[name].revenue += (item.price || 0) * (item.quantity || item.qty || 1);
-            });
-        });
-
-        const totalQty = Object.values(productSales).reduce((s, v) => s + v.qty, 0);
-        const totalRevenue = Object.values(productSales).reduce((s, v) => s + v.revenue, 0);
-
-        const sorted = Object.entries(productSales).sort((a, b) => b[1].qty - a[1].qty);
-
-        const rows = sorted.map(([name, data]) => `
-            <tr style="border-bottom:1px solid #f5f5f5">
-                <td style="padding:0.7rem 1rem;font-weight:500">${name}</td>
-                <td style="padding:0.7rem 1rem;text-align:center;font-weight:700;font-size:1rem">${data.qty}</td>
-                <td style="padding:0.7rem 1rem;text-align:right;color:#16a34a;font-weight:600">€${data.revenue.toFixed(2)}</td>
-                <td style="padding:0.7rem 1rem;text-align:right;color:#737373;font-size:0.8rem">${totalQty ? Math.round(data.qty / totalQty * 100) : 0}%</td>
-            </tr>`).join('');
-
-        container.innerHTML = `
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;margin-bottom:1.25rem">
-            <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1rem;text-align:center">
-                <div style="font-size:1.5rem;font-weight:700">${totalQty}</div>
-                <div style="font-size:0.8rem;color:#737373;margin-top:0.25rem">已售总支数</div>
-            </div>
-            <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1rem;text-align:center">
-                <div style="font-size:1.5rem;font-weight:700;color:#16a34a">€${totalRevenue.toFixed(2)}</div>
-                <div style="font-size:0.8rem;color:#737373;margin-top:0.25rem">已付产品总额</div>
-            </div>
-        </div>
-        <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;overflow:hidden">
-            <table style="width:100%;border-collapse:collapse;font-size:0.875rem">
-                <thead>
-                    <tr style="background:#fafafa;border-bottom:1px solid #e5e5e5">
-                        <th style="padding:0.75rem 1rem;text-align:left;font-weight:600">产品</th>
-                        <th style="padding:0.75rem 1rem;text-align:center;font-weight:600">已售支数</th>
-                        <th style="padding:0.75rem 1rem;text-align:right;font-weight:600">销售额</th>
-                        <th style="padding:0.75rem 1rem;text-align:right;font-weight:600">占比</th>
-                    </tr>
-                </thead>
-                <tbody>${rows}</tbody>
-            </table>
-        </div>`;
-    }
-
-    // ── Agent Stats ──
-    function renderAgentStats() {
-        renderProductStats();
-        const container = document.getElementById('agents-container');
-        if (!allOrders.length) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> 暂无订单数据</div>';
-            return;
-        }
-
-        // 按 agent_ref 分组
-        const groups = {};
-        allOrders.forEach(o => {
-            const ref = o.agent_ref || '__direct__';
-            if (!groups[ref]) groups[ref] = [];
-            groups[ref].push(o);
-        });
-
-        // 排序：代理在前，直接订单在后
-        const keys = Object.keys(groups).sort((a, b) => {
-            if (a === '__direct__') return 1;
-            if (b === '__direct__') return -1;
-            return groups[b].length - groups[a].length;
-        });
-
-        const rows = keys.map(ref => {
-            const orders = groups[ref];
-            const paid = orders.filter(o => o.payment_status !== 'pending');
-            const pending = orders.filter(o => o.payment_status === 'pending');
-            const revenue = paid.reduce((s, o) => s + parseFloat(o.total || 0), 0);
-            const label = ref === '__direct__' ? '直接订单（无代理）' : ref;
-            const linkHtml = ref !== '__direct__'
-                ? `<a href="?ref=${ref}" target="_blank" style="font-size:0.75rem;color:#2563eb">🔗 推广链接</a>`
-                : '';
-            return `
-            <tr>
-                <td style="font-weight:600">${label} ${linkHtml}</td>
-                <td style="text-align:center">${orders.length}</td>
-                <td style="text-align:center;color:#16a34a;font-weight:600">${paid.length}</td>
-                <td style="text-align:center;color:#d97706">${pending.length}</td>
-                <td style="text-align:right;font-weight:700">€${revenue.toFixed(2)}</td>
-                <td style="text-align:center">
-                    ${ref !== '__direct__' ? `<button onclick="filterByAgent('${ref}')" style="padding:0.25rem 0.75rem;border:1px solid #e5e5e5;border-radius:6px;background:#fff;cursor:pointer;font-size:0.8rem">查看订单</button>` : ''}
-                </td>
-            </tr>`;
-        }).join('');
-
-        // 汇总
-        const agentCount = keys.filter(k => k !== '__direct__').length;
-        const agentOrders = allOrders.filter(o => o.agent_ref);
-        const agentRevenue = agentOrders.filter(o => o.payment_status !== 'pending').reduce((s, o) => s + parseFloat(o.total || 0), 0);
-
-        container.innerHTML = `
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1.25rem">
-            <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1rem;text-align:center">
-                <div style="font-size:1.5rem;font-weight:700">${agentCount}</div>
-                <div style="font-size:0.8rem;color:#737373;margin-top:0.25rem">活跃代理</div>
-            </div>
-            <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1rem;text-align:center">
-                <div style="font-size:1.5rem;font-weight:700">${agentOrders.length}</div>
-                <div style="font-size:0.8rem;color:#737373;margin-top:0.25rem">代理订单数</div>
-            </div>
-            <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1rem;text-align:center">
-                <div style="font-size:1.5rem;font-weight:700;color:#16a34a">€${agentRevenue.toFixed(2)}</div>
-                <div style="font-size:0.8rem;color:#737373;margin-top:0.25rem">代理已付总额</div>
-            </div>
-        </div>
-        <div style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;overflow:hidden">
-            <table style="width:100%;border-collapse:collapse;font-size:0.875rem">
-                <thead>
-                    <tr style="background:#fafafa;border-bottom:1px solid #e5e5e5">
-                        <th style="padding:0.75rem 1rem;text-align:left;font-weight:600">代理</th>
-                        <th style="padding:0.75rem 1rem;text-align:center;font-weight:600">总订单</th>
-                        <th style="padding:0.75rem 1rem;text-align:center;font-weight:600">已付款</th>
-                        <th style="padding:0.75rem 1rem;text-align:center;font-weight:600">待付款</th>
-                        <th style="padding:0.75rem 1rem;text-align:right;font-weight:600">已付总额</th>
-                        <th style="padding:0.75rem 1rem;text-align:center;font-weight:600">操作</th>
-                    </tr>
-                </thead>
-                <tbody>${rows}</tbody>
-            </table>
-        </div>`;
-    }
-
-    async function deleteOrder(orderId, orderNumber) {
-        if (!confirm(`确定要删除订单 ${orderNumber} 吗？此操作不可撤销。`)) return;
-        const res = await fetch('/.netlify/functions/delete-order', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password: adminPass, orderId })
-        });
-        if (res.ok) {
-            allOrders = allOrders.filter(o => o.id !== orderId);
-            renderStats(allOrders);
-            applyFilters();
-        } else {
-            alert('删除失败，请重试');
-        }
-    }
-
-    function filterByAgent(ref) {
-        switchTab('orders');
-        document.getElementById('search-input').value = '';
-        // 临时筛选只显示该代理订单
-        const agentOrders = allOrders.filter(o => o.agent_ref === ref);
-        document.getElementById('orders-container').innerHTML = '';
-        renderOrders(agentOrders);
-        const countEl = document.getElementById('result-count');
-        if (countEl) countEl.textContent = `代理 ${ref}：共 ${agentOrders.length} 条订单`;
-    }
-
-    // ── Inventory ──
-    // 产品定义（与前台同步）
-    const PRODUCTS_DEF = [
-        { id: 1, name: '鸭嘴兽 (Dash)', flavors: [
-            { key: 'Jasmine LongJing Tea', label: '龙井' },
-            { key: 'Lemon Tea', label: '柠檬茶' },
-            { key: 'Green Grape', label: '青提' },
-            { key: 'Sweet Honeydew', label: '甜蜜瓜' },
-            { key: 'Crystal Grape', label: '紫晶葡萄' },
-            { key: 'Mineral Water', label: '矿泉水' },
-            { key: 'Coconut Water', label: '椰子水' },
-            { key: 'Alpine White Peach', label: '高山白桃' },
-            { key: 'Floral Oolong', label: '花香乌龙' },
-            { key: 'Honey Yuzu Tea', label: '蜂蜜柚子茶' },
-            { key: 'Salted Fizz', label: '海盐气泡' },
-            { key: 'Kiwi Ice', label: '猕猴桃冰' },
-            { key: 'Red Wine Ice', label: '红酒冰' },
-            { key: 'Matcha Smoothie', label: '抹茶思慕雪' },
-            { key: 'Peach Ice', label: '水蜜桃冰' },
-            { key: 'Pink Guava', label: '粉红番石榴' },
-            { key: 'Black Dragon Ice', label: '黑龙冰' },
-            { key: 'Corn Gelato', label: '玉米冰激凌' },
-            { key: 'White Freeze', label: '老冰棍' },
-            { key: 'Passion Grapefruit', label: '百香西柚' },
-            { key: 'Lush Ice', label: '西瓜冰' },
-            { key: 'Lemon Pineapple', label: '柠檬菠萝' },
-            { key: 'Green Apple Ice', label: '青苹果冰' },
-            { key: 'Tea Guan Yin King', label: '铁观音' },
-            { key: 'Taro Ice', label: '香芋冰' },
-            { key: 'Lychee Ice', label: '荔枝冰' },
-            { key: 'Hibiscus Ice Tea', label: '洛神花冰茶' },
-            { key: 'Ludou Ice', label: '绿豆冰' },
-            { key: 'Lime Ice', label: '青柠冰' }
-        ]},
-        { id: 2, name: '冰爆 (IceMax)', flavors: [
-            { key: 'Passion Grapefruit', label: '百香西柚' },
-            { key: 'Jasmine Milk Tea', label: '茉莉奶茶' },
-            { key: 'Iced Pocari', label: '冰镇宝矿力' },
-            { key: 'Coconut Water', label: '椰子水' },
-            { key: 'Miami Mint', label: '迈阿密薄荷' },
-            { key: 'Longjing Ice Tea', label: '龙井冰茶' },
-            { key: 'Green Grape Ice', label: '青葡萄冰' },
-            { key: 'Fresh Lemon', label: '新鲜柠檬' },
-            { key: 'Lychee Ice', label: '荔枝冰' },
-            { key: 'Peach Oolong', label: '水蜜桃乌龙' },
-            { key: 'Lemon Pineapple', label: '柠檬菠萝' },
-            { key: 'Sour Guava Ice', label: '巨峰葡萄' },
-            { key: 'Tangy Grape', label: '番石榴' }
-        ]},
-        { id: 3, name: '小黑条 (Quik)', flavors: [
-            { key: 'Longan', label: '龙眼' },
-            { key: 'Banana', label: '香蕉' },
-            { key: 'Durian', label: '榴莲' },
-            { key: 'Honeydew', label: '蜜露' },
-            { key: 'Mango', label: '芒果' },
-            { key: 'Coconut Ice', label: '椰子冰' },
-            { key: 'Peach', label: '水蜜桃' },
-            { key: 'Guava', label: '番石榴' },
-            { key: 'Lychee', label: '荔枝' }
-        ]},
-        { id: 4, name: '冰王 (Elfbar IceKing)', flavors: [
-            { key: 'Jasmine Longjing', label: '茉莉龙井' },
-            { key: 'Salted Lemon', label: '海盐柠檬' },
-            { key: 'Tieguanyin', label: '铁观音' },
-            { key: 'Grape Ice', label: '黑葡萄冰' },
-            { key: 'Green Grape Ice', label: '青葡萄冰' },
-            { key: 'Green Tea', label: '绿茶' }
-        ]},
-        { id: 5, name: '高维 (GOwif)', flavors: [
-            { key: 'Peach Tea', label: '桃茶' },
-            { key: 'Passion Fruit', label: '百香果' },
-            { key: 'Green Bean Ice', label: '绿豆' },
-            { key: 'Crispy Apple', label: '脆苹果' },
-            { key: 'Lychee Ice', label: '荔枝冰' },
-            { key: 'Plum Pineapple', label: '话梅菠萝' },
-            { key: 'Fresh Mint', label: '清凉薄荷' },
-            { key: 'Watermelon Ice', label: '西瓜冰' },
-            { key: 'Green Grape', label: '青葡萄' },
-            { key: 'Lime Ice', label: '青柠冰' },
-            { key: 'Jasmine Longjing', label: '茉莉龙井' },
-            { key: 'Blueberry Raspberry', label: '蓝莓覆盆子' },
-            { key: 'Bayberry Green Salt', label: '杨梅绿盐' },
-            { key: 'Taro Ice Cream', label: '香芋冰淇淋' },
-            { key: '100 Plus', label: '100 Plus' }
-        ]},
-        { id: 6, name: 'RELX 悦刻幻五代烟弹 (3支装)', flavors: [
-            { key: 'Mixed Berries', label: '混合浆果' },
-            { key: 'Taro Ice Cream', label: '香芋冰淇淋' },
-            { key: 'Tieguanyin', label: '铁观音' },
-            { key: 'Mineral Water', label: '矿泉水' },
-            { key: 'Coconut Ice', label: '椰子冰' },
-            { key: 'Sprite Lime', label: '雪碧' },
-            { key: 'Yogurt', label: '酸奶' },
-            { key: 'Plum', label: '西梅' },
-            { key: 'Lemon Cherry', label: '爆柠樱桃' },
-            { key: 'Peach Oolong', label: '桃气乌龙' },
-            { key: 'Guava', label: '番石榴' },
-            { key: 'Coffee', label: '咖啡' },
-            { key: 'Mojito', label: '莫吉托' },
-            { key: 'Iced Black Tea', label: '冰红茶' },
-            { key: 'Passion Fruit', label: '百香果' },
-            { key: 'Ice Pop', label: '冰棍' },
-            { key: 'Mung Bean', label: '绿豆' },
-            { key: 'Longjing', label: '龙井' },
-            { key: 'Iced Lemon Mint', label: '冰柠薄荷' },
-            { key: 'Jasmine Tea', label: '茉莉花茶' },
-            { key: 'Vitamin C Orange', label: 'C味鲜橙' }
-        ]}
-    ];
-
-    let inventoryData = {};
-
-    async function loadInventory() {
-        document.getElementById('inventory-container').innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
-        const res = await fetch('/.netlify/functions/get-inventory');
-        const rows = await res.json();
-        inventoryData = {};
-        (rows || []).forEach(r => { inventoryData[`${r.product_id}-${r.flavor_name}`] = r.stock; });
-        renderInventory();
-    }
-
-    function renderInventory() {
-        const container = document.getElementById('inventory-container');
-        container.innerHTML = PRODUCTS_DEF.map(p => {
-            // 口味排序：有货在前，售罄在后
-            const sortedFlavors = [...p.flavors].sort((a, b) => {
-                const aStock = parseInt(inventoryData[`${p.id}-${a.key}`]);
-                const bStock = parseInt(inventoryData[`${p.id}-${b.key}`]);
-                const aZero = !isNaN(aStock) && aStock === 0;
-                const bZero = !isNaN(bStock) && bStock === 0;
-                return aZero - bZero;
-            });
-            const rows = sortedFlavors.map(f => {
-                const key = `${p.id}-${f.key}`;
-                const stock = inventoryData[key] ?? '';
-                const stockNum = parseInt(stock);
-                const tag = isNaN(stockNum) ? '' : stockNum === 0 ? '<span class="sold-out-tag">售罄</span>' : stockNum <= 5 ? '<span class="low-tag">低库存</span>' : '';
-                const cls = isNaN(stockNum) ? '' : stockNum === 0 ? 'stock-zero' : stockNum <= 5 ? 'stock-low' : 'stock-ok';
-                return `<tr>
-                    <td>${f.label}${tag}</td>
-                    <td><input class="inv-stock-input ${cls}" type="number" min="0" data-key="${key}" data-pid="${p.id}" data-fname="${f.key}" data-pname="${p.name}" value="${stock}" placeholder="—" oninput="onStockInput(this)"></td>
-                </tr>`;
-            }).join('');
-            return `<div class="inv-product">
-                <div class="inv-product-header"><i class="fas fa-box"></i> ${p.name}</div>
-                <table class="inv-table">
-                    <thead><tr><th>口味</th><th>库存数量</th></tr></thead>
-                    <tbody>${rows}</tbody>
-                </table>
-            </div>`;
-        }).join('');
-    }
-
-    function onStockInput(el) {
-        const v = parseInt(el.value);
-        el.className = 'inv-stock-input ' + (isNaN(v) ? '' : v === 0 ? 'stock-zero' : v <= 5 ? 'stock-low' : 'stock-ok');
-    }
-
-    async function saveInventory() {
-        const inputs = document.querySelectorAll('.inv-stock-input');
-        const items = [];
-        inputs.forEach(el => {
-            const v = parseInt(el.value);
-            if (!isNaN(v)) {
-                items.push({ product_id: parseInt(el.dataset.pid), product_name: el.dataset.pname, flavor_name: el.dataset.fname, stock: v });
-            }
-        });
-        if (!items.length) return;
-        const btn = document.querySelector('[onclick="saveInventory()"]');
-        btn.textContent = '保存中...'; btn.disabled = true;
-        try {
-            const res = await fetch('/.netlify/functions/set-inventory', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password: adminPass, items })
-            });
-            if (!res.ok) throw new Error(await res.text());
-            btn.innerHTML = '<i class="fas fa-check"></i> 已保存';
-            items.forEach(i => { inventoryData[`${i.product_id}-${i.flavor_name}`] = i.stock; });
-        } catch (err) {
-            btn.innerHTML = '<i class="fas fa-times"></i> 保存失败';
-            alert('保存失败：' + err.message);
-        }
-        setTimeout(() => { btn.innerHTML = '<i class="fas fa-save"></i> 保存库存'; btn.disabled = false; }, 2000);
-    }
-
-    function toggleWaDropdown(id) {
-        const drop = document.getElementById(`drop-${id}`);
-        const isOpen = drop.classList.contains('open');
-        document.querySelectorAll('.wa-dropdown.open').forEach(d => d.classList.remove('open'));
-        if (!isOpen) drop.classList.add('open');
-    }
-
-    function closeWaDropdown(id) {
-        document.getElementById(`drop-${id}`)?.classList.remove('open');
-    }
-
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.wa-wrap')) {
-            document.querySelectorAll('.wa-dropdown.open').forEach(d => d.classList.remove('open'));
-        }
-    });
-
-    async function updateOrderStatus(orderId, status) {
-        const r = await fetch('/.netlify/functions/update-order', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password: adminPass, orderId, status })
-        });
-        try {
-            const data = await r.clone().json();
-            console.log('[updateOrderStatus]', data);
-            if (data.inventoryAction && data.inventoryAction !== 'none' && Array.isArray(data.inventoryLog)) {
-                const failed = data.inventoryLog.filter(x => !x.ok);
-                if (failed.length) {
-                    alert('库存更新失败 — 请打开浏览器控制台查看详情\n' + failed.map(f => `${f.item}: ${f.error || f.body}`).join('\n'));
-                }
-            }
-        } catch (e) { /* response 不是 JSON，忽略 */ }
-        const order = allOrders.find(o => o.id === orderId);
-        if (order) {
-            order.payment_status = status;
-            // 状态变更时推 Telegram 提醒 + WhatsApp 链接
-            fetch('/.netlify/functions/notify-status', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    customerName: order.customer_name,
-                    customerPhone: order.customer_phone,
-                    orderNumber: order.order_number,
-                    status,
-                    total: order.total
-                })
-            }).catch(() => {});
-        }
-        renderStats(allOrders);
-        applyFilters();
-    }
+    if (!Array.isArray(data)) throw new Error('数据格式不对');
+    const fresh = data.filter(o => !seen || !seen.has(o.id));
+    if (seen && fresh.length && $('sound-toggle').checked) ding();
+    seen = new Set(data.map(o => o.id));
+    orders = data;
+    paintAll();
+    $('last-refresh-time').textContent = '刷新于 ' + new Date().toLocaleTimeString('zh-CN', { hour12: false });
+    return true;
+  } catch (e) {
+    if (e.auth) return false;
+    if (fromLogin) $('login-error').textContent = '连不上服务器：' + e.message;
+    else $('orders-container').innerHTML = `<div class="empty bad">连不上服务器：${esc(e.message)}</div>`;
+    return false;
+  }
+}
+function paintAll() {
+  renderSummary();
+  renderOrders();
+  if (tab === 'stats') renderStats();
+}
+function setAuto() {
+  clearInterval(timer);
+  if ($('auto-refresh-toggle').checked) timer = setInterval(() => { if (!document.hidden) loadOrders(); }, 60000);
+}
+$('auto-refresh-toggle').addEventListener('change', setAuto);
+$('refreshBtn').addEventListener('click', () => loadOrders());
+document.addEventListener('visibilitychange', () => { if (!document.hidden && pass && !$('dashboard').hidden) loadOrders(); });
+
+function ding() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)(), o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination); o.type = 'sine';
+    o.frequency.setValueAtTime(880, ctx.currentTime); o.frequency.setValueAtTime(660, ctx.currentTime + 0.12);
+    g.gain.setValueAtTime(0.25, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+    o.start(); o.stop(ctx.currentTime + 0.35);
+  } catch (e) { /* no audio */ }
+}
+
+function renderSummary() {
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+  const sum = list => list.reduce((s, o) => s + (+o.total || 0), 0);
+  const today = orders.filter(isToday), pending = orders.filter(o => o.payment_status === 'pending').length;
+  $('stat-today').textContent = euro(sum(today.filter(isPaid)));
+  $('stat-today-count').textContent = today.length;
+  $('stat-month').textContent = euro(sum(orders.filter(o => isPaid(o) && new Date(o.created_at) >= monthStart)));
+  $('stat-revenue').textContent = euro(sum(orders.filter(isPaid)));
+  $('stat-pending').textContent = pending + ' 单';
+  $('tilePending').classList.toggle('hot', pending > 0);
+  $('navPending').hidden = !pending; $('navPending').textContent = pending;
+  document.title = (pending ? `(${pending}) ` : '') + '后台 · 口粮专卖店';
+  $('ordersSub').textContent = pending ? `${pending} 单等你确认` : '没有待确认的订单';
+}
+
+// what the filters keep; "today" also keeps older orders still waiting, so nothing gets missed
+function baseFiltered() {
+  const q = F.q.toLowerCase().replace(/\s+/g, '');
+  return orders.filter(o => {
+    const t = isToday(o);
+    if (F.range === 'today' && !t && o.payment_status !== 'pending') return false;
+    if (F.range === 'history' && t) return false;
+    if (F.delivery !== 'all' && (o.delivery_type || 'pickup') !== F.delivery) return false;
+    if (q && !`${o.order_number}${o.customer_name}${o.customer_phone}`.toLowerCase().replace(/\s+/g, '').includes(q)) return false;
+    return true;
+  });
+}
+function renderOrders() {
+  const today = orders.filter(isToday).length;
+  $('date-count-today').textContent = today;
+  $('date-count-history').textContent = orders.length - today;
+  $('date-count-all').textContent = orders.length;
+  const base = baseFiltered();
+  const counts = { all: base.length };
+  base.forEach(o => { counts[o.payment_status] = (counts[o.payment_status] || 0) + 1; });
+  document.querySelectorAll('.chip[data-group=status]').forEach(c => {
+    c.dataset.label ||= c.textContent.trim();
+    c.innerHTML = `${c.dataset.label} <span class="chip-count num">${counts[c.dataset.value] || 0}</span>`;
+  });
+  const list = (F.status === 'all' ? base : base.filter(o => o.payment_status === F.status))
+    // waiting orders first, then newest first
+    .sort((a, b) => (a.payment_status === 'pending' ? 0 : 1) - (b.payment_status === 'pending' ? 0 : 1) || new Date(b.created_at) - new Date(a.created_at));
+  $('result-count').textContent = `显示 ${list.length} 单 · 共 ${orders.length} 单`;
+  if (!list.length) {
+    $('orders-container').innerHTML = `<div class="empty"><b>${orders.length ? '没有符合的订单' : '还没有订单'}</b>${orders.length ? '换个日期或状态看看' : '顾客在网站下单后会出现在这里，也会发到 Telegram'}</div>`;
+    return;
+  }
+  const byPhone = {};
+  orders.forEach(o => { const k = (o.customer_phone || '').replace(/\D/g, ''); if (k) byPhone[k] = (byPhone[k] || 0) + 1; });
+  const pend = list.filter(o => o.payment_status === 'pending'), rest = list.filter(o => o.payment_status !== 'pending');
+  $('orders-container').innerHTML =
+    (pend.length && rest.length ? `<p class="group-h">待确认 ${pend.length} 单</p>` : '') +
+    (pend.length ? `<div class="orders">${pend.map(o => card(o, byPhone)).join('')}</div>` : '') +
+    (pend.length && rest.length ? `<p class="group-h" style="color:var(--muted);margin-top:20px">其他</p>` : '') +
+    (rest.length ? `<div class="orders">${rest.map(o => card(o, byPhone)).join('')}</div>` : '');
+}
+
+// an item row: "鸭嘴兽 (Dash) - 柠檬茶 / Lemon Tea" → 鸭嘴兽 · 柠檬茶
+const itemName = i => {
+  const m = String(i.name || '').replace(/^🎁\s*集章赠品\s*/, '').match(/^(.*?)\s+-\s+([^/]*?)\s*(?:\/.*)?$/);
+  return m ? `${m[1].replace(/\s*\(.*?\)\s*/g, ' ').trim()} · ${m[2]}` : String(i.name || '商品');
+};
+function card(o, byPhone) {
+  const st = o.payment_status in STATUS ? o.payment_status : 'pending';
+  const items = Array.isArray(o.items) ? o.items : [];
+  const phone = (o.customer_phone || '').replace(/\D/g, '');
+  const times = byPhone[phone] || 0;
+  const mode = o.delivery_type || 'pickup';
+  const addr = String(o.address || '').split('\n').filter(Boolean);
+  const where = mode === 'delivery' ? `<div class="where delivery"><b>外送 · ${esc(o.delivery_time || '时间待定')}</b>${addr.map(l => `<span>${esc(l)}</span>`).join('') || '<span>没填地址</span>'}</div>`
+    : mode === 'postal' ? `<div class="where postal"><b>邮寄${o.shipping_fee > 0 ? ' · 运费 ' + euro(o.shipping_fee) : ' · 包邮'}</b>${addr.map(l => `<span>${esc(l)}</span>`).join('')}</div>`
+    : `<div class="where"><b>自取 · Metro El Capricho</b></div>`;
+  const leak = o.form?.ackLeak;
+  const old = o.payment_method && o.payment_method !== 'whatsapp';
+  const tags = [
+    o.member_id ? `<span class="badge badge-member" title="会员 ${esc(o.member_id)}">会员${o.stamped ? ' · 已盖章' : st === 'cancelled' ? '' : ' · 确认后盖章'}</span>` : '',
+    items.some(i => i.isFree) ? '<span class="badge badge-gift">集章赠品</span>' : '',
+    leak ? '<span class="badge badge-leak">IceMax 已勾选知晓漏油</span>' : '',
+    old ? `<span class="badge badge-card">老网站 · ${esc(({ bizum: 'Bizum', cash: '现金', wechat: '微信', alipay: '支付宝', card: '银行卡' })[o.payment_method] || o.payment_method)}</span>` : '',
+  ].join('');
+  const next = NEXT[st];
+  const n = esc(o.customer_name), no = esc(o.order_number), tot = euro(o.total);
+  const addrTxt = addr.map(l => '  ' + l).join('\n');
+  const wa = t => `https://wa.me/${phone}?text=${encodeURIComponent(t)}`;
+  const msgs = [
+    ['订单已确认', `你好 ${o.customer_name}！你的订单 ${o.order_number} 已确认，总金额 ${tot}，谢谢！🙏\n\nHola ${o.customer_name}! Tu pedido ${o.order_number} está confirmado. Total: ${tot}. ¡Gracias! 🙏`],
+    mode === 'delivery' ? ['外送出发了（带地址）', `你好 ${o.customer_name}！订单 ${o.order_number} 正在派送，预计 ${o.delivery_time || '稍后'} 送到。🛵\n\n地址：\n${addrTxt}\n\nHola ${o.customer_name}! Tu pedido ${o.order_number} está en camino. 🛵`]
+      : mode === 'postal' ? ['邮寄已发货（带地址）', `你好 ${o.customer_name}！订单 ${o.order_number} 已寄出。📦\n\n地址：\n${addrTxt}\n\nHola ${o.customer_name}! Tu pedido ${o.order_number} ha sido enviado por correo. 📦`]
+      : ['可以来取了', `你好 ${o.customer_name}！订单 ${o.order_number} 准备好了，可以来 Metro El Capricho 取。\n\nHola ${o.customer_name}! Tu pedido ${o.order_number} está listo para recoger.`],
+    ['问问满意吗', `你好 ${o.customer_name}！订单 ${o.order_number} 还满意吗？欢迎反馈 😊\n\nHola ${o.customer_name}! ¿Qué tal tu pedido ${o.order_number}? 😊`],
+    ['订单已取消', `你好 ${o.customer_name}，订单 ${o.order_number} 已取消，有问题随时联系我们。🙏\n\nHola ${o.customer_name}, tu pedido ${o.order_number} ha sido cancelado. 🙏`],
+  ];
+  return `<article class="order-card st-${st}" data-id="${esc(o.id)}">
+    <div class="oc-h"><div><span class="ono num">${no}</span><span class="when">${when(o.created_at)}</span></div><span class="badge seal ${st}">${STATUS[st]}</span></div>
+    <div class="order-customer-row"><strong>${n}</strong>${phone ? `<a href="tel:+${phone}" class="num">${esc(o.customer_phone)}</a>` : ''}${times >= 2 ? `<span class="vip">老客 ${times} 单</span>` : ''}</div>
+    ${where}
+    <ul class="order-items-wrap">${items.map(i => `<li class="${i.isFree ? 'free' : ''}"><span>${i.isFree ? '赠品 · ' : ''}${esc(itemName(i))} × ${+i.quantity || 1}</span><span class="num">${euro((+i.price || 0) * (+i.quantity || 1))}</span></li>`).join('')}</ul>
+    ${o.coupon ? `<div class="order-info-row">优惠码 <b>${esc(o.coupon)}</b>（核对后在 WhatsApp 里给顾客减）</div>` : ''}
+    ${tags ? `<div class="tags">${tags}</div>` : ''}
+    <div class="oc-f">
+      <span class="total num">${tot}</span>
+      ${next ? `<button class="btn ${st === 'pending' ? 'red' : 'primary'}" type="button" data-act="next" data-to="${next[0]}">${next[1]}</button>` : ''}
+      <select class="status-select" data-act="status" aria-label="改状态">${Object.entries(STATUS).map(([k, v]) => `<option value="${k}"${k === st ? ' selected' : ''}>${v}${k === 'paid' && o.member_id ? '（盖章）' : ''}</option>`).join('')}</select>
+      ${phone ? `<details class="wa"><summary>WhatsApp</summary><div class="wa-menu">${msgs.map(([l, t]) => `<a href="${wa(t)}" target="_blank" rel="noopener">${l}</a>`).join('')}<a href="https://wa.me/${phone}" target="_blank" rel="noopener">空白消息</a></div></details>` : ''}
+      <button class="del" type="button" data-act="delete" aria-label="删除订单 ${no}" title="删除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>
+    </div>
+  </article>`;
+}
+
+// filters
+document.querySelector('.date-tabs').addEventListener('click', e => {
+  const b = e.target.closest('.date-tab'); if (!b) return;
+  F.range = b.dataset.range;
+  document.querySelectorAll('.date-tab').forEach(x => x.classList.toggle('active', x === b));
+  renderOrders();
+});
+document.querySelector('#section-orders .filters').addEventListener('click', e => {
+  const c = e.target.closest('.chip[data-group]'); if (!c) return;
+  F[c.dataset.group] = c.dataset.value;
+  document.querySelectorAll(`.chip[data-group=${c.dataset.group}]`).forEach(x => x.classList.toggle('active', x === c));
+  renderOrders();
+});
+$('search-input').addEventListener('input', e => { F.q = e.target.value.trim(); renderOrders(); });
+$('tilePending').addEventListener('click', () => {
+  F.range = 'all'; F.status = 'pending';
+  document.querySelectorAll('.date-tab').forEach(x => x.classList.toggle('active', x.dataset.range === 'all'));
+  document.querySelectorAll('.chip[data-group=status]').forEach(x => x.classList.toggle('active', x.dataset.value === 'pending'));
+  renderOrders();
+  $('orders-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+// order actions
+const container = $('orders-container');
+container.addEventListener('click', e => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  const o = orders.find(x => String(x.id) === b.closest('.order-card').dataset.id); if (!o) return;
+  if (b.dataset.act === 'next') setStatus(o, b.dataset.to, b);
+  if (b.dataset.act === 'delete') deleteOrder(o);
+});
+container.addEventListener('change', e => {
+  if (e.target.dataset.act !== 'status') return;
+  const o = orders.find(x => String(x.id) === e.target.closest('.order-card').dataset.id);
+  if (o) setStatus(o, e.target.value, e.target);
+});
+document.addEventListener('click', e => { document.querySelectorAll('details.wa[open]').forEach(d => { if (!d.contains(e.target)) d.open = false; }); });
+
+async function setStatus(o, status, el) {
+  if (status === o.payment_status) return;
+  if (status === 'cancelled' && !confirm(`把 ${o.order_number} 改成「已取消」？${o.member_id ? `\n会员这单的章会撤回${(o.items || []).some(i => i.isFree) ? '，赠品用掉的 10 个章会退回卡上' : ''}。` : ''}`)) { renderOrders(); return; }
+  if (el) el.disabled = true;
+  let data = {};
+  try {
+    const r = await postJSON('/api/admin/status', { orderId: o.id, status });
+    data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || r.status);
+  } catch (e) {
+    if (!e.auth) toast('状态没改成：' + e.message);
+    loadOrders();
+    return;
+  }
+  o.payment_status = data.unchanged ? (data.status || o.payment_status) : status;
+  if (data.stamped !== undefined) o.stamped = data.stamped;
+  // old-site orders have no Telegram message to update: send the old status ping (with its WhatsApp link)
+  if (!o.tg_message && !data.unchanged) postJSON('/.netlify/functions/notify-status', { customerName: o.customer_name, customerPhone: o.customer_phone, orderNumber: o.order_number, status, total: o.total }).catch(() => {});
+  toast(data.member && data.stamps ? `${o.order_number} → ${STATUS[o.payment_status]} · 会员现在的章：${stampSummary(data.stamps)}` : `${o.order_number} → ${STATUS[o.payment_status]}`);
+  paintAll();
+}
+async function deleteOrder(o) {
+  if (!confirm(`删除订单 ${o.order_number}？删了找不回来。\n\n只想作废的话，把状态改成「已取消」就好：那样会员的章和赠品会自动退回；删除不会动会员的章。`)) return;
+  try {
+    const res = await call('/.netlify/functions/delete-order', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pass, orderId: o.id }) });
+    if (!res.ok) throw new Error(res.status);
+    orders = orders.filter(x => x !== o); seen?.delete(o.id);
+    toast(`已删除 ${o.order_number}`);
+    paintAll();
+  } catch (e) { if (!e.auth) toast('没删成，请再试一次'); }
+}
+
+$('csvBtn').addEventListener('click', () => {
+  const base = baseFiltered(), list = F.status === 'all' ? base : base.filter(o => o.payment_status === F.status);
+  if (!list.length) return toast('当前没有订单可导出');
+  const head = ['订单号', '下单时间', '顾客', '电话', '商品', '总额(€)', '会员', '状态', '方式', '地址', '优惠码'];
+  const rows = list.map(o => [o.order_number, new Date(o.created_at).toLocaleString('zh-CN'), o.customer_name, o.customer_phone,
+    (o.items || []).map(i => `${itemName(i)} x${i.quantity}${i.isFree ? '(赠品)' : ''}`).join(' | '), (+o.total || 0).toFixed(2), o.member_id || '',
+    STATUS[o.payment_status] || o.payment_status, MODE[o.delivery_type || 'pickup'], String(o.address || '').replace(/\n/g, ' '), o.coupon || '']);
+  // a leading = + - @ would make Excel run it as a formula
+  const cell = v => `"${String(v ?? '').replace(/^([=+\-@])/, "'$1").replace(/"/g, '""')}"`;
+  const blob = new Blob(['﻿' + [head, ...rows].map(r => r.map(cell).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `orders-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+});
+
+// ---------- inventory ----------
+async function loadInventory(force = false) {
+  if (invEdits.size && !force) return renderInventory();
+  $('inventory-container').innerHTML = '<div class="loading">加载中…</div>';
+  try {
+    const rows = await (await call(`/.netlify/functions/get-inventory?password=${encodeURIComponent(pass)}`)).json();
+    inv = {};
+    (Array.isArray(rows) ? rows : []).forEach(r => { inv[`${r.product_id}-${r.flavor_name}`] = r.stock; });
+    invEdits.clear();
+    renderInventory();
+  } catch (e) { if (!e.auth) $('inventory-container').innerHTML = `<div class="empty bad">读不到库存：${esc(e.message)}</div>`; }
+}
+const invVal = k => (invEdits.has(k) ? invEdits.get(k) : inv[k]);
+const kind = v => (v === undefined || v === null || v === '' ? 'none' : +v === 0 ? 'zero' : +v <= 5 ? 'low' : 'ok');
+function renderInventory() {
+  const q = $('invSearch').value.trim().toLowerCase();
+  let zero = 0, low = 0;
+  PRODUCTS_DEF.forEach(p => p.flavors.forEach(f => { const k = kind(invVal(`${p.id}-${f.name}`)); if (k === 'zero') zero++; if (k === 'low') low++; }));
+  $('invZeroN').textContent = zero; $('invLowN').textContent = low;
+  $('navOut').hidden = !zero; $('navOut').textContent = zero;
+  $('invSub').textContent = `${zero} 个口味缺货 · ${low} 个库存少（≤5）`;
+  const html = PRODUCTS_DEF.map(p => {
+    const fl = p.flavors.map(f => ({ f, key: `${p.id}-${f.name}`, v: invVal(`${p.id}-${f.name}`) }))
+      .filter(x => (invFilter === 'all' || kind(x.v) === invFilter) && (!q || `${x.f.nameCn} ${x.f.name}`.toLowerCase().includes(q)))
+      // sold out at the bottom, like on the shop
+      .sort((a, b) => (kind(a.v) === 'zero') - (kind(b.v) === 'zero'));
+    if (!fl.length) return '';
+    const pz = p.flavors.filter(f => kind(invVal(`${p.id}-${f.name}`)) === 'zero').length;
+    return `<div class="inv-product"><div class="inv-head"><b>${esc(shortName(p))}</b><small>${p.flavors.length} 味${pz ? ` · <em>${pz} 缺货</em>` : ''}</small></div>
+      ${fl.map(({ f, key, v }) => `<div class="inv-row ${kind(v)}${invEdits.has(key) ? ' changed' : ''}" data-key="${esc(key)}">
+        <span class="nm">${esc(f.nameCn)}<small>${esc(f.name)}</small></span>
+        <input class="inv-stock-input num" type="number" min="0" inputmode="numeric" value="${v ?? ''}" placeholder="—" aria-label="${esc(f.nameCn)} 库存" data-key="${esc(key)}" data-pid="${p.id}" data-fname="${esc(f.name)}">
+        <button class="so-btn" type="button" data-so="${esc(key)}">${kind(v) === 'zero' ? '已缺货' : '缺货'}</button>
+      </div>`).join('')}</div>`;
+  }).join('');
+  $('inventory-container').innerHTML = html || '<div class="empty"><b>没有符合的口味</b>换个筛选看看</div>';
+  $('savebar').hidden = !invEdits.size;
+  $('saveText').textContent = `改了 ${invEdits.size} 个，未保存`;
+}
+function editInv(key, v) {
+  const was = inv[key] ?? '';
+  if (String(v) === String(was)) invEdits.delete(key); else invEdits.set(key, v);
+}
+$('inventory-container').addEventListener('input', e => {
+  const i = e.target.closest('.inv-stock-input'); if (!i) return;
+  editInv(i.dataset.key, i.value === '' ? '' : Math.max(0, parseInt(i.value, 10) || 0));
+  const row = i.closest('.inv-row'), v = invVal(i.dataset.key);
+  row.className = `inv-row ${kind(v)}${invEdits.has(i.dataset.key) ? ' changed' : ''}`;
+  row.querySelector('.so-btn').textContent = kind(v) === 'zero' ? '已缺货' : '缺货';
+  $('savebar').hidden = !invEdits.size; $('saveText').textContent = `改了 ${invEdits.size} 个，未保存`;
+});
+$('inventory-container').addEventListener('change', () => renderInventory());
+$('inventory-container').addEventListener('click', e => {
+  const b = e.target.closest('[data-so]'); if (!b) return;
+  // 缺货 ↔ back to what it was (or untracked)
+  const k = b.dataset.so, v = invVal(k);
+  editInv(k, kind(v) === 'zero' ? (+inv[k] > 0 ? inv[k] : '') : 0);
+  renderInventory();
+});
+$('invChips').addEventListener('click', e => {
+  const c = e.target.closest('[data-inv]'); if (!c) return;
+  invFilter = c.dataset.inv;
+  $('invChips').querySelectorAll('.chip').forEach(x => x.classList.toggle('active', x === c));
+  renderInventory();
+});
+$('invSearch').addEventListener('input', renderInventory);
+$('invReload').addEventListener('click', () => { if (!invEdits.size || confirm('还有没保存的修改，确定丢掉吗？')) loadInventory(true); });
+$('invUndo').addEventListener('click', () => { invEdits.clear(); renderInventory(); });
+$('invSave').addEventListener('click', async () => {
+  // set-inventory saves numbers; an emptied box stays as it was on the server (it can't un-track a flavor)
+  const items = [...invEdits].filter(([, v]) => v !== '').map(([k, v]) => {
+    const pid = +k.split('-')[0], name = k.slice(k.indexOf('-') + 1), p = PRODUCTS_DEF.find(x => x.id === pid);
+    return { product_id: pid, product_name: p ? p.name : '', flavor_name: name, stock: +v };
+  });
+  if (!items.length) { invEdits.clear(); return renderInventory(); }
+  const btn = $('invSave'); btn.disabled = true; btn.textContent = '保存中…';
+  try {
+    const res = await postJSON('/.netlify/functions/set-inventory', { items });
+    if (!res.ok) throw new Error(await res.text());
+    items.forEach(i => { inv[`${i.product_id}-${i.flavor_name}`] = i.stock; });
+    invEdits.clear();
+    toast(`已保存 ${items.length} 个口味的库存，网站 1 分钟内更新`);
+    renderInventory();
+  } catch (e) { if (!e.auth) toast('没保存成：' + e.message); }
+  btn.disabled = false; btn.textContent = '保存库存';
+});
+window.addEventListener('beforeunload', e => { if (invEdits.size) { e.preventDefault(); e.returnValue = ''; } });
+
+// ---------- members ----------
+async function loadMembers(quiet = false) {
+  if (!quiet) $('users-container').innerHTML = '<div class="loading">加载中…</div>';
+  try {
+    const res = await call(`/api/admin/members?password=${encodeURIComponent(pass)}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || res.status);
+    members = data.members || [];
+    renderMembers();
+    if (tab === 'stats') renderStats();
+    if (!quiet) loadLegacy();
+  } catch (e) {
+    if (!e.auth && !quiet) $('users-container').innerHTML = `<div class="empty bad">读不到会员：${esc(e.message)}\n第一次用新网站的话，先在 Supabase 运行 supabase/migrations/20261021000000_members_stamps.sql</div>`;
+  }
+}
+const fullCards = m => PRODUCTS_DEF.filter(p => (m.stamps?.[p.id] || 0) >= STAMPS).length;
+const stampSummary = s => PRODUCTS_DEF.filter(p => s[p.id]).map(p => `${shortName(p)} ${Math.min(s[p.id], STAMPS)}/10${s[p.id] >= STAMPS ? '（满）' : ''}`).join('，') || '还没有章';
+function renderMembers() {
+  if (!members) return;
+  const q = $('member-search').value.trim().toLowerCase().replace(/^\+/, '').replace(/\s+/g, '');
+  const full = members.filter(m => fullCards(m)).length;
+  $('users-count-label').textContent = `共 ${members.length} 位会员 · ${full} 位有满卡（下单会自动带赠品）`;
+  const list = members.filter(m => !q || `${m.name}${m.email || ''}${m.phone || ''}`.toLowerCase().replace(/\s+/g, '').includes(q))
+    .sort((a, b) => fullCards(b) - fullCards(a) || (b.created || 0) - (a.created || 0));
+  if (!list.length) { $('users-container').innerHTML = `<div class="empty"><b>${members.length ? '没找到这个会员' : '还没有会员'}</b>${members.length ? '试试手机号后几位或邮箱' : '顾客在网站注册后会出现在这里'}</div>`; return; }
+  $('users-container').innerHTML = list.map(m => `<div class="mem${fullCards(m) ? ' has-full' : ''}" data-id="${esc(m.id)}">
+    <div class="mem-h"><b>${esc(m.name)}</b>${m.tempPw ? '<span class="tmp">临时密码</span>' : ''}
+      <span class="id num">${esc(m.email || fmtPhone(m.phone || m.id))}</span>
+      ${m.phone ? `<a class="wa-link" href="https://wa.me/${esc(m.phone)}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
+      <span class="since">${m.created ? new Date(m.created).toLocaleDateString('zh-CN') + ' 注册' : ''}</span></div>
+    <div class="mem-lines">${PRODUCTS_DEF.map(p => {
+      const n = m.stamps?.[p.id] || 0, isFull = n >= STAMPS;
+      return `<div class="mem-line${isFull ? ' full' : n ? '' : ' zero'}"><b>${esc(shortName(p))}</b>
+        <span class="dots" aria-hidden="true">${Array.from({ length: STAMPS }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span>
+        <span class="stamp-ctl"><button class="stamp-btn" type="button" data-pid="${p.id}" data-n="-1" aria-label="${esc(shortName(p))} 扣 1 个章"${n ? '' : ' disabled'}>−</button><output class="num">${isFull ? '满了' : `${n}/10`}</output><button class="stamp-btn" type="button" data-pid="${p.id}" data-n="1" aria-label="${esc(shortName(p))} 补 1 个章">＋</button></span></div>`;
+    }).join('')}</div></div>`).join('');
+}
+$('member-search').addEventListener('input', renderMembers);
+$('memReload').addEventListener('click', () => loadMembers());
+$('users-container').addEventListener('click', async e => {
+  const b = e.target.closest('.stamp-btn'); if (!b || b.disabled) return;
+  const m = members.find(x => x.id === b.closest('.mem').dataset.id); if (!m) return;
+  b.disabled = true;
+  try {
+    const res = await postJSON('/api/admin/stamp', { id: m.id, pid: +b.dataset.pid, n: +b.dataset.n });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || res.status);
+    m.stamps = data.stamps || {};
+    renderMembers();
+  } catch (err) { if (!err.auth) toast('没改成：' + err.message); b.disabled = false; }
+});
+async function loadLegacy() {
+  try {
+    const data = await (await call(`/.netlify/functions/get-users?password=${encodeURIComponent(pass)}`)).json();
+    if (!Array.isArray(data.users)) throw new Error('no list');
+    const moved = new Set((members || []).map(m => m.email).filter(Boolean));
+    const rest = data.users.filter(u => u.email && !moved.has(u.email.toLowerCase()));
+    $('legacy-count').textContent = rest.length ? `· 还有 ${rest.length} 位没登录过新网站` : '· 都搬过来了';
+    $('legacy-container').innerHTML = rest.map(u => esc(u.email)).join('　');
+  } catch (e) { $('legacy-count').textContent = ''; $('legacy-container').textContent = '暂时读不到老网站的账号列表'; }
+}
+
+// ---------- stats ----------
+$('statRange').addEventListener('click', e => {
+  const c = e.target.closest('[data-range]'); if (!c) return;
+  statRange = c.dataset.range;
+  $('statRange').querySelectorAll('.chip').forEach(x => x.classList.toggle('active', x === c));
+  renderStats();
+});
+function renderStats() {
+  const now = new Date(), from = statRange === 'all' ? 0 : statRange === 'month' ? new Date(now.getFullYear(), now.getMonth(), 1).getTime() : day0(now) - 29 * 864e5;
+  const paid = orders.filter(o => isPaid(o) && new Date(o.created_at).getTime() >= from);
+  const revenue = paid.reduce((s, o) => s + (+o.total || 0), 0);
+  const byLine = {}, byFlavor = {};
+  let units = 0, gifts = 0;
+  paid.forEach(o => (o.items || []).forEach(i => {
+    const q = +i.quantity || 1;
+    if (i.isFree) { gifts += q; return; }
+    units += q;
+    const pid = +(i.productId ?? String(i.id).split('-')[0]);
+    const p = PRODUCTS_DEF.find(x => x.id === pid);
+    const line = p ? shortName(p) : itemName(i).split(' · ')[0];
+    byLine[line] ||= { q: 0, r: 0 }; byLine[line].q += q; byLine[line].r += (+i.price || 0) * q;
+    const fk = itemName(i); byFlavor[fk] = (byFlavor[fk] || 0) + q;
+  }));
+  // last 14 days, every day shown (empty days too)
+  const days = Array.from({ length: 14 }, (_, k) => day0(now) - (13 - k) * 864e5);
+  const perDay = days.map(d => orders.filter(o => isPaid(o) && day0(o.created_at) === d).reduce((s, o) => s + (+o.total || 0), 0));
+  const max = Math.max(1, ...perDay);
+  const rank = (obj, money) => { const e = Object.entries(obj).sort((a, b) => (money ? b[1].q - a[1].q : b[1] - a[1])).slice(0, 10); const top = e.length ? (money ? e[0][1].q : e[0][1]) : 1;
+    return e.length ? `<ol class="rank">${e.map(([k, v]) => { const q = money ? v.q : v; return `<li><b>${esc(k)}</b><span class="num">${q} 支${money ? ` <small>${euro(v.r)}</small>` : ''}</span><i style="--w:${Math.round(q / top * 100)}%"></i></li>`; }).join('')}</ol>` : '<p class="note" style="margin:0">这段时间还没有确认的订单</p>'; };
+  const modes = { pickup: 0, delivery: 0, postal: 0 };
+  paid.forEach(o => { modes[o.delivery_type || 'pickup'] = (modes[o.delivery_type || 'pickup'] || 0) + 1; });
+  const mem = paid.filter(o => o.member_id).length;
+  const newMembers = members ? members.filter(m => (m.created || 0) >= from).length : null;
+  const agents = {};
+  orders.filter(o => o.agent_ref).forEach(o => { const a = agents[o.agent_ref] ||= { n: 0, paid: 0, r: 0 }; a.n++; if (isPaid(o)) { a.paid++; a.r += +o.total || 0; } });
+  $('statsBox').innerHTML = `
+    <div class="today" style="grid-column:1/-1;margin:0">
+      <div class="tile"><b class="num">${euro(revenue)}</b><span>营业额</span></div>
+      <div class="tile"><b class="num">${paid.length}</b><span>确认的订单 · 平均 ${euro(paid.length ? revenue / paid.length : 0)}</span></div>
+      <div class="tile"><b class="num">${units}</b><span>卖出支数 · 送出赠品 ${gifts} 支</span></div>
+      <div class="tile"><b class="num">${paid.length ? Math.round(mem / paid.length * 100) : 0}%</b><span>会员下的单${newMembers === null ? '' : ` · 新会员 ${newMembers} 位`}</span></div>
+    </div>
+    <div class="card wide"><h3>最近 14 天营业额 <small>每天已确认的订单</small></h3>
+      <div class="bars">${perDay.map((v, k) => { const d = new Date(days[k]); return `<div class="bar${k === 13 ? ' today' : ''}" title="${d.getMonth() + 1}月${d.getDate()}日 ${euro(v)}"><span class="num">${v ? Math.round(v) : ''}</span><i style="height:${Math.max(3, Math.round(v / max * 120))}px"></i><em>${k === 13 ? '今天' : d.getDate()}</em></div>`; }).join('')}</div></div>
+    <div class="card"><h3>按款式 <small>支数 · 金额</small></h3>${rank(byLine, true)}</div>
+    <div class="card"><h3>最好卖的口味 <small>前 10</small></h3>${rank(byFlavor, false)}</div>
+    <div class="card"><h3>取货方式</h3><ol class="rank">${Object.entries(modes).map(([k, v]) => `<li><b>${esc(MODE[k] || k)}</b><span class="num">${v} 单</span><i style="--w:${paid.length ? Math.round(v / paid.length * 100) : 0}%"></i></li>`).join('')}</ol></div>
+    ${Object.keys(agents).length ? `<div class="card"><h3>代理推广 <small>?ref= 链接带来的订单</small></h3><table class="plain"><thead><tr><th>代理</th><th class="r">订单</th><th class="r">已确认</th><th class="r">金额</th></tr></thead><tbody>${Object.entries(agents).sort((a, b) => b[1].r - a[1].r).map(([k, a]) => `<tr><td>${esc(k)}</td><td class="r num">${a.n}</td><td class="r num">${a.paid}</td><td class="r num">${euro(a.r)}</td></tr>`).join('')}</tbody></table></div>` : ''}`;
+}
+
+// ---------- toast ----------
+function toast(text) {
+  let el = $('admin-toast');
+  if (!el) { el = document.createElement('div'); el.id = 'admin-toast'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.textContent = text; el.hidden = false;
+  // the inventory save bar sits where the toast would: lift it above
+  el.style.bottom = !$('savebar').hidden && tab === 'inventory' ? (innerWidth <= 900 ? '150px' : '84px') : '';
+  clearTimeout(el._t); el._t = setTimeout(() => { el.hidden = true; }, 4500);
+}
+
+// signed in earlier in this tab: go straight in
+if (pass) loadOrders(true).then(ok => (ok ? enter() : logout($('login-error').textContent)));
 </script>
 </body>
 </html>

@@ -1,13 +1,11 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const { adminOk, denied, parse } = require('../lib/admin-auth');
 
 exports.handler = async (event) => {
     const { password, status } = event.queryStringParameters || {};
 
-    if (password !== ADMIN_PASSWORD) {
-        return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
-    }
+    if (!adminOk(password)) return denied();
 
     // Env var sanity check
     if (!SUPABASE_URL || !SUPABASE_KEY) {
@@ -22,9 +20,7 @@ exports.handler = async (event) => {
     }
 
     let url = `${SUPABASE_URL}/rest/v1/orders?select=*&order=created_at.desc&payment_status=neq.stripe_pending`;
-    if (status && status !== 'all') url += `&payment_status=eq.${status}`;
-
-    console.log('Fetching:', url);
+    if (status && status !== 'all') url += `&payment_status=eq.${encodeURIComponent(status)}`;
 
     const res = await fetch(url, {
         headers: {
@@ -35,7 +31,6 @@ exports.handler = async (event) => {
     });
 
     const text = await res.text();
-    console.log('Supabase status:', res.status, 'body:', text.substring(0, 300));
 
     if (!res.ok) {
         return {

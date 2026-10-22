@@ -1,9 +1,10 @@
+const { adminOk, denied, parse } = require('../lib/admin-auth');
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 const STATUS_LABELS = {
-    pending:   '⏳ 待付款',
-    paid:      '✅ 已付款',
+    pending:   '⏳ 待确认',
+    paid:      '✅ 已确认',
     shipped:   '🚚 已发货',
     delivered: '🎉 已完成'
 };
@@ -18,7 +19,8 @@ exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
 
     try {
-        const { customerName, customerPhone, orderNumber, status, total } = JSON.parse(event.body);
+        const { password, customerName, customerPhone, orderNumber, status, total } = parse(event.body);
+        if (!adminOk(password)) return denied();
         if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return { statusCode: 200, body: 'ok' };
 
         const statusLabel = STATUS_LABELS[status] || status;

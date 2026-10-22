@@ -1,0 +1,16 @@
+# source, tests and notes are in the repo but not part of the site
+/site/*            /404  404!
+/qa/*              /404  404!
+/supabase/*        /404  404!
+/netlify/*         /404  404!
+/images_original/* /404  404!
+/build.sh          /404  404!
+/HANDOFF.md        /404  404!
+/README.md         /404  404!
+/package.json      /404  404!
+/package-lock.json /404  404!
+/netlify.toml      /404  404!
+/workflow.html     /404  404!
+/活动海报.html      /404  404!
+/images/*.bak      /404  404!
+/qrcode/*          /404  404!

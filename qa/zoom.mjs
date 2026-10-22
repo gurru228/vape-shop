@@ -1,0 +1,14 @@
+import { chromium } from './pw.mjs';
+const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
+await page.emulateMedia({ reducedMotion: 'reduce' });
+await page.goto((process.env.QA_URL || 'http://localhost:8899/'));
+await page.waitForTimeout(2500);
+const c = await page.locator('#device').boundingBox();
+const drag = async px => { await page.mouse.move(c.x + c.width / 2, c.y + c.height / 2); await page.mouse.down(); await page.mouse.move(c.x + c.width / 2 + px, c.y + c.height / 2, { steps: 8 }); await page.mouse.up(); await page.waitForTimeout(400); };
+const clip = { x: c.x + c.width * 0.3, y: c.y, width: c.width * 0.4, height: c.height * 0.9 };
+await drag(Number(process.argv[2] || 40));
+await page.screenshot({ path: 'qa/zoom1.png', clip });
+await drag(Number(process.argv[3] || 260));
+await page.screenshot({ path: 'qa/zoom2.png', clip });
+await browser.close();

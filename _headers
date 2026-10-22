@@ -1,0 +1,25 @@
+# reachable by link only: search engines may not list or cache any page (don't add a robots.txt, or they never see this)
+# security headers on every page: no framing by other sites (clickjacking), no MIME sniffing, HTTPS only,
+# no camera / mic / location, and scripts / connections only from this site and the CDNs the pages use.
+# index.html adds a stricter policy of its own (its one inline script, by hash; see build.sh).
+# admin.html and stats.html still use inline handlers, hence 'unsafe-inline' here.
+/*
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
+  Referrer-Policy: no-referrer
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Strict-Transport-Security: max-age=31536000
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+/sw.js
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/
+  Cache-Control: no-cache
+# product photos rarely change: browsers keep them a day, and keep using them while they check for a newer copy
+/images/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/admin.html
+  Cache-Control: no-store
