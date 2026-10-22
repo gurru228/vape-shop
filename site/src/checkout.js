@@ -34,7 +34,8 @@ function createCheckout({ products, account, onCount, onStamps }) {
     || inStock(p).find(f => items.some(it => it.pid === p.id && it.flavor === f.name)) || inStock(p)[0] || p.flavors[0];
   const totals = () => {
     const sub = subtotal(), ship = shipping(sub);
-    const gifts = items.length ? products.filter(p => stampStore.get(p.id) >= STAMPS_PER_REWARD).map(p => ({ p, f: giftFlavor(p) })) : [];
+    // a full card puts its free unit in the cart, with or without anything bought alongside it
+    const gifts = products.filter(p => stampStore.get(p.id) >= STAMPS_PER_REWARD).map(p => ({ p, f: giftFlavor(p) }));
     const earn = {};
     items.forEach(it => { earn[it.pid] = (earn[it.pid] || 0) + it.qty; });
     return { sub, ship, total: sub + ship, gifts, earn };
@@ -82,7 +83,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
     </div>`).join('');
   }
   function renderCart() {
-    if (!items.length) {
+    if (!items.length && !totals().gifts.length) {
       body.innerHTML = `<div class="empty"><b>购物车是空的</b><span>先去挑一支吧</span></div>`;
       foot.innerHTML = `<button type="button" class="btn btn-ghost" data-act="close">继续逛逛</button>`;
       return;
@@ -103,7 +104,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
         ${t.gifts.map(({ p }) => `<div class="save"><span>集章赠品 · ${esc(shortName(p))} 1 ${stampUnit(p)}</span><span class="num">€0.00</span></div>`).join('')}
       </div>
       <div class="row"><b>合计</b><span class="total num">${euro(t.sub)}</span></div>
-      <button type="button" class="btn btn-primary" data-act="next">去填写取货信息 →</button>`;
+      <button type="button" class="btn btn-primary" data-act="next">${items.length ? '去填写取货信息 →' : '只领赠品，去填写取货信息 →'}</button>`;
   }
 
   // ---------- step 2: details ----------
@@ -185,6 +186,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
     const msg = `你好，我下了订单 ${o.no}\n${lines.join('\n')}${free}\n${where}\n应付 ${euro(o.t.total)}\n${o.form.name} ${o.form.phone}`;
     const stamps = !o.sent ? ''
       : o.member ? `<div class="stampbar"><span class="sb-h">店家确认后盖章</span>
+        ${Object.keys(o.t.earn).length ? '' : '<small>这单只领赠品，不盖章。</small>'}
         ${Object.keys(o.t.earn).map(pid => {
           const p = product(+pid), after = stampStore.get(p.id) + o.t.earn[pid];
           return `<div class="sb-row"><b>${esc(shortName(p))}</b><small>+${o.t.earn[pid]} 个 · 盖完是 ${Math.min(after, STAMPS_PER_REWARD)} / ${STAMPS_PER_REWARD}${after >= STAMPS_PER_REWARD ? `，下一单送 1 ${stampUnit(p)}` : ''}</small></div>`;

@@ -164,26 +164,33 @@
   let heroFlavor = dash.flavors[0];
   const HERO_CHIPS = 9;
   const chips = $('heroChips');
-  dash.flavors.slice(0, HERO_CHIPS).forEach((f, i) => {
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'chip';
-    b.setAttribute('aria-pressed', String(i === 0));
-    b.setAttribute('aria-label', f.nameCn);
-    b.title = f.nameCn;
-    b.innerHTML = `<img src="${imgSrc(f.image)}" alt="" loading="lazy">`;
-    b.addEventListener('click', () => setHeroFlavor(f, b));
-    chips.appendChild(b);
-  });
+  // the hero shows 9 chips: the first 9 flavors in stock (sold-out ones only if fewer than 9 are left)
+  let heroList = [];
+  const paintHeroChips = () => {
+    heroList = [...dash.flavors.filter(f => !stock.out(dash.id, f.name)), ...dash.flavors.filter(f => stock.out(dash.id, f.name))].slice(0, HERO_CHIPS);
+    chips.querySelectorAll('.chip:not(.more)').forEach(c => c.remove());
+    heroList.forEach(f => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip';
+      b.setAttribute('aria-pressed', String(f === heroFlavor));
+      b.setAttribute('aria-label', f.nameCn);
+      b.title = f.nameCn; b.dataset.name = f.name;
+      b.innerHTML = `<img src="${imgSrc(f.image)}" alt="" loading="lazy">`;
+      b.addEventListener('click', () => setHeroFlavor(f, b));
+      chips.insertBefore(b, more);
+    });
+  };
   const more = document.createElement('button');
   more.type = 'button'; more.className = 'chip more';
   more.textContent = `+${dash.flavors.length - HERO_CHIPS}`;
   more.setAttribute('aria-label', '查看全部口味');
   more.addEventListener('click', () => openDrawer(dash.id));
   chips.appendChild(more);
+  paintHeroChips();
 
   async function setHeroFlavor(f, btn) {
     heroFlavor = f;
-    chips.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c === btn)));
+    chips.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.name === f.name)));
     $('heroFlavor').textContent = f.nameCn;
     $('heroFlavorEs').textContent = f.name;
     const hex = await flavorColor(f.image);
@@ -192,7 +199,7 @@
     paintHeroStock();
   }
   function paintHeroStock() {
-    chips.querySelectorAll('.chip:not(.more)').forEach(c => c.classList.toggle('out', stock.out(dash.id, dash.flavors.find(f => f.nameCn === c.title)?.name)));
+    chips.querySelectorAll('.chip:not(.more)').forEach(c => c.classList.toggle('out', stock.out(dash.id, c.dataset.name)));
     const out = stock.out(dash.id, heroFlavor.name);
     $('heroAdd').disabled = out;
     $('heroAdd').textContent = out ? `${heroFlavor.nameCn} 缺货 · 换个口味` : `加入购物车 · ${euro(dash.price)}`;
@@ -211,6 +218,7 @@
     if (!iceDev) $('iceDevice').closest('.stage-wrap').innerHTML = `<img src="${imgSrc(icemax.image)}" alt="IceMax" style="width:100%;height:100%;object-fit:contain">`;
     else setIceFlavor(iceFlavor);
   });
+  $('icePrice').textContent = euro(icemax.price); $('iceWas').textContent = icemax.was ? euro(icemax.was) : '';
   $('clLeakT').textContent = LEAK_TITLE; $('clLeakB').textContent = LEAK_BODY;
   let iceFlavor = icemax.flavors[0], iceTouched = false;
   const iceChips = $('iceChips');
@@ -230,7 +238,7 @@
     paintIceStock();
   }
   function paintIceStock() {
-    iceChips.querySelectorAll('.chip').forEach(c => c.classList.toggle('out', stock.out(icemax.id, c.dataset.name)));
+    inStockFirst(iceChips, '.chip', icemax.id);
     const out = stock.out(icemax.id, iceFlavor.name);
     $('iceAdd').disabled = out;
     $('iceAdd').textContent = out ? `${iceFlavor.nameCn} 缺货 · 换个口味` : `加入购物车 · ${euro(icemax.price)}`;
@@ -287,19 +295,23 @@
     wall?.showFlavor(cur.id, f.image);
     paintStock();
     if (cur.id === dash.id) {
-      const chip = [...chips.querySelectorAll('.chip')].find(c => c.title === f.nameCn);
+      const chip = [...chips.querySelectorAll('.chip')].find(c => c.dataset.name === f.name);
       setHeroFlavor(f, chip || null);
     }
   }
   // sold-out flavors stay visible (greyed, marked 缺货) but can't go in the cart
   function paintStock() {
     if (!cur) return;
-    $('dFlavors').querySelectorAll('.flv').forEach(b => b.classList.toggle('out', stock.out(cur.id, b.dataset.name)));
+    inStockFirst($('dFlavors'), '.flv', cur.id);
     const out = curFlavor && stock.out(cur.id, curFlavor.name);
     $('dAdd').disabled = !!out;
     $('dAdd').textContent = out ? '这个口味缺货' : '加入购物车';
   }
-  stock.on(() => { paintStock(); paintHeroStock(); });
+  stock.on(() => {
+    paintStock(); paintHeroChips(); paintHeroStock();
+    // the hero opened on a flavor that turns out to be sold out: start on the first one in stock
+    if (heroAuto && stock.out(dash.id, heroFlavor.name)) { heroIdx = 0; setHeroFlavor(heroList[0], chips.firstElementChild); }
+  });
   function setQty(n) {
     qty = Math.max(1, Math.min(20, n));
     $('qVal').textContent = qty;
@@ -365,14 +377,14 @@
     if (document.hidden) return;
     const open = drawer.classList.contains('open') ? cur?.id : null;
     if (heroAuto && open !== dash.id) {
-      heroIdx = (heroIdx + 1) % HERO_CHIPS;
-      setHeroFlavor(dash.flavors[heroIdx], chips.children[heroIdx]);
+      heroIdx = (heroIdx + 1) % heroList.length;
+      setHeroFlavor(heroList[heroIdx], chips.children[heroIdx]);
     }
     for (const p of products) {
       if (p.id === open || (p.id === dash.id && !heroAuto)) continue;
       const i = (step.get(p.id) + 1) % p.flavors.length;
       step.set(p.id, i);
-      const f = p.id === dash.id ? dash.flavors[heroIdx] : p.flavors[i];
+      const f = p.id === dash.id ? heroList[heroIdx] : p.flavors[i];
       if (wall?.visible()) wall.showFlavor(p.id, f.image);
     }
   }, 3000);

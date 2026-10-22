@@ -1,6 +1,6 @@
 // IceMax clearance: the stamp poster comes first, the clearance poster follows when it closes and says nothing about leaks;
 // the page block, drawer, cart and checkout all show the leak notice; checkout needs the tick (client and server);
-// the price is €14.90 and the stamps still count; the poster wall shows the clearance price.
+// the price comes from products.json and the stamps still count; the poster wall shows the clearance price.
 import { chromium } from './pw.mjs';
 const url = process.env.QA_URL || 'http://localhost:8899/';
 const errs = [];
@@ -67,7 +67,7 @@ for (const [tag, opts] of [['d', { viewport: { width: 1440, height: 900 } }], ['
   await page.close();
 }
 
-// server side: no tick → refused; tick → accepted with €14.90 × 2; the shop's message carries the warning; stamps still count
+// server side: no tick → refused; tick → accepted at the clearance price × 2; the shop's message carries the warning; stamps still count
 if (ON('srv')) {
 const post = async (path, body, token) => (await fetch(url + path, { method: 'POST', headers: { 'content-type': 'application/json', ...(token ? { authorization: 'Bearer ' + token } : {}) }, body: JSON.stringify(body) })).json();
 const reg = await post('api/register', { account: '655000777', name: 'Clr', password: 'secret1', adult: true });

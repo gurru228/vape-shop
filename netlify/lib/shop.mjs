@@ -185,8 +185,9 @@ const MODES = { pickup: '自取', delivery: '外送', postal: '邮寄' };
 const SLOTS = ['10:00–14:00', '14:00–18:00', '18:00–21:00'];
 const str = (v, n = 120) => String(v ?? '').trim().slice(0, n);
 
-export function priceOrder(items, rawForm, out = new Set()) {
-  if (!Array.isArray(items) || !items.length) throw new Error('购物车是空的');
+// giftsOnly: a member collecting a full card's free unit with nothing else in the order
+export function priceOrder(items, rawForm, out = new Set(), { giftsOnly = false } = {}) {
+  if (!Array.isArray(items) || (!items.length && !giftsOnly)) throw new Error('购物车是空的');
   if (items.length > 40) throw new Error('商品太多了，请分几单下');
   const lines = items.map(it => {
     const p = byId.get(+it.pid);
@@ -352,9 +353,9 @@ export function orderText(o) {
   const where = f.mode === 'pickup' ? '自取 · Metro El Capricho'
     : f.mode === 'delivery' ? `外送 · ${f.slot}\n📍 ${f.street}`
     : `邮寄${f.country === 'EU' ? '（欧盟，运费待确认）' : ''}\n📍 ${f.recipient}, ${f.street} ${f.floor}, ${f.cp} ${f.city}, ${f.province}`;
-  const stampLine = o.member
-    ? `集章（确认后盖）：${Object.entries(o.earn).map(([pid, n]) => `${shortName(byId.get(+pid))} +${n}`).join(' · ')}`
-    : '游客下单，不集章';
+  const stampLine = !o.member ? '游客下单，不集章'
+    : Object.keys(o.earn).length ? `集章（确认后盖）：${Object.entries(o.earn).map(([pid, n]) => `${shortName(byId.get(+pid))} +${n}`).join(' · ')}`
+    : '会员只领赠品，这单不盖章';
   const phone = normPhone(f.phone);
   return [
     `🧾 <b>新订单 ${o.no}</b>`,

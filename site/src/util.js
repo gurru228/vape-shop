@@ -87,6 +87,13 @@ const stock = (() => {
   };
 })();
 
+// flavor buttons: mark the sold-out ones and move them to the end, available ones first (original order kept in each group)
+function inStockFirst(box, sel, pid) {
+  const all = [...box.querySelectorAll(sel)];
+  all.forEach(b => b.classList.toggle('out', stock.out(pid, b.dataset.name)));
+  [...all.filter(b => !b.classList.contains('out')), ...all.filter(b => b.classList.contains('out'))].forEach(b => box.appendChild(b));
+}
+
 // IceMax clearance: the line the shop wants every buyer to see before ordering.
 const LEAK_TITLE = '这款 IceMax 存在少量漏油';
 const LEAK_BODY = '最后一批低价清仓，个别机身可能有渗油。请看清再拍，介意慎拍。';

@@ -1,4 +1,4 @@
-// Clearance poster, shown on every visit after the stamp-card poster: the last IceMax batch at €14.90.
+// Clearance poster, shown on every visit after the stamp-card poster: the last IceMax batch at its clearance price (products.json).
 // Layout: the 3D IceMax stands in a lit "shop window", a hang-tag with the price swings off it,
 // flavor swatches run underneath. The poster only sells the price; the leak notice lives where the
 // choice is made (clearance block, flavor drawer, cart, checkout tick box).
@@ -16,10 +16,10 @@ function createClearance({ products, onShop, onDone }) {
       <div class="clr-window">
         <canvas class="clr-dev" aria-label="IceMax 3D 模型"></canvas>
         <img class="clr-fallback" src="${imgSrc(ice.image)}" alt="" hidden>
-        <div class="clr-tag" aria-label="原价 22.90 欧，清仓价 14.90 欧">
+        <div class="clr-tag" aria-label="原价 ${euro(ice.was)}，清仓价 ${euro(ice.price)}">
           <i class="clr-hole" aria-hidden="true"></i>
-          <s class="num">€22.90</s>
-          <b class="num">€14<small>.90</small></b>
+          <s class="num">${euro(ice.was)}</s>
+          <b class="num">€${Math.floor(ice.price)}<small>${euro(ice.price).slice(-3)}</small></b>
           <span>一支</span>
         </div>
       </div>

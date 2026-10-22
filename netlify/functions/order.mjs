@@ -13,10 +13,11 @@ export default async req => {
   try {
     let priced;
     const out = await soldOut();
-    try { priced = priceOrder(b.items, b.form, out); } catch (e) { return fail(e.message); }
-
     const auth = await currentUser(req);
     const user = auth?.user;
+    // a signed-in member may send gifts only (a full card's free unit); everyone else needs something in the cart
+    const giftsOnly = !!user && Object.keys(b.gifts || {}).length > 0;
+    try { priced = priceOrder(b.items, b.form, out, { giftsOnly }); } catch (e) { return fail(e.message); }
     const gifts = [];
     if (user) {
       for (const [pid, flavor] of Object.entries(b.gifts || {})) {

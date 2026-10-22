@@ -34,7 +34,7 @@
 
 ## IceMax 清仓（2026-10-21 加的）
 
-- 价格：`site/src/products.json` 里 IceMax 现在是 `price 14.9`，`was 22.9`（原价，划线显示），`clearance: true`。
+- 价格：`site/src/products.json` 里 IceMax 现在是 `price 15.9`，`was 22.9`（原价，划线显示），`clearance: true`。页面和海报上的价格都从这里读，改价只改这一个文件再跑 `sh build.sh`。
   清仓结束时：删掉 `was` 和 `clearance`，`price` 改回去，再跑 `sh build.sh`。
   页面上的清仓区块（`#clearance`）和开屏清仓弹窗（`createClearance` 那段，在 `site/src/app.js`）也要一起去掉。
 - 3D 模型：`site/src/ice-model.js`（`buildIcemax`），照店主拍的实物照片做的。`createDevice(canvas, { build: buildIcemax })` 就能用。
@@ -79,6 +79,9 @@ ONLY=d sh qa/run.sh node qa/clearance.mjs`。
 - 文字精简：首页、两张海报、购物车、注册框的说明都缩短了（意思不变）。
 - 游客下单：点「提交订单」时先问一次「这单能盖 N 个章，现在注册就算数；直接下单这单不能集章，以后也补不了」。
   选「注册会员，这单集章」→ 注册框 → 注册完回到结算再点提交，这单就是会员单；选「不注册，直接下单」→ 照常提交（`checkout.js` 的 `askGuest`）。
+- 改价：IceMax €15.90（原价 €22.90），冰王 €30.00。
+- 只领赠品：会员卡满了，购物车里什么都不买也能下单领那 1 支（应付 €0.00，按钮写「只领赠品，去填写取货信息」）。服务器只允许已登录会员这样下单，游客空单照样拦；这单扣 10 个章、不盖章，取消会退回。
+- 有货的口味排前面，缺货的放最后（选口味抽屉、IceMax 口味按钮）；首页鸭嘴兽那 9 个口味按钮只挑有货的，自动轮播也跳过缺货。测试：`sh qa/run.sh node qa/giftonly.mjs`。
 - 新测试：`ONLY=d sh qa/run.sh node qa/sweep.mjs`（全站走一遍：报错、溢出、遮罩、锁滚动）、`ONLY=d sh qa/run.sh node qa/perf.mjs`（卡顿）。
 
 ## 环境变量（Netlify：vapeshop2026 → Site configuration → Environment variables）
