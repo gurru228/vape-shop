@@ -83,6 +83,8 @@ export default async req => {
       if (req.method === 'GET') return json(await me(auth.user));
       if (req.method === 'DELETE') {
         // GDPR: the account, its stamps and sessions go; orders already sent to the shop stay for its records
+        // its orders stay for the shop's records, detached, so a later account on the same phone/email can't inherit them
+        await db(`orders?member_id=eq.${encodeURIComponent(auth.user.id)}`, { method: 'PATCH', body: { member_id: null }, prefer: 'return=minimal' });
         await deleteMember(auth.user.id);
         return json({ ok: true });
       }

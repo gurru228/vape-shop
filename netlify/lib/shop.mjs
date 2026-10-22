@@ -167,11 +167,12 @@ export const publicUser = u => ({ id: u.id, phone: u.phone || null, email: u.ema
 
 // ---------- inventory ----------
 // a flavor is sold out when the admin set its stock to 0; no row = not tracked = available
-export async function soldOut() {
+// strict (orders): if the stock can't be read, refuse rather than sell something sold out
+export async function soldOut({ strict = false } = {}) {
   try {
     const rows = await db('inventory?select=product_id,flavor_name&stock=lte.0');
     return new Set(rows.map(r => `${r.product_id}-${r.flavor_name}`));
-  } catch (e) { console.error('[inventory]', e.message); return new Set(); }
+  } catch (e) { console.error('[inventory]', e.message); if (strict) throw e; return new Set(); }
 }
 async function moveStock(rpc, lines) {
   for (const l of lines) {
@@ -299,6 +300,9 @@ async function claim(no, field, from, to) {
 export async function setStatus(o, next) {
   const prev = o.status;
   if (prev === next) return { order: o, changed: false };
+  // a cancelled member order stays cancelled: its stamps and gift were settled when it was cancelled, and
+  // bringing it back could hand out stamps or a gift twice. The customer places a new order instead.
+  if (prev === 'cancelled' && o.member) return { changed: false, refused: '会员订单取消后不能恢复（章和赠品已经退回）。请让顾客重新下单。' };
   if (!(await claim(o.no, 'payment_status', prev, next))) return { changed: false };
   await setOrderFields(o.no, { decided_at: iso(Date.now()) });
   o.status = next;
@@ -312,10 +316,6 @@ export async function setStatus(o, next) {
       await addStamps(o.member, earn);
     }
     // un-cancelled from the admin page: the gift is back on, so its stamps come off the card again
-    if (prev === 'cancelled' && o.gifts.length && await claim(o.no, 'gift_held', false, true)) {
-      o.giftHeld = true;
-      await addStamps(o.member, Object.fromEntries(o.gifts.map(g => [g.pid, -STAMPS_PER_REWARD])));
-    }
     if (next === 'cancelled') {
       if (await claim(o.no, 'stamped', true, false)) {
         o.stamped = false;

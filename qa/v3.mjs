@@ -9,7 +9,7 @@ const api = async (path, body, token) => (await fetch(url + path, {
   method: body ? 'POST' : 'GET', headers: { 'content-type': 'application/json', ...(token ? { authorization: 'Bearer ' + token } : {}) },
   body: body && JSON.stringify(body),
 })).json();
-const stockOf = async (pid, name) => (await (await fetch(url + '.netlify/functions/get-inventory')).json()).find(r => r.product_id === pid && r.flavor_name === name)?.stock;
+const stockOf = async (pid, name) => (await (await fetch(url + '.netlify/functions/get-inventory?password=admin-test')).json()).find(r => r.product_id === pid && r.flavor_name === name)?.stock;
 
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const watch = (page, tag) => {

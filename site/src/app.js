@@ -325,7 +325,7 @@
 
   function openDrawer(id) {
     cur = products.find(p => p.id === id);
-    $('dWa').href = `https://wa.me/34697332407?text=${encodeURIComponent(`你好，我想问一下 ${cur ? shortName(cur) : ''} 的口味和库存`)}`;
+    $('dWa').href = `/api/wa?text=${encodeURIComponent(`你好，我想问一下 ${cur ? shortName(cur) : ''} 的口味和库存`)}`;
     if (!cur) return;
     lastFocus = document.activeElement;
     $('dCount').textContent = `${products.indexOf(cur) + 1} / ${products.length} · ${cur.flavors.length} 种口味`;

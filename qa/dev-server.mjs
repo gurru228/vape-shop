@@ -91,7 +91,8 @@ http.createServer(async (req, res) => {
       res.writeHead(r.statusCode || 200, r.headers || {});
       return res.end(r.body || '');
     }
-    if (/^\/(site|qa|supabase|netlify)\//.test(url.pathname)) { res.writeHead(404); return res.end('not found'); }
+    // same hidden paths as _redirects
+    if (/^\/(site|qa|supabase|netlify|images_original)\//.test(url.pathname) || /^\/(build\.sh|HANDOFF\.md|README\.md|package(-lock)?\.json|netlify\.toml|workflow\.html)$/.test(url.pathname) || /\.bak$/.test(url.pathname)) { res.writeHead(404); return res.end('not found'); }
     let file = path.join(root, decodeURIComponent(url.pathname));
     if (!file.startsWith(root)) { res.writeHead(403); return res.end(); }
     if ((await stat(file).catch(() => null))?.isDirectory()) file = path.join(file, 'index.html');

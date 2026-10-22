@@ -33,7 +33,7 @@ for p in products:
         if path not in colors: colors[path] = flavor_color(path)
 
 js = '\n'.join(open(f'site/src/{f}').read() for f in ['util.js', 'dash-model.js', 'ice-model.js', 'device.js', 'tags.js', 'stamps.js', 'account.js', 'checkout.js', 'promo.js', 'clearance.js', 'app.js'])
-scripts = ('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>\n'
+scripts = ('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha512-dLxUelApnYxpLt6K2iomGngnHO83iUvZytA3YjDUCjT0HDOHKXnVYdf3hU4JjM8uEhxf9nD1/ey98U3t2vZ0qQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>\n'
            '<script>\nconst PRODUCTS = ' + json.dumps(products, ensure_ascii=False) + ';\nconst FLAVOR_COLORS = ' + json.dumps(colors) + ';\n' + js + '\n</script>')
 # the page's own Content-Security-Policy: only this exact inline script (by its hash) and Three.js from cdnjs may run,
 # so a script injected through some field can't. _headers adds the rest (framing, connect, …) for every page.

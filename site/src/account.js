@@ -2,7 +2,7 @@
 // Stamps live on the server and only move when the shop confirms an order in Telegram; this keeps
 // stampStore in sync and owns the sign-in / register / my-account dialog.
 function createAccount({ products, onStamps }) {
-  const KEY = 'vs3d-session', SEEN = 'vs3d-stamps-seen', WA = '34697332407';
+  const KEY = 'vs3d-session', SEEN = 'vs3d-stamps-seen';
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const subs = [];
   const read = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
@@ -85,7 +85,7 @@ function createAccount({ products, onStamps }) {
           <p class="acct-err" role="alert"></p>
           <button class="btn btn-primary" type="submit">登录</button></form>
         <div class="acct-alt"><button type="button" data-a="register">还没有账户？注册一个</button>
-          <a href="https://wa.me/${WA}?text=${encodeURIComponent('你好，我忘记了集章卡账户的密码，想重置一下')}" target="_blank" rel="noopener">忘记密码？WhatsApp 找店家重置</a></div>`;
+          <a href="/api/wa?text=${encodeURIComponent('你好，我忘记了集章卡账户的密码，想重置一下')}" target="_blank" rel="noopener">忘记密码？WhatsApp 找店家重置</a></div>`;
     } else if (view === 'register') {
       box.innerHTML = `${head('集章卡 · TARJETA DE SELLOS', '注册会员 · 领集章卡', '集章卡绑在账号上，店家确认订单后自动盖章，同一款满 10 送 1。')}
         <form class="acct-form" novalidate>${idField}

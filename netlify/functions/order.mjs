@@ -2,7 +2,7 @@
 // shop's Telegram with confirm / cancel buttons. A gift's 10 stamps come off now and go back if the shop
 // cancels; earned stamps land only when the shop confirms (Telegram ✅ or the admin page).
 import {
-  json, fail, body, currentUser, priceOrder, orderNo, byId, shortName, STAMPS_PER_REWARD, soldOut,
+  json, fail, body, currentUser, bearer, priceOrder, orderNo, byId, shortName, STAMPS_PER_REWARD, soldOut,
   addStamps, insertOrder, setOrderFields, tg, tgChat, orderText, pendingKeyboard,
 } from '../lib/shop.mjs';
 
@@ -12,15 +12,21 @@ export default async req => {
   if (!b) return fail('请求格式不对');
   try {
     let priced;
-    const out = await soldOut();
+    const out = await soldOut({ strict: true });
     const auth = await currentUser(req);
     const user = auth?.user;
+    // a stale or revoked session must not quietly turn into a guest order (no stamps, gift dropped): sign in again
+    if (!user && bearer(req)) return fail('登录已过期，请重新登录后再提交（这单才能集章）', 401);
+    const giftKeys = Object.keys(b.gifts && typeof b.gifts === 'object' ? b.gifts : {});
+    // one gift per product line, keyed by its exact id ("1", not "01" / "1.0"): one full card = one free unit
+    if (giftKeys.some(k => !byId.has(+k) || String(+k) !== k)) return fail('赠品不对，请刷新页面再试');
     // a signed-in member may send gifts only (a full card's free unit); everyone else needs something in the cart
-    const giftsOnly = !!user && Object.keys(b.gifts || {}).length > 0;
+    const giftsOnly = !!user && giftKeys.length > 0;
     try { priced = priceOrder(b.items, b.form, out, { giftsOnly }); } catch (e) { return fail(e.message); }
     const gifts = [];
     if (user) {
-      for (const [pid, flavor] of Object.entries(b.gifts || {})) {
+      for (const pid of giftKeys) {
+        const flavor = b.gifts[pid];
         const p = byId.get(+pid), f = p?.flavors.find(x => x.name === flavor);
         if (!p || !f) return fail('赠品口味不对，请刷新页面再试');
         if (out.has(`${p.id}-${f.name}`)) return fail(`赠品 ${shortName(p)} · ${f.nameCn} 刚卖完了，请在购物车换一个口味`);

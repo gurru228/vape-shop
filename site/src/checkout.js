@@ -5,7 +5,6 @@
 function createCheckout({ products, account, onCount, onStamps }) {
   const $ = id => document.getElementById(id);
   const panel = $('cp'), body = $('cpBody'), foot = $('cpFoot'), scrim = $('scrim');
-  const WA = '34697332407';
   const MODES = {
     pickup: { name: '自取', es: 'Recogida', note: 'Metro El Capricho' },
     delivery: { name: '外送', es: 'Entrega', note: '马德里当天送达 · 满 5 件' },
@@ -15,6 +14,9 @@ function createCheckout({ products, account, onCount, onStamps }) {
 
   let items = [];
   try { items = JSON.parse(localStorage.getItem('vs3d-cart') || '[]'); } catch (e) { items = []; }
+  // a cart saved before a product or flavor was removed: drop those lines, keep quantities sane
+  items = (Array.isArray(items) ? items : []).filter(it => products.some(p => p.id === it?.pid && p.flavors.some(f => f.name === it.flavor)))
+    .map(it => ({ pid: it.pid, flavor: it.flavor, qty: Math.max(1, Math.min(20, Math.floor(+it.qty) || 1)) }));
   let ackLeak = false;
   const hasLeak = () => items.some(it => product(it.pid).clearance) || totals().gifts.some(g => g.p.clearance);
   const form = { name: '', phone: '', mode: 'pickup', slot: SLOTS[0], recipient: '', street: '', floor: '', cp: '', city: '', province: '', country: 'ES', coupon: '' };
@@ -217,8 +219,8 @@ function createCheckout({ products, account, onCount, onStamps }) {
       ${stamps}`;
     foot.innerHTML = o.sent
       ? `<button type="button" class="btn btn-primary" data-act="close">完成</button>
-        <a class="btn btn-ghost wa-q" href="https://wa.me/${WA}?text=${encodeURIComponent(`你好，我刚下了订单 ${o.no}，想问一下`)}" target="_blank" rel="noopener">有问题？WhatsApp 问店家</a>`
-      : `<a class="btn btn-wa" href="https://wa.me/${WA}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">在 WhatsApp 发送订单给店家</a>
+        <a class="btn btn-ghost wa-q" href="/api/wa?text=${encodeURIComponent(`你好，我刚下了订单 ${o.no}，想问一下`)}" target="_blank" rel="noopener">有问题？WhatsApp 问店家</a>`
+      : `<a class="btn btn-wa" href="/api/wa?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">在 WhatsApp 发送订单给店家</a>
         <button type="button" class="btn btn-ghost" data-act="close">完成</button>`;
   }
 

@@ -34,7 +34,7 @@ for (const [name, opts] of [['d', { viewport: { width: 1440, height: 900 } }], [
   console.log(name, 'guest asked:', (await page.locator('.cp-foot').innerText()).replace(/\s+/g, ' '));
   await page.screenshot({ path: `qa/co-${name}-ask.png` });
   await page.locator('[data-act=ga-skip]').click(); await page.waitForSelector('.done-h', { timeout: 8000 });
-  console.log(name, 'done:', await page.locator('.done-h h3').textContent(), '| order:', await page.locator('.done-h b.num').textContent(), '| cart now:', await page.locator('#cartCnt').textContent(), '| wa:', (await page.locator('.cp-foot a[href*="wa.me"]').getAttribute('href')).slice(0, 60));
+  console.log(name, 'done:', await page.locator('.done-h h3').textContent(), '| order:', await page.locator('.done-h b.num').textContent(), '| cart now:', await page.locator('#cartCnt').textContent(), '| wa:', (await page.locator('.cp-foot a[href*="/api/wa"]').getAttribute('href')).slice(0, 60));
   await page.screenshot({ path: `qa/co-${name}-done.png` });
   await page.close();
 }

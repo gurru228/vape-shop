@@ -5,9 +5,5 @@
   "scripts": {
     "build": "sh build.sh",
     "qa": "sh qa/run.sh node qa/account.mjs"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.49.4",
-    "@netlify/blobs": "^8.2.0"
   }
 }

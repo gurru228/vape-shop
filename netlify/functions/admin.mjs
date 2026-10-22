@@ -36,6 +36,7 @@ export default async req => {
       const o = await getOrderById(String(b.orderId || ''));
       if (!o) return fail('找不到这个订单', 404);
       const r = await setStatus(o, b.status);
+      if (r.refused) return fail(r.refused, 409);
       if (!r.changed) return json({ success: true, unchanged: true, status: (await getOrderById(o.id))?.status });
       await syncTelegram(r.order, r.user, '后台');
       return json({ success: true, oldStatus: r.prev, newStatus: r.order.status, stamped: r.order.stamped, member: r.order.member, stamps: r.user?.stamps || null });

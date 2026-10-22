@@ -734,7 +734,7 @@ async function loadInventory(force = false) {
   if (invEdits.size && !force) return renderInventory();
   $('inventory-container').innerHTML = '<div class="loading">加载中…</div>';
   try {
-    const rows = await (await call('/.netlify/functions/get-inventory')).json();
+    const rows = await (await call(`/.netlify/functions/get-inventory?password=${encodeURIComponent(pass)}`)).json();
     inv = {};
     (Array.isArray(rows) ? rows : []).forEach(r => { inv[`${r.product_id}-${r.flavor_name}`] = r.stock; });
     invEdits.clear();
@@ -925,7 +925,7 @@ function renderStats() {
       <div class="bars">${perDay.map((v, k) => { const d = new Date(days[k]); return `<div class="bar${k === 13 ? ' today' : ''}" title="${d.getMonth() + 1}月${d.getDate()}日 ${euro(v)}"><span class="num">${v ? Math.round(v) : ''}</span><i style="height:${Math.max(3, Math.round(v / max * 120))}px"></i><em>${k === 13 ? '今天' : d.getDate()}</em></div>`; }).join('')}</div></div>
     <div class="card"><h3>按款式 <small>支数 · 金额</small></h3>${rank(byLine, true)}</div>
     <div class="card"><h3>最好卖的口味 <small>前 10</small></h3>${rank(byFlavor, false)}</div>
-    <div class="card"><h3>取货方式</h3><ol class="rank">${Object.entries(modes).map(([k, v]) => `<li><b>${MODE[k] || k}</b><span class="num">${v} 单</span><i style="--w:${paid.length ? Math.round(v / paid.length * 100) : 0}%"></i></li>`).join('')}</ol></div>
+    <div class="card"><h3>取货方式</h3><ol class="rank">${Object.entries(modes).map(([k, v]) => `<li><b>${esc(MODE[k] || k)}</b><span class="num">${v} 单</span><i style="--w:${paid.length ? Math.round(v / paid.length * 100) : 0}%"></i></li>`).join('')}</ol></div>
     ${Object.keys(agents).length ? `<div class="card"><h3>代理推广 <small>?ref= 链接带来的订单</small></h3><table class="plain"><thead><tr><th>代理</th><th class="r">订单</th><th class="r">已确认</th><th class="r">金额</th></tr></thead><tbody>${Object.entries(agents).sort((a, b) => b[1].r - a[1].r).map(([k, a]) => `<tr><td>${esc(k)}</td><td class="r num">${a.n}</td><td class="r num">${a.paid}</td><td class="r num">${euro(a.r)}</td></tr>`).join('')}</tbody></table></div>` : ''}`;
 }
 

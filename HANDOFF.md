@@ -90,6 +90,23 @@ ONLY=d sh qa/run.sh node qa/clearance.mjs`。
 - 卡满 10 个章后，购物车里只出现「领取赠品」按钮，不会自动加一支。顾客点了才加进这单（可以选口味、也可以点「这次不领」）；不领的话章保留，下次再领。
 - 集满提示的「去领取」只是打开购物车，顾客自己点领取。
 
+## 上线前最后检查（2026-10-22）
+
+- 修了审查发现的问题：
+  - 一张满卡能领多个赠品（用 "01"、"1.0" 这种重复的款式号）→ 服务器只认标准款式号，一款一个赠品。
+  - 登录过期的会员下单会悄悄变成游客单（没章、赠品丢了）→ 现在提示重新登录（401）。
+  - 已取消的会员订单在后台改回去会重复给章 / 赠品 → 会员订单取消后不能恢复，后台会提示让顾客重新下单。
+  - 读不到库存时服务器不再「当作都有货」，会拒绝下单。
+  - 删除账户时，它的订单保留但解除关联（同号码重新注册的人看不到也继承不了）。
+  - 购物车里已下架的商品 / 口味加载时自动去掉。
+  - 后台统计的取货方式文字转义。
+- 删掉了没人用、又能被人乱刷的老函数：`track-click`（访问统计，会刷屏 Telegram）、`get-clicks`、`notify-register`、`stats.html`；`package.json` 里没用的依赖也去掉了。
+- `get-inventory`（精确库存数字）现在要后台密码；网站前台只用 `/api/stock`（哪些缺货）。
+- `HANDOFF.md`、`README.md`、`package.json`、`images_original/`、`*.bak` 等内部文件不再能从网址打开（`_redirects`）。
+- Three.js 加了 SRI 校验（CDN 文件被改就不运行）。
+- WhatsApp 链接不再在网页里露出手机号：页面链到 `/api/wa?text=…`，由 `netlify/functions/wa.mjs` 跳转到 wa.me。号码在 Netlify 环境变量 `WA_NUMBER`（没设就用代码里的默认号）。注意：打开 WhatsApp 对话后，号码在 WhatsApp 里还是看得到，这是 WhatsApp 本身的限制。
+- 新测试：`sh qa/run.sh node qa/abuse.mjs`（服务器规则：重复赠品、过期登录、取消后恢复、删除账户）。
+
 ## 后台新界面（2026-10-22）
 
 - `admin.html` 重做，颜色字体和网站一样；电脑上左边菜单，手机上底部菜单（订单 / 库存 / 会员集章 / 统计 / 退出）。后端接口没变。
@@ -106,7 +123,8 @@ ONLY=d sh qa/run.sh node qa/clearance.mjs`。
 |---|---|
 | `SUPABASE_URL` `SUPABASE_SERVICE_KEY` `ADMIN_PASSWORD` | 老站已经有了，不用动 |
 | `TELEGRAM_BOT_TOKEN` `TELEGRAM_CHAT_ID` | 老站已经有了，新代码直接用（bot：@vapeshop888_pro_bot） |
-| `TG_SECRET` | **要新加**：随便一串长密码。Telegram 的 ✅/❌ 按钮和店家指令需要它 |
+| `TG_SECRET` | 已加。只能用字母、数字、`_`、`-`（Telegram 的要求） |
+| `WA_NUMBER` | 可选：店里的 WhatsApp 号（带国家码，如 34697332407）。不设就用代码里的默认号 |
 
 ## 上线步骤（每一步都要店主同意）
 
@@ -148,6 +166,6 @@ sh qa/run.sh node qa/check.mjs      # 海报墙、抽屉、首屏轮播
 
 - RELX「C味鲜橙」缺图（`images/relx/vitamin-c-orange.webp`）。
 - 优惠码只记录，后台订单卡上显示，店家在 WhatsApp 里手动减。
-- 访问统计（`track-click` / `stats.html`）和代理 `?ref=`：新首页没接（店主这次没选）。函数和页面还在，没删。`track-click` 不要密码就能触发 Telegram 通知，新首页不调用它；要是不用了可以删掉。
+- 访问统计（`track-click` / `stats.html`）已删除；代理 `?ref=` 新首页没接。
 - 页面只有中文，没有西班牙语切换。
 - 「代理统计」页的代理部分对新订单没数据（新首页不记 `agent_ref`）。
