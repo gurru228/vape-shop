@@ -382,8 +382,8 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 .card-pop-wrap{position:relative}
 .card-btn{white-space:nowrap;display:flex;align-items:center;gap:8px;height:42px;padding:0 14px;border-radius:999px;font-weight:800;font-size:14px;border:1.5px solid var(--stamp);color:var(--stamp);transition:background .2s}
 .card-btn:hover,.card-btn[aria-expanded="true"]{background:color-mix(in srgb,var(--stamp) 10%,transparent)}
-.card-ico{width:18px;height:18px;border-radius:50%;border:2px double currentColor;position:relative}
-.card-ico::after{content:"";position:absolute;inset:3px;border-radius:50%;background:currentColor;opacity:.85}
+.card-ico{width:22px;height:22px;flex:none;transform:rotate(-12deg);transition:transform .25s}
+.card-btn:hover .card-ico,.card-btn[aria-expanded="true"] .card-ico{transform:rotate(0) scale(1.06)}
 .card-btn b{white-space:nowrap;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--stamp);color:#fff;font-size:11px;display:grid;place-items:center}
 .card-btn b[hidden]{display:none}
 .card-pop{position:absolute;right:0;top:calc(100% + 10px);z-index:40;width:min(360px,calc(100vw - 24px));padding:16px;border-radius:18px;background:var(--surface);border:1.5px solid var(--line);box-shadow:0 18px 50px rgba(20,22,16,.22);display:grid;gap:12px}
@@ -480,6 +480,11 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
   .logo b{font-size:17px;white-space:nowrap}
   .top-act{gap:6px}
   .card-btn{gap:5px;padding:0 9px}
+  /* phone: the seal itself is the button (no outline around it) */
+  .card-btn{border-color:transparent;padding:0 4px}
+  .card-btn .card-ico{width:36px;height:36px}
+  .card-btn:hover,.card-btn[aria-expanded="true"]{background:none}
+  .card-btn b{margin-left:-12px;margin-top:-22px;box-shadow:0 0 0 2px var(--bg)}
 }
 /* ---- clearance poster (shown before the stamp poster) ---- */
 .promo .promo-poster.clr-poster{width:min(400px,100%);padding:0 0 18px;gap:0;grid-template-columns:minmax(0,1fr);justify-items:stretch;background-color:var(--surface);overflow-x:hidden}
@@ -494,7 +499,8 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 .clr-window{position:relative;margin:12px 20px 0;aspect-ratio:1/.9;max-height:44dvh;border-radius:22px;overflow:hidden;
   background:radial-gradient(circle at 42% 48%,color-mix(in srgb,var(--flavor) 50%,var(--surface)) 0,var(--surface-alt) 68%);transition:background .8s}
 .clr-dev{position:absolute;left:-6%;top:0;width:66%;height:100%;cursor:grab;touch-action:pan-y}
-.clr-fallback{position:absolute;left:4%;top:8%;width:50%;height:84%;object-fit:contain}
+.clr-fallback{position:absolute;left:6%;top:9%;width:56%;aspect-ratio:1;object-fit:cover;border-radius:12px;box-shadow:0 14px 30px rgba(40,36,24,.28);transform:rotate(-4deg);transition:opacity .35s}
+.clr-fallback.swap{opacity:0}
 .clr-tag{position:absolute;right:12px;top:52%;width:42%;max-width:156px;padding:26px 14px 16px;display:grid;justify-items:center;gap:2px;
   background:var(--stamp);color:#fff;border-radius:14px 14px 18px 18px;box-shadow:0 12px 26px rgba(70,25,10,.28);
   transform:translateY(-50%) rotate(6deg);transform-origin:50% 0}
@@ -644,7 +650,7 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
     <div class="top-act">
       <button class="acct-btn" type="button" id="acctBtn"><span>登录 / 注册</span></button>
       <div class="card-pop-wrap">
-        <button class="card-btn" type="button" id="cardBtn" aria-expanded="false" aria-controls="cardPop"><i class="card-ico" aria-hidden="true"></i><span>集章卡</span><b class="num" id="cardBadge" hidden></b></button>
+        <button class="card-btn" type="button" id="cardBtn" aria-expanded="false" aria-controls="cardPop"><svg class="card-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><circle cx="12" cy="12" r="9.1" fill="none" stroke="#fff" stroke-width=".9" stroke-opacity=".75"/><path fill="#fff" d="M9.33 14.02H14.61V14.56H9.33ZM9.33 12.62H14.61V13.16H9.33ZM7.98 11.70V15.48H11.24V16.00H6.75V17.11H11.24V18.28H12.70V17.11H17.25V16.00H12.70V15.48H16.02V11.70ZM13.52 9.33C13.44 9.60 13.29 9.92 13.18 10.21H10.83C10.74 9.94 10.60 9.60 10.45 9.33ZM11.02 7.62 11.28 8.25H7.52V9.33H9.95L9.06 9.52C9.15 9.72 9.27 9.96 9.35 10.21H6.80V11.30H17.19V10.21H14.66L15.02 9.48L14.11 9.33H16.53V8.25H12.81C12.70 7.95 12.55 7.62 12.40 7.34Z"/></svg><span>集章卡</span><b class="num" id="cardBadge" hidden></b></button>
         <div class="card-pop" id="cardPop" role="dialog" aria-label="我的集章卡" hidden>
           <div class="cp-h"><b id="cardPopTitle">集章卡</b><small>同一款买满 10 支，第 11 支我们请</small></div>
           <div class="am-lines" id="cardPopLines"></div>

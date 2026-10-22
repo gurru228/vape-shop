@@ -335,6 +335,7 @@ function createStampCard(canvas, { onFlip } = {}) {
   }
   new ResizeObserver(fit).observe(canvas);
   fit();
+  try { renderer.compile(scene, camera); } catch (e) { /* compiles on first draw instead */ }
 
   let visible = false, last = performance.now(), t = 0;
   new IntersectionObserver(([e]) => {

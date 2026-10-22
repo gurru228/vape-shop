@@ -32,8 +32,14 @@ function createDevice(canvas, opts = {}) {
     panel.position.set(x, y, z); panel.lookAt(0, 0, 0);
     envScene.add(panel);
   }
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(envScene, 0.04).texture;
+  // the reflection map costs a second or more of shader work on a phone; there, a sky light stands in for it
+  const PHONE = matchMedia('(max-width: 860px), (pointer: coarse)').matches;
+  if (PHONE) scene.add(new THREE.HemisphereLight(0xffffff, 0x8d8878, 0.75));
+  else {
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(envScene, 0.04).texture;
+    pmrem.dispose();
+  }
 
   const key = new THREE.DirectionalLight(0xffffff, 0.9);
   key.position.set(-3, 4, 5);
@@ -111,6 +117,8 @@ function createDevice(canvas, opts = {}) {
   const ro = new ResizeObserver(fit);
   ro.observe(canvas);
   fit();
+  // compile the materials now, in the idle slot this was built in, instead of in the first visible frame
+  try { renderer.compile(scene, camera); } catch (e) { /* compiles on first draw instead */ }
 
   const slosh = { x: 0, vx: 0, lastV: spin.v };
   const up = new THREE.Vector3(), qInv = new THREE.Quaternion(), qTmp = new THREE.Quaternion();

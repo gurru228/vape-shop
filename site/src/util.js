@@ -60,12 +60,28 @@ function lockScroll(owner, on) {
   document.documentElement.classList.toggle('locked', scrollLocks.size > 0);
 }
 
-// build a 3D scene only when its section is about to scroll into view, one per idle moment, so opening the
-// page doesn't compile every shader at once (that's what made phones stutter on load)
+// build a 3D scene only when its section is about to scroll into view, and only one at a time: each build
+// compiles shaders, which blocks the page; queued with a pause in between, the page keeps scrolling smoothly
+const buildQueue = [];
+let building = false;
+function runBuilds() {
+  if (building || !buildQueue.length) return;
+  building = true;
+  const next = () => {
+    const job = buildQueue.shift();
+    try { job(); } catch (e) { console.error(e); }
+    // let a few frames through before the next scene
+    setTimeout(() => { building = false; runBuilds(); }, 250);
+  };
+  window.requestIdleCallback ? requestIdleCallback(next, { timeout: 700 }) : setTimeout(next, 30);
+}
 function whenNear(el, build, margin = '300px') {
-  const go = () => (window.requestIdleCallback ? requestIdleCallback(build, { timeout: 600 }) : setTimeout(build, 30));
+  let queued = false, io = null;
+  const go = () => { if (queued) return; queued = true; io?.disconnect(); buildQueue.push(build); runBuilds(); };
+  // 'warm': app.js asks for an early build once the page is idle
+  el.addEventListener('warm', go, { once: true });
   if (!('IntersectionObserver' in window)) return go();
-  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); go(); } }, { rootMargin: margin });
+  io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) go(); }, { rootMargin: margin });
   io.observe(el);
 }
 

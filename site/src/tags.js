@@ -15,7 +15,7 @@ function createTags({ rail, canvas, products, onPick }) {
   renderer.setPixelRatio(Math.min(devicePixelRatio, SMALL ? 1.5 : 2));
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = SMALL ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 100);
@@ -433,6 +433,8 @@ function createTags({ rail, canvas, products, onPick }) {
   }
   new ResizeObserver(fit).observe(rail);
   fit();
+  // compile every material now (we're already in an idle slot), so the first frames don't stall
+  try { renderer.compile(scene, camera); } catch (e) { /* older drivers: compiles on first draw instead */ }
 
   const STEP = 1 / 90;
   let last = performance.now(), acc = 0, running = false, first = true;

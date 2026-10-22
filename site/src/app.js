@@ -34,8 +34,13 @@
     products,
     onShop: () => { $('clearance').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }); },
     // its own button wins; otherwise whatever the poster before it was asked to do
-    onDone: own => { postersDone = true; (own || after)?.(); },
+    onDone: own => { postersDone = true; afterPosters(); (own || after)?.(); },
   });
+  // once the opening posters are gone, build the 3D sections further down in idle moments, one by one,
+  // so they are ready (shaders compiled) before the visitor scrolls to them
+  // (computers only: on a phone each build still freezes the page for a moment, so there they wait until scrolled near)
+  const warm = () => { if (!matchMedia('(max-width: 860px), (pointer: coarse)').matches) ['clearance', 'rail', 'stamps'].forEach(id => $(id).dispatchEvent(new Event('warm'))); };
+  const afterPosters = () => setTimeout(() => (window.requestIdleCallback ? requestIdleCallback(warm, { timeout: 2000 }) : warm()), 800);
   if (account.user()) setTimeout(showClearance, 100);
   else createPromo({
     products, account,

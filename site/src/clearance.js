@@ -34,14 +34,30 @@ function createClearance({ products, onShop, onDone }) {
   const poster = wrap.querySelector('.clr-poster');
   let finished = false, dev = null, cycle = 0;
 
+  // phones get the product photo, stepping through the flavours: building a 3D scene while the poster opens
+  // froze phones for a second or two. Computers get the turning 3D model, started once the poster is open.
+  const PHONE = matchMedia('(max-width: 860px), (pointer: coarse)').matches;
+  function photos() {
+    const img = wrap.querySelector('.clr-fallback');
+    wrap.querySelector('.clr-dev').hidden = true;
+    img.hidden = false;
+    let i = ice.flavors.indexOf(pick);
+    const show = (f, fade) => {
+      wrap.querySelector('.clr-fl').textContent = f.nameCn;
+      if (!fade) { img.src = imgSrc(f.image); return; }
+      // fade out, swap once the next photo is loaded, fade back in
+      img.classList.add('swap');
+      const next = new Image(); next.src = imgSrc(f.image);
+      next.onload = next.onerror = () => setTimeout(() => { img.src = next.src; img.classList.remove('swap'); }, 300);
+    };
+    show(pick);
+    if (!REDUCED) cycle = setInterval(() => { i = (i + 1) % ice.flavors.length; show(ice.flavors[i], true); }, 2600);
+  }
   // the model turns slowly and steps through the flavours, like the hero
   async function startModel() {
+    if (PHONE) return photos();
     try { dev = window.THREE && createDevice(wrap.querySelector('.clr-dev'), { build: buildIcemax }); } catch (e) { dev = null; }
-    if (!dev) {
-      wrap.querySelector('.clr-dev').hidden = true;
-      wrap.querySelector('.clr-fallback').hidden = false;
-      return;
-    }
+    if (!dev) return photos();
     let i = ice.flavors.indexOf(pick);
     const show = async f => { dev.setFlavor(await flavorColor(f.image), f.name); wrap.querySelector('.clr-fl').textContent = f.nameCn; };
     await show(pick);
@@ -77,7 +93,8 @@ function createClearance({ products, onShop, onDone }) {
   setTimeout(() => {
     wrap.classList.add('open');
     poster.focus({ preventScroll: true });
-    // the canvas needs its size before the renderer starts
-    requestAnimationFrame(startModel);
+    // phones: photos right away. Computers: the 3D model after the opening animation, in an idle moment
+    if (PHONE) startModel();
+    else setTimeout(() => (window.requestIdleCallback ? requestIdleCallback(startModel, { timeout: 800 }) : startModel()), 450);
   }, 600);
 }
