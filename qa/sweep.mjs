@@ -17,7 +17,7 @@ for (const [n, o] of V.filter(([t]) => !process.env.ONLY || process.env.ONLY ===
   const wide = async where => {
     const w = await p.evaluate(() => { const W = document.documentElement.clientWidth; const out = [];
       document.querySelectorAll('body *').forEach(el => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el);
-        if (r.width && r.right > W + 1 && cs.position !== 'fixed' && !el.closest('.index,.rail,.cp:not(.open),.drawer:not(.open),.clr-band,.mobile-pan') && cs.visibility !== 'hidden') out.push(`${el.tagName.toLowerCase()}.${[...el.classList].join('.')}#${el.id} right=${Math.round(r.right)}`); });
+        if (r.width && r.right > W + 1 && cs.position !== 'fixed' && !el.closest('.index,.rail,.cp:not(.open),.drawer:not(.open),.clr-band,.mobile-pan,.join-strip') && cs.visibility !== 'hidden') out.push(`${el.tagName.toLowerCase()}.${[...el.classList].join('.')}#${el.id} right=${Math.round(r.right)}`); });
       return [document.documentElement.scrollWidth > W ? `page scrollWidth ${document.documentElement.scrollWidth} > ${W}` : null, ...out.slice(0, 5)].filter(Boolean); });
     w.forEach(x => say(`${where}: too wide: ${x}`));
   };

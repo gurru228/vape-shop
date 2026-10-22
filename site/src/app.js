@@ -62,6 +62,13 @@
   };
   account.on(paintAccount);
   paintAccount(account.user());
+
+  // guest strip: "注册会员就能集章", until they sign in or close it (closed = gone for this visit)
+  let stripClosed = false;
+  const paintStrip = u => { $('joinStrip').hidden = !!u || stripClosed; };
+  account.on(paintStrip); paintStrip(account.user());
+  $('joinGo').addEventListener('click', () => account.open('register'));
+  $('joinX').addEventListener('click', () => { stripClosed = true; paintStrip(account.user()); });
   acctBtn.addEventListener('click', () => account.open());
   $('stampsJoin').addEventListener('click', e => {
     const b = e.target.closest('[data-a]');
@@ -339,6 +346,7 @@
     if (cur.clearance) { $('dLeak').querySelector('.leak-t').textContent = LEAK_TITLE; $('dLeak').querySelector('.leak-b').textContent = LEAK_BODY; }
     $('dDesc').textContent = cur.desc.zh;
     $('dNote').textContent = '';
+    paintDrawerCart();
     const grid = $('dFlavors');
     grid.innerHTML = '';
     cur.flavors.forEach(f => {
@@ -369,12 +377,18 @@
   $('dAdd').addEventListener('click', () => {
     if (stock.out(cur.id, curFlavor.name)) return;
     addToCart(cur, curFlavor, qty);
-    $('dNote').innerHTML = `✓ 已加入 ${curFlavor.nameCn} × ${qty}，可以继续挑别的口味 · <button type="button" id="dGo" style="text-decoration:underline;font-weight:900">去结算 (${checkout.count()} 件) →</button>`;
-    $('dGo').addEventListener('click', () => { closeDrawer(); checkout.open(); });
+    $('dNote').textContent = `✓ 已加入 ${curFlavor.nameCn} × ${qty}`;
+    paintDrawerCart();
     $('dAdd').textContent = '已加入 ✓';
     clearTimeout(addedTimer); addedTimer = setTimeout(paintStock, 1400);
     setQty(1);
   });
+  // the cart button in the drawer's bottom bar: shown once there is something in the cart
+  function paintDrawerCart() {
+    const n = checkout.count();
+    $('dCart').hidden = !n; $('dCartN').textContent = n;
+  }
+  $('dCart').addEventListener('click', () => { closeDrawer(); checkout.open(); });
   $('dClose').addEventListener('click', closeDrawer);
   // a tap on the wall opens the drawer on pointerup; ignore the click the browser fires right after onto the scrim
   scrim.addEventListener('click', () => { if (performance.now() - openedAt > 400) closeDrawer(); });

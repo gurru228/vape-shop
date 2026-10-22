@@ -17,7 +17,7 @@ for (const [name, opts] of [['d', { viewport: { width: 1440, height: 900 } }], [
   for (let i = 0; i < 2; i++) await page.locator('#qPlus').click();
   await page.locator('#dAdd').click(); await page.waitForTimeout(300);
   console.log(name, 'note:', await page.locator('#dNote').textContent());
-  await page.locator('#dGo').click(); await page.waitForTimeout(700);
+  await page.locator('#dCart').click(); await page.waitForTimeout(700);
   console.log(name, 'cart lines:', await page.locator('.line').count(), '| total:', await page.locator('.cp-foot .total').textContent(), '| stamps:', await page.locator('.stampbar span').first().textContent());
   await page.screenshot({ path: `qa/co-${name}-cart.png` });
   await page.locator('[data-act=next]').click(); await page.waitForTimeout(400);
