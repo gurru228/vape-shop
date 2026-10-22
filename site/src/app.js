@@ -413,6 +413,17 @@
 
   $('cartBtn').addEventListener('click', () => checkout.open());
 
+  // ---------- visit notice to the shop's Telegram: once per visit (again after 30 minutes away) ----------
+  (() => {
+    const q = new URLSearchParams(location.search), from = q.get('from') === 'qr' ? 'qr' : '';
+    // tidy the address bar so a shared link doesn't count as a scan
+    if (from) history.replaceState(null, '', location.pathname + location.hash);
+    let last = 0;
+    try { last = +localStorage.getItem('vs3d-visit') || 0; localStorage.setItem('vs3d-visit', Date.now()); } catch (e) { /* private mode */ }
+    if (Date.now() - last < 30 * 60e3 && !from) return;
+    setTimeout(() => account.api('visit', { method: 'POST', body: { from, ref: document.referrer } }).catch(() => {}), 1500);
+  })();
+
   // ---------- full card: a small notice "集满 10 个章了" with a button straight to the cart ----------
   // once per card per visit; waits until the opening posters are closed
   const told = new Set();

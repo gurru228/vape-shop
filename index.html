@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha512-dLxUelApnYxpLt6K2iomGngnHO83iUvZytA3YjDUCjT0HDOHKXnVYdf3hU4JjM8uEhxf9nD1/ey98U3t2vZ0qQ==" crossorigin="anonymous">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-6XSwWo4DakkIrWTac1WLTG/YnLKRmNSfC3rSjOG/5nc=' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-bwRRknW8k6VAWclMk5rlRa+Z4k5/F2Pt+osIv1aWRwc=' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <!-- the web fonts are added by util.js, so they don't hold up the first paint (the system font shows until they arrive) -->
 <style>
 /* Brand tokens carried over from deploy-preview-6 styles.css */
@@ -3716,6 +3716,17 @@ function createClearance({ products, onShop, onDone }) {
   }, 3000);
 
   $('cartBtn').addEventListener('click', () => checkout.open());
+
+  // ---------- visit notice to the shop's Telegram: once per visit (again after 30 minutes away) ----------
+  (() => {
+    const q = new URLSearchParams(location.search), from = q.get('from') === 'qr' ? 'qr' : '';
+    // tidy the address bar so a shared link doesn't count as a scan
+    if (from) history.replaceState(null, '', location.pathname + location.hash);
+    let last = 0;
+    try { last = +localStorage.getItem('vs3d-visit') || 0; localStorage.setItem('vs3d-visit', Date.now()); } catch (e) { /* private mode */ }
+    if (Date.now() - last < 30 * 60e3 && !from) return;
+    setTimeout(() => account.api('visit', { method: 'POST', body: { from, ref: document.referrer } }).catch(() => {}), 1500);
+  })();
 
   // ---------- full card: a small notice "集满 10 个章了" with a button straight to the cart ----------
   // once per card per visit; waits until the opening posters are closed
