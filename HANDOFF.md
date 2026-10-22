@@ -82,6 +82,7 @@ ONLY=d sh qa/run.sh node qa/clearance.mjs`。
 - 改价：IceMax €15.90（原价 €22.90），冰王 €30.00。
 - 只领赠品：会员卡满了，购物车里什么都不买也能下单领那 1 支（应付 €0.00，按钮写「只领赠品，去填写取货信息」）。服务器只允许已登录会员这样下单，游客空单照样拦；这单扣 10 个章、不盖章，取消会退回。
 - 有货的口味排前面，缺货的放最后（选口味抽屉、IceMax 口味按钮）；首页鸭嘴兽那 9 个口味按钮只挑有货的，自动轮播也跳过缺货。测试：`sh qa/run.sh node qa/giftonly.mjs`。
+- 集满提示：会员某张卡满 10 个章时，开屏海报关掉后左下角弹出小提示「✱ 鸭嘴兽 集满 10 个章了！送你 1 支……」，点「去领取」打开购物车（赠品已在里面）。每张卡每次打开网站只提示一次，12 秒后自动消失。下单确认后刚集满时也会弹。测试：`sh qa/run.sh node qa/fullnote.mjs`。
 - 新测试：`ONLY=d sh qa/run.sh node qa/sweep.mjs`（全站走一遍：报错、溢出、遮罩、锁滚动）、`ONLY=d sh qa/run.sh node qa/perf.mjs`（卡顿）。
 
 ## 环境变量（Netlify：vapeshop2026 → Site configuration → Environment variables）

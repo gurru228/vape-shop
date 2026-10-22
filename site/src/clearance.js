@@ -55,8 +55,8 @@ function createClearance({ products, onShop, onDone }) {
     lockScroll('clearance', false);
     document.removeEventListener('keydown', onKey, true);
     setTimeout(() => { dev?.dispose?.(); wrap.remove(); }, REDUCED ? 0 : 400);
-    // its own button wins; otherwise whatever the poster before it was asked to do
-    (then || onDone)?.();
+    // onDone(then): `then` is this poster's own button (go to the clearance block), if it was pressed
+    onDone?.(then);
   };
   const onKey = e => {
     if (e.key === 'Escape') { e.stopPropagation(); done(); }

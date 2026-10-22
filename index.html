@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-oUKN559eO7lKwnFB4ZzGexsw26M0JG5lAyJuyKnTWeE=' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-S7Xbjb/R1FBrNdJe2dS6LapsCL/BdEjpfQ4ArIRbjfQ=' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <!-- the web fonts are added by util.js, so they don't hold up the first paint (the system font shows until they arrive) -->
 <style>
 /* Brand tokens carried over from deploy-preview-6 styles.css */
@@ -348,6 +348,13 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 .tagnow{display:inline-block;margin-left:8px;padding:1px 9px;border-radius:999px;background:var(--stamp);color:#fff;font-size:11.5px;font-weight:900;letter-spacing:.04em;vertical-align:middle}
 .d-note{margin:0;min-height:1.3em;font-size:13px;color:var(--accent);font-weight:700}
 
+.full-note{position:fixed;z-index:45;left:20px;bottom:20px;width:min(360px,calc(100vw - 28px));padding:16px 18px;border-radius:16px;background:var(--surface);border:2px solid var(--stamp);box-shadow:0 18px 44px rgba(20,22,16,.25);display:grid;gap:6px;transform:translateY(30px);opacity:0;transition:transform .4s cubic-bezier(.2,1.3,.3,1),opacity .3s}
+.full-note.show{transform:none;opacity:1}
+.full-note b{font-size:16px;color:var(--stamp);padding-right:24px}
+.full-note span{font-size:13px;color:var(--muted)}
+.full-note .fn-go{height:40px;justify-self:start;margin-top:4px;background:var(--stamp);color:#fff}
+.fn-x{position:absolute;top:6px;right:8px;width:30px;height:30px;border-radius:50%;font-size:20px;color:var(--muted)}
+@media (max-width:860px){.full-note{left:14px;bottom:80px}}
 .toast{position:fixed;z-index:40;left:50%;bottom:24px;transform:translate(-50%,16px);background:var(--primary);color:var(--on-primary);padding:12px 20px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;transition:.3s;pointer-events:none}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
@@ -3182,8 +3189,8 @@ function createClearance({ products, onShop, onDone }) {
     lockScroll('clearance', false);
     document.removeEventListener('keydown', onKey, true);
     setTimeout(() => { dev?.dispose?.(); wrap.remove(); }, REDUCED ? 0 : 400);
-    // its own button wins; otherwise whatever the poster before it was asked to do
-    (then || onDone)?.();
+    // onDone(then): `then` is this poster's own button (go to the clearance block), if it was pressed
+    onDone?.(then);
   };
   const onKey = e => {
     if (e.key === 'Escape') { e.stopPropagation(); done(); }
@@ -3239,10 +3246,13 @@ function createClearance({ products, onShop, onDone }) {
 
   // the stamp-card (register) poster comes first; when it is closed, the IceMax clearance poster follows
   // members already have the card: they only see the clearance poster
+  // postersDone: the full-card notice below waits for it
+  let postersDone = false;
   const showClearance = after => createClearance({
     products,
     onShop: () => { $('clearance').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }); },
-    onDone: after,
+    // its own button wins; otherwise whatever the poster before it was asked to do
+    onDone: own => { postersDone = true; (own || after)?.(); },
   });
   if (account.user()) setTimeout(showClearance, 100);
   else createPromo({
@@ -3601,6 +3611,36 @@ function createClearance({ products, onShop, onDone }) {
   }, 3000);
 
   $('cartBtn').addEventListener('click', () => checkout.open());
+
+  // ---------- full card: a small notice "集满 10 个章了" with a button straight to the cart ----------
+  // once per card per visit; waits until the opening posters are closed
+  const told = new Set();
+  let notice = null;
+  function tellFull() {
+    if (!account.user()) return;
+    const full = products.filter(p => stampStore.get(p.id) >= STAMPS_PER_REWARD && !told.has(p.id));
+    if (!full.length) return;
+    if (!postersDone || document.querySelector('.promo')) { setTimeout(tellFull, 800); return; }
+    full.forEach(p => told.add(p.id));
+    notice?.remove();
+    const names = full.map(p => shortName(p)).join('、');
+    notice = document.createElement('div');
+    notice.className = 'full-note';
+    notice.setAttribute('role', 'status');
+    notice.innerHTML = `<button type="button" class="fn-x" aria-label="关闭">×</button>
+      <b>✱ ${esc(names)} 集满 10 个章了！</b>
+      <span>送你 1 ${full.length === 1 ? stampUnit(full[0]) : '支'}，口味自己挑，下单就带上，只领赠品也可以。</span>
+      <button type="button" class="btn btn-primary fn-go">去领取</button>`;
+    document.body.appendChild(notice);
+    requestAnimationFrame(() => notice.classList.add('show'));
+    const close = () => { const n = notice; n?.classList.remove('show'); setTimeout(() => n?.remove(), 400); notice = null; };
+    notice.querySelector('.fn-x').addEventListener('click', close);
+    notice.querySelector('.fn-go').addEventListener('click', () => { close(); checkout.open(); });
+    setTimeout(() => { if (notice?.isConnected) close(); }, 12000);
+  }
+  stampStore.on(() => setTimeout(tellFull, 400));
+  account.on(u => { if (!u) { told.clear(); notice?.remove(); notice = null; } });
+  setTimeout(tellFull, 1500);
 })();
 
 </script>

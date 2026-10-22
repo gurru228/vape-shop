@@ -28,10 +28,13 @@
 
   // the stamp-card (register) poster comes first; when it is closed, the IceMax clearance poster follows
   // members already have the card: they only see the clearance poster
+  // postersDone: the full-card notice below waits for it
+  let postersDone = false;
   const showClearance = after => createClearance({
     products,
     onShop: () => { $('clearance').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }); },
-    onDone: after,
+    // its own button wins; otherwise whatever the poster before it was asked to do
+    onDone: own => { postersDone = true; (own || after)?.(); },
   });
   if (account.user()) setTimeout(showClearance, 100);
   else createPromo({
@@ -390,4 +393,34 @@
   }, 3000);
 
   $('cartBtn').addEventListener('click', () => checkout.open());
+
+  // ---------- full card: a small notice "集满 10 个章了" with a button straight to the cart ----------
+  // once per card per visit; waits until the opening posters are closed
+  const told = new Set();
+  let notice = null;
+  function tellFull() {
+    if (!account.user()) return;
+    const full = products.filter(p => stampStore.get(p.id) >= STAMPS_PER_REWARD && !told.has(p.id));
+    if (!full.length) return;
+    if (!postersDone || document.querySelector('.promo')) { setTimeout(tellFull, 800); return; }
+    full.forEach(p => told.add(p.id));
+    notice?.remove();
+    const names = full.map(p => shortName(p)).join('、');
+    notice = document.createElement('div');
+    notice.className = 'full-note';
+    notice.setAttribute('role', 'status');
+    notice.innerHTML = `<button type="button" class="fn-x" aria-label="关闭">×</button>
+      <b>✱ ${esc(names)} 集满 10 个章了！</b>
+      <span>送你 1 ${full.length === 1 ? stampUnit(full[0]) : '支'}，口味自己挑，下单就带上，只领赠品也可以。</span>
+      <button type="button" class="btn btn-primary fn-go">去领取</button>`;
+    document.body.appendChild(notice);
+    requestAnimationFrame(() => notice.classList.add('show'));
+    const close = () => { const n = notice; n?.classList.remove('show'); setTimeout(() => n?.remove(), 400); notice = null; };
+    notice.querySelector('.fn-x').addEventListener('click', close);
+    notice.querySelector('.fn-go').addEventListener('click', () => { close(); checkout.open(); });
+    setTimeout(() => { if (notice?.isConnected) close(); }, 12000);
+  }
+  stampStore.on(() => setTimeout(tellFull, 400));
+  account.on(u => { if (!u) { told.clear(); notice?.remove(); notice = null; } });
+  setTimeout(tellFull, 1500);
 })();
