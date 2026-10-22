@@ -143,6 +143,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;gap:20p
 @keyframes nudge{0%,100%{transform:translateX(-5px);opacity:.4}50%{transform:translateX(5px);opacity:1}}
 
 /* stamp card */
+.clear + .stamps{margin-top:clamp(40px,6vh,70px)}
 .stamps{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);align-items:center;gap:clamp(12px,3vw,40px);padding:clamp(22px,3vw,36px);border-radius:calc(var(--radius) + 8px);background:var(--surface);border:1px solid var(--line)}
 .stamps-copy{display:grid;gap:14px;justify-items:start}
 .stamps h2{margin:0;font-size:clamp(30px,3.4vw,44px);line-height:1.12;font-weight:900;text-wrap:balance}
@@ -276,7 +277,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;gap:20p
 .wa-fab:hover{transform:translateY(-2px)}
 
 /* rail */
-.rail-head{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;margin:clamp(64px,10vh,110px) 0 0}
+.rail-head{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;margin:clamp(28px,5vh,64px) 0 0}
 .rail-head h2{margin:4px 0 0;font-size:clamp(30px,3.6vw,44px);line-height:1.1;font-weight:800}
 .rail-head p{margin:0;color:var(--muted);font-size:14px;max-width:36ch}
 .rail{position:relative;height:clamp(560px,78vh,760px);overflow:hidden;touch-action:pan-y}
@@ -703,6 +704,25 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
     </div>
   </section>
 
+
+
+  <div class="rail-head" id="products">
+    <div>
+      <span class="eyebrow">6 款产品 · 95 种口味</span>
+      <h2>挂在墙上的口粮</h2>
+    </div>
+    <p>点海报选口味</p>
+  </div>
+  <ul class="index" id="index" aria-label="选择款式"></ul>
+</div>
+
+<section class="rail" id="rail" aria-label="产品海报墙">
+  <canvas id="tags"></canvas>
+  <div class="rail-loading" id="railLoading">正在挂海报…</div>
+</section>
+<div class="mobile-pan"><button type="button" id="panL" aria-label="向左">←</button><button type="button" id="panR" aria-label="向右">→</button></div>
+
+<div class="wrap">
   <section class="clear" id="clearance" aria-labelledby="clearTitle">
     <div class="stage-wrap clear-stage">
       <canvas id="iceDevice" aria-label="IceMax 3D 模型，可拖动旋转"></canvas>
@@ -723,24 +743,6 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
     </div>
   </section>
 
-
-  <div class="rail-head" id="products">
-    <div>
-      <span class="eyebrow">6 款产品 · 95 种口味</span>
-      <h2>挂在墙上的口粮</h2>
-    </div>
-    <p>点海报选口味</p>
-  </div>
-  <ul class="index" id="index" aria-label="选择款式"></ul>
-</div>
-
-<section class="rail" id="rail" aria-label="产品海报墙">
-  <canvas id="tags"></canvas>
-  <div class="rail-loading" id="railLoading">正在挂海报…</div>
-</section>
-<div class="mobile-pan"><button type="button" id="panL" aria-label="向左">←</button><button type="button" id="panR" aria-label="向右">→</button></div>
-
-<div class="wrap">
   <section class="stamps" id="stamps" aria-labelledby="stampsTitle">
     <div class="stamps-copy">
       <span class="eyebrow">集章卡</span>
