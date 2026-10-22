@@ -87,7 +87,7 @@ function createAccount({ products, onStamps }) {
         <div class="acct-alt"><button type="button" data-a="register">还没有账户？注册一个</button>
           <a href="https://wa.me/${WA}?text=${encodeURIComponent('你好，我忘记了集章卡账户的密码，想重置一下')}" target="_blank" rel="noopener">忘记密码？WhatsApp 找店家重置</a></div>`;
     } else if (view === 'register') {
-      box.innerHTML = `${head('集章卡 · TARJETA DE SELLOS', '注册会员 · 领集章卡', '注册一个本店会员账号，集章卡就绑在账号上。每次下单，店家确认后自动盖章；同一款满 10 个章，送 1 支同款。')}
+      box.innerHTML = `${head('集章卡 · TARJETA DE SELLOS', '注册会员 · 领集章卡', '集章卡绑在账号上，店家确认订单后自动盖章，同一款满 10 送 1。')}
         <form class="acct-form" novalidate>${idField}
           ${field('name', '怎么称呼你', 'autocomplete="nickname" maxlength="40" placeholder="昵称就行" required')}
           ${pwField('new-password', '至少 6 位')}

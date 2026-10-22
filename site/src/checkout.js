@@ -19,6 +19,8 @@ function createCheckout({ products, account, onCount, onStamps }) {
   const hasLeak = () => items.some(it => product(it.pid).clearance) || totals().gifts.some(g => g.p.clearance);
   const form = { name: '', phone: '', mode: 'pickup', slot: SLOTS[0], recipient: '', street: '', floor: '', cp: '', city: '', province: '', country: 'ES', coupon: '' };
   let step = 0, lastFocus = null, order = null, sending = false;
+  // guests are asked once per order, at 提交订单: sign up so this order counts, or go on without stamps
+  let guestAsked = false;
 
   const product = id => products.find(p => p.id === id);
   const flavorOf = it => product(it.pid).flavors.find(f => f.name === it.flavor) || product(it.pid).flavors[0];
@@ -57,7 +59,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
   function stampBar(t) {
     if (!account.user()) {
       const n = Object.values(t.earn).reduce((a, b) => a + b, 0);
-      return `<div class="stampbar guest"><span class="sb-h">这单能盖 ${n} 个章</span><small>注册会员后，店家确认订单就自动盖到你的集章卡上。同一款满 10 个章送 1 支。</small>
+      return `<div class="stampbar guest"><span class="sb-h">这单能盖 ${n} 个章</span><small>注册会员就能集章，同一款满 10 送 1。</small>
         <div class="sb-act"><button type="button" class="btn btn-primary" data-act="join">注册会员领卡</button><button type="button" class="link" data-act="signin">已有账户，登录</button></div></div>`;
     }
     const rows = cardLines(t).map(p => {
@@ -189,7 +191,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
         }).join('')}
         <small>确认一般在几小时内，页面开着时会自己盖上。</small>
         <button type="button" class="link" data-act="stamps">去看集章卡 →</button></div>`
-      : `<div class="stampbar guest"><span class="sb-h">这单本来能盖 ${Object.values(o.t.earn).reduce((a, b) => a + b, 0)} 个章</span><small>注册会员，下一单开始集章：同一款满 10 个送 1 支。</small>
+      : `<div class="stampbar guest"><span class="sb-h">这单本来能盖 ${Object.values(o.t.earn).reduce((a, b) => a + b, 0)} 个章</span><small>注册会员，下一单开始集章，满 10 送 1。</small>
         <div class="sb-act"><button type="button" class="btn btn-primary" data-act="join">注册会员领卡</button></div></div>`;
     body.innerHTML = `
       <div class="okmark${o.sent ? '' : ' warn'}" aria-hidden="true">${o.sent ? '✓' : '!'}</div>
@@ -211,8 +213,21 @@ function createCheckout({ products, account, onCount, onStamps }) {
         <button type="button" class="btn btn-ghost" data-act="close">完成</button>`;
   }
 
+  function askGuest() {
+    const n = count();
+    foot.innerHTML = `
+      <div class="guest-ask" role="alertdialog" aria-labelledby="gaH">
+        <b id="gaH">这单能盖 ${n} 个章</b>
+        <span>现在注册会员，这单就算数。直接下单的话，这单不能集章，以后也补不了。</span>
+      </div>
+      <button type="button" class="btn btn-primary" data-act="ga-join">注册会员，这单集章</button>
+      <button type="button" class="btn btn-ghost" data-act="ga-skip">不注册，直接下单</button>`;
+    foot.querySelector('[data-act=ga-join]').focus({ preventScroll: true });
+  }
+
   async function submit(btn) {
     if (sending || !validate()) return;
+    if (!account.user() && !guestAsked) return askGuest();
     const t = totals(), u = account.user(), err = $('cpErr');
     sending = true; btn.disabled = true; btn.textContent = '提交中…'; err.textContent = '';
     let res = null, offline = false;
@@ -235,7 +250,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
     sending = false;
     order = { no: res?.no || `VS${Date.now().toString().slice(-6)}`, sent: !!res, member: !!(res?.member && u), items: items.map(it => ({ ...it })), form: { ...form }, t };
     Object.keys(giftPick).forEach(k => delete giftPick[k]);
-    items = []; ackLeak = false; save();
+    items = []; ackLeak = false; guestAsked = false; save();
     go(2);
     // gift stamps were taken off on the server; the card catches up
     if (order.member) account.refresh();
@@ -298,6 +313,8 @@ function createCheckout({ products, account, onCount, onStamps }) {
       const btn = b; btn.textContent = form.coupon.trim() ? '已记下' : '使用';
       if (form.coupon.trim()) setTimeout(() => { btn.textContent = '使用'; }, 1600);
     } else if (b.dataset.act === 'submit') submit(b);
+    else if (b.dataset.act === 'ga-join') account.open('register', '注册好就回到这里，点「提交订单」，这单就能集章');
+    else if (b.dataset.act === 'ga-skip') { guestAsked = true; render(); submit(foot.querySelector('[data-act=submit]')); }
   });
   $('cpBack').addEventListener('click', () => go(0));
   $('cpClose').addEventListener('click', close);

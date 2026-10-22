@@ -250,7 +250,7 @@
       $('rail').style.height = 'auto';
     }
   }, '500px');
-  if (matchMedia('(hover: none)').matches) document.querySelector('#products p').textContent = '左右滑动看海报，按住可以拽一下，轻点海报选口味。';
+  if (matchMedia('(hover: none)').matches) document.querySelector('#products p').textContent = '左右滑动，点海报选口味';
   $('panL').addEventListener('click', () => wall?.pan(-1));
   $('panR').addEventListener('click', () => wall?.pan(1));
 

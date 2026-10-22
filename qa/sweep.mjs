@@ -78,7 +78,7 @@ for (const [n, o] of V.filter(([t]) => !process.env.ONLY || process.env.ONLY ===
   await p.locator('[data-mode=postal]').click(); await p.waitForTimeout(300);
   await wide('checkout postal');
   await p.locator('[data-mode=pickup]').click(); await p.waitForTimeout(300);
-  await p.locator('[data-act=submit]').click(); await p.waitForSelector('.done-h', { timeout: 8000 }).catch(() => say('order did not go through'));
+  await p.locator('[data-act=submit]').click(); await p.locator('[data-act=ga-skip]').click(); await p.waitForSelector('.done-h', { timeout: 8000 }).catch(() => say('order did not go through'));
   await wide('done');
   await p.keyboard.press('Escape'); await p.waitForTimeout(600);
   if (await p.locator('#cp.open').count()) say('cart stayed open after Escape');

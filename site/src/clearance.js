@@ -11,7 +11,7 @@ function createClearance({ products, onShop, onDone }) {
   wrap.innerHTML = `
     <div class="promo-poster clr-poster" role="dialog" aria-modal="true" aria-labelledby="clrTitle" tabindex="-1">
       <button type="button" class="promo-x" aria-label="关闭">×</button>
-      <div class="clr-band"><span>最后一批</span><i>✱</i><span>LIQUIDACIÓN</span><i>✱</i><span>卖完即止</span></div>
+      <div class="clr-band"><span>最后一批</span><i>✱</i><span>卖完即止</span></div>
       <h2 id="clrTitle" class="clr-h"><b>IceMax</b><small>低价清仓</small></h2>
       <div class="clr-window">
         <canvas class="clr-dev" aria-label="IceMax 3D 模型"></canvas>
@@ -20,10 +20,10 @@ function createClearance({ products, onShop, onDone }) {
           <i class="clr-hole" aria-hidden="true"></i>
           <s class="num">€22.90</s>
           <b class="num">€14<small>.90</small></b>
-          <span>一支 · UNIDAD</span>
+          <span>一支</span>
         </div>
       </div>
-      <p class="clr-sub"><b class="num">12000</b> 口 · <b class="num">${ice.flavors.length}</b> 种口味 · 现在是 <em class="clr-fl">${pick.nameCn}</em></p>
+      <p class="clr-sub"><b class="num">12000</b> 口 · <b class="num">${ice.flavors.length}</b> 种口味 · <em class="clr-fl">${pick.nameCn}</em></p>
       <div class="clr-dots" aria-hidden="true">${ice.flavors.map(f => `<img src="${imgSrc(f.image)}" alt="" title="${f.nameCn}">`).join('')}</div>
       <div class="promo-cta">
         <button type="button" class="btn clr-go">去挑口味 →</button>

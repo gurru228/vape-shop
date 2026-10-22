@@ -62,7 +62,7 @@ for (const [tag, opts] of [['d', { viewport: { width: 1440, height: 900 } }], ['
   console.log(tag, 'submit without tick:', await txt(page, '#cpErr'));
   await page.screenshot({ path: `qa/clr-${tag}-ack.png` });
   await page.locator('#ackLeak').check();
-  await page.locator('[data-act=submit]').click(); await page.waitForSelector('.done-h', { timeout: 8000 });
+  await page.locator('[data-act=submit]').click(); await page.locator('[data-act=ga-skip]').click(); await page.waitForSelector('.done-h', { timeout: 8000 });
   console.log(tag, 'done:', await txt(page, '.done-h'), '| receipt:', (await txt(page, '.receipt')).slice(0, 120));
   await page.close();
 }

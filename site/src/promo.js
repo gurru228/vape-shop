@@ -15,10 +15,10 @@ function createPromo({ products, account, onShop, onStamps, onDone }) {
     <div class="promo-poster" role="dialog" aria-modal="true" aria-labelledby="promoTitle" tabindex="-1">
       <i class="promo-tape" aria-hidden="true"></i>
       <button type="button" class="promo-x" aria-label="关闭">×</button>
-      <span class="promo-eyebrow">口粮专卖店 · 集章卡 · TARJETA DE SELLOS</span>
+      <span class="promo-eyebrow">口粮专卖店 · 集章卡</span>
       <span class="promo-always">常驻活动 · 不限时</span>
       <h2 id="promoTitle"><span>买</span><b>10</b><span>送</span><b class="one">1</b></h2>
-      <p class="promo-sub">同一款买满 10 支，<em>第 11 支我们请</em>，口味你挑。</p>
+      <p class="promo-sub">同一款满 10 支，<em>第 11 支免费</em></p>
       <div class="promo-card" aria-hidden="true">
         <div class="promo-slots">${Array.from({ length: 10 }, (_, i) => `<span class="ps" style="--r:${(Math.random() * 40 - 20).toFixed(0)}deg"><small>${i + 1}</small><i class="ink"><b>口粮</b><em>MADRID</em></i></span>`).join('')}</div>
         <div class="promo-gift"><span class="pg-q">11</span><img src="${imgSrc(gift.image)}" alt=""><span class="pg-tag">送你的</span></div>
@@ -29,19 +29,16 @@ function createPromo({ products, account, onShop, onStamps, onDone }) {
         <p class="promo-hint" role="status">最后一个章，你来盖</p>
         <button type="button" class="promo-press">盖！</button>
       </div>
-      <ul class="promo-rules">
-        <li>店家确认订单后自动盖章</li><li>每个款式一张卡</li><li>烟弹按盒算</li>
-      </ul>
       ${me ? `<div class="promo-cta">
         <button type="button" class="btn promo-go">去挑下一支 →</button>
         <button type="button" class="promo-more">${esc(me.name)}，看看我的集章卡</button>
       </div>` : `<div class="promo-cta">
         <button type="button" class="btn promo-join-go">注册会员 · 免费领卡 →</button>
-        <p class="promo-why">领卡就是注册本店会员账号（手机号或邮箱 + 密码）。章存在账号里，换手机也不丢 · 游客下单不盖章</p>
-        <button type="button" class="promo-skip">先逛逛，下次再说</button>
+        <p class="promo-why">领卡 = 注册会员账号（手机号或邮箱 + 密码）</p>
+        <button type="button" class="promo-skip">先逛逛</button>
       </div>
       <form class="promo-join" novalidate hidden>
-        <p class="pj-h">注册会员账号 · 卡就绑在这个账号上</p>
+        <p class="pj-h">注册会员账号，卡就绑在账号上</p>
         <div class="pj-f"><label for="p-account">手机号或邮箱</label><input id="p-account" name="account" type="text" inputmode="email" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="612 345 678 / tu@email.com"></div>
         <div class="pj-f"><label for="p-name">怎么称呼你</label><input id="p-name" name="name" autocomplete="nickname" maxlength="40" placeholder="会写在卡上"></div>
         <div class="pj-f"><label for="p-password">密码</label><div class="a-in"><input id="p-password" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="至少 6 位"><button type="button" class="a-eye" data-eye>显示</button></div></div>
@@ -169,8 +166,8 @@ function createPromo({ products, account, onShop, onStamps, onDone }) {
         wrap.classList.add('owned');
         name.textContent = u.name;
         form.hidden = true; done.hidden = false;
-        q('.pd-h').textContent = `${u.name}，会员账号注册好了，卡也开好了！`;
-        q('.pd-s').textContent = `以后用 ${v.account.trim()} + 密码登录就能看章。从下一单开始，店家确认订单，章就自动盖到你的卡上。`;
+        q('.pd-h').textContent = `${u.name}，注册成功，卡开好了！`;
+        q('.pd-s').textContent = `以后用 ${v.account.trim()} + 密码登录看章，下一单开始集。`;
         thud();
         done.querySelector('.promo-go').focus({ preventScroll: true });
       } catch (ex) {

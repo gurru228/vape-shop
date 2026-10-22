@@ -406,6 +406,8 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 .okmark.warn{background:var(--stamp)}
 .wa-q{color:inherit;text-decoration:none}
 .cp-body .acct-err:empty{display:none}
+.guest-ask{display:grid;gap:4px;padding:12px 14px;border-radius:12px;border:1.5px dashed var(--stamp);background:color-mix(in srgb,var(--stamp) 7%,transparent);font-size:13px;color:var(--muted)}
+.guest-ask b{font-size:15px;color:var(--stamp)}
 
 .acct{position:fixed;inset:0;z-index:55;display:grid;place-items:center;padding:16px;background:rgba(20,22,16,.5);opacity:0;pointer-events:none;transition:opacity .3s}
 .acct.open{opacity:1;pointer-events:auto}
@@ -634,7 +636,7 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
         <div class="card-pop" id="cardPop" role="dialog" aria-label="我的集章卡" hidden>
           <div class="cp-h"><b id="cardPopTitle">集章卡</b><small>同一款买满 10 支，第 11 支我们请</small></div>
           <div class="am-lines" id="cardPopLines"></div>
-          <p class="cp-guest" id="cardPopGuest" hidden>集章卡绑在会员账号上：用手机号或邮箱 + 密码注册一个账号，卡就开好了；店家确认订单后自动盖章。</p>
+          <p class="cp-guest" id="cardPopGuest" hidden>注册会员账号就有卡，店家确认订单后自动盖章。</p>
           <div class="cp-act" id="cardPopAct"></div>
         </div>
       </div>
@@ -646,7 +648,7 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
     <div>
       <span class="eyebrow">本周主推 · SNOWPLUS</span>
       <h1 id="heroTitle">鸭嘴兽 <span>Dash</span></h1>
-      <p class="lede">一支 4000 口，31 种口味。拖动烟杆转一圈，点下面的口味换颜色。</p>
+      <p class="lede">拖动转一圈，点口味换颜色。</p>
       <div class="specs">
         <div><b class="num">4000</b><span>口（整机）</span></div>
         <div><b class="num">31</b><span>种口味</span></div>
@@ -656,7 +658,7 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
       <div class="chips" id="heroChips" role="group" aria-label="选择口味"></div>
       <div class="cta">
         <button class="btn btn-primary" type="button" id="heroAdd">加入购物车 · €17.90</button>
-        <a class="btn btn-ghost" href="#products" style="text-decoration:none;color:inherit">其他款式电子烟 →</a>
+        <a class="btn btn-ghost" href="#products" style="text-decoration:none;color:inherit">看其他款式 →</a>
       </div>
     </div>
     <div class="stage-wrap">
@@ -671,9 +673,9 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
       <div class="stage-hint"><i></i>拖动旋转</div>
     </div>
     <div>
-      <span class="eyebrow">最后一批 · 低价清仓 · LIQUIDACIÓN</span>
+      <span class="eyebrow">最后一批 · 卖完即止</span>
       <h2 id="clearTitle">冰爆 <span>IceMax</span> <b class="tagnow">清仓</b></h2>
-      <p class="lede">12000 口，13 种口味，卖完就没了。</p>
+      <p class="lede">12000 口 · 13 种口味</p>
       <div class="clear-price"><b class="num">€14.90</b><s class="num">€22.90</s><span>一支</span></div>
       <div class="leak" role="note"><b>⚠ <span id="clLeakT"></span></b><span id="clLeakB"></span></div>
       <div class="picked"><b id="iceFlavor"></b><span id="iceFlavorEs"></span></div>
@@ -691,7 +693,7 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
       <span class="eyebrow">6 款产品 · 95 种口味</span>
       <h2>挂在墙上的口粮</h2>
     </div>
-    <p>鼠标划过海报会晃，按住可以拽一下。点海报选口味。</p>
+    <p>点海报选口味</p>
   </div>
   <ul class="index" id="index" aria-label="选择款式"></ul>
 </div>
@@ -705,12 +707,12 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
 <div class="wrap">
   <section class="stamps" id="stamps" aria-labelledby="stampsTitle">
     <div class="stamps-copy">
-      <span class="eyebrow">集章卡 · 常驻活动，不限时 · TARJETA DE SELLOS</span>
+      <span class="eyebrow">集章卡 · 常驻活动</span>
       <h2 id="stampsTitle">同一款买满 10 支，<br>第 11 支我们请。</h2>
-      <p>注册会员就能集：每单店家确认后自动盖章。每个款式一张卡，分开集；集满 10 个，下一单送 1 支同款，口味你挑。</p>
+      <p>每款一张卡，店家确认订单后自动盖章。</p>
       <div class="stamps-join" id="stampsJoin">
         <b>领卡 = 注册本店会员账号</b>
-        <span>用手机号或邮箱 + 密码注册，30 秒搞定；以后用这个账号登录看章。游客也能下单，只是不盖章。</span>
+        <span>手机号或邮箱 + 密码，30 秒。游客也能下单，但不盖章。</span>
         <div><button type="button" class="btn btn-primary" data-a="register">注册会员领卡</button><button type="button" class="link" data-a="login">已有账户，登录</button></div>
       </div>
       <div class="stamps-member" id="stampsMember" hidden>
@@ -738,7 +740,7 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
   <section class="ship" id="ship" aria-label="配送方式">
     <article><h3>自取<small>Recogida</small></h3><p>Metro El Capricho</p><p class="rule">周一至周四全天 · 周末 11:00–18:00</p></article>
     <article><h3>外送<small>Entrega</small></h3><p>马德里当天送达，可现金付款</p><p class="rule">满 5 件可选</p></article>
-    <article><h3>邮寄<small>Correo</small></h3><p>西班牙境内运费 €9.99，其他欧盟国家 WhatsApp 确认</p><p class="rule">满 €150 包邮</p></article>
+    <article><h3>邮寄<small>Correo</small></h3><p>西班牙 €9.99 · 欧盟其他国家 WhatsApp 问</p><p class="rule">满 €150 包邮</p></article>
   </section>
 
 

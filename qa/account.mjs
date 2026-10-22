@@ -17,7 +17,9 @@ const order = async page => {
   await page.locator('#cartBtn').click(); await page.waitForTimeout(600);
   await page.locator('[data-act=next]').click(); await page.waitForTimeout(300);
   if (!(await page.locator('#f-name').inputValue())) { await page.locator('#f-name').fill('Lin'); await page.locator('#f-phone').fill('+34 612 345 678'); }
-  await page.locator('[data-act=submit]').click(); await page.waitForSelector('.done-h', { timeout: 8000 });
+  await page.locator('[data-act=submit]').click();
+  if (await page.locator('[data-act=ga-skip]').count()) await page.locator('[data-act=ga-skip]').click();
+  await page.waitForSelector('.done-h', { timeout: 8000 });
   return (await page.locator('.done-h b.num').count()) ? (await page.locator('.done-h b.num').textContent()).trim() : null;
 };
 const closePromo = page => page.addInitScript(() => { const t = setInterval(() => { const x = document.querySelector('.promo.open .promo-x'); if (x) x.click(); }, 50); setTimeout(() => clearInterval(t), 30000); });

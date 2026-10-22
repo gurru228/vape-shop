@@ -76,6 +76,9 @@ ONLY=d sh qa/run.sh node qa/clearance.mjs`。
   - 安全响应头（`_headers`）：禁止被别的网站嵌入、HTTPS、CSP 等。首页还有自己更严的 CSP：只允许那一段内联脚本（`build.sh` 算 hash），所以**改完 site/ 一定要跑 `sh build.sh`**，不能手改根目录的 index.html。
   - 后台订单卡上的 id / 代理名也做了转义。
 - 小修：同一个 IceMax 勾选不会带到下一单；外送不满 5 件会提示原因；赠品口味缺货服务器会拦；游客在海报里点「已经有账户？登录」，登录后 IceMax 海报照常出现。
+- 文字精简：首页、两张海报、购物车、注册框的说明都缩短了（意思不变）。
+- 游客下单：点「提交订单」时先问一次「这单能盖 N 个章，现在注册就算数；直接下单这单不能集章，以后也补不了」。
+  选「注册会员，这单集章」→ 注册框 → 注册完回到结算再点提交，这单就是会员单；选「不注册，直接下单」→ 照常提交（`checkout.js` 的 `askGuest`）。
 - 新测试：`ONLY=d sh qa/run.sh node qa/sweep.mjs`（全站走一遍：报错、溢出、遮罩、锁滚动）、`ONLY=d sh qa/run.sh node qa/perf.mjs`（卡顿）。
 
 ## 环境变量（Netlify：vapeshop2026 → Site configuration → Environment variables）
