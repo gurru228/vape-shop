@@ -126,7 +126,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
       return `<button type="button" class="mode${locked ? ' locked' : ''}" data-mode="${k}" aria-pressed="${form.mode === k}"><b>${MODES[k].name}</b><small>${locked ? `还差 ${5 - n} 件` : MODES[k].note}</small></button>`;
     };
     let extra = '';
-    if (form.mode === 'pickup') extra = `<div class="info"><b>Metro El Capricho</b><span>周一至周四 全天 · 周末 11:00–18:00</span><span>下单后我们会用 WhatsApp 跟你约具体时间</span></div>`;
+    if (form.mode === 'pickup') extra = `<div class="info"><b>Metro El Capricho</b><span>取货时间请联系客服：<a href="/api/wa?text=${encodeURIComponent('你好，我想约个时间来自取')}" target="_blank" rel="noopener" style="color:#128C4A;font-weight:800">WhatsApp 联系客服</a></span></div>`;
     if (form.mode === 'delivery') extra = `<div class="field"><label>送达时间（今天）</label><div class="chipset">${SLOTS.map(s => `<button type="button" data-slot="${s}" aria-pressed="${form.slot === s}" class="num">${s}</button>`).join('')}</div></div>
       ${field('street', '送货地址', 'autocomplete="street-address" placeholder="街道 + 门牌号，马德里"')}
       <div class="info"><span>可现金付款，送到时付清</span></div>`;

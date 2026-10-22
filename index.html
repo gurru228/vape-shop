@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha512-dLxUelApnYxpLt6K2iomGngnHO83iUvZytA3YjDUCjT0HDOHKXnVYdf3hU4JjM8uEhxf9nD1/ey98U3t2vZ0qQ==" crossorigin="anonymous">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-z3wTo1dfRbVYuIpInSOc+NCpBR57bpi0JSxYl6XhH9U=' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-6XSwWo4DakkIrWTac1WLTG/YnLKRmNSfC3rSjOG/5nc=' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <!-- the web fonts are added by util.js, so they don't hold up the first paint (the system font shows until they arrive) -->
 <style>
 /* Brand tokens carried over from deploy-preview-6 styles.css */
@@ -304,6 +304,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;gap:20p
 .ship h3 small{font-family:"Nunito",sans-serif;font-weight:700;color:var(--muted);font-size:13px;margin-left:6px}
 .ship p{margin:0;color:var(--muted);font-size:13.5px}
 .ship .rule{color:var(--ink);font-weight:700}
+.ship .ship-wa{justify-self:start;color:#128C4A;text-decoration:underline;text-underline-offset:3px;font-size:13.5px}
 footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
 
 /* drawer */
@@ -773,7 +774,7 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
   </div>
 
   <section class="ship" id="ship" aria-label="配送方式">
-    <article><h3>自取<small>Recogida</small></h3><p>Metro El Capricho</p><p class="rule">周一至周四全天 · 周末 11:00–18:00</p></article>
+    <article><h3>自取<small>Recogida</small></h3><p>Metro El Capricho</p><a class="rule ship-wa" href="/api/wa?text=%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E7%BA%A6%E4%B8%AA%E6%97%B6%E9%97%B4%E6%9D%A5%E8%87%AA%E5%8F%96" target="_blank" rel="noopener">WhatsApp 联系客服约时间</a></article>
     <article><h3>外送<small>Entrega</small></h3><p>马德里当天送达 · 可付现金</p><p class="rule">满 5 件</p></article>
     <article><h3>邮寄<small>Correo</small></h3><p>西班牙 €9.99 · 其他欧盟国家请问客服</p><p class="rule">满 €150 包邮</p></article>
   </section>
@@ -2794,7 +2795,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
       return `<button type="button" class="mode${locked ? ' locked' : ''}" data-mode="${k}" aria-pressed="${form.mode === k}"><b>${MODES[k].name}</b><small>${locked ? `还差 ${5 - n} 件` : MODES[k].note}</small></button>`;
     };
     let extra = '';
-    if (form.mode === 'pickup') extra = `<div class="info"><b>Metro El Capricho</b><span>周一至周四 全天 · 周末 11:00–18:00</span><span>下单后我们会用 WhatsApp 跟你约具体时间</span></div>`;
+    if (form.mode === 'pickup') extra = `<div class="info"><b>Metro El Capricho</b><span>取货时间请联系客服：<a href="/api/wa?text=${encodeURIComponent('你好，我想约个时间来自取')}" target="_blank" rel="noopener" style="color:#128C4A;font-weight:800">WhatsApp 联系客服</a></span></div>`;
     if (form.mode === 'delivery') extra = `<div class="field"><label>送达时间（今天）</label><div class="chipset">${SLOTS.map(s => `<button type="button" data-slot="${s}" aria-pressed="${form.slot === s}" class="num">${s}</button>`).join('')}</div></div>
       ${field('street', '送货地址', 'autocomplete="street-address" placeholder="街道 + 门牌号，马德里"')}
       <div class="info"><span>可现金付款，送到时付清</span></div>`;

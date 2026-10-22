@@ -303,6 +303,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;gap:20p
 .ship h3 small{font-family:"Nunito",sans-serif;font-weight:700;color:var(--muted);font-size:13px;margin-left:6px}
 .ship p{margin:0;color:var(--muted);font-size:13.5px}
 .ship .rule{color:var(--ink);font-weight:700}
+.ship .ship-wa{justify-self:start;color:#128C4A;text-decoration:underline;text-underline-offset:3px;font-size:13.5px}
 footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
 
 /* drawer */
@@ -772,7 +773,7 @@ footer{border-top:1px solid var(--line);padding-block:26px;display:flex;justify-
   </div>
 
   <section class="ship" id="ship" aria-label="配送方式">
-    <article><h3>自取<small>Recogida</small></h3><p>Metro El Capricho</p><p class="rule">周一至周四全天 · 周末 11:00–18:00</p></article>
+    <article><h3>自取<small>Recogida</small></h3><p>Metro El Capricho</p><a class="rule ship-wa" href="/api/wa?text=%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E7%BA%A6%E4%B8%AA%E6%97%B6%E9%97%B4%E6%9D%A5%E8%87%AA%E5%8F%96" target="_blank" rel="noopener">WhatsApp 联系客服约时间</a></article>
     <article><h3>外送<small>Entrega</small></h3><p>马德里当天送达 · 可付现金</p><p class="rule">满 5 件</p></article>
     <article><h3>邮寄<small>Correo</small></h3><p>西班牙 €9.99 · 其他欧盟国家请问客服</p><p class="rule">满 €150 包邮</p></article>
   </section>
