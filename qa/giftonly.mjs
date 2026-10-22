@@ -39,8 +39,10 @@ await p.evaluate(() => document.querySelector('#index button[data-id="4"]').clic
 console.log('IceKing drawer price:', await p.textContent('#dPrice'));
 await p.click('#dClose'); await p.waitForTimeout(500);
 
-// gift-only order
+// gift-only order: the full card is offered, nothing is added until 领取
 await p.click('#cartBtn'); await p.waitForTimeout(700);
+console.log('offer before claiming:', await p.locator('.gift-offer').count(), '| gift lines:', await p.locator('.line.gift').count(), '| next button:', await p.locator('[data-act=next]').count());
+await p.locator('[data-claim]').click(); await p.waitForTimeout(300);
 console.log('cart with only the gift:', (await p.locator('.cp-body').innerText()).replace(/\s+/g, ' ').slice(0, 90), '| button:', await p.textContent('[data-act=next]'));
 await p.screenshot({ path: 'qa/gift-only-cart.png' });
 await p.locator('[data-act=next]').click(); await p.waitForTimeout(400);

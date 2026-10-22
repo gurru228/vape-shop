@@ -27,15 +27,16 @@ function createCheckout({ products, account, onCount, onStamps }) {
   const count = () => items.reduce((n, it) => n + it.qty, 0);
   const subtotal = () => items.reduce((s, it) => s + product(it.pid).price * it.qty, 0);
   const shipping = sub => (form.mode === 'postal' && !(form.country === 'ES' && sub >= 150) ? 9.99 : 0);
-  // stamp cards: every full card puts one free unit of its own line into the order; the buyer picks the flavor
-  const giftPick = {};
+  // stamp cards: a full card offers one free unit of its own line. It goes into the order only when the customer
+  // taps 领取 (claimed), and they pick the flavor; otherwise the card stays full for a later order.
+  const giftPick = {}, claimed = new Set();
   const inStock = p => p.flavors.filter(f => !stock.out(p.id, f.name));
   const giftFlavor = p => inStock(p).find(f => f.name === giftPick[p.id])
     || inStock(p).find(f => items.some(it => it.pid === p.id && it.flavor === f.name)) || inStock(p)[0] || p.flavors[0];
+  const fullCards = () => (account.user() ? products.filter(p => stampStore.get(p.id) >= STAMPS_PER_REWARD) : []);
   const totals = () => {
     const sub = subtotal(), ship = shipping(sub);
-    // a full card puts its free unit in the cart, with or without anything bought alongside it
-    const gifts = products.filter(p => stampStore.get(p.id) >= STAMPS_PER_REWARD).map(p => ({ p, f: giftFlavor(p) }));
+    const gifts = fullCards().filter(p => claimed.has(p.id)).map(p => ({ p, f: giftFlavor(p) }));
     const earn = {};
     items.forEach(it => { earn[it.pid] = (earn[it.pid] || 0) + it.qty; });
     return { sub, ship, total: sub + ship, gifts, earn };
@@ -68,22 +69,28 @@ function createCheckout({ products, account, onCount, onStamps }) {
       const have = stampStore.get(p.id) - (gift ? STAMPS_PER_REWARD : 0), after = have + earn;
       const dots = Array.from({ length: STAMPS_PER_REWARD }, (_, i) =>
         `<i class="${i < have ? 'on' : i < after ? 'new' : ''}"></i>`).join('');
-      const msg = after >= STAMPS_PER_REWARD ? `确认后盖 ${earn} 个，集满了，下一单送 1 ${unit}`
+      // a full card not claimed this time: the stamps keep counting past 10 and carry on to the next card
+      const msg = have >= STAMPS_PER_REWARD ? `卡满了，可以在下面领 1 ${unit}赠品${earn ? `；这单再盖 ${earn} 个，算进下一张卡` : ''}`
+        : after >= STAMPS_PER_REWARD ? `确认后盖 ${earn} 个，集满了，下一单送 1 ${unit}`
         : earn ? `确认后盖 ${earn} 个，再 ${STAMPS_PER_REWARD - after} ${unit}送 1 ${unit}` : `再 ${STAMPS_PER_REWARD - after} ${unit}送 1 ${unit}`;
       return `<div class="sb-row"><b>${esc(shortName(p))}</b><small>${gift ? `卡满了，这单送 1 ${unit} · ` : ''}${msg}</small><div class="dots" aria-hidden="true">${dots}</div></div>`;
     }).join('');
     return `<div class="stampbar"><span class="sb-h">${esc(account.user().name)} 的集章卡 · 每款满 10 送 1 同款</span>${rows}</div>`;
   }
   function giftLines(t) {
+    const offers = fullCards().filter(p => !claimed.has(p.id)).map(p => `<div class="gift-offer">
+      <span><b>${esc(shortName(p))} 集满 10 个章了</b>可以免费领 1 ${stampUnit(p)}，这单不领就留到下次</span>
+      <button type="button" class="btn btn-primary" data-claim="${p.id}">领取赠品</button></div>`).join('');
     return t.gifts.map(({ p, f }) => `<div class="line gift">
       <img src="${imgSrc(f.image)}" alt="">
       <div><b>赠品 · ${esc(shortName(p))}</b><small>集章卡满 10 送 1 ${stampUnit(p)}</small>
-        <select data-gift="${p.id}" aria-label="${esc(shortName(p))} 赠品口味">${inStock(p).map(g => `<option value="${esc(g.name)}"${g === f ? ' selected' : ''}>${esc(g.nameCn)} · ${esc(g.name)}</option>`).join('')}</select></div>
+        <select data-gift="${p.id}" aria-label="${esc(shortName(p))} 赠品口味">${inStock(p).map(g => `<option value="${esc(g.name)}"${g === f ? ' selected' : ''}>${esc(g.nameCn)} · ${esc(g.name)}</option>`).join('')}</select>
+        <button type="button" class="rm" data-unclaim="${p.id}">这次不领</button></div>
       <div class="r"><s class="num">${euro(p.price)}</s><b class="free num">€0.00</b></div>
-    </div>`).join('');
+    </div>`).join('') + offers;
   }
   function renderCart() {
-    if (!items.length && !totals().gifts.length) {
+    if (!items.length && !totals().gifts.length && !fullCards().length) {
       body.innerHTML = `<div class="empty"><b>购物车是空的</b><span>先去挑一支吧</span></div>`;
       foot.innerHTML = `<button type="button" class="btn btn-ghost" data-act="close">继续逛逛</button>`;
       return;
@@ -104,7 +111,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
         ${t.gifts.map(({ p }) => `<div class="save"><span>集章赠品 · ${esc(shortName(p))} 1 ${stampUnit(p)}</span><span class="num">€0.00</span></div>`).join('')}
       </div>
       <div class="row"><b>合计</b><span class="total num">${euro(t.sub)}</span></div>
-      <button type="button" class="btn btn-primary" data-act="next">${items.length ? '去填写取货信息 →' : '只领赠品，去填写取货信息 →'}</button>`;
+      ${items.length || t.gifts.length ? `<button type="button" class="btn btn-primary" data-act="next">${items.length ? '去填写取货信息 →' : '只领赠品，去填写取货信息 →'}</button>` : '<button type="button" class="btn btn-ghost" data-act="close">继续逛逛</button>'}`;
   }
 
   // ---------- step 2: details ----------
@@ -251,7 +258,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
     }
     sending = false;
     order = { no: res?.no || `VS${Date.now().toString().slice(-6)}`, sent: !!res, member: !!(res?.member && u), items: items.map(it => ({ ...it })), form: { ...form }, t };
-    Object.keys(giftPick).forEach(k => delete giftPick[k]);
+    Object.keys(giftPick).forEach(k => delete giftPick[k]); claimed.clear();
     items = []; ackLeak = false; guestAsked = false; save();
     go(2);
     // gift stamps were taken off on the server; the card catches up
@@ -270,6 +277,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
   function go(s) { step = s; render(); body.scrollTop = 0; }
 
   function open() {
+    document.querySelector('.full-note .fn-x')?.click();
     lastFocus = document.activeElement;
     $('toast').classList.remove('show');
     if (step === 2) step = 0;
@@ -300,7 +308,9 @@ function createCheckout({ products, account, onCount, onStamps }) {
   panel.addEventListener('click', e => {
     const b = e.target.closest('button');
     if (!b) return;
-    if (b.dataset.rm) { items.splice(+b.dataset.rm, 1); save(); render(); }
+    if (b.dataset.claim) { claimed.add(+b.dataset.claim); render(); }
+    else if (b.dataset.unclaim) { claimed.delete(+b.dataset.unclaim); render(); }
+    else if (b.dataset.rm) { items.splice(+b.dataset.rm, 1); save(); render(); }
     else if (b.dataset.q) {
       const it = items[+b.dataset.q];
       it.qty = Math.max(1, Math.min(20, it.qty + +b.dataset.d));
@@ -326,7 +336,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
   stock.on(() => { if (panel.classList.contains('open')) render(); });
   // signing in or out while the cart is open: redraw its stamp bar / gifts / prefilled contact
   account.on(u => {
-    if (!u) { form.name = form.phone = ''; Object.keys(giftPick).forEach(k => delete giftPick[k]); }
+    if (!u) { form.name = form.phone = ''; Object.keys(giftPick).forEach(k => delete giftPick[k]); claimed.clear(); }
     if (panel.classList.contains('open') && step !== 2) render();
   });
   stampStore.on(() => { if (panel.classList.contains('open') && step === 0) render(); });

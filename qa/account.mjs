@@ -77,6 +77,7 @@ for (const [name, opts] of [['d', { viewport: { width: 1440, height: 900 } }], [
   console.log(name, 'dash now:', await txt(page, '#stampNum'), await txt(page, '#stampLeft'));
   await page.locator('#heroAdd').click();
   await page.locator('#cartBtn').click(); await page.waitForTimeout(600);
+  await page.locator('[data-claim]').first().click(); await page.waitForTimeout(300);
   console.log(name, 'gift lines:', await page.locator('.line.gift').count(), '|', await txt(page, '.stampbar'));
   await page.locator('#cpClose').click();
   const no3 = await order(page);

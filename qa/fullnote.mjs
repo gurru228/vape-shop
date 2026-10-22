@@ -16,7 +16,7 @@ for (const o of [{ viewport: { width: 1440, height: 900 } }, { viewport: { width
   console.log('note:', (await p.locator('.full-note').innerText()).replace(/\s+/g, ' '));
   await p.screenshot({ path: `qa/full-note-${o.isMobile ? 'm' : 'd'}.png` });
   await p.click('.fn-go'); await p.waitForTimeout(800);
-  console.log('cart opened with gift:', await p.locator('#cp.open .line.gift').count());
+  console.log('cart opened with the offer:', await p.locator('#cp.open .gift-offer').count(), '| not added yet:', await p.locator('#cp.open .line.gift').count() === 0);
   await p.close();
 }
 await b.close(); console.log('errors:', errs.length ? errs : 'none');

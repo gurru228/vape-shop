@@ -402,7 +402,8 @@
     if (!account.user()) return;
     const full = products.filter(p => stampStore.get(p.id) >= STAMPS_PER_REWARD && !told.has(p.id));
     if (!full.length) return;
-    if (!postersDone || document.querySelector('.promo')) { setTimeout(tellFull, 800); return; }
+    // not over the posters, and not while the cart is open (the cart already shows the 领取 button)
+    if (!postersDone || document.querySelector('.promo') || $('cp').classList.contains('open')) { setTimeout(tellFull, 800); return; }
     full.forEach(p => told.add(p.id));
     notice?.remove();
     const names = full.map(p => shortName(p)).join('、');
@@ -411,7 +412,7 @@
     notice.setAttribute('role', 'status');
     notice.innerHTML = `<button type="button" class="fn-x" aria-label="关闭">×</button>
       <b>✱ ${esc(names)} 集满 10 个章了！</b>
-      <span>送你 1 ${full.length === 1 ? stampUnit(full[0]) : '支'}，口味自己挑，下单就带上，只领赠品也可以。</span>
+      <span>可以免费领 1 ${full.length === 1 ? stampUnit(full[0]) : "支"}，口味自己挑。打开购物车点「领取赠品」。</span>
       <button type="button" class="btn btn-primary fn-go">去领取</button>`;
     document.body.appendChild(notice);
     requestAnimationFrame(() => notice.classList.add('show'));
