@@ -13,6 +13,14 @@ export const euro = n => '€' + (+n).toFixed(2);
 
 export const json = (data, status = 200) => Response.json(data, { status, headers: { 'cache-control': 'no-store' } });
 export const fail = (error, status = 400) => json({ error }, status);
+// the admin password, compared in constant time; a wrong one is answered after a pause, so guessing it is slow
+export function adminOk(pw) {
+  const want = process.env.ADMIN_PASSWORD;
+  if (!want || typeof pw !== 'string') return false;
+  const a = createHash('sha256').update(pw).digest(), b = createHash('sha256').update(want).digest();
+  return timingSafeEqual(a, b);
+}
+export const slowNo = () => new Promise(ok => setTimeout(() => ok(fail('Unauthorized', 401)), 1200));
 export async function body(req) {
   try { return await req.json(); } catch (e) { return null; }
 }
@@ -354,7 +362,7 @@ export function orderText(o) {
     `📦 ${esc(where)}`,
     '',
     ...o.lines.map(l => `${esc(l.name)} · ${esc(l.flavorCn)} × ${l.qty}   ${euro(l.amount)}`),
-    ...o.gifts.map(g => `🎁 赠品 ${esc(g.name)} · ${esc(g.flavorCn)} × 1   免费`),
+    ...o.gifts.map(g => `🎁 赠品 ${esc(g.name)} · ${esc(g.flavorCn)} × 1   €0.00（集章）`),
     o.ship ? `运费 ${euro(o.ship)}` : '',
     `<b>应付 ${euro(o.total)}</b>`,
     f.coupon ? `优惠码：${esc(f.coupon)}` : '',

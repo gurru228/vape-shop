@@ -6,4 +6,4 @@ export default async () => {
   return Response.json({ out: [...out] }, { headers: { 'cache-control': 'public, max-age=60' } });
 };
 
-export const config = { path: '/api/stock' };
+export const config = { path: '/api/stock', rateLimit: { windowLimit: 60, windowSize: 60, aggregateBy: ['ip', 'domain'] } };

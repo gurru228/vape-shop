@@ -1,3 +1,4 @@
+const { adminOk, denied, parse } = require('../lib/admin-auth');
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
@@ -18,7 +19,8 @@ exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
 
     try {
-        const { customerName, customerPhone, orderNumber, status, total } = JSON.parse(event.body);
+        const { password, customerName, customerPhone, orderNumber, status, total } = parse(event.body);
+        if (!adminOk(password)) return denied();
         if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return { statusCode: 200, body: 'ok' };
 
         const statusLabel = STATUS_LABELS[status] || status;

@@ -686,9 +686,9 @@
 
         container.innerHTML = orders.map(raw => {
             // everything a customer typed is escaped before it goes into the page
-            const order = { ...raw, customer_name: escHtml(raw.customer_name), customer_phone: escHtml(raw.customer_phone), address: escHtml(raw.address), delivery_time: escHtml(raw.delivery_time), coupon: escHtml(raw.coupon), order_number: escHtml(raw.order_number), items: (raw.items || []).map(i => ({ ...i, name: escHtml(i.name) })) };
+            const order = { ...raw, id: escHtml(raw.id), customer_name: escHtml(raw.customer_name), customer_phone: escHtml(raw.customer_phone), address: escHtml(raw.address), delivery_time: escHtml(raw.delivery_time), coupon: escHtml(raw.coupon), order_number: escHtml(raw.order_number), items: (raw.items || []).map(i => ({ ...i, name: escHtml(i.name) })) };
             const date       = new Date(order.created_at).toLocaleString('zh-CN');
-            const itemsList  = (order.items || []).map(i => `${i.name} ×${i.quantity}${i.isFree ? ' <b style="color:#16a34a">免费</b>' : ''}`).join(' · ');
+            const itemsList  = (order.items || []).map(i => `${i.name} ×${i.quantity}${i.isFree ? ' <b style="color:#16a34a">€0.00</b>' : ''}`).join(' · ');
             const stampTag   = order.member_id
                 ? `<span class="badge badge-member" title="会员 ${order.member_id}"><i class="fas fa-stamp"></i> 会员${order.stamped ? ' · 已盖章' : order.payment_status === 'cancelled' ? '' : ' · 确认后盖章'}</span>`
                 : order.payment_method && order.payment_method !== 'whatsapp' ? `<span class="badge badge-card">老网站 · ${({ bizum: 'Bizum', cash: '现金', wechat: '微信', alipay: '支付宝', card: '银行卡' })[order.payment_method] || order.payment_method}</span>` : '';
@@ -964,7 +964,7 @@
         // 按 agent_ref 分组
         const groups = {};
         allOrders.forEach(o => {
-            const ref = o.agent_ref || '__direct__';
+            const ref = escHtml(o.agent_ref || '__direct__');
             if (!groups[ref]) groups[ref] = [];
             groups[ref].push(o);
         });
@@ -1055,7 +1055,7 @@
         switchTab('orders');
         document.getElementById('search-input').value = '';
         // 临时筛选只显示该代理订单
-        const agentOrders = allOrders.filter(o => o.agent_ref === ref);
+        const agentOrders = allOrders.filter(o => escHtml(o.agent_ref) === ref);
         document.getElementById('orders-container').innerHTML = '';
         renderOrders(agentOrders);
         const countEl = document.getElementById('result-count');
@@ -1187,7 +1187,7 @@
             // 老网站的订单没有 Telegram 消息可更新：照旧推一条状态提醒（带 WhatsApp 链接）
             if (!order.tg_message && !data.unchanged) fetch('/.netlify/functions/notify-status', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ customerName: order.customer_name, customerPhone: order.customer_phone, orderNumber: order.order_number, status, total: order.total })
+                body: JSON.stringify({ password: adminPass, customerName: order.customer_name, customerPhone: order.customer_phone, orderNumber: order.order_number, status, total: order.total })
             }).catch(() => {});
             if (data.member && data.stamps) showToast(`已更新 · 会员 ${data.member} 现在的章：${stampSummary(data.stamps)}`);
         }

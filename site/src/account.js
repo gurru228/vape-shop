@@ -128,13 +128,13 @@ function createAccount({ products, onStamps }) {
     view = v; why = reason; confirmDelete = false; saved = false;
     if (!wrap.classList.contains('open')) lastFocus = document.activeElement;
     render();
-    wrap.classList.add('open');
+    wrap.classList.add('open'); lockScroll('account', true);
     (box.querySelector('input') || box).focus({ preventScroll: true });
     if (view === 'me') refresh().then(() => { if (wrap.classList.contains('open') && view === 'me') render(); });
   }
   function close(then) {
     if (!wrap.classList.contains('open')) return;
-    wrap.classList.remove('open');
+    wrap.classList.remove('open'); lockScroll('account', false);
     if (then) then(); else lastFocus?.focus?.({ preventScroll: true });
   }
 

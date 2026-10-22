@@ -9,10 +9,14 @@ for (const [n, o] of [['d', { viewport: { width: 1440, height: 900 } }], ...(pro
   await p.goto('http://localhost:8899/'); await p.waitForTimeout(2500);
   await p.waitForFunction(() => !document.querySelector('.promo'), null, { timeout: 20000 }).catch(() => {});
   await p.locator('#rail').scrollIntoViewIfNeeded();
-  const r = await p.locator('#rail').boundingBox();
+  // the wall is built when it comes near and then sizes itself: measure it after that
+  await p.waitForSelector('#railLoading.done', { timeout: 15000 }).catch(() => {});
+  await p.locator('#rail').scrollIntoViewIfNeeded();
+  let r = await p.locator('#rail').boundingBox();
   // hover while they drop in
   for (let i = 0; i < 12; i++) { await p.mouse.move(r.x + r.width * (0.1 + i * 0.07), r.y + r.height * 0.55); await p.waitForTimeout(60); }
   await p.waitForTimeout(3500);
+  r = await p.locator('#rail').boundingBox();
   await p.screenshot({ path: `qa/rail-${n}.png` });
   const got = [];
   const xs = n === 'd' ? [0.10, 0.26, 0.42, 0.58, 0.74, 0.90] : [0.5];

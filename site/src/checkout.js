@@ -76,7 +76,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
       <img src="${imgSrc(f.image)}" alt="">
       <div><b>赠品 · ${esc(shortName(p))}</b><small>集章卡满 10 送 1 ${stampUnit(p)}</small>
         <select data-gift="${p.id}" aria-label="${esc(shortName(p))} 赠品口味">${inStock(p).map(g => `<option value="${esc(g.name)}"${g === f ? ' selected' : ''}>${esc(g.nameCn)} · ${esc(g.name)}</option>`).join('')}</select></div>
-      <div class="r"><s class="num">${euro(p.price)}</s><b class="free">免费</b></div>
+      <div class="r"><s class="num">${euro(p.price)}</s><b class="free num">€0.00</b></div>
     </div>`).join('');
   }
   function renderCart() {
@@ -98,7 +98,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
     foot.innerHTML = `
       <div class="sum">
         <div><span>小计 · ${count()} 件</span><span class="num">${euro(t.sub)}</span></div>
-        ${t.gifts.map(({ p }) => `<div class="save"><span>集章赠品 · ${esc(shortName(p))} 1 ${stampUnit(p)}</span><span>免费</span></div>`).join('')}
+        ${t.gifts.map(({ p }) => `<div class="save"><span>集章赠品 · ${esc(shortName(p))} 1 ${stampUnit(p)}</span><span class="num">€0.00</span></div>`).join('')}
       </div>
       <div class="row"><b>合计</b><span class="total num">${euro(t.sub)}</span></div>
       <button type="button" class="btn btn-primary" data-act="next">去填写取货信息 →</button>`;
@@ -143,7 +143,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
     foot.innerHTML = `
       <div class="sum">
         <div><span>小计 · ${n} 件</span><span class="num">${euro(t.sub)}</span></div>
-        ${t.gifts.map(({ p, f }) => `<div class="save"><span>集章赠品 · ${esc(shortName(p))} · ${esc(f.nameCn)}</span><span>免费</span></div>`).join('')}
+        ${t.gifts.map(({ p, f }) => `<div class="save"><span>集章赠品 · ${esc(shortName(p))} · ${esc(f.nameCn)}</span><span class="num">€0.00</span></div>`).join('')}
         ${form.mode === 'postal' ? `<div><span>运费</span><span class="num">${t.ship ? euro(t.ship) : '包邮'}</span></div>` : ''}
       </div>
       <div class="row"><b>应付</b><span class="total num">${euro(t.total)}</span></div>
@@ -167,7 +167,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
       const el = body.querySelector(`.field[data-f="${k}"]`);
       if (el) { el.classList.add('bad'); el.querySelector('.err').textContent = msgs[k]; first = first || el.querySelector('input'); }
     }
-    if (form.mode === 'delivery' && count() < 5) { first = first || body.querySelector('[data-mode="delivery"]'); }
+    if (form.mode === 'delivery' && count() < 5) { $('cpErr').textContent = `外送要满 5 件，现在 ${count()} 件。可以改成自取或邮寄`; first = first || body.querySelector('[data-mode="delivery"]'); }
     first?.focus();
     return !first;
   }
@@ -179,7 +179,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
     const where = o.form.mode === 'pickup' ? 'Metro El Capricho 自取'
       : o.form.mode === 'delivery' ? `外送 ${o.form.slot} · ${o.form.street}`
       : `邮寄 · ${o.form.recipient}, ${o.form.street} ${o.form.floor}, ${o.form.cp} ${o.form.city}`;
-    const free = o.t.gifts.map(({ p, f }) => `\n集章卡满 10 送 1：${shortName(p)} · ${f.nameCn} × 1（免费）`).join('');
+    const free = o.t.gifts.map(({ p, f }) => `\n集章卡满 10 送 1：${shortName(p)} · ${f.nameCn} × 1（€0.00）`).join('');
     const msg = `你好，我下了订单 ${o.no}\n${lines.join('\n')}${free}\n${where}\n应付 ${euro(o.t.total)}\n${o.form.name} ${o.form.phone}`;
     const stamps = !o.sent ? ''
       : o.member ? `<div class="stampbar"><span class="sb-h">店家确认后盖章</span>
@@ -198,7 +198,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
         : `<h3>还差一步</h3><p>暂时连不上服务器，<b>请点下面的按钮用 WhatsApp 把订单发给店家</b>，发出去才算下单。</p>`}</div>
       <div class="receipt">
         ${o.items.map(it => `<div class="r"><span>${esc(shortName(product(it.pid)))} · ${esc(flavorOf(it).nameCn)} × ${it.qty}</span><span class="num">${euro(product(it.pid).price * it.qty)}</span></div>`).join('')}
-        ${o.t.gifts.map(({ p, f }) => `<div class="r"><span>赠品 · ${esc(shortName(p))} · ${esc(f.nameCn)} × 1</span><b>免费</b></div>`).join('')}
+        ${o.t.gifts.map(({ p, f }) => `<div class="r"><span>赠品 · ${esc(shortName(p))} · ${esc(f.nameCn)} × 1</span><b class="num">€0.00</b></div>`).join('')}
         ${o.t.ship ? `<div class="r muted"><span>运费</span><span class="num">${euro(o.t.ship)}</span></div>` : ''}
         <div class="r"><b>应付</b><b class="num">${euro(o.t.total)}</b></div>
         <div class="r muted"><span>${esc(where)}</span></div>
@@ -235,7 +235,7 @@ function createCheckout({ products, account, onCount, onStamps }) {
     sending = false;
     order = { no: res?.no || `VS${Date.now().toString().slice(-6)}`, sent: !!res, member: !!(res?.member && u), items: items.map(it => ({ ...it })), form: { ...form }, t };
     Object.keys(giftPick).forEach(k => delete giftPick[k]);
-    items = []; save();
+    items = []; ackLeak = false; save();
     go(2);
     // gift stamps were taken off on the server; the card catches up
     if (order.member) account.refresh();
@@ -257,13 +257,13 @@ function createCheckout({ products, account, onCount, onStamps }) {
     $('toast').classList.remove('show');
     if (step === 2) step = 0;
     render();
-    panel.classList.add('open'); scrim.classList.add('open');
+    panel.classList.add('open'); scrim.classList.add('open'); lockScroll('cart', true);
     panel.setAttribute('aria-hidden', 'false');
     $('cpClose').focus({ preventScroll: true });
   }
   function close() {
     if (!panel.classList.contains('open')) return;
-    panel.classList.remove('open'); scrim.classList.remove('open');
+    panel.classList.remove('open'); scrim.classList.remove('open'); lockScroll('cart', false);
     panel.setAttribute('aria-hidden', 'true');
     lastFocus?.focus?.({ preventScroll: true });
   }

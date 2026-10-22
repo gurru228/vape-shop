@@ -6,6 +6,7 @@
 import http from 'node:http';
 import { readFile, stat, readdir } from 'node:fs/promises';
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
 
@@ -62,6 +63,15 @@ for (const f of await readdir(path.join(root, 'netlify/functions'))) {
   }
 }
 
+// the /* block of _headers, like Netlify serves it
+const SITE_HEADERS = (() => {
+  const out = {}; let inAll = false;
+  for (const l of readFileSync(path.join(root, '_headers'), 'utf8').split('\n')) {
+    if (/^\//.test(l)) inAll = l.trim() === '/*';
+    else if (inAll && /^\s+[\w-]+:/.test(l)) { const i = l.indexOf(':'); out[l.slice(0, i).trim().toLowerCase()] = l.slice(i + 1).trim(); }
+  }
+  return out;
+})();
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml' };
 http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${SITE_PORT}`);
@@ -86,7 +96,7 @@ http.createServer(async (req, res) => {
     if (!file.startsWith(root)) { res.writeHead(403); return res.end(); }
     if ((await stat(file).catch(() => null))?.isDirectory()) file = path.join(file, 'index.html');
     const data = await readFile(file);
-    res.writeHead(200, { 'content-type': TYPES[path.extname(file)] || 'application/octet-stream', 'cache-control': 'no-store' });
+    res.writeHead(200, { ...SITE_HEADERS, 'content-type': TYPES[path.extname(file)] || 'application/octet-stream', 'cache-control': 'no-store' });
     res.end(data);
   } catch (e) {
     if (e.code !== 'ENOENT') console.error('[dev]', url.pathname, e);

@@ -89,6 +89,7 @@ function createPromo({ products, account, onShop, onStamps, onDone }) {
 
   function open() {
     lastFocus = document.activeElement;
+    lockScroll('promo', true);
     wrap.classList.add('open');
     poster.focus({ preventScroll: true });
     if (REDUCED) { slots.slice(0, 9).forEach(s => s.classList.add('on')); wrap.classList.add('ready'); return; }
@@ -98,14 +99,18 @@ function createPromo({ products, account, onShop, onStamps, onDone }) {
     timers.push(setTimeout(() => { wrap.classList.add('ready'); press.focus({ preventScroll: true }); }, t + 150));
   }
   let closed = false;
+  // next: another poster follows (onDone); 'now' runs `then` right away instead of after that poster
   function close(then, next = true) {
     if (closed) return; closed = true;
     timers.forEach(clearTimeout);
     wrap.classList.remove('open');
     document.removeEventListener('keydown', onKey, true);
     setTimeout(() => wrap.remove(), REDUCED ? 0 : 400);
+    // another poster follows: the page stays where it is, and this poster's action (a scroll) runs once that one closes
+    if (next === 'now') { then?.(); then = null; }
+    if (next && onDone) { setTimeout(() => { lockScroll('promo', false); onDone(then); }, REDUCED ? 0 : 450); return; }
+    lockScroll('promo', false);
     if (then) then(); else lastFocus?.focus?.({ preventScroll: true });
-    if (next) setTimeout(() => onDone?.(), REDUCED ? 0 : 450);
   }
   const onKey = e => {
     if (e.key === 'Escape') { e.stopPropagation(); close(); }
@@ -140,7 +145,7 @@ function createPromo({ products, account, onShop, onStamps, onDone }) {
     };
     q('.promo-cta .promo-join-go').addEventListener('click', openForm);
     form.querySelector('[data-back]').addEventListener('click', () => { wrap.classList.remove('joining'); form.hidden = true; q('.promo-cta .promo-join-go').focus(); });
-    form.querySelector('[data-login]').addEventListener('click', () => close(() => account.open('login'), false));
+    form.querySelector('[data-login]').addEventListener('click', () => close(() => account.open('login'), 'now'));
     form.querySelector('[data-eye]').addEventListener('click', e => {
       const inp = form.elements.password, show = inp.type === 'password';
       inp.type = show ? 'text' : 'password'; e.target.textContent = show ? '隐藏' : '显示';

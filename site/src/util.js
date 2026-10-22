@@ -1,3 +1,11 @@
+// web fonts: added from here instead of a <link> in <head>, so the page paints before they arrive
+(() => {
+  const l = document.createElement('link');
+  l.rel = 'stylesheet';
+  l.href = 'https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@400..800&family=Nunito:wght@400..900&display=swap';
+  document.head.appendChild(l);
+})();
+
 // Shared helpers: image lookup (inlined data URIs at build time) and flavor colour sampling.
 const IMG = window.__IMG || {};
 const imgSrc = path => IMG[path] || path;
@@ -13,14 +21,16 @@ function loadImage(path) {
 }
 
 // Picks the most saturated mid-tone region of a product photo; the packaging colour, not the background.
+// build.sh works these out ahead of time (FLAVOR_COLORS); the in-browser version is only for a photo it didn't know
 async function flavorColor(path) {
+  if (typeof FLAVOR_COLORS !== 'undefined' && FLAVOR_COLORS[path]) return FLAVOR_COLORS[path];
   if (colorCache.has(path)) return colorCache.get(path);
   let hex = '#C9D96A';
   try {
     const im = await loadImage(path);
     const c = document.createElement('canvas');
     c.width = c.height = 32;
-    const g = c.getContext('2d');
+    const g = c.getContext('2d', { willReadFrequently: true });
     g.drawImage(im, 0, 0, 32, 32);
     const d = g.getImageData(0, 0, 32, 32).data;
     let r = 0, gg = 0, b = 0, wsum = 0;
@@ -40,6 +50,23 @@ async function flavorColor(path) {
   } catch (e) { /* keep fallback colour */ }
   colorCache.set(path, hex);
   return hex;
+}
+
+// popups and side panels hold the page still: nothing scrolls behind them. One entry per owner, so opening
+// the same panel twice or two overlays at once can't leave the page stuck.
+const scrollLocks = new Set();
+function lockScroll(owner, on) {
+  if (on) scrollLocks.add(owner); else scrollLocks.delete(owner);
+  document.documentElement.classList.toggle('locked', scrollLocks.size > 0);
+}
+
+// build a 3D scene only when its section is about to scroll into view, one per idle moment, so opening the
+// page doesn't compile every shader at once (that's what made phones stutter on load)
+function whenNear(el, build, margin = '300px') {
+  const go = () => (window.requestIdleCallback ? requestIdleCallback(build, { timeout: 600 }) : setTimeout(build, 30));
+  if (!('IntersectionObserver' in window)) return go();
+  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); go(); } }, { rootMargin: margin });
+  io.observe(el);
 }
 
 const euro = n => `€${n.toFixed(2)}`;

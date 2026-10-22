@@ -94,4 +94,6 @@ export default async req => {
   }
 };
 
-export const config = { path: ['/api/register', '/api/login', '/api/logout', '/api/me', '/api/password'] };
+// 40 requests a minute per address across sign-up / sign-in / profile (the page polls /api/me now and then);
+// guessing passwords is also capped per account: 8 misses lock it for 15 minutes
+export const config = { path: ['/api/register', '/api/login', '/api/logout', '/api/me', '/api/password'], rateLimit: { windowLimit: 40, windowSize: 60, aggregateBy: ['ip', 'domain'] } };

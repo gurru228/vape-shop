@@ -12,7 +12,8 @@ export default async req => {
   if (!b) return fail('请求格式不对');
   try {
     let priced;
-    try { priced = priceOrder(b.items, b.form, await soldOut()); } catch (e) { return fail(e.message); }
+    const out = await soldOut();
+    try { priced = priceOrder(b.items, b.form, out); } catch (e) { return fail(e.message); }
 
     const auth = await currentUser(req);
     const user = auth?.user;
@@ -21,6 +22,7 @@ export default async req => {
       for (const [pid, flavor] of Object.entries(b.gifts || {})) {
         const p = byId.get(+pid), f = p?.flavors.find(x => x.name === flavor);
         if (!p || !f) return fail('赠品口味不对，请刷新页面再试');
+        if (out.has(`${p.id}-${f.name}`)) return fail(`赠品 ${shortName(p)} · ${f.nameCn} 刚卖完了，请在购物车换一个口味`);
         gifts.push({ pid: p.id, name: shortName(p), flavor: f.name, flavorCn: f.nameCn });
       }
     }
@@ -60,4 +62,5 @@ export default async req => {
   }
 };
 
-export const config = { path: '/api/order' };
+// at most 8 orders a minute from one address: a real customer never gets near it, a script sending fake orders does
+export const config = { path: '/api/order', rateLimit: { windowLimit: 8, windowSize: 60, aggregateBy: ['ip', 'domain'] } };

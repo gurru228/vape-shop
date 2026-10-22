@@ -27,11 +27,14 @@
   });
 
   // the stamp-card (register) poster comes first; when it is closed, the IceMax clearance poster follows
-  const showClearance = () => createClearance({
+  // members already have the card: they only see the clearance poster
+  const showClearance = after => createClearance({
     products,
     onShop: () => { $('clearance').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }); },
+    onDone: after,
   });
-  createPromo({
+  if (account.user()) setTimeout(showClearance, 100);
+  else createPromo({
     products, account,
     onShop: () => $('products').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' }),
     onStamps: goStamps,
@@ -59,8 +62,11 @@
 
   // ---------- stamp card ----------
   let card = null;
-  try { card = window.THREE && createStampCard($('stampCard'), { onFlip: up => { $('stampFlip').textContent = up ? '翻过来看规则 ↻' : '翻回正面 ↻'; } }); } catch (e) { console.error(e); }
-  if (!card) $('stampCard').closest('.stamps-stage').hidden = true;
+  whenNear($('stamps'), () => {
+    try { card = window.THREE && createStampCard($('stampCard'), { onFlip: up => { $('stampFlip').textContent = up ? '翻过来看规则 ↻' : '翻回正面 ↻'; } }); } catch (e) { console.error(e); }
+    if (!card) $('stampCard').closest('.stamps-stage').hidden = true;
+    else showLine(cardLine, true);
+  });
   // one tab per product line; the card shows the selected line, and jumps to whichever line just got stamps
   const tabs = $('stampTabs');
   let cardLine = products.find(p => stampStore.get(p.id) > 0) || dash;
@@ -200,8 +206,11 @@
   // ---------- IceMax clearance block ----------
   const icemax = products.find(p => p.id === 2);
   let iceDev = null;
-  try { iceDev = window.THREE && createDevice($('iceDevice'), { build: buildIcemax }); } catch (e) { console.error(e); }
-  if (!iceDev) $('iceDevice').closest('.stage-wrap').innerHTML = `<img src="${imgSrc(icemax.image)}" alt="IceMax" style="width:100%;height:100%;object-fit:contain">`;
+  whenNear($('clearance'), () => {
+    try { iceDev = window.THREE && createDevice($('iceDevice'), { build: buildIcemax }); } catch (e) { console.error(e); }
+    if (!iceDev) $('iceDevice').closest('.stage-wrap').innerHTML = `<img src="${imgSrc(icemax.image)}" alt="IceMax" style="width:100%;height:100%;object-fit:contain">`;
+    else setIceFlavor(iceFlavor);
+  });
   $('clLeakT').textContent = LEAK_TITLE; $('clLeakB').textContent = LEAK_BODY;
   let iceFlavor = icemax.flavors[0], iceTouched = false;
   const iceChips = $('iceChips');
@@ -234,11 +243,13 @@
 
   // ---------- product wall ----------
   let wall = null;
-  try { wall = window.THREE && createTags({ rail: $('rail'), canvas: $('tags'), products, onPick: openDrawer }); } catch (e) { console.error(e); }
-  if (!wall) {
-    $('railLoading').textContent = '当前浏览器不支持 3D 展示，请用下方列表选购。';
-    $('rail').style.height = 'auto';
-  }
+  whenNear($('rail'), () => {
+    try { wall = window.THREE && createTags({ rail: $('rail'), canvas: $('tags'), products, onPick: openDrawer }); } catch (e) { console.error(e); }
+    if (!wall) {
+      $('railLoading').textContent = '当前浏览器不支持 3D 展示，请点上面的款式按钮选购。';
+      $('rail').style.height = 'auto';
+    }
+  }, '500px');
   if (matchMedia('(hover: none)').matches) document.querySelector('#products p').textContent = '左右滑动看海报，按住可以拽一下，轻点海报选口味。';
   $('panL').addEventListener('click', () => wall?.pan(-1));
   $('panR').addEventListener('click', () => wall?.pan(1));
@@ -322,13 +333,13 @@
     pickFlavor(start);
     setQty(1);
     openedAt = performance.now();
-    drawer.classList.add('open'); scrim.classList.add('open');
+    drawer.classList.add('open'); scrim.classList.add('open'); lockScroll('drawer', true);
     drawer.setAttribute('aria-hidden', 'false');
     $('dClose').focus({ preventScroll: true });
   }
   function closeDrawer() {
     if (!drawer.classList.contains('open')) return;
-    drawer.classList.remove('open'); scrim.classList.remove('open');
+    drawer.classList.remove('open'); scrim.classList.remove('open'); lockScroll('drawer', false);
     drawer.setAttribute('aria-hidden', 'true');
     lastFocus?.focus?.({ preventScroll: true });
   }
@@ -362,7 +373,7 @@
       const i = (step.get(p.id) + 1) % p.flavors.length;
       step.set(p.id, i);
       const f = p.id === dash.id ? dash.flavors[heroIdx] : p.flavors[i];
-      wall?.showFlavor(p.id, f.image);
+      if (wall?.visible()) wall.showFlavor(p.id, f.image);
     }
   }, 3000);
 

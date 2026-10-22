@@ -1,6 +1,6 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const { adminOk, denied, parse } = require('../lib/admin-auth');
 
 // 解析 cart item 的 productId 和 flavorName。
 // 普通商品 id：{productId}-{flavorName}
@@ -36,11 +36,9 @@ async function restoreInventory(items) {
 exports.handler = async (event) => {
     if (event.httpMethod !== 'DELETE') return { statusCode: 405, body: 'Method Not Allowed' };
 
-    const { password, orderId } = JSON.parse(event.body);
-
-    if (password !== ADMIN_PASSWORD) {
-        return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
-    }
+    const { password, orderId } = parse(event.body);
+    if (!adminOk(password)) return denied();
+    if (!/^[\w-]{1,64}$/.test(String(orderId || ''))) return { statusCode: 400, body: JSON.stringify({ error: 'bad order id' }) };
 
     // 仅当订单当前处于"已扣库存"状态（paid/shipped/delivered）才回库；
     // pending/cancelled 状态从未扣库存，删除时不需回库。

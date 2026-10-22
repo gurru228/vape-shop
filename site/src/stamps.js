@@ -33,7 +33,7 @@ function createStampCard(canvas, { onFlip } = {}) {
     return null;
   }
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, matchMedia('(pointer: coarse)').matches ? 1.75 : 2));
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   const lin = hex => new THREE.Color(hex).convertSRGBToLinear();

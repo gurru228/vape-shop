@@ -7,7 +7,7 @@ function createDevice(canvas, opts = {}) {
     return null;
   }
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, matchMedia('(pointer: coarse)').matches ? 1.75 : 2));
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
@@ -108,14 +108,22 @@ function createDevice(canvas, opts = {}) {
     camera.lookAt(0, w < 500 ? -0.22 : 0.1, 0);
     camera.updateProjectionMatrix();
   }
-  new ResizeObserver(fit).observe(canvas);
+  const ro = new ResizeObserver(fit);
+  ro.observe(canvas);
   fit();
 
   const slosh = { x: 0, vx: 0, lastV: spin.v };
   const up = new THREE.Vector3(), qInv = new THREE.Quaternion(), qTmp = new THREE.Quaternion();
 
-  let visible = true, last = performance.now(), t = 0;
-  new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) { last = performance.now(); requestAnimationFrame(frame); } }).observe(canvas);
+  let visible = false, last = performance.now(), t = 0;
+  let disposed = false;
+  const io = new IntersectionObserver(([e]) => {
+    const was = visible;
+    visible = e.isIntersecting && !disposed;
+    // only one frame loop at a time: re-entering view must not start a second one
+    if (visible && !was) { last = performance.now(); requestAnimationFrame(frame); }
+  });
+  io.observe(canvas);
 
   function frame(now) {
     if (!visible) return;
@@ -149,10 +157,10 @@ function createDevice(canvas, opts = {}) {
     renderer.render(scene, camera);
     requestAnimationFrame(frame);
   }
-  requestAnimationFrame(frame);
 
   // for tests and stills: hold the model at a given angle
   const pose = a => { spin.a = a; spin.v = 0; spin.dragging = true; };
-  const dispose = () => { visible = false; renderer.dispose(); renderer.forceContextLoss?.(); };
+  // forceContextLoss() would block the page for seconds while the GPU flushes; dropping the renderer is enough
+  const dispose = () => { disposed = true; visible = false; io.disconnect(); ro.disconnect(); renderer.dispose(); };
   return { setFlavor, pose, dispose };
 }

@@ -27,7 +27,9 @@ for (const [tag, opts] of VARIANTS.filter(([t]) => !process.env.ONLY || process.
 
   // skip: closes and scrolls to the products
   if (tag === 'd') {
-    await page.locator('.promo:not(.clr) .promo-skip').click(); await page.waitForTimeout(1500); await closeClr(page); await page.waitForTimeout(800);
+    await page.locator('.promo:not(.clr) .promo-skip').click(); await page.waitForSelector('.promo.clr.open', { timeout: 20000 });
+    console.log(tag, 'page did not move while the clearance poster is up:', await page.evaluate(() => scrollY) === 0);
+    await closeClr(page); await page.waitForTimeout(1500);
     console.log(tag, 'skip closed:', await page.locator('.promo').count() === 0, '| products top:', Math.round(await page.evaluate(() => document.getElementById('products').getBoundingClientRect().top)));
     await page.reload(); await page.waitForSelector('.promo.ready', { timeout: 9000 });
   }
@@ -53,12 +55,13 @@ for (const [tag, opts] of VARIANTS.filter(([t]) => !process.env.ONLY || process.
   await page.locator('.promo-done [data-stamps]').click(); await closeClr(page); await page.waitForTimeout(1500);
   console.log(tag, 'to stamps:', await page.locator('.promo').count() === 0, '| hello:', await txt(page, '#stampsHello'));
 
-  // next visit: member version
-  await page.reload(); await page.waitForSelector('.promo.ready', { timeout: 9000 });
-  console.log(tag, 'member visit:', await txt(page, '.promo-cta'), '| holder:', await txt(page, '.pc-name'), '| join form:', await page.locator('.promo-join').count());
+  // next visit: members skip the stamp poster and only get the clearance one
+  await page.reload(); await page.waitForSelector('.promo.clr.open', { timeout: 20000 });
+  console.log(tag, 'member visit: stamp poster skipped:', await page.locator('.promo:not(.clr)').count() === 0, '| page locked:', await page.evaluate(() => document.documentElement.classList.contains('locked')));
   await page.screenshot({ path: `qa/promo-${tag}-5.png` });
   // sign back in by email with different case works
-  await page.locator('.promo:not(.clr) .promo-x').click(); await closeClr(page);
+  await page.locator('.promo.clr .promo-x').click(); await page.waitForFunction(() => !document.querySelector('.promo'));
+  console.log(tag, 'page unlocked after posters:', await page.evaluate(() => !document.documentElement.classList.contains('locked')));
   await page.locator('#acctBtn').click(); await page.waitForTimeout(800);
   console.log(tag, 'me shows email:', await txt(page, '.acct-sub'));
   await page.locator('[data-a=logout]').click(); await page.waitForTimeout(400);

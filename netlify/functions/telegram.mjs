@@ -179,7 +179,7 @@ async function handle(up) {
     text: status ? `${o.tgText}\n\n${status}` : o.tgText, reply_markup: keyboard,
   });
 
-  if (o.status !== 'pending') { await answer(`这单已经是「${STATUS[o.status].replace(/^\S+\s/, '')}」了`); return ok(); }
+  if (o.status !== 'pending') { await answer(`这单已经是「${(STATUS[o.status] || o.status).replace(/^\S+\s/, '')}」了`); return ok(); }
 
   if (act === 'no?') {
     await edit('确定要取消这单吗？', { inline_keyboard: [[{ text: '❌ 确定取消', callback_data: `no!:${o.no}` }, { text: '↩︎ 不取消', callback_data: `back:${o.no}` }]] });

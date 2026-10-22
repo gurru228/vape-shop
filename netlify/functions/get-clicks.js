@@ -1,10 +1,9 @@
 const { getStore, connectLambda } = require('@netlify/blobs');
+const { adminOk, denied } = require('../lib/admin-auth');
 
 exports.handler = async (event) => {
     const { password } = event.queryStringParameters || {};
-    if (!password || password !== process.env.ADMIN_PASSWORD) {
-        return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
-    }
+    if (!adminOk(password)) return denied();
     try {
         connectLambda(event);
     } catch (e) {

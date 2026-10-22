@@ -5,22 +5,22 @@
 //        changes an order's status through the same path as Telegram's buttons: stamps, gift refunds and
 //        stock all follow, and the order's Telegram message is updated. Replaces update-order for admin.html.
 import {
-  json, fail, body, listMembers, getMember, addStamps, byId, getOrderById, setStatus, syncTelegram, STATUS_CN,
+  json, fail, body, adminOk, slowNo, listMembers, getMember, addStamps, byId, getOrderById, setStatus, syncTelegram, STATUS_CN,
 } from '../lib/shop.mjs';
 
-const authed = pw => process.env.ADMIN_PASSWORD && pw === process.env.ADMIN_PASSWORD;
+const authed = pw => adminOk(pw);
 
 export default async req => {
   const url = new URL(req.url);
   const route = url.pathname.split('/').pop();
   try {
     if (route === 'members' && req.method === 'GET') {
-      if (!authed(url.searchParams.get('password'))) return fail('Unauthorized', 401);
+      if (!authed(url.searchParams.get('password'))) return slowNo();
       const members = await listMembers();
       return json({ members: members.map(u => ({ id: u.id, name: u.name, phone: u.phone, email: u.email, stamps: u.stamps, tempPw: !!u.tempPw, created: u.created })) });
     }
     const b = await body(req);
-    if (!authed(b?.password)) return fail('Unauthorized', 401);
+    if (!authed(b?.password)) return slowNo();
 
     if (route === 'stamp' && req.method === 'POST') {
       const n = Math.trunc(+b.n), p = byId.get(+b.pid);
@@ -47,4 +47,4 @@ export default async req => {
   }
 };
 
-export const config = { path: ['/api/admin/members', '/api/admin/stamp', '/api/admin/status'] };
+export const config = { path: ['/api/admin/members', '/api/admin/stamp', '/api/admin/status'], rateLimit: { windowLimit: 60, windowSize: 60, aggregateBy: ['ip', 'domain'] } };

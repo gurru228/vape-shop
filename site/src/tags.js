@@ -10,7 +10,9 @@ function createTags({ rail, canvas, products, onPick }) {
   const RAIL_Y = 0, WALL_Z = -0.8, GAP = 0.34, GRAVITY = -22, FOV = 26;
   const POSTER_W = 1.7;
 
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  // phones: fewer pixels and a smaller shadow map; the wall is cloth physics + shadows, the heaviest scene here
+  const SMALL = matchMedia('(max-width: 860px), (pointer: coarse)').matches;
+  renderer.setPixelRatio(Math.min(devicePixelRatio, SMALL ? 1.5 : 2));
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -21,7 +23,7 @@ function createTags({ rail, canvas, products, onPick }) {
   const key = new THREE.DirectionalLight(0xfff6e6, 0.65);
   key.position.set(-3, 5, 7);
   key.castShadow = true;
-  key.shadow.mapSize.set(2048, 1024);
+  key.shadow.mapSize.set(SMALL ? 1024 : 2048, SMALL ? 512 : 1024);
   Object.assign(key.shadow.camera, { left: -16, right: 16, top: 5, bottom: -9, near: 1, far: 30 });
   key.shadow.bias = -0.0004;
   key.shadow.normalBias = 0.02;
@@ -435,8 +437,10 @@ function createTags({ rail, canvas, products, onPick }) {
   const STEP = 1 / 90;
   let last = performance.now(), acc = 0, running = false, first = true;
   new IntersectionObserver(([e]) => {
+    const was = running;
     running = e.isIntersecting;
-    if (!running) return;
+    // one frame loop at a time: scrolling back into view must not start a second one
+    if (!running || was) return;
     // drop the posters in from the right the first time the wall scrolls into view
     if (!started) {
       started = true;
@@ -487,5 +491,6 @@ function createTags({ rail, canvas, products, onPick }) {
       if (t && narrow) camTargetX = clampCam(t.home);
     },
     pan(dir) { camTargetX = clampCam(camTargetX + dir * (POSTER_W + GAP)); },
+    visible: () => running,
   };
 }

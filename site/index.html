@@ -7,7 +7,9 @@
 <title>口粮专卖店 3D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@400..800&family=Nunito:wght@400..900&display=swap">
+<link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous">
+<!--CSP-->
+<!-- the web fonts are added by util.js, so they don't hold up the first paint (the system font shows until they arrive) -->
 <style>
 /* Brand tokens carried over from deploy-preview-6 styles.css */
 :root{
@@ -71,6 +73,9 @@
 }
 
 *{box-sizing:border-box}
+html{scrollbar-gutter:stable}
+html.locked{overflow:hidden}
+.promo-poster,.cp-body,.d-body,.acct-box{overscroll-behavior:contain}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px}

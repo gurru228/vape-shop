@@ -52,10 +52,11 @@ function createClearance({ products, onShop, onDone }) {
     if (finished) return; finished = true;
     clearInterval(cycle);
     wrap.classList.remove('open');
+    lockScroll('clearance', false);
     document.removeEventListener('keydown', onKey, true);
     setTimeout(() => { dev?.dispose?.(); wrap.remove(); }, REDUCED ? 0 : 400);
-    if (then) then();
-    setTimeout(() => onDone?.(), REDUCED ? 0 : 450);
+    // its own button wins; otherwise whatever the poster before it was asked to do
+    (then || onDone)?.();
   };
   const onKey = e => {
     if (e.key === 'Escape') { e.stopPropagation(); done(); }
@@ -72,6 +73,7 @@ function createClearance({ products, onShop, onDone }) {
   wrap.querySelector('.promo-skip').addEventListener('click', () => done());
   wrap.querySelector('.clr-go').addEventListener('click', () => done(onShop));
   wrap.addEventListener('click', e => { if (e.target === wrap) done(); });
+  lockScroll('clearance', true);
   setTimeout(() => {
     wrap.classList.add('open');
     poster.focus({ preventScroll: true });

@@ -1,12 +1,10 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const { adminOk, denied, parse } = require('../lib/admin-auth');
 
 exports.handler = async (event) => {
     const { password } = event.queryStringParameters || {};
-    if (password !== ADMIN_PASSWORD) {
-        return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
-    }
+    if (!adminOk(password)) return denied();
 
     const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/users?per_page=1000`, {
         headers: {

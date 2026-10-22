@@ -1,13 +1,14 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const { adminOk, denied, parse } = require('../lib/admin-auth');
 
 exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
 
     try {
-        const { password, items } = JSON.parse(event.body);
-        if (password !== ADMIN_PASSWORD) return { statusCode: 401, body: 'Unauthorized' };
+        const { password, items } = parse(event.body);
+        if (!adminOk(password)) return denied();
+        if (!Array.isArray(items) || items.length > 500) return { statusCode: 400, body: 'bad items' };
 
         const res = await fetch(`${SUPABASE_URL}/rest/v1/inventory?on_conflict=product_id,flavor_name`, {
             method: 'POST',

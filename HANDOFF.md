@@ -51,12 +51,32 @@
 - 顶部购物车左边有「集章卡」按钮（手机上只显示图标 + 数字）。点开是一个小面板，列出每款的章数；会员有满卡时，按钮上显示「N 满」。
 - 页面里的 3D 集章卡区块在海报墙（衣架）下面、尼古丁警告上面。面板里点「看 3D 集章卡」会滚到那里。
 - 领卡 = 注册会员账号：海报、集章区块、顶部面板、结算页、注册弹窗都写明了「注册会员账号（手机号或邮箱 + 密码）」，按钮叫「注册会员领卡」/「注册账号并领卡」。
-- 测试：`ONLY=d sh qa/run.sh node qa/clearance.mjs`。
+- 测试：`ONLY=d sh qa/run.sh node qa/sweep.mjs     # 全站走一遍（d / m 分开跑）
+ONLY=d sh qa/run.sh node qa/perf.mjs      # 开页卡不卡
+ONLY=d sh qa/run.sh node qa/clearance.mjs`。
 
 ## 海报墙点不了（2026-10-22 修好）
 
 - 原因：海报是布料模拟，每帧都在动，但点击检测用的包围球还停在刚生成时的位置，鼠标在海报滑进来时扫过就会点不中。
 - 修法：`site/src/tags.js` 每帧 `computeBoundingSphere()`；海报背面也能点。
+
+## 2026-10-22：流畅度、保护、小修
+
+- 赠品价格显示 `€0.00`（购物车、结算、收据、Telegram、后台）。
+- 弹窗：游客先看集章卡注册海报，再看 IceMax；**已登录会员只弹 IceMax**。弹窗、抽屉、购物车、账户框打开时页面不能滚（`lockScroll` 在 `site/src/util.js`），点海报上的按钮要等最后一张关掉才滚动。
+- 流畅度（`qa/perf.mjs` 量开页卡顿）：
+  - 口味颜色在 `build.sh` 里算好（`FLAVOR_COLORS`），浏览器不再每张图算一次（以前开页卡好几秒）；
+  - IceMax、海报墙、集章卡三个 3D 场景滚到附近才创建（`whenNear`），离开屏幕就停；
+  - 清仓海报关掉时不再 `forceContextLoss`（会卡 5 秒）；
+  - 手机上降低分辨率和阴影；字体不挡首屏；图片缓存一天。
+  - 本地测开页阻塞从约 9.5 秒降到约 1.2 秒（软件渲染，真机快得多）。
+- 保护：
+  - 限流（Netlify 自带，写在函数的 `config.rateLimit`，所有套餐都能用）：下单 8 次/分钟/IP，登录注册 40 次/分钟/IP，后台 60 次/分钟/IP；会员密码错 8 次锁 15 分钟（原来就有）。
+  - 后台密码：常数时间比较，错了停 1.2 秒再回（`netlify/lib/admin-auth.js`、`shop.mjs` 的 `adminOk`）。`notify-status` 现在也要后台密码。
+  - 安全响应头（`_headers`）：禁止被别的网站嵌入、HTTPS、CSP 等。首页还有自己更严的 CSP：只允许那一段内联脚本（`build.sh` 算 hash），所以**改完 site/ 一定要跑 `sh build.sh`**，不能手改根目录的 index.html。
+  - 后台订单卡上的 id / 代理名也做了转义。
+- 小修：同一个 IceMax 勾选不会带到下一单；外送不满 5 件会提示原因；赠品口味缺货服务器会拦；游客在海报里点「已经有账户？登录」，登录后 IceMax 海报照常出现。
+- 新测试：`ONLY=d sh qa/run.sh node qa/sweep.mjs`（全站走一遍：报错、溢出、遮罩、锁滚动）、`ONLY=d sh qa/run.sh node qa/perf.mjs`（卡顿）。
 
 ## 环境变量（Netlify：vapeshop2026 → Site configuration → Environment variables）
 
@@ -106,6 +126,6 @@ sh qa/run.sh node qa/check.mjs      # 海报墙、抽屉、首屏轮播
 
 - RELX「C味鲜橙」缺图（`images/relx/vitamin-c-orange.webp`）。
 - 优惠码只记录，后台订单卡上显示，店家在 WhatsApp 里手动减。
-- 访问统计（`track-click` / `stats.html`）和代理 `?ref=`：新首页没接（店主这次没选）。函数和页面还在，没删。
+- 访问统计（`track-click` / `stats.html`）和代理 `?ref=`：新首页没接（店主这次没选）。函数和页面还在，没删。`track-click` 不要密码就能触发 Telegram 通知，新首页不调用它；要是不用了可以删掉。
 - 页面只有中文，没有西班牙语切换。
 - 「代理统计」页的代理部分对新订单没数据（新首页不记 `agent_ref`）。
