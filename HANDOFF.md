@@ -181,15 +181,21 @@ sh qa/run.sh node qa/check.mjs      # 海报墙、抽屉、首屏轮播
 - WebGL 是软件渲染，比较慢；沙盒里每条命令最多跑 3 分钟，所以测试要一个一个跑。
 - 测试最后都应该打印 `errors: none`。
 
-## 复购分析测试版（2026-10-23，分支 `cursor/retention-lab-b634`，没合并）
+## 后台「复购」（2026-10-23）
 
-- gu 要先看效果再决定上不上线。**不要合并、不要从正式后台菜单链过去。**
-- 页面：`admin-lab.html`，只读。三种数据：「假数据」（`site/src/retention-demo.js`，固定种子，电话都在 +34 600 0xx xxx）、「导入」JSON / CSV（get-orders、members、stock 的原样输出，或 Supabase Table Editor 导出的 CSV）、「在线读取」（只发 GET：get-orders、`/api/admin/members`、`/api/stock`）。
-- 计算：`site/src/retention.js`（纯函数，`build.sh` 把它和产品口数嵌进页面）。同一个人 = 会员号 / 手机号（统一成数字）/ 老网站 `user_id` 连起来；24 小时内的单算一次购买；只领赠品、取消、待确认都不算购买。抽完速度 = 上次口数 ÷ 到下一单的天数（中位数）；只买过一次的人用全店中位速度（复购顾客少于 3 位时用参数里的 250 口/天）。
-- 手动填的「真实原因」和参数只存在浏览器 localStorage（`vs-lab-notes`、`vs-lab-params`），不写数据库。
-- 图表用 Google Charts（`_headers` 的 CSP 为此加了 `https://www.gstatic.com`），加载不了时显示简单条形图。CSV 带 BOM，Google Sheets 直接导入。
+- 后台左边菜单（手机是底部菜单）「复购」：只读分析，不改订单。分六块：总览、顾客、快抽完、未复购、原因、参数。
+- 计算在浏览器里做（订单量小），代码在 `site/src/retention.js`，`build.sh` 把它复制进 `admin.html` 的 `/*RETENTION*/ … /*RETENTION-END*/`。**改这个文件，别改 admin.html 里那一段**；改完跑 `sh build.sh`。
+  - 同一个人 = 会员号 / 手机号（统一成数字）/ 老网站 `user_id` 连起来；24 小时内的单算一次购买；只领赠品、取消、待确认都不算购买。
+  - 抽完速度 = 上次口数 ÷ 到下一单的天数（中位数）；只买过一次的人用全店中位速度（复购顾客少于 3 位时用 250 口/天）。
+  - 每支口数在 `products.json` 的 `puffs`（RELX 一盒 3 颗按 1800 口算，是估的）。「参数」里改的只存在那台电脑的浏览器。
+- 唯一会写的东西：跟进记录（真实原因 / 备注 / 上次联系），表 `customer_followups`，迁移 `supabase/migrations/20261023000000_customer_followups.sql`。
+  - 接口：`GET /api/admin/followups`、`POST /api/admin/followup`（`netlify/functions/admin.mjs`，后台密码）。只改传过来的字段。
+  - 表还没建时：分析照常；页面顶部提示「跟进记录表还没建」，填写框变灰；GET 返回 `ready: false`，POST 返回 503。别的后台功能不受影响。
+  - 顾客标识：会员 `m:<会员 id>`，游客 `p:<手机号数字>`。游客后来注册了，会先找 `m:`，找不到再用 `p:` 的旧记录。
+- 图表用 Google Charts（`_headers` 的 CSP 为此放行 `https://www.gstatic.com`），加载不了时显示简单条形图。导出的 CSV 带 BOM，Google Sheets「文件 → 导入」直接用。
 - 新首页不记 `agent_ref`，所以「代理带来的客户」只会出现在老订单上。
-- 测试（不用数据库）：`node qa/retention.mjs`（计算）、`CHROME=/path/to/chrome node qa/lab-ui.mjs`（电脑 + 手机截图 `qa/lab-*.png`；检查只发 GET、外部请求只去 Google）。
+- 测试：`node qa/retention.mjs`（计算，不用数据库）；`sh qa/run.sh node qa/repeat.mjs`（表已建）；`SKIP_MIGRATION=followups sh qa/run.sh node qa/repeat.mjs`（表没建）。截图 `qa/rp-*.png`。
+  - 本地 Postgres 16 也能用：`PG_BIN=/usr/lib/postgresql/16/bin`；系统里有 Chrome 时 `CHROME=/path/to/chrome`（`qa/pw.mjs` 会用它）。
 
 ## 还没做 / 待定
 
