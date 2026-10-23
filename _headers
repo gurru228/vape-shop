@@ -3,6 +3,7 @@
 # no camera / mic / location, and scripts / connections only from this site and the CDNs the pages use.
 # index.html adds a stricter policy of its own (its one inline script, by hash; see build.sh).
 # admin.html and stats.html still use inline handlers, hence 'unsafe-inline' here.
+# www.gstatic.com: Google Charts for admin-lab.html (the read-only repeat-purchase test page).
 /*
   X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
   Referrer-Policy: no-referrer
@@ -11,7 +12,7 @@
   Strict-Transport-Security: max-age=31536000
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
   Cross-Origin-Opener-Policy: same-origin
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://www.gstatic.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
 /sw.js
   Cache-Control: no-cache
 /index.html
@@ -22,4 +23,6 @@
 /images/*
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 /admin.html
+  Cache-Control: no-store
+/admin-lab.html
   Cache-Control: no-store
