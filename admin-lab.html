@@ -49,7 +49,7 @@ small{color:var(--muted);font-weight:600}
 
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
 .card h3{font-size:15px;font-weight:900;margin-bottom:10px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--olive);color:var(--cream);border-radius:10px;padding:9px 16px;font-weight:800;font-size:14px}
+.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--olive);color:var(--cream);border-radius:10px;padding:9px 16px;font-weight:800;font-size:14px}
 .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line2)}
 .btn.small{padding:5px 11px;font-size:13px;border-radius:8px}
 .btn.wa{background:#1f7a4d}
@@ -102,7 +102,7 @@ table.plain tbody tr.click:hover{background:var(--alt)}
 .person .meta{color:var(--muted);font-size:13px}
 .person .what{font-size:14px;margin:6px 0}
 .person .hint{font-size:13px;background:var(--alt);border-radius:8px;padding:6px 9px;margin:6px 0}
-.person .manual{display:grid;grid-template-columns:minmax(0,180px) minmax(0,1fr);gap:6px;margin-top:8px}
+.person .manual{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:6px;margin-top:8px}
 .person .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 
 .bars-fallback{display:flex;flex-direction:column;gap:6px;padding-top:4px}
@@ -738,8 +738,8 @@ function renderOverview() {
         <p class="note">会员 ${S.member.repeated}/${S.member.n} · 游客 ${S.guest.repeated}/${S.guest.n} · 老网站 ${S.oldSite.repeated}/${S.oldSite.n} · 新网站 ${S.newSite.repeated}/${S.newSite.n}</p></div>
       <div class="card wide"><h3>每月新顾客和他们的复购率 <small>按首单月份；最近的月份还没到复购时间，偏低是正常的</small></h3><div class="chart tall" id="chCohort"></div></div>
       <div class="card wide"><h3>各款的复购周期 <small>买了这一款之后，隔多久再下单</small></h3>
-        <table class="plain"><thead><tr><th>款式</th><th class="r">每支口数</th><th class="r">按全店速度 1 支约抽</th><th class="r">实际复购间隔（中位）</th><th class="r">样本</th></tr></thead>
-        <tbody>${m.lines.map(l => `<tr><td><b>${esc(lineName(l.pid))}</b></td><td class="r num">${params.puffs[l.pid] || '—'}</td><td class="r num">${days((params.puffs[l.pid] || 0) / result.shopRate)}</td><td class="r num">${days(l.median)}</td><td class="r num">${l.pairs} 次</td></tr>`).join('') || '<tr><td colspan="5" class="note">还没有复购记录</td></tr>'}</tbody></table></div>
+        <div class="scroll"><table class="plain"><thead><tr><th>款式</th><th class="r">每支口数</th><th class="r">按全店速度 1 支约抽</th><th class="r">实际复购间隔（中位）</th><th class="r">样本</th></tr></thead>
+        <tbody>${m.lines.map(l => `<tr><td><b>${esc(lineName(l.pid))}</b></td><td class="r num">${params.puffs[l.pid] || '—'}</td><td class="r num">${days((params.puffs[l.pid] || 0) / result.shopRate)}</td><td class="r num">${days(l.median)}</td><td class="r num">${l.pairs} 次</td></tr>`).join('') || '<tr><td colspan="5" class="note">还没有复购记录</td></tr>'}</tbody></table></div></div>
     </div>`;
   draw('chGap', 'ColumnChart', [['间隔', '人数'], ...m.gapBuckets.map(b => [b.label, b.n])]);
   draw('chWin', 'ColumnChart', [['窗口', '复购率'], ...m.windows.map(w => [`${w.days} 天内`, w.rate ?? 0])], { vAxis: { format: 'percent', maxValue: 1 } });
@@ -851,7 +851,10 @@ function renderReasons() {
     </div>`;
   draw('chPrim', 'PieChart', [['原因', '人数'], ...prim.map(([k, v]) => [RT_REASONS[k].t, v.n])], { legend: { position: 'right', textStyle: { fontSize: 12 } }, chartArea: { left: 10, right: 10, top: 10, bottom: 10 }, pieHole: 0.4 });
   draw('chAll', 'BarChart', [['迹象', '人数'], ...all.map(([k, v]) => [RT_REASONS[k].t, v.n])], { chartArea: { left: 190, right: 20, top: 10, bottom: 30 }, vAxis: { textStyle: { fontSize: 11 } } });
-  if (Object.keys(manual).length) draw('chManual', 'BarChart', [['原因', '人数'], ...Object.entries(manual).sort((a, b) => b[1] - a[1])], { chartArea: { left: 140, right: 20, top: 10, bottom: 30 } });
+  if (Object.keys(manual).length) {
+    $('chManual').style.height = 70 + Object.keys(manual).length * 34 + 'px';
+    draw('chManual', 'BarChart', [['原因', '人数'], ...Object.entries(manual).sort((a, b) => b[1] - a[1])], { chartArea: { left: 140, right: 20, top: 10, bottom: 30 }, hAxis: { format: '0', minValue: 0, viewWindow: { min: 0, max: Math.max(4, ...Object.values(manual)) } } });
+  }
 }
 
 // ---------- params ----------
@@ -861,7 +864,7 @@ function renderParams() {
     <div class="card"><h3>每支大约能抽多少口 <small>用来估计多久抽完</small></h3>
       ${LAB_PRODUCTS.map(p => `<label>${esc(p.short)}<input type="number" min="100" step="100" data-puffs="${p.id}" value="${P.puffs[p.id] || ''}"></label>`).join('')}</div>
     <div class="card"><h3>判断规则</h3>
-      <label><span>默认抽完速度（口 / 天）<small>复购顾客少于 ${P.minRepeaters} 位时用这个，否则按实际记录算（现在：${Math.round(result.shopRate)}）</small></span><input type="number" min="20" step="10" data-p="rate" value="${P.rate}"></label>
+      <label><span>默认抽完速度（口 / 天）<small>复购顾客少于 ${P.minRepeaters} 位时用这个，否则按实际记录算（现在：<span id="curRate">${Math.round(result.shopRate)}</span>）</small></span><input type="number" min="20" step="10" data-p="rate" value="${P.rate}"></label>
       <label><span>「快抽完」提前几天<small>预计抽完前多少天开始提醒</small></span><input type="number" min="0" step="1" data-p="nearDays" value="${P.nearDays}"></label>
       <label><span>多少天没下单算「疑似流失」<small>已经过了预计时间、又这么久没下单</small></span><input type="number" min="7" step="1" data-p="lostDays" value="${P.lostDays}"></label>
       <label><span>几小时内的订单算同一次购买<small>漏了一个口味又补一单</small></span><input type="number" min="0" step="1" data-p="mergeHours" value="${P.mergeHours}"></label>
@@ -872,7 +875,7 @@ function renderParams() {
 $('params').addEventListener('change', e => {
   const v = +e.target.value; if (!(v >= 0)) return;
   if (e.target.dataset.puffs) params.puffs[e.target.dataset.puffs] = v; else if (e.target.dataset.p) params[e.target.dataset.p] = v; else return;
-  store.set('vs-lab-params', { ...params }); analyze(); renderParams(); toast('参数已更新，结果重新算好了');
+  store.set('vs-lab-params', { ...params }); analyze(); $('curRate').textContent = Math.round(result.shopRate); toast('参数已更新，结果重新算好了');
 });
 $('params').addEventListener('click', e => { if (e.target.id === 'resetParams') { params = structuredClone(PARAM_DEFAULTS); localStorage.removeItem('vs-lab-params'); analyze(); renderParams(); toast('已恢复默认参数'); } });
 

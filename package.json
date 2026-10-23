@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "sh build.sh",
-    "qa": "sh qa/run.sh node qa/account.mjs"
+    "qa": "sh qa/run.sh node qa/account.mjs",
+    "lab": "node qa/retention.mjs && node qa/lab-ui.mjs"
   }
 }
