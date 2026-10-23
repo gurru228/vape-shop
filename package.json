@@ -5,6 +5,6 @@
   "scripts": {
     "build": "sh build.sh",
     "qa": "sh qa/run.sh node qa/account.mjs",
-    "lab": "node qa/retention.mjs && node qa/lab-ui.mjs"
+    "repeat": "node qa/retention.mjs && sh qa/run.sh node qa/repeat.mjs && SKIP_MIGRATION=followups sh qa/run.sh node qa/repeat.mjs"
   }
 }

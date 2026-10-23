@@ -23,7 +23,7 @@ async function cached(route) {
 const CDN = /^https:\/\/(cdnjs\.cloudflare\.com|fonts\.googleapis\.com|fonts\.gstatic\.com)\//;
 export const chromium = {
   async launch(opts) {
-    const browser = await real.launch(opts);
+    const browser = await real.launch({ ...(process.env.CHROME ? { executablePath: process.env.CHROME } : {}), ...opts });
     const newContext = browser.newContext.bind(browser);
     browser.newContext = async o => { const c = await newContext(o); await c.route(CDN, cached); return c; };
     browser.newPage = async o => { const c = await browser.newContext(o); const p = await c.newPage();

@@ -2,6 +2,7 @@
 # Start a throw-away local database + PostgREST + qa/dev-server.mjs, run the given command against
 # http://localhost:8899, then stop everything. Nothing here touches the real Supabase or Telegram.
 #   sh qa/run.sh node qa/account.mjs
+#   SKIP_MIGRATION=followups sh qa/run.sh node qa/repeat.mjs   (as if that migration hadn't run yet)
 # Needs: postgres 14 binaries in $PG_BIN, a postgrest binary in $PGRST_BIN (see qa/README.md).
 set -e
 cd "$(dirname "$0")/.."
@@ -25,7 +26,11 @@ P="$PG_BIN/psql -h 127.0.0.1 -p 5433 -U postgres -v ON_ERROR_STOP=1 -q"
 if [ "$FRESH" = 1 ]; then
   $P -c "create database shop"
   $P -d shop -f qa/schema-base.sql
-  for f in supabase/migrations/*.sql; do $P -d shop -f "$f" 2>&1 | grep -v NOTICE || true; done
+  # SKIP_MIGRATION=followups leaves out migrations whose file name contains it (production before it ran)
+  for f in supabase/migrations/*.sql; do
+    case "$f" in *"${SKIP_MIGRATION:-//}"*) echo "[qa] skipping $f"; continue;; esac
+    $P -d shop -f "$f" 2>&1 | grep -v NOTICE || true
+  done
 fi
 
 cat > "$W/pgrst.conf" <<EOF
