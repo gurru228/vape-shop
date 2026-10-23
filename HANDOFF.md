@@ -181,6 +181,16 @@ sh qa/run.sh node qa/check.mjs      # 海报墙、抽屉、首屏轮播
 - WebGL 是软件渲染，比较慢；沙盒里每条命令最多跑 3 分钟，所以测试要一个一个跑。
 - 测试最后都应该打印 `errors: none`。
 
+## 复购分析测试版（2026-10-23，分支 `cursor/retention-lab-b634`，没合并）
+
+- gu 要先看效果再决定上不上线。**不要合并、不要从正式后台菜单链过去。**
+- 页面：`admin-lab.html`，只读。三种数据：「假数据」（`site/src/retention-demo.js`，固定种子，电话都在 +34 600 0xx xxx）、「导入」JSON / CSV（get-orders、members、stock 的原样输出，或 Supabase Table Editor 导出的 CSV）、「在线读取」（只发 GET：get-orders、`/api/admin/members`、`/api/stock`）。
+- 计算：`site/src/retention.js`（纯函数，`build.sh` 把它和产品口数嵌进页面）。同一个人 = 会员号 / 手机号（统一成数字）/ 老网站 `user_id` 连起来；24 小时内的单算一次购买；只领赠品、取消、待确认都不算购买。抽完速度 = 上次口数 ÷ 到下一单的天数（中位数）；只买过一次的人用全店中位速度（复购顾客少于 3 位时用参数里的 250 口/天）。
+- 手动填的「真实原因」和参数只存在浏览器 localStorage（`vs-lab-notes`、`vs-lab-params`），不写数据库。
+- 图表用 Google Charts（`_headers` 的 CSP 为此加了 `https://www.gstatic.com`），加载不了时显示简单条形图。CSV 带 BOM，Google Sheets 直接导入。
+- 新首页不记 `agent_ref`，所以「代理带来的客户」只会出现在老订单上。
+- 测试（不用数据库）：`node qa/retention.mjs`（计算）、`CHROME=/path/to/chrome node qa/lab-ui.mjs`（电脑 + 手机截图 `qa/lab-*.png`；检查只发 GET、外部请求只去 Google）。
+
 ## 还没做 / 待定
 
 - RELX「C味鲜橙」缺图（`images/relx/vitamin-c-orange.webp`）。
