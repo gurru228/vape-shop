@@ -48,31 +48,16 @@ open('index.html', 'w').write(src.replace('\n', '\n<!-- built by build.sh from s
 print(f'built index.html  {len(src)/1e3:.0f} KB')
 EOF
 
-# admin.html gets the same product / flavor list (between the /*PRODUCTS*/ … /*END*/ markers)
+# admin.html gets the same product / flavor list (between the /*PRODUCTS*/ … /*END*/ markers), with puffs per unit
 python3 - <<'EOF'
 import json, re
 products = json.load(open('site/src/products.json'))
-slim = [{'id': p['id'], 'name': p['name'], 'price': p['price'], 'flavors': [{'name': f['name'], 'nameCn': f['nameCn']} for f in p['flavors']]} for p in products]
+slim = [{'id': p['id'], 'name': p['name'], 'price': p['price'], 'puffs': p.get('puffs'), 'flavors': [{'name': f['name'], 'nameCn': f['nameCn']} for f in p['flavors']]} for p in products]
 s = open('admin.html').read()
 s = re.sub(r'/\*PRODUCTS\*/.*?/\*END\*/', lambda m: '/*PRODUCTS*/' + json.dumps(slim, ensure_ascii=False) + '/*END*/', s, count=1, flags=re.S)
+# and the repeat-purchase analysis (the 复购 tab), between /*RETENTION*/ … /*RETENTION-END*/
+s = re.sub(r'/\*RETENTION\*/.*?/\*RETENTION-END\*/', lambda m: '/*RETENTION*/\n' + open('site/src/retention.js').read() + '/*RETENTION-END*/', s, count=1, flags=re.S)
 open('admin.html', 'w').write(s)
-print('admin.html: product list updated')
+print('admin.html: product list + repeat analysis updated')
 EOF
 
-# admin-lab.html (read-only repeat-purchase test page): product list with puffs per unit, plus the analysis code
-# from site/src/retention.js and the made-up data from site/src/retention-demo.js
-python3 - <<'PY'
-import json, re
-products = json.load(open('site/src/products.json'))
-def puffs(p):
-    m = re.search(r'(\d+)\s*口', p['desc']['zh'])
-    return int(m.group(1)) if m else None
-slim = [{'id': p['id'], 'name': p['name'], 'short': re.sub(r'\s*\(.*\)$', '', p['name']), 'price': p['price'], 'puffs': puffs(p),
-         'flavors': [{'name': f['name'], 'nameCn': f['nameCn']} for f in p['flavors']]} for p in products]
-code = open('site/src/retention.js').read() + '\n' + open('site/src/retention-demo.js').read()
-s = open('admin-lab.html').read()
-s = re.sub(r'/\*LAB-PRODUCTS\*/.*?/\*LAB-PRODUCTS-END\*/', lambda m: '/*LAB-PRODUCTS*/' + json.dumps(slim, ensure_ascii=False) + '/*LAB-PRODUCTS-END*/', s, count=1, flags=re.S)
-s = re.sub(r'/\*LAB-CODE\*/.*?/\*LAB-CODE-END\*/', lambda m: '/*LAB-CODE*/\n' + code + '/*LAB-CODE-END*/', s, count=1, flags=re.S)
-open('admin-lab.html', 'w').write(s)
-print('admin-lab.html: products + analysis code updated')
-PY

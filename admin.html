@@ -226,6 +226,57 @@ table.plain td.r,table.plain th.r{text-align:right}
 #admin-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:100;background:var(--olive);color:var(--cream);padding:11px 18px;border-radius:999px;font-size:14px;font-weight:800;max-width:calc(100vw - 32px);box-shadow:0 12px 30px rgba(0,0,0,.25)}
 .loading{padding:40px;text-align:center;color:var(--muted);font-weight:700}
 
+/* ---------- repeat purchases ---------- */
+#rpTabs{justify-content:flex-end}
+.rp-setup{padding:14px 16px;margin-bottom:14px;white-space:normal}
+.rp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.rp-chart{width:100%;height:260px}
+.rp-chart.tall{height:320px}
+.rp-scroll{overflow-x:auto}
+.rp-foot{font-size:12.5px;color:var(--muted);font-weight:700;margin-top:6px}
+.rp-fallback{display:grid;gap:6px;padding-top:4px}
+.rp-fallback div{display:grid;grid-template-columns:minmax(0,130px) minmax(0,1fr) 54px;gap:8px;align-items:center;font-size:13px}
+.rp-fallback i{display:block;height:14px;background:var(--accent);border-radius:4px;min-width:2px}
+#rpTable tbody tr{cursor:pointer}
+#rpTable tbody tr:hover{background:var(--alt)}
+#rpTable td small{color:var(--muted);font-weight:700}
+.rp-st{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:800;white-space:nowrap;background:var(--alt);color:var(--muted)}
+.rp-st.ok{background:var(--accent-soft);color:var(--ok)}
+.rp-st.near{background:#F4E7B8;color:#6f560b}
+.rp-st.overdue{background:var(--stamp-soft);color:var(--stamp)}
+.rp-st.lost{background:#E6DCD6;color:#5a3a2e}
+.rp-people{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;align-items:start}
+.rp-person{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:7px;min-width:0}
+.rp-person.hot{border:2px solid var(--stamp);padding:13px 15px}
+.rp-person header{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.rp-person header b{font-size:16.5px;font-weight:900}
+.rp-meta{font-size:13px;color:var(--muted);font-weight:700}
+.rp-what{font-size:14px}
+.rp-tag{display:inline-block;border:1px solid var(--line2);border-radius:7px;padding:1px 7px;font-size:12px;font-weight:800;margin:0 4px 4px 0;color:var(--muted)}
+.rp-tag.main{border-color:var(--stamp);color:var(--stamp);background:var(--stamp-soft)}
+.rp-hint{font-size:13px;background:var(--alt);border-radius:10px;padding:7px 11px}
+.rp-manual{display:grid;grid-template-columns:minmax(0,210px) minmax(0,1fr);gap:6px}
+.rp-manual select,.rp-manual input{height:38px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);padding:0 10px;font-size:13.5px;min-width:0}
+.rp-manual :disabled{opacity:.55}
+.rp-acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.rp-acts .btn{height:34px;font-size:13px;padding:0 13px}
+.rp-acts .go-wa{background:#25D366;border-color:#25D366;color:#fff;text-decoration:none}
+.rp-acts .go-wa:hover{background:#1fb457}
+.rp-contacted{font-size:12.5px;color:var(--ok);font-weight:800}
+.rp-params{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.rp-params label{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--alt);font-size:14px;font-weight:700}
+.rp-params label small{display:block;font-weight:600;color:var(--muted);font-size:12px}
+.rp-params input{height:38px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);padding:0 10px;font-weight:800;min-width:0}
+.rp-drawer{position:fixed;inset:0;z-index:90;display:flex;justify-content:flex-end;background:rgba(36,39,31,.35)}
+.rp-panel{width:min(560px,100%);height:100%;overflow-y:auto;background:var(--bg);padding:20px 18px 40px;box-shadow:-10px 0 30px rgba(0,0,0,.15)}
+.rp-panel .x{float:right;font-size:24px;line-height:1;padding:2px 8px}
+.rp-panel .today{grid-template-columns:repeat(3,minmax(0,1fr))}
+.rp-timeline{list-style:none;margin-top:8px}
+.rp-timeline li{border-left:3px solid var(--accent);padding:4px 0 10px 12px}
+.rp-timeline li.x{border-left-color:var(--line2);opacity:.75}
+.rp-timeline .gap{font-size:12px;color:var(--muted);font-weight:800}
+.rp-timeline small{color:var(--muted)}
+
 @media (max-width:900px){
   .app{grid-template-columns:1fr}
   .nav{position:fixed;z-index:50;left:0;right:0;bottom:0;top:auto;height:auto;flex-direction:row;padding:6px 6px calc(6px + env(safe-area-inset-bottom));gap:2px;box-shadow:0 -6px 20px rgba(0,0,0,.15)}
@@ -237,6 +288,10 @@ table.plain td.r,table.plain th.r{text-align:right}
   .today{grid-template-columns:repeat(2,minmax(0,1fr))}
   .tile b{font-size:22px}
   .orders,.mem-list,.inv-grid{grid-template-columns:minmax(0,1fr)}
+  .rp-grid,.rp-people,.rp-params{grid-template-columns:minmax(0,1fr)}
+  .rp-manual{grid-template-columns:minmax(0,1fr)}
+  .rp-panel .today{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #rpTabs{justify-content:flex-start}
   .stats{grid-template-columns:minmax(0,1fr)}
   .bars{gap:3px}
   .bar span{font-size:9.5px}
@@ -287,6 +342,8 @@ table.plain td.r,table.plain th.r{text-align:right}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/></svg>会员集章</button>
     <button class="tab" id="tab-stats" data-tab="stats">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 20V12M10 20V6M15 20v-9M20 20V9"/></svg>统计</button>
+    <button class="tab" id="tab-repeat" data-tab="repeat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-13.7 5.6L4 15"/><path d="M4 20v-5h5"/></svg>复购<span class="pill" id="navRepeat" hidden></span></button>
     <div class="foot">
       <span id="last-refresh-time">还没刷新</span>
       <button type="button" id="logoutBtn">退出登录</button>
@@ -396,8 +453,52 @@ table.plain td.r,table.plain th.r{text-align:right}
       </div>
       <div class="stats" id="statsBox"></div>
     </section>
+
+    <!-- ---------- repeat purchases (read-only analysis; only follow-up notes are saved) ---------- -->
+    <section id="section-repeat" data-section="repeat" hidden>
+      <div class="top">
+        <div><h2>复购</h2><p class="sub" id="rpSub">只读分析：按已确认、已发货、已完成的订单算，不会改任何订单</p></div>
+        <div class="chips" role="group" aria-label="复购分析" id="rpTabs">
+          <button class="chip active" type="button" data-rp="overview">总览</button>
+          <button class="chip" type="button" data-rp="customers">顾客</button>
+          <button class="chip" type="button" data-rp="near">快抽完 <span class="chip-count" id="rpNearN"></span></button>
+          <button class="chip" type="button" data-rp="once">未复购 <span class="chip-count" id="rpOnceN"></span></button>
+          <button class="chip" type="button" data-rp="reasons">原因</button>
+          <button class="chip" type="button" data-rp="params">参数</button>
+        </div>
+      </div>
+      <p class="empty bad rp-setup" id="rpSetup" hidden></p>
+      <div data-rpsec="overview" id="rpOverview"><div class="loading">加载中…</div></div>
+      <div data-rpsec="customers" hidden>
+        <div class="filters">
+          <div class="row">
+            <input class="field" id="rpQ" type="search" placeholder="搜名字、电话" aria-label="搜顾客">
+            <select class="status-select" id="rpSort" aria-label="排序">
+              <option value="last">最近下单</option><option value="spent">花得最多</option><option value="units">买得最多</option>
+              <option value="buys">下单次数</option><option value="due">预计抽完（最早）</option>
+            </select>
+            <button class="btn quiet" type="button" id="rpCustCsv">导出 CSV</button>
+          </div>
+          <div class="row"><div class="chips" role="group" aria-label="顾客状态" id="rpStatus"></div></div>
+        </div>
+        <div class="card rp-scroll"><table class="plain" id="rpTable"></table></div>
+      </div>
+      <div data-rpsec="near" hidden>
+        <p class="note">按每个人买的量和抽完速度估算：3 天内会抽完的、刚过预计时间还没回来的，适合现在 WhatsApp 提醒。</p>
+        <div class="rp-people" id="rpNear"></div>
+      </div>
+      <div data-rpsec="once" hidden>
+        <div class="filters"><div class="row"><div class="chips" role="group" aria-label="未复购分组" id="rpOnceTabs"></div>
+          <button class="btn quiet" type="button" id="rpOnceCsv">导出这份名单</button></div></div>
+        <div class="rp-people" id="rpOnce"></div>
+      </div>
+      <div data-rpsec="reasons" hidden id="rpReasons"></div>
+      <div data-rpsec="params" hidden id="rpParams"></div>
+    </section>
   </main>
 </div>
+
+<div class="rp-drawer" id="rpDrawer" hidden><div class="rp-panel" id="rpPanel"></div></div>
 
 <script>
 'use strict';
@@ -405,11 +506,12 @@ table.plain td.r,table.plain th.r{text-align:right}
 //   /.netlify/functions/get-orders · delete-order · get-inventory · set-inventory · get-users · notify-status
 //   /api/admin/status (status change: stamps, gift refunds, stock and the Telegram message all follow)
 //   /api/admin/members · /api/admin/stamp
+//   /api/admin/followups · /api/admin/followup (复购: the analysis is read-only, only follow-up notes are saved)
 // Everything a customer typed is escaped before it goes into the page; buttons carry data-* attributes
 // and are handled by delegation (no inline onclick with order data in it).
 
 // products and flavors: build.sh writes them from site/src/products.json — don't edit this line by hand
-const PRODUCTS_DEF = /*PRODUCTS*/[{"id": 1, "name": "鸭嘴兽 (Dash)", "price": 17.9, "flavors": [{"name": "Jasmine LongJing Tea", "nameCn": "龙井"}, {"name": "Lemon Tea", "nameCn": "柠檬茶"}, {"name": "Green Grape", "nameCn": "青提"}, {"name": "Sweet Honeydew", "nameCn": "甜蜜瓜"}, {"name": "Crystal Grape", "nameCn": "紫晶葡萄"}, {"name": "Mineral Water", "nameCn": "矿泉水"}, {"name": "Coconut Water", "nameCn": "椰子水"}, {"name": "Alpine White Peach", "nameCn": "高山白桃"}, {"name": "Floral Oolong", "nameCn": "花香乌龙"}, {"name": "Honey Yuzu Tea", "nameCn": "蜂蜜柚子茶"}, {"name": "Salted Fizz", "nameCn": "海盐气泡"}, {"name": "Kiwi Ice", "nameCn": "猕猴桃冰"}, {"name": "Red Wine Ice", "nameCn": "红酒冰"}, {"name": "Matcha Smoothie", "nameCn": "抹茶思慕雪"}, {"name": "Peach Ice", "nameCn": "水蜜桃冰"}, {"name": "Pink Guava", "nameCn": "粉红番石榴"}, {"name": "Black Dragon Ice", "nameCn": "黑龙冰"}, {"name": "Corn Gelato", "nameCn": "玉米冰激凌"}, {"name": "White Freeze", "nameCn": "老冰棍"}, {"name": "Passion Grapefruit", "nameCn": "百香西柚"}, {"name": "Lush Ice", "nameCn": "西瓜冰"}, {"name": "Lemon Pineapple", "nameCn": "柠檬菠萝"}, {"name": "Green Apple Ice", "nameCn": "青苹果冰"}, {"name": "Tea Guan Yin King", "nameCn": "铁观音"}, {"name": "Taro Ice", "nameCn": "香芋冰"}, {"name": "Lychee Ice", "nameCn": "荔枝冰"}, {"name": "Hibiscus Ice Tea", "nameCn": "洛神花冰茶"}, {"name": "Ludou Ice", "nameCn": "绿豆冰"}, {"name": "Lime Ice", "nameCn": "青柠冰"}, {"name": "Mint Mojito", "nameCn": "薄荷莫吉托"}, {"name": "Da Hong Pao", "nameCn": "大红袍"}]}, {"id": 2, "name": "冰爆 (IceMax)", "price": 15.9, "flavors": [{"name": "Passion Grapefruit", "nameCn": "百香西柚"}, {"name": "Jasmine Milk Tea", "nameCn": "茉莉奶茶"}, {"name": "Iced Pocari", "nameCn": "冰镇宝矿力"}, {"name": "Coconut Water", "nameCn": "椰子水"}, {"name": "Miami Mint", "nameCn": "迈阿密薄荷"}, {"name": "Longjing Ice Tea", "nameCn": "龙井冰茶"}, {"name": "Green Grape Ice", "nameCn": "青葡萄冰"}, {"name": "Fresh Lemon", "nameCn": "新鲜柠檬"}, {"name": "Lychee Ice", "nameCn": "荔枝冰"}, {"name": "Peach Oolong", "nameCn": "水蜜桃乌龙"}, {"name": "Lemon Pineapple", "nameCn": "柠檬菠萝"}, {"name": "Sour Guava Ice", "nameCn": "巨峰葡萄"}, {"name": "Tangy Grape", "nameCn": "番石榴"}]}, {"id": 3, "name": "小黑条 (Quik)", "price": 17.9, "flavors": [{"name": "Longan", "nameCn": "龙眼"}, {"name": "Banana", "nameCn": "香蕉"}, {"name": "Durian", "nameCn": "榴莲"}, {"name": "Honeydew", "nameCn": "蜜露"}, {"name": "Mango", "nameCn": "芒果"}, {"name": "Coconut Ice", "nameCn": "椰子冰"}, {"name": "Peach", "nameCn": "水蜜桃"}, {"name": "Guava", "nameCn": "番石榴"}, {"name": "Lychee", "nameCn": "荔枝"}]}, {"id": 4, "name": "冰王 (Elfbar IceKing)", "price": 30, "flavors": [{"name": "Jasmine Longjing", "nameCn": "茉莉龙井"}, {"name": "Salted Lemon", "nameCn": "海盐柠檬"}, {"name": "Tieguanyin", "nameCn": "铁观音"}, {"name": "Grape Ice", "nameCn": "黑葡萄冰"}, {"name": "Green Grape Ice", "nameCn": "青葡萄冰"}, {"name": "Green Tea", "nameCn": "绿茶"}]}, {"id": 5, "name": "高维 (GOwif)", "price": 25.9, "flavors": [{"name": "Peach Tea", "nameCn": "桃茶"}, {"name": "Passion Fruit", "nameCn": "百香果"}, {"name": "Green Bean Ice", "nameCn": "绿豆"}, {"name": "Crispy Apple", "nameCn": "脆苹果"}, {"name": "Lychee Ice", "nameCn": "荔枝冰"}, {"name": "Plum Pineapple", "nameCn": "话梅菠萝"}, {"name": "Fresh Mint", "nameCn": "清凉薄荷"}, {"name": "Watermelon Ice", "nameCn": "西瓜冰"}, {"name": "Green Grape", "nameCn": "青葡萄"}, {"name": "Lime Ice", "nameCn": "青柠冰"}, {"name": "Jasmine Longjing", "nameCn": "茉莉龙井"}, {"name": "Blueberry Raspberry", "nameCn": "蓝莓覆盆子"}, {"name": "Bayberry Green Salt", "nameCn": "杨梅绿盐"}, {"name": "Taro Ice Cream", "nameCn": "香芋冰淇淋"}, {"name": "100 Plus", "nameCn": "100 Plus"}]}, {"id": 6, "name": "RELX 悦刻幻五代烟弹 (3支装)", "price": 14.9, "flavors": [{"name": "Mixed Berries", "nameCn": "混合浆果"}, {"name": "Taro Ice Cream", "nameCn": "香芋冰淇淋"}, {"name": "Tieguanyin", "nameCn": "铁观音"}, {"name": "Mineral Water", "nameCn": "矿泉水"}, {"name": "Coconut Ice", "nameCn": "椰子冰"}, {"name": "Sprite Lime", "nameCn": "雪碧"}, {"name": "Yogurt", "nameCn": "酸奶"}, {"name": "Plum", "nameCn": "西梅"}, {"name": "Lemon Cherry", "nameCn": "爆柠樱桃"}, {"name": "Peach Oolong", "nameCn": "桃气乌龙"}, {"name": "Guava", "nameCn": "番石榴"}, {"name": "Coffee", "nameCn": "咖啡"}, {"name": "Mojito", "nameCn": "莫吉托"}, {"name": "Iced Black Tea", "nameCn": "冰红茶"}, {"name": "Passion Fruit", "nameCn": "百香果"}, {"name": "Ice Pop", "nameCn": "冰棍"}, {"name": "Mung Bean", "nameCn": "绿豆"}, {"name": "Longjing", "nameCn": "龙井"}, {"name": "Iced Lemon Mint", "nameCn": "冰柠薄荷"}, {"name": "Jasmine Tea", "nameCn": "茉莉花茶"}, {"name": "Vitamin C Orange", "nameCn": "C味鲜橙"}]}]/*END*/;
+const PRODUCTS_DEF = /*PRODUCTS*/[{"id": 1, "name": "鸭嘴兽 (Dash)", "price": 17.9, "puffs": 4000, "flavors": [{"name": "Jasmine LongJing Tea", "nameCn": "龙井"}, {"name": "Lemon Tea", "nameCn": "柠檬茶"}, {"name": "Green Grape", "nameCn": "青提"}, {"name": "Sweet Honeydew", "nameCn": "甜蜜瓜"}, {"name": "Crystal Grape", "nameCn": "紫晶葡萄"}, {"name": "Mineral Water", "nameCn": "矿泉水"}, {"name": "Coconut Water", "nameCn": "椰子水"}, {"name": "Alpine White Peach", "nameCn": "高山白桃"}, {"name": "Floral Oolong", "nameCn": "花香乌龙"}, {"name": "Honey Yuzu Tea", "nameCn": "蜂蜜柚子茶"}, {"name": "Salted Fizz", "nameCn": "海盐气泡"}, {"name": "Kiwi Ice", "nameCn": "猕猴桃冰"}, {"name": "Red Wine Ice", "nameCn": "红酒冰"}, {"name": "Matcha Smoothie", "nameCn": "抹茶思慕雪"}, {"name": "Peach Ice", "nameCn": "水蜜桃冰"}, {"name": "Pink Guava", "nameCn": "粉红番石榴"}, {"name": "Black Dragon Ice", "nameCn": "黑龙冰"}, {"name": "Corn Gelato", "nameCn": "玉米冰激凌"}, {"name": "White Freeze", "nameCn": "老冰棍"}, {"name": "Passion Grapefruit", "nameCn": "百香西柚"}, {"name": "Lush Ice", "nameCn": "西瓜冰"}, {"name": "Lemon Pineapple", "nameCn": "柠檬菠萝"}, {"name": "Green Apple Ice", "nameCn": "青苹果冰"}, {"name": "Tea Guan Yin King", "nameCn": "铁观音"}, {"name": "Taro Ice", "nameCn": "香芋冰"}, {"name": "Lychee Ice", "nameCn": "荔枝冰"}, {"name": "Hibiscus Ice Tea", "nameCn": "洛神花冰茶"}, {"name": "Ludou Ice", "nameCn": "绿豆冰"}, {"name": "Lime Ice", "nameCn": "青柠冰"}, {"name": "Mint Mojito", "nameCn": "薄荷莫吉托"}, {"name": "Da Hong Pao", "nameCn": "大红袍"}]}, {"id": 2, "name": "冰爆 (IceMax)", "price": 15.9, "puffs": 12000, "flavors": [{"name": "Passion Grapefruit", "nameCn": "百香西柚"}, {"name": "Jasmine Milk Tea", "nameCn": "茉莉奶茶"}, {"name": "Iced Pocari", "nameCn": "冰镇宝矿力"}, {"name": "Coconut Water", "nameCn": "椰子水"}, {"name": "Miami Mint", "nameCn": "迈阿密薄荷"}, {"name": "Longjing Ice Tea", "nameCn": "龙井冰茶"}, {"name": "Green Grape Ice", "nameCn": "青葡萄冰"}, {"name": "Fresh Lemon", "nameCn": "新鲜柠檬"}, {"name": "Lychee Ice", "nameCn": "荔枝冰"}, {"name": "Peach Oolong", "nameCn": "水蜜桃乌龙"}, {"name": "Lemon Pineapple", "nameCn": "柠檬菠萝"}, {"name": "Sour Guava Ice", "nameCn": "巨峰葡萄"}, {"name": "Tangy Grape", "nameCn": "番石榴"}]}, {"id": 3, "name": "小黑条 (Quik)", "price": 17.9, "puffs": 5000, "flavors": [{"name": "Longan", "nameCn": "龙眼"}, {"name": "Banana", "nameCn": "香蕉"}, {"name": "Durian", "nameCn": "榴莲"}, {"name": "Honeydew", "nameCn": "蜜露"}, {"name": "Mango", "nameCn": "芒果"}, {"name": "Coconut Ice", "nameCn": "椰子冰"}, {"name": "Peach", "nameCn": "水蜜桃"}, {"name": "Guava", "nameCn": "番石榴"}, {"name": "Lychee", "nameCn": "荔枝"}]}, {"id": 4, "name": "冰王 (Elfbar IceKing)", "price": 30, "puffs": 40000, "flavors": [{"name": "Jasmine Longjing", "nameCn": "茉莉龙井"}, {"name": "Salted Lemon", "nameCn": "海盐柠檬"}, {"name": "Tieguanyin", "nameCn": "铁观音"}, {"name": "Grape Ice", "nameCn": "黑葡萄冰"}, {"name": "Green Grape Ice", "nameCn": "青葡萄冰"}, {"name": "Green Tea", "nameCn": "绿茶"}]}, {"id": 5, "name": "高维 (GOwif)", "price": 25.9, "puffs": 18000, "flavors": [{"name": "Peach Tea", "nameCn": "桃茶"}, {"name": "Passion Fruit", "nameCn": "百香果"}, {"name": "Green Bean Ice", "nameCn": "绿豆"}, {"name": "Crispy Apple", "nameCn": "脆苹果"}, {"name": "Lychee Ice", "nameCn": "荔枝冰"}, {"name": "Plum Pineapple", "nameCn": "话梅菠萝"}, {"name": "Fresh Mint", "nameCn": "清凉薄荷"}, {"name": "Watermelon Ice", "nameCn": "西瓜冰"}, {"name": "Green Grape", "nameCn": "青葡萄"}, {"name": "Lime Ice", "nameCn": "青柠冰"}, {"name": "Jasmine Longjing", "nameCn": "茉莉龙井"}, {"name": "Blueberry Raspberry", "nameCn": "蓝莓覆盆子"}, {"name": "Bayberry Green Salt", "nameCn": "杨梅绿盐"}, {"name": "Taro Ice Cream", "nameCn": "香芋冰淇淋"}, {"name": "100 Plus", "nameCn": "100 Plus"}]}, {"id": 6, "name": "RELX 悦刻幻五代烟弹 (3支装)", "price": 14.9, "puffs": 1800, "flavors": [{"name": "Mixed Berries", "nameCn": "混合浆果"}, {"name": "Taro Ice Cream", "nameCn": "香芋冰淇淋"}, {"name": "Tieguanyin", "nameCn": "铁观音"}, {"name": "Mineral Water", "nameCn": "矿泉水"}, {"name": "Coconut Ice", "nameCn": "椰子冰"}, {"name": "Sprite Lime", "nameCn": "雪碧"}, {"name": "Yogurt", "nameCn": "酸奶"}, {"name": "Plum", "nameCn": "西梅"}, {"name": "Lemon Cherry", "nameCn": "爆柠樱桃"}, {"name": "Peach Oolong", "nameCn": "桃气乌龙"}, {"name": "Guava", "nameCn": "番石榴"}, {"name": "Coffee", "nameCn": "咖啡"}, {"name": "Mojito", "nameCn": "莫吉托"}, {"name": "Iced Black Tea", "nameCn": "冰红茶"}, {"name": "Passion Fruit", "nameCn": "百香果"}, {"name": "Ice Pop", "nameCn": "冰棍"}, {"name": "Mung Bean", "nameCn": "绿豆"}, {"name": "Longjing", "nameCn": "龙井"}, {"name": "Iced Lemon Mint", "nameCn": "冰柠薄荷"}, {"name": "Jasmine Tea", "nameCn": "茉莉花茶"}, {"name": "Vitamin C Orange", "nameCn": "C味鲜橙"}]}]/*END*/;
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -462,6 +564,7 @@ function enter() {
 }
 function logout(msg = '') {
   pass = ''; orders = []; members = null; seen = null;
+  Repeat.reset();
   sessionStorage.removeItem('vs-admin');
   clearInterval(timer);
   $('dashboard').hidden = true; $('login-screen').hidden = false;
@@ -486,6 +589,7 @@ function show(t) {
   if (t === 'inventory') loadInventory();
   if (t === 'users') loadMembers();
   if (t === 'stats') { renderStats(); if (!members) loadMembers(true); }
+  if (t === 'repeat') Repeat.open();
 }
 
 // ---------- orders ----------
@@ -517,6 +621,7 @@ function paintAll() {
   renderSummary();
   renderOrders();
   if (tab === 'stats') renderStats();
+  if (tab === 'repeat') Repeat.refresh();
 }
 function setAuto() {
   clearInterval(timer);
@@ -827,6 +932,7 @@ async function loadMembers(quiet = false) {
     members = data.members || [];
     renderMembers();
     if (tab === 'stats') renderStats();
+    if (tab === 'repeat') Repeat.refresh();
     if (!quiet) loadLegacy();
   } catch (e) {
     if (!e.auth && !quiet) $('users-container').innerHTML = `<div class="empty bad">读不到会员：${esc(e.message)}\n第一次用新网站的话，先在 Supabase 运行 supabase/migrations/20261021000000_members_stamps.sql</div>`;
@@ -928,6 +1034,586 @@ function renderStats() {
     <div class="card"><h3>取货方式</h3><ol class="rank">${Object.entries(modes).map(([k, v]) => `<li><b>${esc(MODE[k] || k)}</b><span class="num">${v} 单</span><i style="--w:${paid.length ? Math.round(v / paid.length * 100) : 0}%"></i></li>`).join('')}</ol></div>
     ${Object.keys(agents).length ? `<div class="card"><h3>代理推广 <small>?ref= 链接带来的订单</small></h3><table class="plain"><thead><tr><th>代理</th><th class="r">订单</th><th class="r">已确认</th><th class="r">金额</th></tr></thead><tbody>${Object.entries(agents).sort((a, b) => b[1].r - a[1].r).map(([k, a]) => `<tr><td>${esc(k)}</td><td class="r num">${a.n}</td><td class="r num">${a.paid}</td><td class="r num">${euro(a.r)}</td></tr>`).join('')}</tbody></table></div>` : ''}`;
 }
+
+// repeat-purchase analysis: build.sh copies site/src/retention.js here — edit that file, not this block
+/*RETENTION*/
+// Repeat-purchase analysis for admin-lab.html (the read-only test page). Pure functions only: order rows and
+// members in, customers / metrics / lists out. build.sh inlines this file into admin-lab.html; qa/retention.mjs
+// loads it in node. Order rows are the `orders` table as get-orders returns it (old-site rows included).
+const RT_DAY = 864e5;
+const RT_PAID = new Set(['paid', 'shipped', 'delivered']);
+const RT_DEFAULTS = {
+  puffs: { 1: 4000, 2: 12000, 3: 5000, 4: 40000, 5: 18000, 6: 1800 }, // per unit; RELX is a 3-pod pack
+  rate: 250,       // puffs a day, used until there are enough repeat customers to measure the shop's own rate
+  minRepeaters: 3, // repeat customers needed before the measured rate replaces `rate`
+  nearDays: 3,     // "about to run out" = due within this many days
+  lostDays: 60,    // overdue and silent this long = probably lost
+  mergeHours: 24,  // orders this close together count as one purchase (a forgotten flavor, a second cart)
+  highPrice: 25,   // average € per unit at or above this = a pricey first order
+};
+const RT_STATUS = { ok: '正常', near: '快抽完', overdue: '逾期未回', lost: '疑似流失', never: '没成交过' };
+// weight = how strongly the sign explains a missing repeat order; the heaviest one is shown as the main reason
+const RT_REASONS = {
+  notDue:   { w: 100, t: '还没到复购时间', hint: '按他买的量估计还没抽完，先不用联系' },
+  bad:      { w: 90, t: '有过取消 / 卡住的订单', hint: '先问清楚上次哪里不顺，再邀请下单' },
+  leak:     { w: 80, t: '首单是清仓 IceMax（可能漏油不满意）', hint: '问一下用得怎么样，推荐其他款' },
+  soldOut:  { w: 75, t: '买过的口味现在缺货', hint: '到货后 WhatsApp 通知他' },
+  oldSite:  { w: 70, t: '老网站客户，改版后没回来', hint: '发新网站链接和二维码，说明现在用 WhatsApp 付款' },
+  agent:    { w: 60, t: '代理带来的客户', hint: '跟代理确认是不是在代理那里复购了' },
+  delivery: { w: 55, t: '外送 / 邮寄（运费或起送门槛）', hint: '推荐自取，或提醒凑够件数免运费' },
+  deal:     { w: 50, t: '冲着优惠 / 清仓价来的', hint: '下次有活动再通知他' },
+  guest:    { w: 45, t: '游客下单，没有集章动力', hint: '邀请注册会员，以后每单都能集章' },
+  trial:    { w: 35, t: '只买了 1 支（试用）', hint: '问问口味喜好，推荐同款其他口味' },
+  price:    { w: 30, t: '首单单价高', hint: '推荐性价比更高的款式' },
+  unknown:  { w: 1, t: '数据看不出原因', hint: '直接 WhatsApp 问一下' },
+};
+const RT_MANUAL = ['在别家买了', '价格贵', '想要的口味缺货', '对产品不满意', '配送 / 取货不方便', '不抽了 / 抽得少了', '离开本地了', '还有存货', '其他'];
+
+function rtPhone(s) {
+  let d = String(s || '').replace(/\D/g, '');
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.length === 9 && /^[6789]/.test(d)) d = '34' + d;
+  return d.length >= 8 && d.length <= 15 ? d : null;
+}
+function rtMedian(a) {
+  if (!a.length) return null;
+  const s = [...a].sort((x, y) => x - y), m = s.length >> 1;
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+const rtMs = v => (typeof v === 'number' ? v : Date.parse(v));
+
+// one item row → { pid, flavor, qty, price, free }; same parsing as fromRow() in netlify/lib/shop.mjs
+function rtLine(i) {
+  const id = String(i.id ?? '');
+  const free = !!i.isFree || id.startsWith('FREE-');
+  const parts = id.split('-');
+  const pid = +(i.productId ?? (free ? parts[1] : parts[0]));
+  const flavor = i.flavor ?? (free ? parts.slice(2, -1).join('-') : parts.slice(1).join('-'));
+  return { pid: Number.isFinite(pid) ? pid : 0, flavor: flavor || '', qty: +i.quantity || 1, price: +i.price || 0, free };
+}
+
+function rtOrder(o, P) {
+  let items = o.items;
+  if (typeof items === 'string') { try { items = JSON.parse(items); } catch (e) { items = []; } }
+  let form = o.form;
+  if (typeof form === 'string') { try { form = JSON.parse(form); } catch (e) { form = null; } }
+  const lines = (Array.isArray(items) ? items : []).map(rtLine);
+  const paidLines = lines.filter(l => !l.free);
+  const units = paidLines.reduce((s, l) => s + l.qty, 0);
+  const valid = RT_PAID.has(o.payment_status);
+  return {
+    id: String(o.id ?? o.order_number ?? ''), no: o.order_number || '', at: rtMs(o.created_at), status: o.payment_status || '',
+    valid, giftOnly: valid && units === 0, buy: valid && units > 0,
+    lines, units, gifts: lines.filter(l => l.free).length,
+    puffs: paidLines.reduce((s, l) => s + l.qty * (P.puffs[l.pid] || P.puffs[1] || 4000), 0),
+    amount: +o.total || 0, ship: +o.shipping_fee || 0,
+    mode: o.delivery_type || 'pickup', coupon: o.coupon || form?.coupon || null, agent: o.agent_ref || null,
+    leak: !!form?.ackLeak || paidLines.some(l => l.pid === 2),
+    old: !form && !o.member_id && o.payment_method !== 'whatsapp',
+    member: o.member_id || null, phone: rtPhone(o.customer_phone), phoneText: o.customer_phone || '', name: o.customer_name || '',
+    user: o.user_id || null,
+  };
+}
+
+// customers = connected groups of member id / phone / old-site account id (one person may have ordered as a
+// guest before registering, or with differently written phone numbers)
+function rtGroups(infos, members) {
+  const parent = new Map();
+  const find = x => { while (parent.get(x) !== x) { parent.set(x, parent.get(parent.get(x))); x = parent.get(x); } return x; };
+  const add = x => { if (!parent.has(x)) parent.set(x, x); return x; };
+  const join = keys => { const k = keys.filter(Boolean).map(add); for (let i = 1; i < k.length; i++) parent.set(find(k[i]), find(k[0])); return k[0]; };
+  for (const m of members) {
+    const ph = rtPhone(m.phone) || (/^\d+$/.test(m.id) ? rtPhone(m.id) : null);
+    join(['m:' + m.id, ph && 'p:' + ph, (m.authUid || m.auth_uid) && 'u:' + (m.authUid || m.auth_uid)]);
+  }
+  const of = new Map();
+  for (const o of infos) of.set(o, join([o.member && 'm:' + o.member, o.phone && 'p:' + o.phone, o.user && 'u:' + o.user, !o.member && !o.phone && !o.user && 'o:' + o.id]));
+  const groups = new Map();
+  for (const o of infos) { const r = find(of.get(o)); if (!groups.has(r)) groups.set(r, []); groups.get(r).push(o); }
+  const memberOf = new Map();
+  for (const m of members) memberOf.set(find('m:' + m.id), m);
+  return [...groups].map(([root, orders]) => ({ root, orders, memberRow: memberOf.get(root) || null }));
+}
+
+function rtReasons(c, soldOut, P) {
+  const first = c.occ[0];
+  const tags = [];
+  if (c.status === 'ok' || c.status === 'near') tags.push('notDue');
+  if (c.cancelled || c.stuck) tags.push('bad');
+  if (first) {
+    if (first.leak) tags.push('leak');
+    const fl = first.lines.filter(l => !l.free);
+    const out = fl.filter(l => soldOut.has(`${l.pid}-${l.flavor}`)).length;
+    if (out) tags.push('soldOut');
+    if (first.old && !c.occ.some(o => !o.old)) tags.push('oldSite');
+    if (first.agent) tags.push('agent');
+    if (first.mode === 'delivery' || first.mode === 'postal') tags.push('delivery');
+    if (first.coupon || (fl.length && fl.every(l => l.pid === 2))) tags.push('deal');
+    if (!c.member) tags.push('guest');
+    if (first.units === 1) tags.push('trial');
+    if (first.units && first.paid / first.units >= P.highPrice) tags.push('price');
+  }
+  if (!tags.length) tags.push('unknown');
+  return tags.sort((a, b) => RT_REASONS[b].w - RT_REASONS[a].w);
+}
+
+// orders: rows of the orders table; members: [{ id, name, phone, email, created }]; opts: { now, params, soldOut }
+function rtAnalyze(orders, members = [], opts = {}) {
+  const P = { ...RT_DEFAULTS, ...(opts.params || {}), puffs: { ...RT_DEFAULTS.puffs, ...(opts.params?.puffs || {}) } };
+  const now = opts.now ?? Date.now();
+  const soldOut = new Set(opts.soldOut || []);
+  const infos = (orders || []).filter(o => o && o.payment_status !== 'stripe_pending').map(o => rtOrder(o, P)).filter(o => Number.isFinite(o.at));
+  const customers = rtGroups(infos, (members || []).filter(m => m && m.id)).map(({ root, orders: list, memberRow }) => {
+    list.sort((a, b) => a.at - b.at);
+    const buys = list.filter(o => o.buy);
+    // purchase occasions: orders within mergeHours of the previous one are folded into it
+    const occ = [];
+    for (const o of buys) {
+      const last = occ[occ.length - 1];
+      if (last && o.at - last.lastAt <= P.mergeHours * 36e5) {
+        last.orders.push(o); last.lastAt = o.at; last.units += o.units; last.puffs += o.puffs; last.paid += o.amount - o.ship;
+        last.lines.push(...o.lines); last.leak ||= o.leak; last.coupon ||= o.coupon; last.agent ||= o.agent;
+        if (o.mode !== 'pickup') last.mode = o.mode;
+      } else occ.push({ at: o.at, lastAt: o.at, orders: [o], units: o.units, puffs: o.puffs, paid: o.amount - o.ship, lines: [...o.lines], leak: o.leak, coupon: o.coupon, agent: o.agent, mode: o.mode, old: o.old });
+    }
+    const latest = list[list.length - 1];
+    const memberId = memberRow?.id || [...list].reverse().find(o => o.member)?.member || null;
+    const byLine = {}, byFlavor = {};
+    buys.forEach(o => o.lines.forEach(l => { if (l.free) return; byLine[l.pid] = (byLine[l.pid] || 0) + l.qty; const k = `${l.pid}-${l.flavor}`; byFlavor[k] = (byFlavor[k] || 0) + l.qty; }));
+    const gaps = occ.slice(1).map((o, i) => (o.at - occ[i].at) / RT_DAY);
+    const rates = occ.slice(0, -1).map((o, i) => o.puffs / Math.max(gaps[i], 1)).filter(r => r > 0);
+    const phone = [...list].reverse().find(o => o.phone)?.phone || rtPhone(memberRow?.phone);
+    return {
+      // stable across loads (the group root depends on row order), so notes typed in the page stay attached
+      key: memberId ? 'm:' + memberId : phone ? 'p:' + phone : root, name: memberRow?.name || latest.name, phone,
+      phoneText: latest.phoneText, member: !!memberId, memberId,
+      orders: list, occ, nBuys: occ.length, nOrders: buys.length,
+      units: buys.reduce((s, o) => s + o.units, 0), puffs: buys.reduce((s, o) => s + o.puffs, 0),
+      spent: buys.reduce((s, o) => s + o.amount, 0), giftOrders: list.filter(o => o.giftOnly).length,
+      gifts: list.filter(o => o.valid).reduce((s, o) => s + o.gifts, 0),
+      cancelled: list.filter(o => o.status === 'cancelled').length,
+      stuck: list.filter(o => o.status === 'pending' && now - o.at > 2 * RT_DAY).length,
+      firstAt: occ[0]?.at ?? null, lastAt: occ[occ.length - 1]?.at ?? null,
+      byLine, byFlavor, gaps, medianGap: rtMedian(gaps), personalRate: rtMedian(rates),
+      oldOnly: !!occ.length && occ.every(o => o.old),
+    };
+  });
+
+  const repeaters = customers.filter(c => c.nBuys >= 2);
+  const measured = rtMedian(repeaters.map(c => c.personalRate).filter(Boolean));
+  const shopRate = repeaters.length >= P.minRepeaters && measured ? measured : P.rate;
+  for (const c of customers) {
+    if (!c.nBuys) { c.status = 'never'; c.reasons = rtReasons(c, soldOut, P); continue; }
+    const last = c.occ[c.occ.length - 1];
+    c.rate = c.personalRate || shopRate;
+    c.rateFrom = c.personalRate ? 'own' : 'shop';
+    c.expectDays = last.puffs ? last.puffs / c.rate : (c.medianGap || 30);
+    c.runOutAt = c.lastAt + c.expectDays * RT_DAY;
+    c.since = (now - c.lastAt) / RT_DAY;
+    c.dueIn = (c.runOutAt - now) / RT_DAY;
+    const r = c.since / c.expectDays;
+    c.status = r > 2 || (r > 1 && c.since > P.lostDays) ? 'lost' : r > 1 ? 'overdue' : c.dueIn <= P.nearDays ? 'near' : 'ok';
+    if (c.nBuys === 1) c.reasons = rtReasons(c, soldOut, P);
+  }
+  customers.sort((a, b) => (b.lastAt ?? 0) - (a.lastAt ?? 0));
+
+  const buyers = customers.filter(c => c.nBuys >= 1);
+  const rate = list => (list.length ? list.filter(c => c.nBuys >= 2).length / list.length : null);
+  // customers who had a fair chance to come back: repeaters, plus one-time buyers who should have run out by now
+  const settled = buyers.filter(c => c.nBuys >= 2 || c.status === 'overdue' || c.status === 'lost');
+  const windows = [30, 60, 90].map(w => {
+    const el = buyers.filter(c => c.firstAt <= now - w * RT_DAY);
+    const hit = el.filter(c => c.occ[1] && c.occ[1].at - c.firstAt <= w * RT_DAY).length;
+    return { days: w, eligible: el.length, repeated: hit, rate: el.length ? hit / el.length : null };
+  });
+  const BUCKETS = [[0, 7, '1 周内'], [7, 14, '1–2 周'], [14, 21, '2–3 周'], [21, 30, '3 周–1 月'], [30, 45, '1–1.5 月'], [45, 60, '1.5–2 月'], [60, 90, '2–3 月'], [90, Infinity, '3 个月以上']];
+  const firstGaps = repeaters.map(c => c.gaps[0]);
+  const gapBuckets = BUCKETS.map(([a, b, t]) => ({ label: t, n: firstGaps.filter(g => g >= a && g < b).length }));
+  const months = new Map();
+  for (const c of buyers) {
+    const d = new Date(c.firstAt), k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const m = months.get(k) || { month: k, n: 0, repeated: 0 };
+    m.n++; if (c.nBuys >= 2) m.repeated++;
+    months.set(k, m);
+  }
+  const cohorts = [...months.values()].sort((a, b) => a.month.localeCompare(b.month)).map(m => ({ ...m, rate: m.repeated / m.n }));
+  const lineGaps = {};
+  for (const c of repeaters) c.occ.slice(0, -1).forEach((o, i) => new Set(o.lines.filter(l => !l.free).map(l => l.pid)).forEach(pid => (lineGaps[pid] ||= []).push(c.gaps[i])));
+  const lines = Object.entries(lineGaps).map(([pid, g]) => ({ pid: +pid, pairs: g.length, median: rtMedian(g) })).sort((a, b) => a.median - b.median);
+  const firstTraits = {
+    member: c => c.member, guest: c => !c.member, leak: c => c.occ[0].leak, delivery: c => c.occ[0].mode !== 'pickup',
+    deal: c => !!c.occ[0].coupon || c.occ[0].lines.every(l => l.free || l.pid === 2), trial: c => c.occ[0].units === 1,
+    agent: c => !!c.occ[0].agent, oldSite: c => c.occ[0].old,
+  };
+  const traits = Object.entries(firstTraits).map(([k, f]) => {
+    const yes = settled.filter(f), no = settled.filter(c => !f(c));
+    return { key: k, n: yes.length, rate: rate(yes), others: no.length, othersRate: rate(no) };
+  }).filter(t => t.n > 0);
+
+  const once = buyers.filter(c => c.nBuys === 1);
+  const notDue = once.filter(c => c.status === 'ok' || c.status === 'near');
+  const due = once.filter(c => c.status === 'overdue' || c.status === 'lost');
+  const never = customers.filter(c => !c.nBuys);
+  const reasonCount = {}, primaryCount = {};
+  for (const c of due) {
+    primaryCount[c.reasons[0]] = primaryCount[c.reasons[0]] || { n: 0, spent: 0 };
+    primaryCount[c.reasons[0]].n++; primaryCount[c.reasons[0]].spent += c.spent;
+    for (const t of c.reasons) { reasonCount[t] = reasonCount[t] || { n: 0, spent: 0 }; reasonCount[t].n++; reasonCount[t].spent += c.spent; }
+  }
+  const segment = list => ({ n: list.length, repeated: list.filter(c => c.nBuys >= 2).length, rate: rate(list) });
+  return {
+    now, params: P, shopRate, shopRateFrom: shopRate === P.rate ? 'default' : 'measured', customers,
+    metrics: {
+      customers: customers.length, buyers: buyers.length, repeaters: repeaters.length, repeatRate: rate(buyers),
+      settledRate: rate(settled), settled: settled.length,
+      medianGap: rtMedian(repeaters.flatMap(c => c.gaps)), medianFirstGap: rtMedian(firstGaps),
+      unitsPerBuyer: buyers.length ? buyers.reduce((s, c) => s + c.units, 0) / buyers.length : 0,
+      spentPerBuyer: buyers.length ? buyers.reduce((s, c) => s + c.spent, 0) / buyers.length : 0,
+      segments: { member: segment(buyers.filter(c => c.member)), guest: segment(buyers.filter(c => !c.member)), oldSite: segment(buyers.filter(c => c.oldOnly)), newSite: segment(buyers.filter(c => !c.oldOnly)) },
+      windows, gapBuckets, cohorts, lines, traits,
+      status: Object.fromEntries(Object.keys(RT_STATUS).map(k => [k, customers.filter(c => c.status === k).length])),
+    },
+    lists: {
+      near: buyers.filter(c => c.status === 'near' || c.status === 'overdue').sort((a, b) => a.runOutAt - b.runOutAt),
+      notDue: notDue.sort((a, b) => a.runOutAt - b.runOutAt), due: due.sort((a, b) => b.spent - a.spent), never,
+    },
+    reasons: { primary: primaryCount, all: reasonCount },
+  };
+}
+
+if (typeof module !== 'undefined') module.exports = { rtAnalyze, rtPhone, rtMedian, rtLine, RT_DEFAULTS, RT_REASONS, RT_STATUS, RT_MANUAL, RT_DAY };
+/*RETENTION-END*/
+
+// ---------- repeat purchases ----------
+// Read-only analysis of the orders already loaded above (rtAnalyze, from site/src/retention.js — build.sh puts it
+// in this page). The only thing written is a follow-up per customer (reason / note / last contacted) through
+// /api/admin/followup. Until the customer_followups migration has run, the page works and saving is switched off.
+const Repeat = (() => {
+  const DEF = { ...RT_DEFAULTS, puffs: { ...RT_DEFAULTS.puffs, ...Object.fromEntries(PRODUCTS_DEF.filter(p => p.puffs).map(p => [p.id, p.puffs])) } };
+  const store = { get: (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private mode */ } } };
+  const loadParams = () => { const s = store.get('vs-repeat-params', {}); return { ...DEF, ...s, puffs: { ...DEF.puffs, ...(s.puffs || {}) } }; };
+  let params = loadParams(), result = null, sig = '', sub = 'overview', custFilter = 'all', onceTab = 'due';
+  let F = new Map(), ready = null, setupMsg = '', soldOut = null;
+  const byPid = new Map(PRODUCTS_DEF.map(p => [p.id, p]));
+  const lineName = pid => (byPid.get(pid) ? shortName(byPid.get(pid)) : `款式 ${pid}`);
+  const flavorName = (pid, fl) => `${lineName(pid)} · ${byPid.get(pid)?.flavors.find(x => x.name === fl)?.nameCn || fl}`;
+  const pct = r => (r == null ? '—' : Math.round(r * 100) + '%');
+  const days = d => (d == null ? '—' : d < 1 ? '不到 1 天' : Math.round(d) + ' 天');
+  const date = ms => { if (ms == null) return '—'; const d = new Date(ms); return `${d.getFullYear() !== new Date().getFullYear() ? d.getFullYear() + '年' : ''}${d.getMonth() + 1}月${d.getDate()}日`; };
+  const isoDate = ms => { if (ms == null || !Number.isFinite(ms)) return ''; const d = new Date(ms); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+  const phone = d => (d ? fmtPhone(d) : '');
+  const fu = c => F.get(c.key) || (c.phone && F.get('p:' + c.phone)) || null;
+  const topLine = c => { const e = Object.entries(c.byLine).sort((a, b) => b[1] - a[1])[0]; return e ? lineName(+e[0]) : '—'; };
+  const stPill = c => `<span class="rp-st ${c.status}">${RT_STATUS[c.status]}</span>`;
+  const memPill = c => (c.member ? '<span class="vip">会员</span>' : '<span class="badge">游客</span>');
+
+  // ---------- data ----------
+  async function loadFollowups() {
+    try {
+      const res = await call(`/api/admin/followups?password=${encodeURIComponent(pass)}`);
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || res.status);
+      ready = !!d.ready; setupMsg = d.error || '';
+      F = new Map((d.followups || []).map(f => [f.key, f]));
+    } catch (e) {
+      if (e.auth) return;
+      ready = false; setupMsg = '读不到跟进记录：' + e.message;
+    }
+  }
+  async function loadStock() {
+    try { const r = await fetch('/api/stock'); soldOut = r.ok ? (await r.json()).out || [] : []; } catch (e) { soldOut = []; }
+  }
+  function compute() {
+    result = rtAnalyze(orders, members || [], { params, soldOut: soldOut || [] });
+    sig = signature();
+    $('rpNearN').textContent = result.lists.near.length || '';
+    $('rpOnceN').textContent = result.lists.due.length || '';
+  }
+  const signature = () => `${orders.length}|${orders.map(o => o.id + o.payment_status).join()}|${members?.length ?? '-'}|${soldOut?.length ?? '-'}`;
+  async function open() {
+    if (!members) loadMembers(true);
+    await Promise.all([ready === null ? loadFollowups() : null, soldOut === null ? loadStock() : null]);
+    compute(); render();
+  }
+  // called after orders / members reload: skip when nothing changed, and never while something is being typed
+  function refresh() {
+    if (tab !== 'repeat' || !result || signature() === sig) return;
+    const a = document.activeElement;
+    if ((a && a.closest?.('#section-repeat') && a.matches('input,select,textarea')) || !$('rpDrawer').hidden) return;
+    compute(); render();
+  }
+  function reset() { result = null; sig = ''; F = new Map(); ready = null; soldOut = null; $('rpDrawer').hidden = true; }
+
+  // ---------- Google Charts (plain bars when it can't load) ----------
+  let gReady = null;
+  function charts() {
+    if (gReady) return gReady;
+    gReady = new Promise(ok => {
+      const t = setTimeout(() => ok(false), 9000), done = v => { clearTimeout(t); ok(v); };
+      const s = document.createElement('script');
+      s.src = 'https://www.gstatic.com/charts/loader.js';
+      s.onerror = () => done(false);
+      s.onload = () => { try { google.charts.load('current', { packages: ['corechart'], language: 'zh-CN' }); google.charts.setOnLoadCallback(() => done(true)); } catch (e) { done(false); } };
+      document.head.appendChild(s);
+    });
+    return gReady;
+  }
+  const BASE = { backgroundColor: 'transparent', fontName: 'Nunito', legend: { position: 'none' }, chartArea: { left: 48, right: 16, top: 16, bottom: 48 },
+    colors: ['#52675B', '#9A4329', '#C9A93A', '#343B2C', '#8FA27A', '#B4532F', '#7C6F57', '#AAA38F', '#C9D96A', '#5d4a10', '#3F6B4A', '#625F53'],
+    hAxis: { textStyle: { color: '#625F53', fontSize: 12 } }, vAxis: { textStyle: { color: '#625F53', fontSize: 12 }, gridlines: { color: '#E3DCCB' }, minValue: 0 } };
+  async function draw(id, type, table, opts = {}) {
+    const ok = await charts();
+    const el = $(id); if (!el) return;
+    if (ok && window.google?.visualization?.[type]) {
+      el.dataset.engine = 'google';
+      new google.visualization[type](el).draw(google.visualization.arrayToDataTable(table), { ...BASE, ...opts, hAxis: { ...BASE.hAxis, ...opts.hAxis }, vAxis: { ...BASE.vAxis, ...opts.vAxis } });
+      return;
+    }
+    el.dataset.engine = 'fallback';
+    const rows = table.slice(1), max = Math.max(1, ...rows.map(r => +r[1] || 0));
+    el.style.height = 'auto';
+    el.innerHTML = `<div class="rp-fallback">${rows.map(r => `<div><span>${esc(r[0])}</span><i style="width:${Math.round((+r[1] || 0) / max * 100)}%"></i><b class="num">${esc(typeof r[1] === 'number' && r[1] > 0 && r[1] < 1 ? pct(r[1]) : r[1])}</b></div>`).join('')}</div>`;
+  }
+
+  // ---------- frame ----------
+  $('rpTabs').addEventListener('click', e => { const b = e.target.closest('[data-rp]'); if (b) { sub = b.dataset.rp; render(); } });
+  function render() {
+    if (!result) return;
+    $('rpTabs').querySelectorAll('[data-rp]').forEach(b => b.classList.toggle('active', b.dataset.rp === sub));
+    document.querySelectorAll('[data-rpsec]').forEach(s => { s.hidden = s.dataset.rpsec !== sub; });
+    $('rpSetup').hidden = ready !== false;
+    $('rpSetup').textContent = `${setupMsg || '跟进记录表还没建'}。分析照常能看，「真实原因 / 备注 / 已联系」要等表建好才能保存。`;
+    ({ overview: overview, customers: customers, near: near, once: once, reasons: reasons, params: paramsView })[sub]();
+  }
+  let rz;
+  addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (tab === 'repeat' && (sub === 'overview' || sub === 'reasons')) render(); }, 250); });
+
+  // ---------- overview ----------
+  function overview() {
+    const m = result.metrics, S = m.segments;
+    $('rpOverview').innerHTML = `
+      <div class="today">
+        <div class="tile"><b class="num">${pct(m.repeatRate)}</b><span>复购率 · ${m.repeaters} / ${m.buyers} 位顾客买过 2 次以上</span></div>
+        <div class="tile"><b class="num">${days(m.medianGap)}</b><span>复购周期（中位）· 首单到第二单 ${days(m.medianFirstGap)}</span></div>
+        <div class="tile"><b class="num">${m.unitsPerBuyer.toFixed(1)} 支</b><span>每位顾客平均买了 · 花了 ${euro(m.spentPerBuyer)}</span></div>
+        <div class="tile"><b class="num">${Math.round(result.shopRate)} 口/天</b><span>全店抽完速度 · ${result.shopRateFrom === 'measured' ? '按复购顾客的记录算' : '复购顾客还少，先用参数里的默认值'}</span></div>
+        <div class="tile"><b class="num">${pct(m.settledRate)}</b><span>该抽完的 ${m.settled} 人里回来的比例</span></div>
+        <button class="tile hot" type="button" data-jump-rp="near"><b class="num">${result.lists.near.length}</b><span>快抽完 / 刚过时间，可以提醒</span></button>
+        <button class="tile hot" type="button" data-jump-rp="once"><b class="num">${result.lists.due.length}</b><span>下过 1 单、该回没回</span></button>
+        <div class="tile"><b class="num">${result.lists.notDue.length}</b><span>下过 1 单、还没到时间</span></div>
+      </div>
+      <div class="rp-grid">
+        <div class="card"><h3>首单到第二单隔了多久 <small>复购顾客 ${m.repeaters} 位</small></h3><div class="rp-chart" id="rpChGap"></div></div>
+        <div class="card"><h3>多少天内会回来 <small>只算首单已过这么多天的顾客</small></h3><div class="rp-chart" id="rpChWin"></div>
+          <p class="rp-foot">${m.windows.map(w => `${w.days} 天内 ${w.repeated}/${w.eligible}`).join(' · ')}</p></div>
+        <div class="card"><h3>顾客状态 <small>按预计抽完时间</small></h3><div class="rp-chart" id="rpChStatus"></div></div>
+        <div class="card"><h3>谁更容易回来 <small>复购率</small></h3><div class="rp-chart" id="rpChSeg"></div>
+          <p class="rp-foot">会员 ${S.member.repeated}/${S.member.n} · 游客 ${S.guest.repeated}/${S.guest.n} · 老网站 ${S.oldSite.repeated}/${S.oldSite.n} · 新网站 ${S.newSite.repeated}/${S.newSite.n}</p></div>
+        <div class="card wide" style="grid-column:1/-1"><h3>每月新顾客和他们的复购率 <small>按首单月份；最近的月份还没到复购时间，偏低正常</small></h3><div class="rp-chart tall" id="rpChCohort"></div></div>
+        <div class="card" style="grid-column:1/-1"><h3>各款的复购周期 <small>买了这一款之后隔多久再下单</small></h3><div class="rp-scroll">
+          <table class="plain"><thead><tr><th>款式</th><th class="r">每支口数</th><th class="r">按全店速度 1 支约抽</th><th class="r">实际复购间隔（中位）</th><th class="r">样本</th></tr></thead>
+          <tbody>${m.lines.map(l => `<tr><td><b>${esc(lineName(l.pid))}</b></td><td class="r num">${params.puffs[l.pid] || '—'}</td><td class="r num">${days((params.puffs[l.pid] || 0) / result.shopRate)}</td><td class="r num">${days(l.median)}</td><td class="r num">${l.pairs} 次</td></tr>`).join('') || '<tr><td colspan="5">还没有复购记录</td></tr>'}</tbody></table></div></div>
+      </div>`;
+    draw('rpChGap', 'ColumnChart', [['间隔', '人数'], ...m.gapBuckets.map(b => [b.label, b.n])]);
+    draw('rpChWin', 'ColumnChart', [['窗口', '复购率'], ...m.windows.map(w => [`${w.days} 天内`, w.rate ?? 0])], { vAxis: { format: 'percent', maxValue: 1 } });
+    draw('rpChStatus', 'PieChart', [['状态', '人数'], ...Object.entries(m.status).filter(([, v]) => v).map(([k, v]) => [RT_STATUS[k], v])], { legend: { position: 'right' }, chartArea: { left: 10, right: 10, top: 10, bottom: 10 }, pieHole: 0.45, colors: ['#52675B', '#C9A93A', '#9A4329', '#5a3a2e', '#AAA38F'] });
+    draw('rpChSeg', 'BarChart', [['分组', '复购率'], ['会员', S.member.rate ?? 0], ['游客', S.guest.rate ?? 0], ['老网站', S.oldSite.rate ?? 0], ['新网站', S.newSite.rate ?? 0]], { hAxis: { format: 'percent', maxValue: 1, minValue: 0 }, chartArea: { left: 70, right: 20, top: 10, bottom: 40 } });
+    draw('rpChCohort', 'ComboChart', [['月份', '新顾客', '复购率'], ...m.cohorts.map(c => [c.month, c.n, c.rate])], {
+      seriesType: 'bars', series: { 1: { type: 'line', targetAxisIndex: 1, pointSize: 6 } }, legend: { position: 'top' },
+      vAxes: { 0: { title: '新顾客', minValue: 0 }, 1: { title: '复购率', format: 'percent', minValue: 0, maxValue: 1 } }, chartArea: { left: 56, right: 60, top: 40, bottom: 40 } });
+  }
+  $('rpOverview').addEventListener('click', e => { const b = e.target.closest('[data-jump-rp]'); if (b) { sub = b.dataset.jumpRp; if (sub === 'once') onceTab = 'due'; render(); } });
+
+  // ---------- customers ----------
+  function rows() {
+    const q = $('rpQ').value.trim().toLowerCase(), qd = q.replace(/\D/g, '');
+    const key = { last: c => -(c.lastAt ?? 0), spent: c => -c.spent, units: c => -c.units, buys: c => -c.nBuys, due: c => c.runOutAt ?? Infinity }[$('rpSort').value];
+    return result.customers.filter(c => (custFilter === 'all' || c.status === custFilter) && (!q || c.name.toLowerCase().includes(q) || (qd.length >= 3 && (c.phone || '').includes(qd)))).sort((a, b) => key(a) - key(b));
+  }
+  $('rpQ').addEventListener('input', () => customers());
+  $('rpSort').addEventListener('change', () => customers());
+  $('rpStatus').addEventListener('click', e => { const b = e.target.closest('[data-st]'); if (b) { custFilter = b.dataset.st; customers(); } });
+  function customers() {
+    const st = result.metrics.status;
+    $('rpStatus').innerHTML = [['all', '全部', result.customers.length], ...Object.keys(RT_STATUS).map(k => [k, RT_STATUS[k], st[k]])].map(([k, t, n]) => `<button type="button" class="chip${custFilter === k ? ' active' : ''}" data-st="${k}">${t} <span class="chip-count">${n}</span></button>`).join('');
+    const list = rows();
+    $('rpTable').innerHTML = `<thead><tr><th>顾客</th><th class="r">下单</th><th class="r">支数</th><th class="r">金额</th><th>常买</th><th class="r">复购周期</th><th class="r">每天约</th><th>上次 → 预计抽完</th><th>状态</th></tr></thead>
+      <tbody>${list.map(c => `<tr data-key="${esc(c.key)}"><td><b>${esc(c.name)}</b> ${memPill(c)}<br><small class="num">${esc(phone(c.phone))}</small></td>
+        <td class="r num">${c.nBuys}</td><td class="r num">${c.units}</td><td class="r num">${euro(c.spent)}</td><td>${esc(topLine(c))}</td>
+        <td class="r num">${c.medianGap ? days(c.medianGap) : '—'}</td><td class="r num">${c.rate ? Math.round(c.rate) + ' 口' + (c.rateFrom === 'shop' ? '*' : '') : '—'}</td>
+        <td class="num">${date(c.lastAt)} → ${date(c.runOutAt)}</td><td>${stPill(c)}</td></tr>`).join('') || '<tr><td colspan="9">没有符合的顾客</td></tr>'}</tbody>`;
+  }
+  $('rpTable').addEventListener('click', e => { const tr = e.target.closest('[data-key]'); if (tr) detail(tr.dataset.key); });
+  $('rpCustCsv').addEventListener('click', () => csv(`顾客复购-${isoDate(Date.now())}.csv`, [
+    ['顾客', '电话', 'WhatsApp', '会员', '状态', '下单次数', '支数', '金额 €', '常买', '复购周期（天）', '每天约抽（口）', '速度来源', '首单', '最近一单', '预计抽完', '距离抽完（天）', '真实原因', '备注', '上次联系'],
+    ...rows().map(c => { const f = fu(c) || {}; return [c.name, csvPhone(c.phone), c.phone ? 'https://wa.me/' + c.phone : '', c.member ? '会员' : '游客', RT_STATUS[c.status], c.nBuys, c.units, c.spent.toFixed(2), topLine(c), c.medianGap ? Math.round(c.medianGap) : '', c.rate ? Math.round(c.rate) : '', c.rateFrom === 'own' ? '他自己的记录' : c.rateFrom ? '全店中位' : '', isoDate(c.firstAt), isoDate(c.lastAt), isoDate(c.runOutAt), c.dueIn == null ? '' : Math.round(c.dueIn), f.reason || '', f.note || '', isoDate(f.contactedAt)]; }),
+  ]));
+
+  // ---------- follow-up controls (shared by the near / once cards and the detail panel) ----------
+  const waUrl = (c, text) => (c.phone ? `https://wa.me/${c.phone}?text=${encodeURIComponent(text)}` : null);
+  function followupBox(c, withReason) {
+    const f = fu(c) || {}, off = ready ? '' : ' disabled title="跟进记录表还没建"';
+    return `${withReason ? `<div class="rp-manual"><select data-fu-reason aria-label="真实原因"${off}><option value="">真实原因（问过之后填）</option>${RT_MANUAL.map(x => `<option${f.reason === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select>
+        <input type="text" data-fu-note maxlength="500" placeholder="备注" value="${esc(f.note || '')}" aria-label="备注"${off}></div>` : ''}
+      <div class="rp-acts">%WA%<button class="btn quiet" type="button" data-fu-contacted${off}>${f.contactedAt ? '再记一次已联系' : '记为已联系'}</button>
+        <button class="btn quiet" type="button" data-open="${esc(c.key)}">看记录</button>${f.contactedAt ? `<span class="rp-contacted">上次联系 ${date(f.contactedAt)}</span>` : ''}</div>`;
+  }
+  async function save(key, patch) {
+    if (!ready) { toast(setupMsg || '跟进记录表还没建'); return; }
+    try {
+      const res = await postJSON('/api/admin/followup', { key, ...patch });
+      const d = await res.json();
+      if (!res.ok) { if (res.status === 503) { ready = false; setupMsg = d.error; render(); } throw new Error(d.error || res.status); }
+      F.set(key, d.followup);
+      toast(patch.contacted ? '已记下：今天联系过' : '已保存');
+      return d.followup;
+    } catch (e) { if (!e.auth) toast('没保存上：' + e.message); }
+  }
+  // the card's customer: data-key on the card; the key saved is the customer's current one
+  const cardKey = el => el.closest('[data-key]')?.dataset.key;
+  document.addEventListener('change', async e => {
+    const k = cardKey(e.target); if (!k || !e.target.closest('#section-repeat, #rpDrawer')) return;
+    if (e.target.matches('[data-fu-reason]')) await save(k, { reason: e.target.value });
+    if (e.target.matches('[data-fu-note]')) await save(k, { note: e.target.value.trim().slice(0, 500) });
+  });
+  document.addEventListener('click', async e => {
+    const o = e.target.closest('#section-repeat [data-open], #rpDrawer [data-open]');
+    if (o) return detail(o.dataset.open);
+    const b = e.target.closest('#section-repeat [data-fu-contacted], #rpDrawer [data-fu-contacted]');
+    if (b) { b.disabled = true; const f = await save(cardKey(b), { contacted: 'now' }); b.disabled = false; if (f) { if (!$('rpDrawer').hidden) detail(cardKey(b)); render(); } }
+  });
+
+  // ---------- near ----------
+  function near() {
+    $('rpNear').innerHTML = result.lists.near.map(c => {
+      const last = c.occ[c.occ.length - 1], wa = waUrl(c, `${c.name}你好～上次在我们这买的${topLine(c)}应该快抽完了，需要的话我先帮你留货 😊`);
+      return `<div class="rp-person${c.status === 'overdue' ? ' hot' : ''}" data-key="${esc(c.key)}"><header><b>${esc(c.name)}</b>${memPill(c)}${stPill(c)}</header>
+        <div class="rp-meta num">${esc(phone(c.phone))} · 下过 ${c.nBuys} 单 · ${c.units} 支 · ${euro(c.spent)}</div>
+        <div class="rp-what">上次 ${date(c.lastAt)} 买了 ${last.units} 支 ${esc(topLine(c))}，预计 <b>${date(c.runOutAt)}</b> 抽完（${c.dueIn >= 0 ? `还有 ${days(c.dueIn)}` : `已经过了 ${days(-c.dueIn)}`}）</div>
+        ${followupBox(c, false).replace('%WA%', wa ? `<a class="btn go-wa" href="${esc(wa)}" target="_blank" rel="noopener">WhatsApp 提醒</a>` : '')}</div>`;
+    }).join('') || '<div class="empty"><b>现在没有快抽完的顾客</b></div>';
+  }
+
+  // ---------- one-time buyers ----------
+  const ONCE = { due: '该回没回', notDue: '还没到时间', never: '没成交过' };
+  $('rpOnceTabs').addEventListener('click', e => { const b = e.target.closest('[data-once]'); if (b) { onceTab = b.dataset.once; once(); } });
+  const firstWhat = c => {
+    const src = c.occ[0] ? c.occ[0].lines : c.orders.flatMap(x => x.lines), f = {};
+    src.filter(l => !l.free).forEach(l => { const k = `${l.pid}\u0000${l.flavor}`; f[k] = (f[k] || 0) + l.qty; });
+    return Object.entries(f).map(([k, q]) => { const [pid, fl] = k.split('\u0000'); return `${flavorName(+pid, fl)} ×${q}`; }).join('，');
+  };
+  function once() {
+    const L = result.lists;
+    $('rpOnceTabs').innerHTML = Object.entries(ONCE).map(([k, t]) => `<button type="button" class="chip${onceTab === k ? ' active' : ''}" data-once="${k}">${t} <span class="chip-count">${L[k].length}</span></button>`).join('');
+    $('rpOnce').innerHTML = L[onceTab].map(c => {
+      const first = c.occ[0], r = c.reasons || ['unknown'];
+      const wa = waUrl(c, `${c.name}你好～之前在我们这买过${topLine(c)}，最近怎么样？有什么不满意的地方可以跟我说，下次帮你安排 😊`);
+      return `<div class="rp-person${onceTab === 'due' ? ' hot' : ''}" data-key="${esc(c.key)}"><header><b>${esc(c.name)}</b>${memPill(c)}${stPill(c)}</header>
+        <div class="rp-meta num">${esc(phone(c.phone))}${first ? ` · 首单 ${date(first.at)} · ${MODE[first.mode] || esc(first.mode)} · ${euro(c.spent)}` : ` · ${c.orders.length} 张订单都没成交（${c.cancelled} 取消，${c.orders.filter(o => o.status === 'pending').length} 待确认）`}</div>
+        <div class="rp-what">${esc(firstWhat(c)) || '—'}</div>
+        ${first ? `<div class="rp-meta">已经 ${days(c.since)} 没下单，预计 ${date(c.runOutAt)} 抽完${c.dueIn < 0 ? `（过了 ${days(-c.dueIn)}）` : `（还有 ${days(c.dueIn)}）`}</div>` : ''}
+        <div>${r.map((k, i) => `<span class="rp-tag${i === 0 ? ' main' : ''}">${esc(RT_REASONS[k].t)}</span>`).join('')}</div>
+        <div class="rp-hint">建议：${esc(RT_REASONS[r[0]].hint)}</div>
+        ${followupBox(c, true).replace('%WA%', wa ? `<a class="btn go-wa" href="${esc(wa)}" target="_blank" rel="noopener">WhatsApp 问一下</a>` : '')}</div>`;
+    }).join('') || '<div class="empty"><b>这一类没有顾客</b></div>';
+  }
+  $('rpOnceCsv').addEventListener('click', () => csv(`未复购-${ONCE[onceTab]}-${isoDate(Date.now())}.csv`, [
+    ['顾客', '电话', 'WhatsApp', '会员', '首单日期', '首单买了', '金额 €', '取货方式', '距今（天）', '预计抽完', '主要原因', '其他迹象', '建议', '真实原因', '备注', '上次联系'],
+    ...result.lists[onceTab].map(c => { const r = c.reasons || ['unknown'], f = fu(c) || {}; return [c.name, csvPhone(c.phone), c.phone ? 'https://wa.me/' + c.phone : '', c.member ? '会员' : '游客', isoDate(c.occ[0]?.at ?? c.orders[0]?.at), firstWhat(c), c.spent.toFixed(2), MODE[c.occ[0]?.mode] || '', c.since == null ? '' : Math.round(c.since), isoDate(c.runOutAt), RT_REASONS[r[0]].t, r.slice(1).map(k => RT_REASONS[k].t).join('；'), RT_REASONS[r[0]].hint, f.reason || '', f.note || '', isoDate(f.contactedAt)]; }),
+  ]));
+
+  // ---------- reasons ----------
+  const TRAIT = { member: '会员', guest: '游客下单', leak: '首单含清仓 IceMax', delivery: '首单外送 / 邮寄', deal: '首单用优惠码 / 只买清仓', trial: '首单只买 1 支', agent: '代理带来', oldSite: '老网站下单' };
+  function reasons() {
+    const R = result.reasons, due = result.lists.due;
+    const prim = Object.entries(R.primary).sort((a, b) => b[1].n - a[1].n), all = Object.entries(R.all).sort((a, b) => b[1].n - a[1].n);
+    const manual = {};
+    result.customers.forEach(c => { const r = fu(c)?.reason; if (r) manual[r] = (manual[r] || 0) + 1; });
+    const contacted = result.customers.filter(c => fu(c)?.contactedAt), back = contacted.filter(c => c.lastAt > fu(c).contactedAt).length;
+    $('rpReasons').innerHTML = `
+      <p class="note">下面分析 <b>${due.length}</b> 位「只下过 1 单、按买的量早该抽完却没回来」的顾客。原因是从订单数据推出来的<b>可能原因</b>；问过顾客后在「未复购」的卡片上填真实原因。</p>
+      <div class="rp-grid">
+        <div class="card"><h3>主要原因 <small>每人算最可能的一个</small></h3><div class="rp-chart" id="rpChPrim"></div></div>
+        <div class="card"><h3>所有迹象 <small>一个人可以有多个</small></h3><div class="rp-chart" id="rpChAll"></div></div>
+        <div class="card" style="grid-column:1/-1"><h3>原因明细</h3><div class="rp-scroll"><table class="plain"><thead><tr><th>原因</th><th class="r">主要原因</th><th class="r">有这个迹象</th><th class="r">这些人花过</th><th>建议</th></tr></thead>
+          <tbody>${all.map(([k, v]) => `<tr><td><b>${esc(RT_REASONS[k].t)}</b></td><td class="r num">${R.primary[k]?.n || 0} 人</td><td class="r num">${v.n} 人</td><td class="r num">${euro(v.spent)}</td><td>${esc(RT_REASONS[k].hint)}</td></tr>`).join('') || '<tr><td colspan="5">没有该回没回的顾客</td></tr>'}</tbody></table></div></div>
+        <div class="card" style="grid-column:1/-1"><h3>首单特征和复购率 <small>只算已经到了该复购时间的 ${result.metrics.settled} 位；差得越多，越可能是原因</small></h3><div class="rp-scroll"><table class="plain"><thead><tr><th>首单特征</th><th class="r">人数</th><th class="r">他们的复购率</th><th class="r">其他人</th><th class="r">差</th></tr></thead>
+          <tbody>${result.metrics.traits.map(t => { const d = t.rate != null && t.othersRate != null ? Math.round((t.rate - t.othersRate) * 100) : null; return `<tr><td><b>${esc(TRAIT[t.key] || t.key)}</b></td><td class="r num">${t.n}</td><td class="r num">${pct(t.rate)}</td><td class="r num">${pct(t.othersRate)}</td><td class="r num" style="font-weight:900;color:${d < 0 ? 'var(--stamp)' : 'var(--ok)'}">${d == null ? '—' : (d > 0 ? '+' : '') + d + '%'}</td></tr>`; }).join('')}</tbody></table></div></div>
+        <div class="card" style="grid-column:1/-1"><h3>问过之后的真实原因 <small>${contacted.length} 位联系过，其中 ${back} 位之后又下了单</small></h3>${Object.keys(manual).length ? '<div class="rp-chart" id="rpChManual"></div>' : `<p class="note" style="margin:0">${ready === false ? '跟进记录表建好后，这里会汇总在「未复购」里填的真实原因。' : '还没有填。联系顾客后在「未复购」的卡片上选「真实原因」，这里会汇总。'}</p>`}</div>
+      </div>`;
+    draw('rpChPrim', 'PieChart', [['原因', '人数'], ...prim.map(([k, v]) => [RT_REASONS[k].t, v.n])], { legend: { position: 'right', textStyle: { fontSize: 12 } }, chartArea: { left: 10, right: 10, top: 10, bottom: 10 }, pieHole: 0.4 });
+    draw('rpChAll', 'BarChart', [['迹象', '人数'], ...all.map(([k, v]) => [RT_REASONS[k].t, v.n])], { chartArea: { left: 190, right: 20, top: 10, bottom: 30 }, vAxis: { textStyle: { fontSize: 11 } } });
+    if (Object.keys(manual).length) {
+      $('rpChManual').style.height = 70 + Object.keys(manual).length * 34 + 'px';
+      draw('rpChManual', 'BarChart', [['原因', '人数'], ...Object.entries(manual).sort((a, b) => b[1] - a[1])], { chartArea: { left: 140, right: 20, top: 10, bottom: 30 }, hAxis: { format: '0', viewWindow: { min: 0, max: Math.max(4, ...Object.values(manual)) } } });
+    }
+  }
+
+  // ---------- params (this browser only) ----------
+  function paramsView() {
+    const P = params;
+    $('rpParams').innerHTML = `<div class="rp-params">
+      <div class="card"><h3>每支大约能抽多少口 <small>默认来自 products.json 的 puffs</small></h3>
+        ${PRODUCTS_DEF.map(p => `<label>${esc(shortName(p))}<input type="number" min="100" step="100" data-puffs="${p.id}" value="${P.puffs[p.id] || ''}"></label>`).join('')}</div>
+      <div class="card"><h3>判断规则 <small>只存在这个浏览器</small></h3>
+        <label><span>默认抽完速度（口 / 天）<small>复购顾客少于 ${P.minRepeaters} 位时用，否则按实际记录（现在 <span id="rpCurRate">${Math.round(result.shopRate)}</span>）</small></span><input type="number" min="20" step="10" data-p="rate" value="${P.rate}"></label>
+        <label><span>「快抽完」提前几天</span><input type="number" min="0" step="1" data-p="nearDays" value="${P.nearDays}"></label>
+        <label><span>多少天没下单算「疑似流失」<small>已经过了预计时间、又这么久没下单</small></span><input type="number" min="7" step="1" data-p="lostDays" value="${P.lostDays}"></label>
+        <label><span>几小时内的订单算同一次购买</span><input type="number" min="0" step="1" data-p="mergeHours" value="${P.mergeHours}"></label>
+        <label><span>首单平均每支多少欧算「单价高」</span><input type="number" min="0" step="1" data-p="highPrice" value="${P.highPrice}"></label>
+        <div class="tools" style="margin-top:12px"><button class="btn quiet" type="button" id="rpReset">恢复默认</button></div>
+      </div></div>`;
+  }
+  $('rpParams').addEventListener('change', e => {
+    const v = +e.target.value; if (!(v >= 0)) return;
+    if (e.target.dataset.puffs) params.puffs[e.target.dataset.puffs] = v; else if (e.target.dataset.p) params[e.target.dataset.p] = v; else return;
+    store.set('vs-repeat-params', params); compute(); $('rpCurRate').textContent = Math.round(result.shopRate); toast('参数已更新，结果重新算好了');
+  });
+  $('rpParams').addEventListener('click', e => { if (e.target.id === 'rpReset') { params = structuredClone(DEF); localStorage.removeItem('vs-repeat-params'); compute(); paramsView(); toast('已恢复默认参数'); } });
+
+  // ---------- one customer ----------
+  function detail(key) {
+    const c = result.customers.find(x => x.key === key); if (!c) return;
+    const lines = Object.entries(c.byLine).sort((a, b) => b[1] - a[1]).map(([pid, q]) => `${esc(lineName(+pid))} ${q} 支`).join(' · ');
+    let prev = null;
+    const items = c.orders.map(o => {
+      const gap = o.buy && prev ? `<span class="gap">距上一单 ${days((o.at - prev) / RT_DAY)}</span><br>` : '';
+      if (o.buy) prev = o.at;
+      return `<li class="${o.buy ? '' : 'x'}">${gap}<b>${date(o.at)}</b> · ${o.no ? esc(o.no) + ' · ' : ''}${STATUS[o.status] || esc(o.status)}${o.giftOnly ? ' · 只领赠品' : ''} · ${euro(o.amount)}${o.old ? ' · 老网站' : ''}<br>
+        <small>${o.lines.map(l => `${l.free ? '🎁 ' : ''}${esc(flavorName(l.pid, l.flavor))} ×${l.qty}`).join('，')}${o.units ? ` · ${o.puffs} 口` : ''}</small></li>`;
+    }).join('');
+    const last = c.occ[c.occ.length - 1];
+    $('rpPanel').innerHTML = `<button class="x" type="button" data-close aria-label="关闭">×</button>
+      <div data-key="${esc(c.key)}">
+      <h2 style="font-size:21px;font-weight:900">${esc(c.name)}</h2>
+      <div class="tags" style="margin:6px 0 12px">${memPill(c)}${stPill(c)}<span class="rp-meta num">${esc(phone(c.phone))}</span></div>
+      <div class="today"><div class="tile"><b class="num">${c.nBuys}</b><span>次购买</span></div><div class="tile"><b class="num">${c.units}</b><span>支 · ${euro(c.spent)}</span></div><div class="tile"><b class="num">${c.medianGap ? days(c.medianGap) : '—'}</b><span>复购周期</span></div></div>
+      <div class="card" style="display:grid;gap:6px;margin-bottom:12px">
+        <div><b>买了：</b>${lines || '—'}</div>
+        ${c.nBuys ? `<div><b>抽完速度：</b>每天约 ${Math.round(c.rate)} 口（${c.rateFrom === 'own' ? '按他自己几次购买之间的间隔算' : '只买过一次，先用全店中位速度'}）</div>
+        <div><b>上次：</b>${date(c.lastAt)} 买了 ${last.units} 支（${last.puffs} 口）→ 预计 <b>${date(c.runOutAt)}</b> 抽完</div>` : ''}
+        ${c.reasons ? `<div><b>可能原因：</b>${c.reasons.map((k, i) => `<span class="rp-tag${i === 0 ? ' main' : ''}">${esc(RT_REASONS[k].t)}</span>`).join('')}</div>` : ''}
+        ${followupBox(c, true).replace('%WA%', '').replace(/<button class="btn quiet" type="button" data-open="[^"]*">看记录<\/button>/, '')}
+      </div>
+      <h3 style="font-size:15px;font-weight:900">全部订单 <small style="color:var(--muted);font-weight:700">灰色的是取消 / 待确认，不算购买</small></h3>
+      <ul class="rp-timeline">${items}</ul></div>`;
+    $('rpDrawer').hidden = false;
+  }
+  $('rpDrawer').addEventListener('click', e => { if (e.target === $('rpDrawer') || e.target.closest('[data-close]')) { $('rpDrawer').hidden = true; render(); } });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && !$('rpDrawer').hidden) { $('rpDrawer').hidden = true; render(); } });
+
+  // ---------- CSV: UTF-8 with BOM, so Google Sheets (文件 → 导入) keeps the Chinese ----------
+  const csvPhone = d => (d ? (/^34\d{9}$/.test(d) ? `34 ${d.slice(2, 5)} ${d.slice(5, 8)} ${d.slice(8)}` : d) : '');
+  function csv(name, table) {
+    const cell = v => { let s = String(v ?? ''); if (/^[=@]|^[+\-][^\d\s]/.test(s)) s = "'" + s; return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+    const blob = new Blob(['\uFEFF' + table.map(r => r.map(cell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    toast(`已下载 ${name}，可以用 Google Sheets 打开（文件 → 导入）`);
+  }
+
+  return { open, refresh, reset, result: () => result };
+})();
 
 // ---------- toast ----------
 function toast(text) {

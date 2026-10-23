@@ -3,7 +3,7 @@
 # no camera / mic / location, and scripts / connections only from this site and the CDNs the pages use.
 # index.html adds a stricter policy of its own (its one inline script, by hash; see build.sh).
 # admin.html and stats.html still use inline handlers, hence 'unsafe-inline' here.
-# www.gstatic.com: Google Charts for admin-lab.html (the read-only repeat-purchase test page).
+# www.gstatic.com: Google Charts for admin.html's 复购 tab.
 /*
   X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
   Referrer-Policy: no-referrer
@@ -23,6 +23,4 @@
 /images/*
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 /admin.html
-  Cache-Control: no-store
-/admin-lab.html
   Cache-Control: no-store
